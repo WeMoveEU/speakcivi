@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<extension key="eu.wemove.bsd" type="module">
+  <file>bsd</file>
+  <name>BSD compatible api endpoint</name>
+  <description>This allows to a 3rd party to talk to civicrm as if it were a bsd CRM</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>xavier</author>
+    <email>xavier@tttp.eu</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">https://github.com/WeMoveEU/bsd_api</url>
+    <url desc="Documentation">https://github.com/WeMoveEU/bsd_api</url>
+    <url desc="Support">https://github.com/WeMoveEU/bsd_api</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2015-08-08</releaseDate>
+  <version>1.0</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>4.6</ver>
+  </compatibility>
+  <civix>
+    <namespace>CRM/Bsd</namespace>
+  </civix>
+</extension>
