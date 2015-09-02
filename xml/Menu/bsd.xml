@@ -3,7 +3,10 @@
   <item>
     <path>civicrm/bsd</path>
     <page_callback>CRM_Bsd_Page_BSD</page_callback>
-    <title>BSD</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>BSD API</title>
+    <access_callback>1</access_callback>
+ 
+<is_public>true</is_public>
+
   </item>
 </menu>
