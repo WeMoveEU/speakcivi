@@ -12,8 +12,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     $result = civicrm_api3('GroupContact', 'get', array(
       'sequential' => 1,
       'contact_id' => $id,
-      'group_id' => 42,
-      'status' => "Pending",
+      'group_id' => 42
     ));
 
     civicrm_api3('GroupContact','create',array('id'=>$result["id"]
