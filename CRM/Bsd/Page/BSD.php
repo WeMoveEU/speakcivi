@@ -10,7 +10,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   CRM_Core_Error::debug_var("BSD", array($param ,$_GET), true, true);
 
 
-    header('HTTP/1.1 421 Not working');
+    header('HTTP/1.1 503 Men at work');
 
     echo json_encode (array (
       "error"=>"not_implemented",
@@ -18,23 +18,62 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
      ));
     if (!$param)
       die ("missing POST PARAM");
+
+    // TODO Lookup
+    $group_id=42;
+    $campaign_id=3;
+
     $h=$param->cons_hash;
        //,'api.email.create'=>array('email'=>$h->emails[0]->email,'is_primary'=>1)
     $contact=array(
+       'sequential' => 1,
        'contact_type' => 'Individual',
        'source' => 'speakout '.$param->action_type . ' '.$param->external_id, 
        'first_name' => $h->firstname
        ,'last_name'=>$h->lastname
        ,'email'=>$h->emails[0]->email
        ,'api.address.create'=>array('postal_code'=>$h->addresses[0]->zip,'is_primary'=>1,'location_type_id'=>1)
-       ,'api.group_contact.create'=>array('group_id'=>42,"status"=> "Pending")
+       ,'api.group_contact.create'=>array('group_id'=>$group_id,"status"=> "Pending")
 
     );
+    if ($param->action_type == 'petition') {
+      $contact['api.activity.create'] = array(
+      'source_contact_id'=>'$value.id'
+      ,'source_record_id' => $campaign_id
+      ,'campaign'=> $campaign_id
+      ,"activity_type_id"=> "Petition"
+      ,"activity_date_time"=> $param->create_dt
+      ,'subject' => $param->action_name
+      ,"location"=> $param->action_technical_type
+      );
+    }
+
     CRM_Core_Error::debug_var("contact",$contact,true,true);
     $r=civicrm_api3('contact','create',$contact);
     CRM_Core_Error::debug_var("api result",$r,true,true);
+    if (!$r["is_error"])
+      $this->sendEmail();
+
      
-    die ("Should I be here?");
 //    parent::run();
   }
+
+  function sendEmail ($email,$name,$contact_id,$group_contact_id) {
+return; //TODO
+        if ($params['email-Primary']) {
+          CRM_Core_BAO_MessageTemplate::sendTemplate(
+            array(
+              'groupName' => 'msg_tpl_workflow_petition',
+              'valueName' => 'speakout_confirmation_needed',
+              'contactId' => $params['contactId'],
+              'tplParams' => $tplParams,
+              'from' => "\"{$domainEmailName}\" <{$domainEmailAddress}>",
+              'toName' => $toName,
+              'toEmail' => $params['email-Primary'],
+              'replyTo' => $replyTo,
+              'petitionId' => $params['sid'],
+          ));
+
+       }
+   }
 }
