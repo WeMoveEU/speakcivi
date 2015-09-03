@@ -7,9 +7,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   $param=json_decode (file_get_contents('php://input') );
 
-  CRM_Core_Error::debug_var("BSD", array($param ,$_GET), true, true);
-
-
     header('HTTP/1.1 503 Men at work');
 
     echo json_encode (array (
@@ -52,28 +49,14 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $r=civicrm_api3('contact','create',$contact);
     CRM_Core_Error::debug_var("api result",$r,true,true);
     if (!$r["is_error"])
-      $this->sendEmail();
-
+      civicrm_api3("speakout","sendconfirm", array(
+        'sequential' => 1,
+        'toEmail' => $h->emails[0]->email,
+         'contact_id' => $r["id"]
+      ));
      
 //    parent::run();
   }
 
-  function sendEmail ($email,$name,$contact_id,$group_contact_id) {
-return; //TODO
-        if ($params['email-Primary']) {
-          CRM_Core_BAO_MessageTemplate::sendTemplate(
-            array(
-              'groupName' => 'msg_tpl_workflow_petition',
-              'valueName' => 'speakout_confirmation_needed',
-              'contactId' => $params['contactId'],
-              'tplParams' => $tplParams,
-              'from' => "\"{$domainEmailName}\" <{$domainEmailAddress}>",
-              'toName' => $toName,
-              'toEmail' => $params['email-Primary'],
-              'replyTo' => $replyTo,
-              'petitionId' => $params['sid'],
-          ));
 
-       }
-   }
 }

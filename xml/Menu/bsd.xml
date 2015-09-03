@@ -10,7 +10,7 @@
   <item>
     <path>civicrm/speakout/confirm</path>
     <page_callback>CRM_Bsd_Page_Confirm</page_callback>
-    <title>Confirm your signature</title>
+    <title>Your signature is confirmed</title>
     <is_public>true</is_public>
   </item>
 </menu>
