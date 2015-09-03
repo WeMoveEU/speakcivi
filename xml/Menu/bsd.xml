@@ -5,8 +5,12 @@
     <page_callback>CRM_Bsd_Page_BSD</page_callback>
     <title>BSD API</title>
     <access_callback>1</access_callback>
- 
-<is_public>true</is_public>
-
+    <is_public>true</is_public>
+  </item>
+  <item>
+    <path>civicrm/speakout/confirm</path>
+    <page_callback>CRM_Bsd_Page_Confirm</page_callback>
+    <title>Confirm your signature</title>
+    <is_public>true</is_public>
   </item>
 </menu>
