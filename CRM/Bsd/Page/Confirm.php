@@ -12,11 +12,14 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     $result = civicrm_api3('GroupContact', 'get', array(
       'sequential' => 1,
       'contact_id' => $id,
-      'group_id' => 42
+      'group_id' => 42,
+      'status' => "Pending"
     ));
 
     civicrm_api3('GroupContact','create',array('id'=>$result["id"]
       ,'status'=>"Added"));
+   $url= "/post_confirm";
+   return CRM_Utils_System::redirect($url);
 
     parent::run();
   }

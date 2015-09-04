@@ -43,17 +43,25 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       ,'subject' => $param->action_name
       ,"location"=> $param->action_technical_type
       );
+    } else {
+      return;
     }
 
     CRM_Core_Error::debug_var("contact",$contact,true,true);
     $r=civicrm_api3('contact','create',$contact);
     CRM_Core_Error::debug_var("api result",$r,true,true);
     if (!$r["is_error"])
-      civicrm_api3("speakout","sendconfirm", array(
+      $tplid=69;
+      if ($param->external_id == 8) {
+        $tplid=70;
+      }
+      $s=civicrm_api3("speakout","sendconfirm", array(
         'sequential' => 1,
+        'messageTemplateID' => $tplid,
         'toEmail' => $h->emails[0]->email,
          'contact_id' => $r["id"]
       ));
+    CRM_Core_Error::debug_var("mail",$sr,true,true);
      
 //    parent::run();
   }
