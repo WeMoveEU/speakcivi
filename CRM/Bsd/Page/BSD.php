@@ -22,6 +22,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     $h=$param->cons_hash;
        //,'api.email.create'=>array('email'=>$h->emails[0]->email,'is_primary'=>1)
+
+    if ($param->action_type == 'share') {
+      CRM_Core_Error::debug_var("api result",$param,true,true);
+      return; 
+    } 
+
     $contact=array(
        'sequential' => 1,
        'contact_type' => 'Individual',
@@ -49,6 +55,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     CRM_Core_Error::debug_var("contact",$contact,true,true);
     $r=civicrm_api3('contact','create',$contact);
+
+    if ( 9 == $param->external_id)
+      return; // test campaign for load, no email sent
+
     CRM_Core_Error::debug_var("api result",$r,true,true);
     if (!$r["is_error"])
       $tplid=69;
