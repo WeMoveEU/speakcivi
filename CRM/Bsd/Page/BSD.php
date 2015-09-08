@@ -85,6 +85,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'first_name' => $h->firstname,
       'last_name' => $h->lastname,
       'email' => $h->emails[0]->email,
+      'return' => "contact_id"
     );
 
     $result = civicrm_api3('Contact', 'get', $contact);
@@ -123,7 +124,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  private function createActivity($param, $contact_id, $activity_type = 'Petition') {
+  private function createActivity($param, $contact_id, $activity_type = 'petition') {
     $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contact_id,
