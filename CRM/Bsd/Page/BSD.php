@@ -130,10 +130,13 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'source_record_id' => $this->campaignId,
       'campaign' => $this->campaignId,
       'activity_type_id' => $activity_type_id,
+      'activity_name' => $activity_type,
+      'activity_label' => $activity_type,
       'activity_date_time' => $param->create_dt,
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
     );
+    CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
   }
 
