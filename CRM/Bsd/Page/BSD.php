@@ -124,14 +124,14 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @throws CiviCRM_API3_Exception
    */
   private function createActivity($param, $contact_id, $activity_type = 'Petition') {
-    $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type);
+    $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contact_id,
       'source_record_id' => $this->campaignId,
       'campaign' => $this->campaignId,
       'activity_type_id' => $activity_type_id,
-      'activity_name' => $activity_type,
-      'activity_label' => $activity_type,
+      //'activity_name' => $activity_type,
+      //'activity_label' => $activity_type,
       'activity_date_time' => $param->create_dt,
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
