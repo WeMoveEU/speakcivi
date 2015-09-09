@@ -106,6 +106,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact['id'] = $result['values'][0]['id'];
       if ($result['values'][0][$apiAddressGet]['count'] == 1) {
         $contact[$apiAddressCreate]['id'] = $result['values'][0]['address_id'];
+      } else {
+        $contact[$apiAddressCreate]['location_type_id'] = 1;
       }
     } else {
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
