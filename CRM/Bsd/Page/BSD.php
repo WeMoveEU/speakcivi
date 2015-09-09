@@ -79,40 +79,38 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   private function createContact($param) {
     $h = $param->cons_hash;
 
+    $apiAddressGet = 'api.Address.get';
+    $apiAddressCreate = 'api.Address.create';
+    $apiGroupContact = 'api.GroupContact.create';
+
     $contact = array(
       'sequential' => 1,
       'contact_type' => 'Individual',
       'first_name' => $h->firstname,
       'last_name' => $h->lastname,
       'email' => $h->emails[0]->email,
-      'return' => 'contact_id',
-      'api.Address.get' => array(
-        'sequential' => 1,
+      $apiAddressGet => array(
         'id' => '$value.address_id',
-        'return' => 'id',
+        'contact_id' => '$value.id'
       ),
     );
 
     $result = civicrm_api3('Contact', 'get', $contact);
 
-    $apiAddress = 'api.Address.create';
-    $contact[$apiAddress] = array(
+    unset($contact[$apiAddressGet]);
+    $contact[$apiAddressCreate] = array(
       'postal_code' => $h->addresses[0]->zip,
       'is_primary' => 1,
-      'location_type_id' => 1,
     );
-
     if ($result['count'] == 1) {
       $contact['id'] = $result['values'][0]['id'];
-      if ($result['values'][0][$apiAddress]['count'] == 1) {
-        $contact[$apiAddress]['id'] = $result['values'][0]['address_id'];
-        unset($contact[$apiAddress]['location_type_id']);
+      if ($result['values'][0][$apiAddressGet]['count'] == 1) {
+        $contact[$apiAddressCreate]['id'] = $result['values'][0]['address_id'];
       }
     } else {
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
+      $contact[$apiAddressCreate]['location_type_id'] = 1;
     }
-
-    $apiGroupContact = 'api.GroupContact.create';
 
     $contact[$apiGroupContact] = array(
       'group_id' => $this->groupId,
