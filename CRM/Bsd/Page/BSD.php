@@ -32,11 +32,11 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       case 'petition':
         $this->petition($param);
         break;
-      
+
       case 'share':
         $this->share($param);
         break;
-      
+
       default:
         CRM_Core_Error::debug_var('BSD API, Unsupported Action Type', $param->action_type, false, true);
     }
@@ -81,7 +81,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     $apiAddressGet = 'api.Address.get';
     $apiAddressCreate = 'api.Address.create';
-    $apiGroupContact = 'api.GroupContact.create';
+    $apiGroupContactGet = 'api.GroupContact.get';
+    $apiGroupContactCreate = 'api.GroupContact.create';
 
     $contact = array(
       'sequential' => 1,
@@ -91,13 +92,18 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'email' => $h->emails[0]->email,
       $apiAddressGet => array(
         'id' => '$value.address_id',
-        'contact_id' => '$value.id'
+        'contact_id' => '$value.id',
+      ),
+      $apiGroupContactGet => array(
+        'contact_id' => '$value.id',
+        'status' => 'Added',
       ),
     );
 
     $result = civicrm_api3('Contact', 'get', $contact);
 
     unset($contact[$apiAddressGet]);
+    unset($contact[$apiGroupContactGet]);
     $contact[$apiAddressCreate] = array(
       'postal_code' => $h->addresses[0]->zip,
       'is_primary' => 1,
@@ -109,16 +115,22 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       } else {
         $contact[$apiAddressCreate]['location_type_id'] = 1;
       }
+      if ($result['values'][0][$apiGroupContactGet]['count'] == 0) {
+        $contact[$apiGroupContactCreate] = array(
+          'group_id' => $this->groupId,
+          'contact_id' => '$value.id',
+          'status' => 'Pending',
+        );
+      }
     } else {
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact[$apiAddressCreate]['location_type_id'] = 1;
+      $contact[$apiGroupContactCreate] = array(
+        'group_id' => $this->groupId,
+        'contact_id' => '$value.id',
+        'status' => 'Pending',
+      );
     }
-
-    $contact[$apiGroupContact] = array(
-      'group_id' => $this->groupId,
-      'contact_id' => '$value.id',
-      'status' => 'Pending',
-    );
 
     CRM_Core_Error::debug_var('$createContact', $contact, false, true);
     return civicrm_api3('Contact', 'create', $contact);
