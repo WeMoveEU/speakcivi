@@ -92,6 +92,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         'contact_id' => '$value.id',
       ),
       $apiGroupContactGet => array(
+        'group_id' => $this->groupId,
         'contact_id' => '$value.id',
         'status' => 'Added',
       ),
