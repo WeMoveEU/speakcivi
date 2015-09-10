@@ -151,8 +151,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $activity_status_id_scheduled = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contact_id,
-      'source_record_id' => $this->campaignId,
-      'campaign' => $this->campaignId,
+      'source_record_id' => $param->external_id,
+      'campaign_id' => $this->campaignId,
       'activity_type_id' => $activity_type_id,
       'activity_date_time' => $param->create_dt,
       'subject' => $param->action_name,
