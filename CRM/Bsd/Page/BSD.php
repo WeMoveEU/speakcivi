@@ -27,7 +27,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     } else {
       return;
     }
-    
+
     switch ($param->action_type) {
       case 'petition':
         $this->petition($param);
@@ -47,14 +47,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public function petition($param) {
 
     $contact = $this->createContact($param);
-    $activity = $this->createActivity($param, $contact['id'], 'Petition');
+    $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
 
     if ($this->checkIfConfirm($param->external_id)) {
       $h = $param->cons_hash;
       $this->sendConfirm($param, $contact, $h->emails[0]->email);
     }
-
-    CRM_Core_Error::debug_var("BSD PETITION", $param + $activity, false, true);
 
   }
 
@@ -62,8 +60,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public function share($param) {
 
     $contact = $this->createContact($param);
-    $activity = $this->createActivity($param, $contact['id'], 'share');
-    CRM_Core_Error::debug_var("BSD SHARE", $param + $activity, false, true);
+    $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
 
   }
 
@@ -144,12 +141,14 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @param $param
    * @param $contact_id
    * @param string $activity_type
+   * @param string $activity_status
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  private function createActivity($param, $contact_id, $activity_type = 'petition') {
+  private function createActivity($param, $contact_id, $activity_type = 'Petition', $activity_status = 'Scheduled') {
     $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name', 'String', 'value');
+    $activity_status_id_scheduled = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contact_id,
       'source_record_id' => $this->campaignId,
@@ -158,6 +157,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'activity_date_time' => $param->create_dt,
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
+      'status_id' => $activity_status_id_scheduled,
     );
     CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
