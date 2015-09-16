@@ -1,9 +1,7 @@
 <?php
 
 session_start();
-//require_once '../../civicrm.config.php';
-
-$settingsFile = '../civicrm.settings.php';
+$settingsFile = implode('', file('path.inc')).'/civicrm.settings.php';
 define('CIVICRM_SETTINGS_PATH', $settingsFile);
 $error = @include_once( $settingsFile );
 if ( $error == false ) {
@@ -16,8 +14,18 @@ global $civicrm_root;
 require_once $civicrm_root . '/CRM/Core/ClassLoader.php';
 CRM_Core_ClassLoader::singleton()->register();
 
-
 require_once 'CRM/Core/Config.php';
 $config = CRM_Core_Config::singleton();
 
-print_r($config);
+
+// tests:
+
+$params = array(
+  'sequential' => 1,
+  'return' => "custom_3,custom_4",
+  'id' => 3,
+);
+var_dump($params);
+
+$result = civicrm_api3('Campaign', 'get', $params);
+print_r($result);
