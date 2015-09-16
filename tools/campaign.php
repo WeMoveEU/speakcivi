@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-$settingsFile = implode('', file('path.inc')).'/civicrm.settings.php';
+$settingsFile = trim(implode('', file('path.inc'))).'/civicrm.settings.php';
 define('CIVICRM_SETTINGS_PATH', $settingsFile);
 $error = @include_once( $settingsFile );
 if ( $error == false ) {
