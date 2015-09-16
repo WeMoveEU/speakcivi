@@ -57,6 +57,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     if ($this->checkIfConfirm($param->external_id)) {
       $this->customFields = $this->getCustomFields($this->campaignId);
+      CRM_Core_Error::debug_var('$this->customFields', $this->customFields, false, true);
       $h = $param->cons_hash;
       $this->sendConfirm($contact, $h->emails[0]->email);
     }
@@ -130,6 +131,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     } else {
       $this->customFields = $this->getCustomFields($this->campaignId);
       $contact['preferred_language'] = $this->getLanguage();
+      CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact[$apiAddressCreate]['location_type_id'] = 1;
       $contact[$apiGroupContactCreate] = array(
@@ -265,7 +267,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'return' => "{$this->fieldTemplateId},{$this->fieldLanguage}",
       'id' => $campaignId,
     );
+    CRM_Core_Error::debug_var('$paramsCampaignGet', $params, false, true);
     $result = civicrm_api3('Campaign', 'get', $params);
+    CRM_Core_Error::debug_var('$resultCampaignGet', $result, false, true);
     if ($result['count'] == 1) {
       return $result['values'][0];
     } else {
