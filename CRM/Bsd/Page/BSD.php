@@ -59,7 +59,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $this->customFields = $this->getCustomFields($this->campaignId);
       CRM_Core_Error::debug_var('$this->customFields', $this->customFields, false, true);
       $h = $param->cons_hash;
-      $this->sendConfirm($contact, $h->emails[0]->email);
+      $this->sendConfirm($contact, $h->emails[0]->email, $activity['id']);
     }
 
   }
@@ -238,16 +238,18 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    *
    * @param $contact_result
    * @param $email
+   * @param $activity_id
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($contact_result, $email) {
+  public function sendConfirm($contact_result, $email, $activity_id) {
     $params = array(
       'sequential' => 1,
       'messageTemplateID' => $this->getTemplateId(),
       'toEmail' => $email,
-      'contact_id' => $contact_result['id']
+      'contact_id' => $contact_result['id'],
+      'activity_id' => $activity_id,
     );
     CRM_Core_Error::debug_var('$paramsSpeakoutSendConfirm', $params, false, true);
     return civicrm_api3("Speakout", "sendconfirm", $params);

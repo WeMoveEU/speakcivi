@@ -5,12 +5,15 @@ require_once 'CRM/Core/Page.php';
 class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
   function run() {
     $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
+    $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, true);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
     $hash1 = sha1(CIVICRM_SITE_KEY . $id);
-    $group_id = 42;
     if ($hash !== $hash1) {
       CRM_Core_Error::fatal("hash not matching");
     }
+
+    /* Section: Group */
+    $group_id = 42; // todo move to other better place
     $result = civicrm_api3('GroupContact', 'get', array(
       'sequential' => 1,
       'contact_id' => $id,
@@ -35,7 +38,22 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     $result = civicrm_api3('GroupContact', 'create', $params);
     CRM_Core_Error::debug_var('CONFIRM $resultGroupContact-create', $result, false, true);
 
+    /* Section: Activity */
+    $scheduled_id = CRM_Core_OptionGroup::getValue('activity_type', 'Scheduled', 'name', 'String', 'value');
+    $params = array(
+      'sequential' => 1,
+      'id' => $aid,
+      'status_id' => $scheduled_id,
+    );
+    $result = civicrm_api3('Activity', 'get', $params);
+    if ($result['count'] == 1) {
+      $completed_id = CRM_Core_OptionGroup::getValue('activity_type', 'Completed', 'name', 'String', 'value');
+      $params['status_id'] = $completed_id;
+      $result = civicrm_api3('Activity', 'create', $params);
+      CRM_Core_Error::debug_var('CONFIRM $resultActivity-create', $result, false, true);
+    }
+
     $url = "/post_confirm";
-    return CRM_Utils_System::redirect($url);
+    CRM_Utils_System::redirect($url);
   }
 }
