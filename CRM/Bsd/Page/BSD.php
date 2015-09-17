@@ -329,7 +329,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'id' => $contact_id,
       'created_date' => $created_date,
     );
+    CRM_Core_Error::debug_var('$paramSetCreatedDate', $param, false, true);
     $result = civicrm_api3('Contact', 'create', $param);
+    CRM_Core_Error::debug_var('$resultSetCreatedDate', $result, false, true);
     if ($result['count'] == 1 && $result['values'][0]['created_date'] == $created_date) {
       return true;
     } else {
