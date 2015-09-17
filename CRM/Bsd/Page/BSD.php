@@ -17,6 +17,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $customFields = array();
 
+  public $new_contact = false;
+
   function run() {
 
     $param = json_decode(file_get_contents('php://input'));
@@ -53,6 +55,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public function petition($param) {
 
     $contact = $this->createContact($param);
+    if ($this->new_contact) {
+      $result_set_created_date = $this->setContactCreatedDate($contact['id'], $param->create_dt);
+      CRM_Core_Error::debug_var('$result_set_created_date', $result_set_created_date, false, true);
+    }
     $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
 
     if ($this->checkIfConfirm($param->external_id)) {
@@ -129,6 +135,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         );
       }
     } else {
+      $this->new_contact = true;
       $this->customFields = $this->getCustomFields($this->campaignId);
       $contact['preferred_language'] = $this->getLanguage();
       CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
@@ -197,7 +204,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     }
     return array();
   }
-  
+
 
   /**
    * Determine whether $campaign table has a valid structure.
@@ -304,5 +311,29 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       return $this->customFields[$this->fieldLanguage];
     }
     return '';
+  }
+
+
+  /**
+   * Set up own created date. Column created_date is kind of timestamp and therefore It can't be set up during creating new contact.
+   *
+   * @param $contact_id
+   * @param $created_date
+   *
+   * @return bool
+   * @throws CiviCRM_API3_Exception
+   */
+  public function setContactCreatedDate($contact_id, $created_date) {
+    $param = array(
+      'sequential' => 1,
+      'id' => $contact_id,
+      'created_date' => $created_date,
+    );
+    $result = civicrm_api3('Contact', 'create', $param);
+    if ($result['count'] == 1 && $result['values'][0]['created_date'] == $created_date) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
