@@ -39,18 +39,20 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     CRM_Core_Error::debug_var('CONFIRM $resultGroupContact-create', $result, false, true);
 
     /* Section: Activity */
-    $scheduled_id = CRM_Core_OptionGroup::getValue('activity_type', 'Scheduled', 'name', 'String', 'value');
-    $params = array(
-      'sequential' => 1,
-      'id' => $aid,
-      'status_id' => $scheduled_id,
-    );
-    $result = civicrm_api3('Activity', 'get', $params);
-    if ($result['count'] == 1) {
-      $completed_id = CRM_Core_OptionGroup::getValue('activity_type', 'Completed', 'name', 'String', 'value');
-      $params['status_id'] = $completed_id;
-      $result = civicrm_api3('Activity', 'create', $params);
-      CRM_Core_Error::debug_var('CONFIRM $resultActivity-create', $result, false, true);
+    if ($aid) {
+      $scheduled_id = CRM_Core_OptionGroup::getValue('activity_type', 'Scheduled', 'name', 'String', 'value');
+      $params = array(
+        'sequential' => 1,
+        'id' => $aid,
+        'status_id' => $scheduled_id,
+      );
+      $result = civicrm_api3('Activity', 'get', $params);
+      if ($result['count'] == 1) {
+        $completed_id = CRM_Core_OptionGroup::getValue('activity_type', 'Completed', 'name', 'String', 'value');
+        $params['status_id'] = $completed_id;
+        $result = civicrm_api3('Activity', 'create', $params);
+        CRM_Core_Error::debug_var('CONFIRM $resultActivity-create', $result, false, true);
+      }
     }
 
     $url = "/post_confirm";
