@@ -40,7 +40,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
 
     /* Section: Activity */
     if ($aid) {
-      $scheduled_id = CRM_Core_OptionGroup::getValue('activity_type', 'Scheduled', 'name', 'String', 'value');
+      $scheduled_id = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
       $params = array(
         'sequential' => 1,
         'id' => $aid,
@@ -48,7 +48,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
       );
       $result = civicrm_api3('Activity', 'get', $params);
       if ($result['count'] == 1) {
-        $completed_id = CRM_Core_OptionGroup::getValue('activity_type', 'Completed', 'name', 'String', 'value');
+        $completed_id = CRM_Core_OptionGroup::getValue('activity_status', 'Completed', 'name', 'String', 'value');
         $params['status_id'] = $completed_id;
         $result = civicrm_api3('Activity', 'create', $params);
         CRM_Core_Error::debug_var('CONFIRM $resultActivity-create', $result, false, true);
