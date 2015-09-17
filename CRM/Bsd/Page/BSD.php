@@ -5,11 +5,17 @@ require_once 'CRM/Core/Page.php';
 class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   // TODO Lookup
-  private $groupId = 42;
+  public $groupId = 42;
 
-  private $campaign = array();
+  public $campaign = array();
 
-  private $campaignId = 0;
+  public $campaignId = 0;
+
+  public $fieldTemplateId = 'custom_3';
+
+  public $fieldLanguage = 'custom_4';
+
+  public $customFields = array();
 
   function run() {
 
@@ -50,8 +56,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
 
     if ($this->checkIfConfirm($param->external_id)) {
+      $this->customFields = $this->getCustomFields($this->campaignId);
+      CRM_Core_Error::debug_var('$this->customFields', $this->customFields, false, true);
       $h = $param->cons_hash;
-      $this->sendConfirm($param, $contact, $h->emails[0]->email);
+      $this->sendConfirm($contact, $h->emails[0]->email);
     }
 
   }
@@ -73,7 +81,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  private function createContact($param) {
+  public function createContact($param) {
     $h = $param->cons_hash;
 
     $apiAddressGet = 'api.Address.get';
@@ -121,6 +129,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         );
       }
     } else {
+      $this->customFields = $this->getCustomFields($this->campaignId);
+      $contact['preferred_language'] = $this->getLanguage();
+      CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact[$apiAddressCreate]['location_type_id'] = 1;
       $contact[$apiGroupContactCreate] = array(
@@ -147,7 +158,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  private function createActivity($param, $contact_id, $activity_type = 'Petition', $activity_status = 'Scheduled') {
+  public function createActivity($param, $contact_id, $activity_type = 'Petition', $activity_status = 'Scheduled') {
     $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name', 'String', 'value');
     $activity_status_id_scheduled = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
     $params = array(
@@ -173,7 +184,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  private function getCampaign($external_identifier) {
+  public function getCampaign($external_identifier) {
     if ($external_identifier > 0) {
       $params = array(
         'sequential' => 1,
@@ -195,7 +206,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    *
    * @return bool
    */
-  private function isValidCampaign($campaign) {
+  public function isValidCampaign($campaign) {
     if (
       is_array($campaign) &&
       array_key_exists('id', $campaign) &&
@@ -214,7 +225,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    *
    * @return bool
    */
-  private function checkIfConfirm($external_id) {
+  public function checkIfConfirm($external_id) {
     $notconfirm_external_id = array(
       9,
     );
@@ -225,25 +236,16 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   /**
    * Send confirmation mail to contact.
    *
-   * @param $param
    * @param $contact_result
    * @param $email
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  private function sendConfirm($param, $contact_result, $email) {
-    // todo ???
-    if (!$contact_result['is_error']) {
-      $tplid = 69;
-    }
-    // todo ???
-    if ($param->external_id == 8) {
-      $tplid = 70;
-    }
+  public function sendConfirm($contact_result, $email) {
     $params = array(
       'sequential' => 1,
-      'messageTemplateID' => $tplid, // todo retrieve template id from customField (how to do it?)
+      'messageTemplateID' => $this->getTemplateId(),
       'toEmail' => $email,
       'contact_id' => $contact_result['id']
     );
@@ -251,4 +253,54 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     return civicrm_api3("Speakout", "sendconfirm", $params);
   }
 
+
+  /**
+   * Get custom fields for campaign Id.
+   * Warning! Switch on permission "CiviCRM: access all custom data" for "ANONYMOUS USER"
+   * @param $campaignId
+   *
+   * @return array
+   * @throws CiviCRM_API3_Exception
+   */
+  public function getCustomFields($campaignId) {
+    $params = array(
+      'sequential' => 1,
+      'return' => "{$this->fieldTemplateId},{$this->fieldLanguage}",
+      'id' => $campaignId,
+    );
+    CRM_Core_Error::debug_var('$paramsCampaignGet', $params, false, true);
+    $result = civicrm_api3('Campaign', 'get', $params);
+    CRM_Core_Error::debug_var('$resultCampaignGet', $result, false, true);
+    if ($result['count'] == 1) {
+      return $result['values'][0];
+    } else {
+      return array();
+    }
+  }
+
+
+  /**
+   * Get message template id from $customFields array generated by getCustomFields() method
+   *
+   * @return int
+   */
+  public function getTemplateId() {
+    if (is_array($this->customFields) && array_key_exists($this->fieldTemplateId, $this->customFields)) {
+      return (int)$this->customFields[$this->fieldTemplateId];
+    }
+    return 0;
+  }
+
+
+  /**
+   * Get language from $customFields array generated by getCustomFields() method
+   *
+   * @return int
+   */
+  public function getLanguage() {
+    if (is_array($this->customFields) && array_key_exists($this->fieldLanguage, $this->customFields)) {
+      return $this->customFields[$this->fieldLanguage];
+    }
+    return '';
+  }
 }
