@@ -256,6 +256,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   /**
    * Get custom fields for campaign Id.
+   * Warning! Switch on permission "CiviCRM: access all custom data" for "ANONYMOUS USER"
    * @param $campaignId
    *
    * @return array
