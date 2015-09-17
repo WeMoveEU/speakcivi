@@ -29,3 +29,14 @@ var_dump($params);
 
 $result = civicrm_api3('Campaign', 'get', $params);
 print_r($result);
+
+
+$bsd = new CRM_Bsd_Page_BSD();
+
+$campaignId = 3;
+$bsd->customFields = $bsd->getCustomFields($campaignId);
+echo '$bsd->customFields: ';
+print_r($bsd->customFields);
+
+echo 'template: ';
+echo $bsd->getTemplateId();
