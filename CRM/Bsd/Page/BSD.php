@@ -56,8 +56,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     $contact = $this->createContact($param);
     if ($this->new_contact) {
-      $result_set_created_date = $this->setContactCreatedDate($contact['id'], $param->create_dt);
-      CRM_Core_Error::debug_var('$result_set_created_date', $result_set_created_date, false, true);
+      $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
     $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
 
