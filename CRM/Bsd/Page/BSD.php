@@ -326,10 +326,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public function setContactCreatedDate($contactId, $createdDate) {
     $format = 'Y-m-d\TH:i:s.uP';
     $dt = DateTime::createFromFormat($format, $createdDate);
-    $time = explode(':', $dt->timezone);
+    $time = explode(':', $dt->getTimezone()->getName());
     $hours = $time[0];
     $mins = $time[1];
-    $sign = substr($dt->timezone, 0, 1);
+    $sign = substr($dt->getTimezone()->getName(), 0, 1);
     $dt->modify("{$hours} hour {$sign}{$mins} minutes");
 
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
