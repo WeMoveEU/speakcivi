@@ -17,6 +17,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $customFields = array();
 
+  public $new_contact = false;
+
   function run() {
 
     $param = json_decode(file_get_contents('php://input'));
@@ -53,6 +55,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public function petition($param) {
 
     $contact = $this->createContact($param);
+    if ($this->new_contact) {
+      $this->setContactCreatedDate($contact['id'], $param->create_dt);
+    }
     $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
 
     if ($this->checkIfConfirm($param->external_id)) {
@@ -129,6 +134,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         );
       }
     } else {
+      $this->new_contact = true;
       $this->customFields = $this->getCustomFields($this->campaignId);
       $contact['preferred_language'] = $this->getLanguage();
       CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
@@ -197,7 +203,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     }
     return array();
   }
-  
+
 
   /**
    * Determine whether $campaign table has a valid structure.
@@ -304,5 +310,32 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       return $this->customFields[$this->fieldLanguage];
     }
     return '';
+  }
+
+
+  /**
+   * Set up own created date. Column created_date is kind of timestamp and therefore It can't be set up during creating new contact.
+   *
+   * @param $contactId
+   * @param $createdDate
+   *
+   * @return bool
+   *
+   */
+  public function setContactCreatedDate($contactId, $createdDate) {
+    $format = 'Y-m-d\TH:i:s.uP';
+    $dt = DateTime::createFromFormat($format, $createdDate);
+    $time = explode(':', $dt->getTimezone()->getName());
+    $hours = $time[0];
+    $mins = $time[1];
+    $sign = substr($dt->getTimezone()->getName(), 0, 1);
+    $dt->modify("{$hours} hour {$sign}{$mins} minutes");
+
+    $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
+    $params = array(
+      1 => array($contactId, 'Integer'),
+      2 => array($dt->format("Y-m-d H:i:s"), 'String'),
+    );
+    CRM_Core_DAO::executeQuery($query, $params);
   }
 }
