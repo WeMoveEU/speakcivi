@@ -317,25 +317,18 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   /**
    * Set up own created date. Column created_date is kind of timestamp and therefore It can't be set up during creating new contact.
    *
-   * @param $contact_id
-   * @param $created_date
+   * @param $contactId
+   * @param $createdDate
    *
    * @return bool
-   * @throws CiviCRM_API3_Exception
+   *
    */
-  public function setContactCreatedDate($contact_id, $created_date) {
-    $param = array(
-      'sequential' => 1,
-      'id' => $contact_id,
-      'created_date' => $created_date,
+  public function setContactCreatedDate($contactId, $createdDate) {
+    $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
+    $params = array(
+      1 => array($contactId, 'Integer'),
+      2 => array($createdDate, 'String'),
     );
-    CRM_Core_Error::debug_var('$paramSetCreatedDate', $param, false, true);
-    $result = civicrm_api3('Contact', 'create', $param);
-    CRM_Core_Error::debug_var('$resultSetCreatedDate', $result, false, true);
-    if ($result['count'] == 1 && $result['values'][0]['created_date'] == $created_date) {
-      return true;
-    } else {
-      return false;
-    }
+    CRM_Core_DAO::executeQuery($query, $params);
   }
 }
