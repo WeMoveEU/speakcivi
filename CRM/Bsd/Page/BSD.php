@@ -23,7 +23,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     $param = json_decode(file_get_contents('php://input'));
 
-    header('HTTP/1.1 503 Men at work');
 
     if (!$param) {
       die ("missing POST PARAM");
@@ -33,6 +32,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if ($this->isValidCampaign($this->campaign)) {
       $this->campaignId = $this->campaign['id'];
     } else {
+      header('HTTP/1.1 503 Men at work');
       return;
     }
 

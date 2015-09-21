@@ -30,6 +30,15 @@ var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 
 {literal}
 
+var prettyDate = function (dateString){
+  var date = new Date(dateString);
+  var d = date.getDate();
+  var m = date.getMonth();
+  var y = date.getFullYear();
+  return d+'/'+m+'/'+y +' ' +date.getHour() + ':'+date.getMinute;
+}
+
+
 function lookupTable(data,key,value) {
   var t= {}
   data.forEach(function(d){t[d[key]]=d[value]});
@@ -107,7 +116,7 @@ function drawTable(dom) {
     .columns(
 	[
 	    function (d) {
-		return d.activity_date_time;
+		return prettyDate(d.activity_date_time);
 	    },
 	    function (d) {
 		return d.campaign_id;
@@ -122,7 +131,9 @@ function drawTable(dom) {
 		return activityStatus[d.status_id];
 	    },
 	    function (d) {
-		return d.contact_create_date;
+              if (d.activity_date_time == d.contact_create_date)
+                return "<span title='new member' class='glyphicon glyphicon-certificate'></span>";
+	      return prettyDate(d.contact_create_date);
 	    }
 	]
     );
