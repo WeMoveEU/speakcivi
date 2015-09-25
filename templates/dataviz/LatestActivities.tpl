@@ -33,9 +33,10 @@ var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 var prettyDate = function (dateString){
   var date = new Date(dateString);
   var d = date.getDate();
-  var m = date.getMonth();
+  var m = ('0' + (date.getMonth()+1)).slice(-2);
   var y = date.getFullYear();
-  return d+'/'+m+'/'+y +' ' +date.getHour() + ':'+date.getMinute;
+  var min = ('0' + date.getMinutes()).slice(-2);
+  return d+'/'+m+'/'+y +' ' +date.getHours() + ':'+min;
 }
 
 
@@ -131,9 +132,11 @@ function drawTable(dom) {
 		return activityStatus[d.status_id];
 	    },
 	    function (d) {
-              if (d.activity_date_time == d.contact_create_date)
+              if (d.activity_date_time.getTime() == d.contact_create_date.getTime()) {
                 return "<span title='new member' class='glyphicon glyphicon-certificate'></span>";
+              }
 	      return prettyDate(d.contact_create_date);
+
 	    }
 	]
     );
