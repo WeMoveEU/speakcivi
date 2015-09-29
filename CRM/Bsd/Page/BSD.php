@@ -236,10 +236,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
             'sequential' => 1,
             'title' => $ext_campaign->name,
             'external_identifier' => $ext_campaign->id,
-            'parent_id' => $ext_campaign->parent_id,
             $this->fieldTemplateId => $ext_campaign->msg_template_id,
             $this->fieldLanguage => $ext_campaign->preferred_language,
           );
+          if (property_exists($ext_campaign, 'id') && $ext_campaign->id > 0) {
+            $params['parent_id'] = $ext_campaign->parent_id;
+          }
           echo "params ";
           print_r($params);
           $result = civicrm_api3('Campaign', 'create', $params);
@@ -251,8 +253,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
           }
         }
       }
+      return array();
+    } else {
+      return $campaign;
     }
-    return array();
   }
 
   /**
