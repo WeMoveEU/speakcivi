@@ -23,7 +23,7 @@ $config = CRM_Core_Config::singleton();
 $bsd = new CRM_Bsd_Page_BSD();
 
 $param = (object)array(
-  'external_id' => 3,
+  'external_id' => 9,
 );
 
 $campaign = $bsd->getCampaign($param->external_id);

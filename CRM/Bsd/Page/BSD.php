@@ -219,7 +219,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       echo 0;
       if ($param->external_id > 0) {
         echo 1;
-        $ext_campaign = json_decode(file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
+        // todo add better validation when external_id doesn't exist: 404 NOT FOUND Error
+        $ext_campaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
         $ext_campaign->msg_template_id = 69;
         $ext_campaign->preferred_language = 'pl_PL';
         echo "ext_campaign ";
