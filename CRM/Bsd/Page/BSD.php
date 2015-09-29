@@ -206,6 +206,55 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
 
   /**
+   * Setting up new campaign in CiviCRM if this is necessary.
+   *
+   * @param $param
+   * @param $campaign
+   *
+   * @return array
+   * @throws CiviCRM_API3_Exception
+   */
+  public function setCampaign($param, $campaign) {
+    if (!$this->isValidCampaign($campaign)) {
+      echo 0;
+      if ($param->external_id > 0) {
+        echo 1;
+        $ext_campaign = json_decode(file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
+        echo "ext_campaign ";
+        print_r($ext_campaign);
+        // todo smarter validation?
+        if (is_array($ext_campaign) &&
+          array_key_exists('name', $ext_campaign) && $ext_campaign['name'] != '' &&
+          array_key_exists('id', $ext_campaign) && $ext_campaign['id'] > 0 &&
+          array_key_exists('parent_id', $ext_campaign) && $ext_campaign['parent_id'] > 0 &&
+          array_key_exists('msg_template_id', $ext_campaign) && $ext_campaign['msg_template_id'] > 0 &&
+          array_key_exists('preferred_language', $ext_campaign) && $ext_campaign['preferred_language'] != ''
+        ) {
+          echo 2;
+          $params = array(
+            'sequential' => 1,
+            'title' => $ext_campaign['name'],
+            'external_identifier' => $ext_campaign['id'],
+            'parent_id' => $ext_campaign['parent_id'],
+            $this->fieldTemplateId => $ext_campaign['msg_template_id'],
+            $this->fieldLanguage => $ext_campaign['preferred_language'],
+          );
+          echo "params ";
+          print_r($params);
+          $result = civicrm_api3('Campaign', 'create', $params);
+          echo "result ";
+          print_r($result);
+          if ($result['count'] == 1) {
+            echo 3;
+            return $result['values'][0];
+          }
+        }
+      }
+    }
+    return array();
+  }
+
+  /**
    * Determine whether $campaign table has a valid structure.
    *
    * @param $campaign
