@@ -220,24 +220,25 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       if ($param->external_id > 0) {
         echo 1;
         $ext_campaign = json_decode(file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
+        $ext_campaign->msg_template_id = 69;
+        $ext_campaign->preferred_language = 'pl_PL';
         echo "ext_campaign ";
         print_r($ext_campaign);
         // todo smarter validation?
         if (is_object($ext_campaign) &&
           property_exists($ext_campaign, 'name') && $ext_campaign->name != '' &&
           property_exists($ext_campaign, 'id') && $ext_campaign->id > 0 &&
-          property_exists($ext_campaign, 'parent_id') && $ext_campaign->parent_id > 0 &&
           property_exists($ext_campaign, 'msg_template_id') && $ext_campaign->msg_template_id > 0 &&
           property_exists($ext_campaign, 'preferred_language') && $ext_campaign->preferred_language != ''
         ) {
           echo 2;
           $params = array(
             'sequential' => 1,
-            'title' => $ext_campaign['name'],
-            'external_identifier' => $ext_campaign['id'],
-            'parent_id' => $ext_campaign['parent_id'],
-            $this->fieldTemplateId => $ext_campaign['msg_template_id'],
-            $this->fieldLanguage => $ext_campaign['preferred_language'],
+            'title' => $ext_campaign->name,
+            'external_identifier' => $ext_campaign->id,
+            'parent_id' => $ext_campaign->parent_id,
+            $this->fieldTemplateId => $ext_campaign->msg_template_id,
+            $this->fieldLanguage => $ext_campaign->preferred_language,
           );
           echo "params ";
           print_r($params);
