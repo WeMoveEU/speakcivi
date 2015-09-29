@@ -223,12 +223,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         echo "ext_campaign ";
         print_r($ext_campaign);
         // todo smarter validation?
-        if (is_array($ext_campaign) &&
-          array_key_exists('name', $ext_campaign) && $ext_campaign['name'] != '' &&
-          array_key_exists('id', $ext_campaign) && $ext_campaign['id'] > 0 &&
-          array_key_exists('parent_id', $ext_campaign) && $ext_campaign['parent_id'] > 0 &&
-          array_key_exists('msg_template_id', $ext_campaign) && $ext_campaign['msg_template_id'] > 0 &&
-          array_key_exists('preferred_language', $ext_campaign) && $ext_campaign['preferred_language'] != ''
+        if (is_object($ext_campaign) &&
+          property_exists($ext_campaign, 'name') && $ext_campaign->name != '' &&
+          property_exists($ext_campaign, 'id') && $ext_campaign->id > 0 &&
+          property_exists($ext_campaign, 'parent_id') && $ext_campaign->parent_id > 0 &&
+          property_exists($ext_campaign, 'msg_template_id') && $ext_campaign->msg_template_id > 0 &&
+          property_exists($ext_campaign, 'preferred_language') && $ext_campaign->preferred_language != ''
         ) {
           echo 2;
           $params = array(
