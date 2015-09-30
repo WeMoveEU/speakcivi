@@ -87,11 +87,15 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if ($this->new_contact) {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
-    $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
+    $opt_in_map_activity_status = array(
+      0 => 'Completed',
+      1 => 'Scheduled', // default
+    );
+    CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
+    $activity = $this->createActivity($param, $contact['id'], 'Petition', $opt_in_map_activity_status[$this->opt_in]);
 
-    if ($this->checkIfConfirm($param->external_id)) {
+    if ($this->opt_in == 1 && $this->checkIfConfirm($param->external_id)) {
       $this->customFields = $this->getCustomFields($this->campaignId);
-      CRM_Core_Error::debug_var('$this->customFields', $this->customFields, false, true);
       $h = $param->cons_hash;
       $this->sendConfirm($contact, $h->emails[0]->email, $activity['id']);
     }
@@ -148,6 +152,11 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'postal_code' => $h->addresses[0]->zip,
       'is_primary' => 1,
     );
+    $opt_in_map_group_status = array(
+      0 => 'Added',
+      1 => 'Pending', //default
+    );
+    CRM_Core_Error::debug_var('$opt_in_map_group_status[$this->opt_in]', $opt_in_map_group_status[$this->opt_in], false, true);
     if ($result['count'] == 1) {
       $contact['id'] = $result['values'][0]['id'];
       if ($result['values'][0][$apiAddressGet]['count'] == 1) {
@@ -159,7 +168,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         $contact[$apiGroupContactCreate] = array(
           'group_id' => $this->groupId,
           'contact_id' => '$value.id',
-          'status' => 'Pending',
+          'status' => $opt_in_map_group_status[$this->opt_in],
         );
       }
     } else {
@@ -172,7 +181,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact[$apiGroupContactCreate] = array(
         'group_id' => $this->groupId,
         'contact_id' => '$value.id',
-        'status' => 'Pending',
+        'status' => $opt_in_map_group_status[$this->opt_in],
       );
     }
 
@@ -195,7 +204,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    */
   public function createActivity($param, $contact_id, $activity_type = 'Petition', $activity_status = 'Scheduled') {
     $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name', 'String', 'value');
-    $activity_status_id_scheduled = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
+    $activity_status_id = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contact_id,
       'source_record_id' => $param->external_id,
@@ -204,7 +213,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'activity_date_time' => $param->create_dt,
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
-      'status_id' => $activity_status_id_scheduled,
+      'status_id' => $activity_status_id,
     );
     CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
