@@ -245,19 +245,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    */
   public function setCampaign($param, $campaign) {
     if (!$this->isValidCampaign($campaign)) {
-      echo 0;
       if ($param->external_id > 0) {
-        echo 1;
-        // todo add better validation when external_id doesn't exist: 404 NOT FOUND Error
         $ext_campaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
-        echo "ext_campaign ";
-        print_r($ext_campaign);
-        // todo smarter validation?
         if (is_object($ext_campaign) &&
           property_exists($ext_campaign, 'name') && $ext_campaign->name != '' &&
           property_exists($ext_campaign, 'id') && $ext_campaign->id > 0
         ) {
-          echo 2;
           $ext_campaign->msg_template_id = $this->defaultTemplateId;
           $ext_campaign->preferred_language = $this->determineLanguage($ext_campaign->name);
           $params = array(
@@ -267,13 +260,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
             $this->fieldTemplateId => $ext_campaign->msg_template_id,
             $this->fieldLanguage => $ext_campaign->preferred_language,
           );
-          echo "params ";
-          print_r($params);
           $result = civicrm_api3('Campaign', 'create', $params);
-          echo "result ";
-          print_r($result);
           if ($result['count'] == 1) {
-            echo 3;
             return $result['values'][0];
           }
         }
@@ -331,10 +319,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @return bool
    */
   public function checkIfConfirm($external_id) {
-    $notconfirm_external_id = array(
-      9,
-    );
-    return !in_array($external_id, $notconfirm_external_id);
+    return !in_array($external_id, $this->notconfirmation);
   }
 
 
