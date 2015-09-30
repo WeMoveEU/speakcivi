@@ -4,28 +4,21 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
-  public $opt_in = 2;
+  public $opt_in = 0;
 
-  public $groupId = 42;
+  public $groupId = 0;
 
-  public $defaultTemplateId = 69;
+  public $defaultTemplateId = 0;
 
-  public $defaultLanguage = 'en_US';
+  public $defaultLanguage = '';
 
-  public $fieldTemplateId = 'custom_3';
+  public $fieldTemplateId = '';
 
-  public $fieldLanguage = 'custom_4';
+  public $fieldLanguage = '';
 
   public $from = '';
 
-  public $country_lang_mapping = array(
-    'DE' => 'de_DE',
-    'EN' => 'en_US',
-    'ES' => 'es_ES',
-    'FR' => 'fr_FR',
-    'IT' => 'it_IT',
-    'PL' => 'pl_PL',
-  );
+  public $country_lang_mapping = array();
 
   public $notconfirmation = array();
 
@@ -37,30 +30,16 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $new_contact = false;
 
-  function setDefaults() {
-    $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
-    $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
-    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
-    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
-    $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
-    $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
-    $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
-    $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
-    $this->notconfirmation = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'notconfirmation');
-  }
-
 
   function run() {
 
     $param = json_decode(file_get_contents('php://input'));
 
-    $this->setDefaults();
-    CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
-
     if (!$param) {
       die ("missing POST PARAM");
     }
 
+    $this->setDefaults();
     $this->campaign = $this->getCampaign($param->external_id);
     $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
     if ($this->isValidCampaign($this->campaign)) {
@@ -83,6 +62,22 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         CRM_Core_Error::debug_var('BSD API, Unsupported Action Type', $param->action_type, false, true);
     }
 
+  }
+
+
+  /**
+   *  Setting up default values for parameters.
+   */
+  function setDefaults() {
+    $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
+    $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
+    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
+    $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
+    $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
+    $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
+    $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
+    $this->notconfirmation = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'notconfirmation');
   }
 
 
