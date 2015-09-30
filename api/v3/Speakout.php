@@ -5,8 +5,7 @@ function _civicrm_api3_speakout_sendconfirm_spec(&$params) {
   $params['toEmail']['api.required'] = 1;
   $params['contact_id']['api.required'] = 1;
   $params['messageTemplateID']['api.default'] = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
-  $params['messageTemplateID2']['api.default'] = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
-  $params['from']['api.default'] = '"Xavier - WeMove.EU" <info@wemove.eu>';
+  $params['from']['api.default'] = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
 }
 
 function civicrm_api3_speakout_sendconfirm($params) {
@@ -17,7 +16,6 @@ function civicrm_api3_speakout_sendconfirm($params) {
   $dao = CRM_Core_DAO::executeQuery($query, $sqlParams);
   $dao->fetch();
 
-  CRM_Core_Error::debug_var('$params[messageTemplateID2]', $params['messageTemplateID2'], false, true);
   if (!$dao->N) {
     CRM_Core_Error::fatal(ts('No such message template: id=%1.', array(1 => $params['messageTemplateID'])));
   }

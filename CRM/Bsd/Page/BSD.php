@@ -4,7 +4,7 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
-  public $opt_in = 1;
+  public $opt_in = 2;
 
   public $groupId = 42;
 
@@ -59,6 +59,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     $param = json_decode(file_get_contents('php://input'));
 
+    CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
 
     if (!$param) {
       die ("missing POST PARAM");
