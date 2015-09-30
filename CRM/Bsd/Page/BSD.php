@@ -37,11 +37,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $new_contact = false;
 
-  function __contruct() {
-    $this->setDefaults();
-  }
-
-
   function setDefaults() {
     $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
     $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
@@ -59,6 +54,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     $param = json_decode(file_get_contents('php://input'));
 
+    $this->setDefaults();
     CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
 
     if (!$param) {
