@@ -16,8 +16,9 @@ class CRM_Bsd_Form_Settings extends CRM_Core_Form {
 
   function buildQuickForm() {
     $settings = $this->getFormSettings();
+    $exclude = array('country_lang_mapping', 'notconfirmation');
     foreach ($settings as $name => $setting) {
-      if (isset($setting['quick_form_type'])) {
+      if (isset($setting['quick_form_type']) && !in_array($name, $exclude)) {
         $add = 'add' . $setting['quick_form_type'];
         if ($add == 'addElement') {
           $this->$add($setting['html_type'], $name, ts($setting['title']), CRM_Utils_Array::value('html_attributes', $setting, array ()));
@@ -109,4 +110,5 @@ class CRM_Bsd_Form_Settings extends CRM_Core_Form {
     }
     return $defaults;
   }
+
 }
