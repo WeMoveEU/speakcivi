@@ -45,6 +45,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     }
 
     $this->campaign = $this->getCampaign($param->external_id);
+    $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
     if ($this->isValidCampaign($this->campaign)) {
       $this->campaignId = $this->campaign['id'];
     } else {
