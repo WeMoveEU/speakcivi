@@ -4,16 +4,20 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
-  // todo move default values to better place
+  public $opt_in = 1;
+
   public $groupId = 42;
 
-  // todo move default values to better place
   public $defaultTemplateId = 69;
 
-  // todo move default values to better place
   public $defaultLanguage = 'en_US';
 
-  // todo move default values to better place
+  public $fieldTemplateId = 'custom_3';
+
+  public $fieldLanguage = 'custom_4';
+
+  public $from = '';
+
   public $country_lang_mapping = array(
     'DE' => 'de_DE',
     'EN' => 'en_US',
@@ -23,17 +27,33 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     'PL' => 'pl_PL',
   );
 
+  public $notconfirmation = array();
+
   public $campaign = array();
 
   public $campaignId = 0;
 
-  public $fieldTemplateId = 'custom_3';
-
-  public $fieldLanguage = 'custom_4';
-
   public $customFields = array();
 
   public $new_contact = false;
+
+  function __contruct() {
+    $this->setDefaults();
+  }
+
+
+  function setDefaults() {
+    $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
+    $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
+    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
+    $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
+    $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
+    $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
+    $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
+    $this->notconfirmation = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'notconfirmation');
+  }
+
 
   function run() {
 

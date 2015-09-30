@@ -13,7 +13,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     }
 
     /* Section: Group */
-    $group_id = 42; // todo move to other better place
+    $group_id = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
     $result = civicrm_api3('GroupContact', 'get', array(
       'sequential' => 1,
       'contact_id' => $id,

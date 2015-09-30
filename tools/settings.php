@@ -20,8 +20,8 @@ $config = CRM_Core_Config::singleton();
 
 // tests:
 
-$group_id = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
-var_dump($group_id);
+$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
+var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
 var_dump($result);
@@ -46,12 +46,3 @@ var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'notconfirmation');
 var_dump($result);
-
-
-/*$params = array(
-  'sequential' => 1,
-  'name' => 'opt_in',
-  'group' => 'BSD API Preferences',
-);
-$result = civicrm_api3('Setting', 'getvalue', $params);
-var_dump($result);*/
