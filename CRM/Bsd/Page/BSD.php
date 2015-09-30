@@ -4,8 +4,24 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
-  // TODO Lookup
+  // todo move default values to better place
   public $groupId = 42;
+
+  // todo move default values to better place
+  public $defaultTemplateId = 69;
+
+  // todo move default values to better place
+  public $defaultLanguage = 'en_US';
+
+  // todo move default values to better place
+  public $country_lang_mapping = array(
+    'DE' => 'de_DE',
+    'EN' => 'en_US',
+    'ES' => 'es_ES',
+    'FR' => 'fr_FR',
+    'IT' => 'it_IT',
+    'PL' => 'pl_PL',
+  );
 
   public $campaign = array();
 
@@ -221,18 +237,16 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         echo 1;
         // todo add better validation when external_id doesn't exist: 404 NOT FOUND Error
         $ext_campaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
-        $ext_campaign->msg_template_id = 69;
-        $ext_campaign->preferred_language = 'pl_PL';
         echo "ext_campaign ";
         print_r($ext_campaign);
         // todo smarter validation?
         if (is_object($ext_campaign) &&
           property_exists($ext_campaign, 'name') && $ext_campaign->name != '' &&
-          property_exists($ext_campaign, 'id') && $ext_campaign->id > 0 &&
-          property_exists($ext_campaign, 'msg_template_id') && $ext_campaign->msg_template_id > 0 &&
-          property_exists($ext_campaign, 'preferred_language') && $ext_campaign->preferred_language != ''
+          property_exists($ext_campaign, 'id') && $ext_campaign->id > 0
         ) {
           echo 2;
+          $ext_campaign->msg_template_id = $this->defaultTemplateId;
+          $ext_campaign->preferred_language = $this->determineLanguage($ext_campaign->name);
           $params = array(
             'sequential' => 1,
             'title' => $ext_campaign->name,
@@ -240,9 +254,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
             $this->fieldTemplateId => $ext_campaign->msg_template_id,
             $this->fieldLanguage => $ext_campaign->preferred_language,
           );
-          if (property_exists($ext_campaign, 'id') && $ext_campaign->parent_id > 0) {
-            $params['parent_id'] = $ext_campaign->parent_id;
-          }
           echo "params ";
           print_r($params);
           $result = civicrm_api3('Campaign', 'create', $params);
@@ -259,6 +270,26 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       return $campaign;
     }
   }
+
+
+  /**
+   * Determine language based on campaign name which have to include country on the end, ex. *_EN.
+   *
+   * @param $campaign_name
+   *
+   * @return string
+   */
+  function determineLanguage($campaign_name) {
+    $re = "/(.*)_([A-Z]{2})$/";
+    if (preg_match($re, $campaign_name, $matches)) {
+      $country = $matches[2];
+      if (array_key_exists($country, $this->country_lang_mapping)) {
+        return $this->country_lang_mapping[$country];
+      }
+    }
+    return $this->defaultLanguage;
+  }
+
 
   /**
    * Determine whether $campaign table has a valid structure.
