@@ -1,11 +1,10 @@
 <?php
 
 function _civicrm_api3_speakout_sendconfirm_spec(&$params) {
-  // TODO a 'clever' default should be introduced
   $params['toEmail']['api.required'] = 1;
   $params['contact_id']['api.required'] = 1;
-  $params['messageTemplateID']['api.default'] = 69;
-  $params['from']['api.default'] = '"Xavier - WeMove.EU" <info@wemove.eu>';
+  $params['messageTemplateID']['api.default'] = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
+  $params['from']['api.default'] = html_entity_decode(CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from'));
 }
 
 function civicrm_api3_speakout_sendconfirm($params) {

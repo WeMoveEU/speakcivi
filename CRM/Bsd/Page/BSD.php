@@ -4,46 +4,40 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
-  // todo move default values to better place
-  public $groupId = 42;
+  public $opt_in = 0;
 
-  // todo move default values to better place
-  public $defaultTemplateId = 69;
+  public $groupId = 0;
 
-  // todo move default values to better place
-  public $defaultLanguage = 'en_US';
+  public $defaultTemplateId = 0;
 
-  // todo move default values to better place
-  public $country_lang_mapping = array(
-    'DE' => 'de_DE',
-    'EN' => 'en_US',
-    'ES' => 'es_ES',
-    'FR' => 'fr_FR',
-    'IT' => 'it_IT',
-    'PL' => 'pl_PL',
-  );
+  public $defaultLanguage = '';
+
+  public $fieldTemplateId = '';
+
+  public $fieldLanguage = '';
+
+  public $from = '';
+
+  public $country_lang_mapping = array();
 
   public $campaign = array();
 
   public $campaignId = 0;
 
-  public $fieldTemplateId = 'custom_3';
-
-  public $fieldLanguage = 'custom_4';
-
   public $customFields = array();
 
   public $new_contact = false;
+
 
   function run() {
 
     $param = json_decode(file_get_contents('php://input'));
 
-
     if (!$param) {
       die ("missing POST PARAM");
     }
 
+    $this->setDefaults();
     $this->campaign = $this->getCampaign($param->external_id);
     $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
     if ($this->isValidCampaign($this->campaign)) {
@@ -69,17 +63,36 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   }
 
 
+  /**
+   *  Setting up default values for parameters.
+   */
+  function setDefaults() {
+    $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
+    $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
+    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
+    $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
+    $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
+    $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
+    $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
+  }
+
+
   public function petition($param) {
 
     $contact = $this->createContact($param);
     if ($this->new_contact) {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
-    $activity = $this->createActivity($param, $contact['id'], 'Petition', 'Scheduled');
+    $opt_in_map_activity_status = array(
+      0 => 'Completed',
+      1 => 'Scheduled', // default
+    );
+    CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
+    $activity = $this->createActivity($param, $contact['id'], 'Petition', $opt_in_map_activity_status[$this->opt_in]);
 
-    if ($this->checkIfConfirm($param->external_id)) {
+    if ($this->opt_in == 1) {
       $this->customFields = $this->getCustomFields($this->campaignId);
-      CRM_Core_Error::debug_var('$this->customFields', $this->customFields, false, true);
       $h = $param->cons_hash;
       $this->sendConfirm($contact, $h->emails[0]->email, $activity['id']);
     }
@@ -136,6 +149,11 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'postal_code' => $h->addresses[0]->zip,
       'is_primary' => 1,
     );
+    $opt_in_map_group_status = array(
+      0 => 'Added',
+      1 => 'Pending', //default
+    );
+    CRM_Core_Error::debug_var('$opt_in_map_group_status[$this->opt_in]', $opt_in_map_group_status[$this->opt_in], false, true);
     if ($result['count'] == 1) {
       $contact['id'] = $result['values'][0]['id'];
       if ($result['values'][0][$apiAddressGet]['count'] == 1) {
@@ -147,7 +165,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         $contact[$apiGroupContactCreate] = array(
           'group_id' => $this->groupId,
           'contact_id' => '$value.id',
-          'status' => 'Pending',
+          'status' => $opt_in_map_group_status[$this->opt_in],
         );
       }
     } else {
@@ -160,7 +178,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact[$apiGroupContactCreate] = array(
         'group_id' => $this->groupId,
         'contact_id' => '$value.id',
-        'status' => 'Pending',
+        'status' => $opt_in_map_group_status[$this->opt_in],
       );
     }
 
@@ -183,7 +201,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    */
   public function createActivity($param, $contact_id, $activity_type = 'Petition', $activity_status = 'Scheduled') {
     $activity_type_id = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name', 'String', 'value');
-    $activity_status_id_scheduled = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
+    $activity_status_id = CRM_Core_OptionGroup::getValue('activity_status', $activity_status, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contact_id,
       'source_record_id' => $param->external_id,
@@ -192,7 +210,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'activity_date_time' => $param->create_dt,
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
-      'status_id' => $activity_status_id_scheduled,
+      'status_id' => $activity_status_id,
     );
     CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
@@ -233,19 +251,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    */
   public function setCampaign($param, $campaign) {
     if (!$this->isValidCampaign($campaign)) {
-      echo 0;
       if ($param->external_id > 0) {
-        echo 1;
-        // todo add better validation when external_id doesn't exist: 404 NOT FOUND Error
         $ext_campaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
-        echo "ext_campaign ";
-        print_r($ext_campaign);
-        // todo smarter validation?
         if (is_object($ext_campaign) &&
           property_exists($ext_campaign, 'name') && $ext_campaign->name != '' &&
           property_exists($ext_campaign, 'id') && $ext_campaign->id > 0
         ) {
-          echo 2;
           $ext_campaign->msg_template_id = $this->defaultTemplateId;
           $ext_campaign->preferred_language = $this->determineLanguage($ext_campaign->name);
           $params = array(
@@ -255,13 +266,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
             $this->fieldTemplateId => $ext_campaign->msg_template_id,
             $this->fieldLanguage => $ext_campaign->preferred_language,
           );
-          echo "params ";
-          print_r($params);
           $result = civicrm_api3('Campaign', 'create', $params);
-          echo "result ";
-          print_r($result);
           if ($result['count'] == 1) {
-            echo 3;
             return $result['values'][0];
           }
         }
@@ -308,21 +314,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       return true;
     }
     return false;
-  }
-
-
-  /**
-   * Check whether this external campaing (SpeakOut ID Campaign) is marked as unsupported (ex. testing campaign).
-   *
-   * @param $external_id
-   *
-   * @return bool
-   */
-  public function checkIfConfirm($external_id) {
-    $notconfirm_external_id = array(
-      9,
-    );
-    return !in_array($external_id, $notconfirm_external_id);
   }
 
 

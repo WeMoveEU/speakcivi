@@ -8,6 +8,12 @@
     <is_public>true</is_public>
   </item>
   <item>
+    <path>civicrm/bsd/settings</path>
+    <page_callback>CRM_Bsd_Form_Settings</page_callback>
+    <title>BSD API Settings</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/speakout/confirm</path>
     <page_callback>CRM_Bsd_Page_Confirm</page_callback>
     <title>Your signature is confirmed</title>
