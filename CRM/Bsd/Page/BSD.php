@@ -20,8 +20,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $country_lang_mapping = array();
 
-  public $notconfirmation = array();
-
   public $campaign = array();
 
   public $campaignId = 0;
@@ -77,7 +75,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
     $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
     $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
-    $this->notconfirmation = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'notconfirmation');
   }
 
 
@@ -94,7 +91,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $opt_in_map_activity_status[$this->opt_in]);
 
-    if ($this->opt_in == 1 && $this->checkIfConfirm($param->external_id)) {
+    if ($this->opt_in == 1) {
       $this->customFields = $this->getCustomFields($this->campaignId);
       $h = $param->cons_hash;
       $this->sendConfirm($contact, $h->emails[0]->email, $activity['id']);
@@ -317,18 +314,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       return true;
     }
     return false;
-  }
-
-
-  /**
-   * Check whether this external campaing (SpeakOut ID Campaign) is marked as unsupported (ex. testing campaign).
-   *
-   * @param $external_id
-   *
-   * @return bool
-   */
-  public function checkIfConfirm($external_id) {
-    return !in_array($external_id, $this->notconfirmation);
   }
 
 

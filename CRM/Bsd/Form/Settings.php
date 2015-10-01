@@ -16,7 +16,7 @@ class CRM_Bsd_Form_Settings extends CRM_Core_Form {
 
   function buildQuickForm() {
     $settings = $this->getFormSettings();
-    $exclude = array('country_lang_mapping', 'notconfirmation');
+    $exclude = array('country_lang_mapping');
     foreach ($settings as $name => $setting) {
       if (isset($setting['quick_form_type']) && !in_array($name, $exclude)) {
         $add = 'add' . $setting['quick_form_type'];
@@ -37,6 +37,9 @@ class CRM_Bsd_Form_Settings extends CRM_Core_Form {
     ));
     // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
+    // export no-editing settings
+    $this->assign('country_lang_mapping_title', $settings['country_lang_mapping']['title']);
+    $this->assign('country_lang_mapping', CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping'));
     parent::buildQuickForm();
   }
 

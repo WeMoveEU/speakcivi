@@ -1,10 +1,6 @@
-{* HEADER *}
-
 <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="top"}
 </div>
-
-{* FIELD EXAMPLE: OPTION 1 (AUTOMATIC LAYOUT) *}
 
 {foreach from=$elementNames item=elementName}
     <div class="crm-section">
@@ -14,12 +10,18 @@
     </div>
 {/foreach}
 
-{* FIELD EXAMPLE: OPTION 2 (MANUAL LAYOUT)
-  <div>
-    <span>{$form.favorite_color.label}</span>
-    <span>{$form.favorite_color.html}</span>
-  </div>
-{* FOOTER *}
+<div class="crm-section">
+    <div class="label">{$country_lang_mapping_title}</div>
+    <div class="content">
+        <ul>
+            {foreach from=$country_lang_mapping item=lang key=country}
+                <li>{$country}: {$lang}</li>
+            {/foreach}
+        </ul>
+    </div>
+    <div class="clear"></div>
+</div>
+
 <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
 </div>

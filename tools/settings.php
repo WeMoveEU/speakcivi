@@ -43,6 +43,3 @@ var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
 var_dump($result);
-
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'notconfirmation');
-var_dump($result);
