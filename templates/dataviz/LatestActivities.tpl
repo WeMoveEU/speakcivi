@@ -123,7 +123,7 @@ function drawTable(dom) {
 		return d.campaign_id;
 	    },
 	    function (d) {
-		return d.display_name;
+		return "<a href='"+CRM.url("civicrm/contact/view",{cid:d.contact_id})+"'>"+d.display_name+"</a>";
 	    },
 	    function (d) {
 		return activityType[d.activity_type_id];

@@ -145,10 +145,19 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
     unset($contact[$apiAddressGet]);
     unset($contact[$apiGroupContactGet]);
-    $contact[$apiAddressCreate] = array(
-      'postal_code' => $h->addresses[0]->zip,
-      'is_primary' => 1,
-    );
+    if ($h->addresses[0]->zip[0] =="[" and $h->addresses[0]->zip[3] == "]") {
+      $contact[$apiAddressCreate] = array(
+       'postal_code' => substr($h->addresses[0]->zip,4),
+       'country' => substr($h->addresses[0]->zip,1,2),
+       'is_primary' => 1,
+      );
+    } else {
+      $contact[$apiAddressCreate] = array(
+        'postal_code' => $h->addresses[0]->zip,
+        'is_primary' => 1,
+      );
+    }
+       
     $opt_in_map_group_status = array(
       0 => 'Added',
       1 => 'Pending', //default
