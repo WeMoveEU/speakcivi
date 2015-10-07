@@ -20,9 +20,10 @@ function civicrm_api3_speakout_sendconfirm($params) {
   }
   $cgid = $params['contact_id'];
   $aid = $params['activity_id'];
+  $campaign_id = $params['campaign_id'];
   $hash = sha1(CIVICRM_SITE_KEY . $cgid);
   $url = CRM_Utils_System::url('civicrm/speakout/confirm',
-    "id=$cgid&aid=$aid&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=speakout_confirm", true);
+    "id=$cgid&aid=$aid&cid=$campaign_id&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=speakout_confirm", true);
   $params['subject'] = $dao->subject;
   $params['text'] = str_replace("#speakout_url_confirm", $url, $dao->text);
   $params['html'] = str_replace("#speakout_url_confirm", $url, $dao->html);

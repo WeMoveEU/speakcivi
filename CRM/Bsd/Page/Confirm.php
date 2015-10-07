@@ -6,6 +6,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
   function run() {
     $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
     $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, true);
+    $campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, true);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
     $hash1 = sha1(CIVICRM_SITE_KEY . $id);
     if ($hash !== $hash1) {
@@ -70,6 +71,9 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     }
 
     $url = "{$country}/post_confirm";
+    if ($campaign_id > 0) {
+      $url .= "?cid={$campaign_id}";
+    }
     CRM_Utils_System::redirect($url);
   }
 }
