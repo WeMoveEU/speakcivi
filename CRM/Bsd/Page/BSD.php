@@ -20,6 +20,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $country_lang_mapping = array();
 
+  public $country = '';
+
+  public $postal_code = '';
+
   public $campaign = array();
 
   public $campaignId = 0;
@@ -38,6 +42,13 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     }
 
     $this->setDefaults();
+    $this->setCountry($param);
+
+    if ($this->country == 'UK') {
+      $this->opt_in = false;
+    }
+    CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
+
     $this->campaign = $this->getCampaign($param->external_id);
     $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
     if ($this->isValidCampaign($this->campaign)) {
@@ -75,6 +86,24 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
     $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
     $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
+  }
+
+
+  /**
+   * Setting up country and postal code from address key
+   * @param $param
+   */
+  function setCountry($param) {
+    if (property_exists($param, 'cons_hash')) {
+      $zip = @$param->cons_hash->addresses[0]->zip;
+      if ($zip != '') {
+        $re = "/\\[([a-zA-Z]{2})\\](.*)/";
+        if (preg_match($re, $zip, $matches)) {
+          $this->country = strtoupper($matches[1]);
+          $this->postal_code = trim($matches[2]);
+        }
+      }
+    }
   }
 
 
@@ -296,9 +325,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    * @return string
    */
   function determineLanguage($campaign_name) {
-    $re = "/(.*)_([A-Z]{2})$/";
+    $re = "/(.*)[_ ]([a-zA-Z]{2})$/";
     if (preg_match($re, $campaign_name, $matches)) {
-      $country = $matches[2];
+      $country = strtoupper($matches[2]);
       if (array_key_exists($country, $this->country_lang_mapping)) {
         return $this->country_lang_mapping[$country];
       }

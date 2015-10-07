@@ -55,7 +55,7 @@ return array(
     'type' => 'String',
     'quick_form_type' => 'Element',
     'html_type' => 'text',
-    'default' => 'en_US',
+    'default' => 'en_GB',
     'add' => '4.6',
     'is_domain' => 1,
     'is_contact' => 0,
