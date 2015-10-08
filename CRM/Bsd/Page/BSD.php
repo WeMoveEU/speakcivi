@@ -343,6 +343,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'toEmail' => $email,
       'contact_id' => $contact_result['id'],
       'activity_id' => $activity_id,
+      'campaign_id' => $this->campaignId,
     );
     CRM_Core_Error::debug_var('$paramsSpeakoutSendConfirm', $params, false, true);
     return civicrm_api3("Speakout", "sendconfirm", $params);
