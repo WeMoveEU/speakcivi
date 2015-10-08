@@ -50,6 +50,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $this->opt_in = false;
     }
     CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
+    CRM_Core_Error::debug_var('$param_______RUN_PARAM', $param, false, true);
 
     $this->campaign = $this->getCampaign($param->external_id);
     $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
@@ -121,11 +122,17 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       1 => 'Scheduled', // default
     );
     CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
-    $activity = $this->createActivity($param, $contact['id'], 'Petition', $opt_in_map_activity_status[$this->opt_in]);
+    $activity_status = $opt_in_map_activity_status[$this->opt_in];
+    if (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) {
+      $activity_status = 'optout';
+    }
+    CRM_Core_Error::debug_var('$activity_status', $activity_status, false, true);
+
+    $activity = $this->createActivity($param, $contact['id'], 'Petition', $activity_status);
 
     if ($this->opt_in == 1) {
-      $this->customFields = $this->getCustomFields($this->campaignId);
       $h = $param->cons_hash;
+      $this->customFields = $this->getCustomFields($this->campaignId);
       $this->sendConfirm($contact, $h->emails[0]->email, $activity['id']);
     }
 
@@ -215,6 +222,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact['preferred_language'] = $this->getLanguage();
       CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
+      if (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) {
+        $contact['is_opt_out'] = 1;
+      }
       $contact[$apiAddressCreate]['location_type_id'] = 1;
       $contact[$apiGroupContactCreate] = array(
         'group_id' => $this->groupId,
