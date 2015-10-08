@@ -6,7 +6,8 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
   function run() {
     $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
     $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, true);
-    $campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, true);
+    // todo issue #33 temporary solution
+    //$campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, true);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
     $hash1 = sha1(CIVICRM_SITE_KEY . $id);
     if ($hash !== $hash1) {
