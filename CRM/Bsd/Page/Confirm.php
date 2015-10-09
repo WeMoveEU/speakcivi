@@ -66,13 +66,12 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     $language = $bsd->getLanguage();
     if ($language != '') {
       $tab = explode('_', $language);
-      $country = '/'.$tab[0];
+      if (strlen($tab[0]) == 2) {
+        $country = '/'.$tab[0];
+      }
     }
 
     $url = "{$country}/post_confirm";
-    if ($campaign_id > 0) {
-      $url .= "?cid={$campaign_id}";
-    }
     CRM_Utils_System::redirect($url);
   }
 }
