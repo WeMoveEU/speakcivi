@@ -47,7 +47,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $this->setCountry($param);
 
     if ($this->country == 'UK') {
-      $this->opt_in = false;
+      $this->opt_in = 0;
     }
     CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
     CRM_Core_Error::debug_var('$param_______RUN_PARAM', $param, false, true);
