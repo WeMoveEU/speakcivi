@@ -60,14 +60,16 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
 
     /* Section: Country */
     $country = '';
-    $bsd = new CRM_Bsd_Page_BSD();
-    $bsd->setDefaults();
-    $bsd->customFields = $bsd->getCustomFields($campaign_id);
-    $language = $bsd->getLanguage();
-    if ($language != '') {
-      $tab = explode('_', $language);
-      if (strlen($tab[0]) == 2) {
-        $country = '/'.$tab[0];
+    if ($campaign_id > 0) {
+      $bsd = new CRM_Bsd_Page_BSD();
+      $bsd->setDefaults();
+      $bsd->customFields = $bsd->getCustomFields($campaign_id);
+      $language = $bsd->getLanguage();
+      if ($language != '') {
+        $tab = explode('_', $language);
+        if (strlen($tab[0]) == 2) {
+          $country = '/'.$tab[0];
+        }
       }
     }
 
