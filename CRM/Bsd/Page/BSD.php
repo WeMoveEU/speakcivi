@@ -127,7 +127,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     );
     CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
     $activity_status = $opt_in_map_activity_status[$this->opt_in];
-    if (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) {
+    if (
+      (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
+      (!property_exists($param, 'boolean_collection'))
+    ) {
       $activity_status = 'optout';
     }
     CRM_Core_Error::debug_var('$activity_status', $activity_status, false, true);
@@ -226,7 +229,10 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact['preferred_language'] = $this->getLanguage();
       CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
-      if (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) {
+      if (
+        (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
+        (!property_exists($param, 'boolean_collection'))
+      ) {
         $contact['is_opt_out'] = 1;
       }
       $contact[$apiAddressCreate]['location_type_id'] = 1;
