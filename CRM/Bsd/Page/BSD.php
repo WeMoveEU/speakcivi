@@ -304,16 +304,16 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   /**
    * Setting up new campaign in CiviCRM if this is necessary.
    *
-   * @param $param
+   * @param $external_id
    * @param $campaign
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function setCampaign($param, $campaign) {
+  public function setCampaign($external_id, $campaign) {
     if (!$this->isValidCampaign($campaign)) {
-      if ($param->external_id > 0) {
-        $ext_campaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$param->external_id}.json"));
+      if ($external_id > 0) {
+        $ext_campaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$external_id}.json"));
         if (is_object($ext_campaign) &&
           property_exists($ext_campaign, 'name') && $ext_campaign->name != '' &&
           property_exists($ext_campaign, 'id') && $ext_campaign->id > 0
