@@ -46,7 +46,11 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     $this->setDefaults();
     $this->setCountry($param);
 
-    if ($this->country == 'UK') {
+    $not_send_confirmation_to_those_countries = array(
+      'UK',
+      'GB',
+    );
+    if (in_array($this->country, $not_send_confirmation_to_those_countries)) {
       $this->opt_in = 0;
     }
     CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
