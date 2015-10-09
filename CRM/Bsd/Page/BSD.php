@@ -8,6 +8,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $groupId = 0;
 
+  public $default_campaign_type_id = 0;
+
   public $defaultTemplateId = 0;
 
   public $defaultLanguage = '';
@@ -87,6 +89,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   function setDefaults() {
     $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
     $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+    $this->default_campaign_type_id = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
     $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
     $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
     $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
@@ -327,6 +330,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
             'sequential' => 1,
             'title' => $ext_campaign->name,
             'external_identifier' => $ext_campaign->id,
+            'campaign_type_id' => $this->default_campaign_type_id,
+            'start_date' => date('Y-m-d H:i:s'),
             $this->fieldTemplateId => $ext_campaign->msg_template_id,
             $this->fieldLanguage => $ext_campaign->preferred_language,
             $this->fieldSenderMail => $this->from,
