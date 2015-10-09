@@ -58,17 +58,14 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
       }
     }
 
-    /* Section: Preferred language */
+    /* Section: Country */
     $country = '';
-    $params = array(
-      'sequential' => 1,
-      'id' => $id,
-      'return' => 'preferred_language',
-    );
-    $result = civicrm_api3('Contact', 'get', $params);
-    if ($result['count'] == 1) {
-      $preferred_language = $result['values'][0]['preferred_language'];
-      $tab = explode('_', $preferred_language);
+    $bsd = new CRM_Bsd_Page_BSD();
+    $bsd->setDefaults();
+    $bsd->customFields = $bsd->getCustomFields($campaign_id);
+    $language = $bsd->getLanguage();
+    if ($language != '') {
+      $tab = explode('_', $language);
       $country = '/'.$tab[0];
     }
 
