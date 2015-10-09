@@ -273,6 +273,9 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'status_id' => $activity_status_id,
     );
+    if (property_exists($param, 'comment') && $param->comment != '') {
+      $params['details'] = $param->comment;
+    }
     CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
   }

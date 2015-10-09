@@ -49,6 +49,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
         'status_id' => $scheduled_id,
       );
       $result = civicrm_api3('Activity', 'get', $params);
+      CRM_Core_Error::debug_var('CONFIRM $resultActivityGet', $result, false, true);
       if ($result['count'] == 1) {
         $completed_id = CRM_Core_OptionGroup::getValue('activity_status', 'Completed', 'name', 'String', 'value');
         $params['status_id'] = $completed_id;
