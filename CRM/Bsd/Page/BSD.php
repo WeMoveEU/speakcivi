@@ -63,7 +63,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if (in_array($this->country, $not_send_confirmation_to_those_countries)) {
       $this->opt_in = 0;
     }
-    CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
     CRM_Core_Error::debug_var('$param_______RUN_PARAM', $param, false, true);
 
     $this->campaign = $this->getCampaign($param->external_id);
@@ -137,11 +136,11 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if ($this->new_contact) {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
+
     $opt_in_map_activity_status = array(
       0 => 'Completed',
       1 => 'Scheduled', // default
     );
-    CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
     $activity_status = $opt_in_map_activity_status[$this->opt_in];
     if (
       (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
@@ -149,8 +148,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     ) {
       $activity_status = 'optout';
     }
-    CRM_Core_Error::debug_var('$activity_status', $activity_status, false, true);
-
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activity_status);
 
     if ($this->opt_in == 1) {
@@ -217,7 +214,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact = $this->prepareParamsContact($param, $contact, $result);
     }
 
-    CRM_Core_Error::debug_var('$createContact', $contact, false, true);
+    CRM_Core_Error::debug_var('$createContact_PARAMS', $contact, false, true);
     return civicrm_api3('Contact', 'create', $contact);
 
   }
@@ -289,7 +286,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       $contact['first_name'] = $h->firstname;
       $contact['last_name'] = $h->lastname;
       $contact['preferred_language'] = $this->getLanguage();
-      CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       if (
         (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
@@ -345,8 +341,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     foreach ($contacts as $k => $c) {
       $similarity[$c['id']] = $this->calculateSimilarity($new_contact, $c);
     }
-    echo '$similarity';
-    print_r($similarity);
     return $similarity;
   }
 
@@ -360,15 +354,12 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    */
   function chooseBestContact($similarity) {
     $max = max($similarity);
-    echo "max: ".$max.PHP_EOL;
     $contact_ids = array();
     foreach ($similarity as $k => $v) {
       if ($max == $v) {
         $contact_ids[$k] = $k;
       }
     }
-    echo "contact_ids: ";
-    print_r($contact_ids);
     return min(array_keys($contact_ids));
   }
 
@@ -400,7 +391,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if (property_exists($param, 'comment') && $param->comment != '') {
       $params['details'] = $param->comment;
     }
-    CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
+    CRM_Core_Error::debug_var('$CreateActivity_PARAMS', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
   }
 
@@ -528,7 +519,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'campaign_id' => $this->campaignId,
       'from' => $this->getSenderMail(),
     );
-    CRM_Core_Error::debug_var('$paramsSpeakoutSendConfirm', $params, false, true);
+    CRM_Core_Error::debug_var('$SpeakoutSendConfirm_PARAMS', $params, false, true);
     return civicrm_api3("Speakout", "sendconfirm", $params);
   }
 
@@ -547,9 +538,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'return' => "{$this->fieldTemplateId},{$this->fieldLanguage},{$this->fieldSenderMail}",
       'id' => $campaignId,
     );
-    CRM_Core_Error::debug_var('$paramsCampaignGet', $params, false, true);
     $result = civicrm_api3('Campaign', 'get', $params);
-    CRM_Core_Error::debug_var('$resultCampaignGet', $result, false, true);
     if ($result['count'] == 1) {
       return $result['values'][0];
     } else {

@@ -24,6 +24,7 @@ $config = CRM_Core_Config::singleton();
 
 
 $bsd = new CRM_Bsd_Page_BSD();
+// petition:
 $param = (object)array(
   'action_name' => 'Nazwa kampanii',
   'action_type' => 'petition',
@@ -31,12 +32,37 @@ $param = (object)array(
   'external_id' => 108,
   'create_dt' => '2015-10-13T13:56:59.617+01:00',
   'cons_hash' => (object)array(
-    'firstname' => 'Tomasz',
+    'firstname' => 'Tomasz2',
     'lastname' => 'Pietrzkowski',
 //    'lastname' => '',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomasz@chords.pl',
+        'email' => 'tomek@chords.pl',
+      )
+    ),
+    'addresses' => array(
+      0 => (object)array(
+        'zip' => '[pl] 02-222',
+      ),
+    ),
+  ),
+  'boolean_collection' => true,
+  'comment' => 'Komentarz do petycji',
+);
+// share:
+$param = (object)array(
+  'action_name' => 'Nazwa kampanii',
+  'action_type' => 'share',
+  'action_technical_type' => 'act2.wemove.eu:share',
+  'external_id' => 108,
+  'create_dt' => '2015-10-13T13:56:59.617+01:00',
+  'cons_hash' => (object)array(
+    'firstname' => 'Tomasz2',
+//    'lastname' => 'Pietrzkowski',
+    'lastname' => '',
+    'emails' => array(
+      0 => (object)array(
+        'email' => 'tomek@chords.pl',
       )
     ),
     'addresses' => array(
@@ -62,4 +88,3 @@ if ($bsd->isValidCampaign($bsd->campaign)) {
 }
 $result = $bsd->createContact($param);
 print_r($result);
-
