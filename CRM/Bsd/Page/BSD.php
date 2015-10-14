@@ -26,6 +26,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $country = '';
 
+  public $country_id = 0;
+
   public $postal_code = '';
 
   public $campaign = array();
@@ -119,7 +121,17 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         if (preg_match($re, $zip, $matches)) {
           $this->country = strtoupper($matches[1]);
           $this->postal_code = trim($matches[2]);
+        } else {
+          $this->postal_code = trim($zip);
         }
+      }
+      if ($this->country) {
+        $params = array(
+          'sequential' => 1,
+          'iso_code' => $this->country,
+        );
+        $result = civicrm_api3('Country', 'get', $params);
+        $this->country_id = (int)$result['values'][0]['id'];
       }
     }
   }
@@ -196,6 +208,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         'contact_id' => '$value.id',
         'status' => 'Added',
       ),
+      'return' => 'id,email,first_name,last_name',
     );
     $result = civicrm_api3('Contact', 'get', $contact);
 
@@ -237,26 +250,16 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       1 => 'Pending', //default
     );
 
+    unset($contact['return']);
     unset($contact[$this->apiAddressGet]);
     unset($contact[$this->apiGroupContactGet]);
-    if ($h->addresses[0]->zip[0] =="[" and $h->addresses[0]->zip[3] == "]") {
-      $contact[$this->apiAddressCreate] = array(
-        'postal_code' => substr($h->addresses[0]->zip, 4),
-        'country' => substr($h->addresses[0]->zip, 1, 2),
-        'is_primary' => 1,
-      );
-    } else {
-      $contact[$this->apiAddressCreate] = array(
-        'postal_code' => $h->addresses[0]->zip,
-        'is_primary' => 1,
-      );
-    }
 
     $existing_contact = array();
     if ($based_on_contact_id > 0) {
       foreach ($result['values'] as $id => $res) {
         if ($res['id'] == $based_on_contact_id) {
           $existing_contact = $res;
+          break;
         }
       }
     }
@@ -269,11 +272,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       if ($existing_contact['last_name'] == '') {
         $contact['last_name'] = $h->lastname;
       }
-      if ($existing_contact[$this->apiAddressGet]['count'] == 1) {
-        $contact[$this->apiAddressCreate]['id'] = $existing_contact['address_id'];
-      } else {
-        $contact[$this->apiAddressCreate]['location_type_id'] = 1;
-      }
+      $contact = $this->prepareParamsAddress($contact, $existing_contact);
       if ($existing_contact[$this->apiGroupContactGet]['count'] == 0) {
         $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $this->groupId,
@@ -302,6 +301,68 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     }
 
     return $contact;
+  }
+
+
+  /**
+   * Preparing params for creating/update a address.
+   *
+   * @param $contact
+   * @param $existing_contact
+   *
+   * @return mixed
+   */
+  function prepareParamsAddress($contact, $existing_contact) {
+    if ($existing_contact[$this->apiAddressGet]['count'] == 1) {
+      // if we have a one address, we update it by new values (?)
+      $contact[$this->apiAddressCreate]['id'] = $existing_contact[$this->apiAddressGet]['id'];
+      $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+      $contact[$this->apiAddressCreate]['country'] = $this->country;
+    } elseif ($existing_contact[$this->apiAddressGet]['count'] > 1) {
+      // from speakout we have only (postal_code) or (postal_code and country)
+      $the_same = false;
+      foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
+        $adr = $this->getAddressValues($v);
+        if (
+          array_key_exists('country_id', $adr) && $this->country_id == $adr['country_id'] &&
+          array_key_exists('postal_code', $adr) && $this->postal_code == $adr['postal_code']
+        ) {
+          $contact[$this->apiAddressCreate]['id'] = $v['id'];
+          $the_same = true;
+          break;
+        }
+      }
+      if (!$the_same) {
+        foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
+          $adr = $this->getAddressValues($v);
+          if (array_key_exists('postal_code', $adr) && $this->postal_code == $adr['postal_code']) {
+            $contact[$this->apiAddressCreate]['id'] = $v['id'];
+            $contact[$this->apiAddressCreate]['country'] = $this->country;
+            break;
+          }
+        }
+      }
+      if (!array_key_exists('id', $contact[$this->apiAddressCreate])) {
+        unset($contact[$this->apiAddressCreate]);
+      }
+    } else {
+      // we have no address, creating new one
+      $contact[$this->apiAddressCreate]['location_type_id'] = 1;
+      $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+      $contact[$this->apiAddressCreate]['country'] = $this->country;
+    }
+    return $contact;
+  }
+
+
+  function getAddressValues($address) {
+    $expected_keys = array(
+      'city' => '',
+      'street_address' => '',
+      'postal_code' => '',
+      'country_id' => '',
+    );
+    return array_intersect_key($address, $expected_keys);
   }
 
 

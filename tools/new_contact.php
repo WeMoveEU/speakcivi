@@ -57,7 +57,7 @@ $param = (object)array(
   'external_id' => 108,
   'create_dt' => '2015-10-13T13:56:59.617+01:00',
   'cons_hash' => (object)array(
-    'firstname' => 'Tomasz2',
+    'firstname' => 'Tomasz',
 //    'lastname' => 'Pietrzkowski',
     'lastname' => '',
     'emails' => array(
@@ -67,7 +67,8 @@ $param = (object)array(
     ),
     'addresses' => array(
       0 => (object)array(
-        'zip' => '[pl] 02-222',
+//        'zip' => '[pl] 02-333',
+        'zip' => '[pl] 01-111',
       ),
     ),
   ),
