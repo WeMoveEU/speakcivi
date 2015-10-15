@@ -332,18 +332,37 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
           break;
         }
       }
+      $postal = false;
       if (!$the_same) {
         foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
           $adr = $this->getAddressValues($v);
-          if (array_key_exists('postal_code', $adr) && $this->postal_code == $adr['postal_code']) {
+          if (
+            !array_key_exists('country_id', $adr) &&
+            array_key_exists('postal_code', $adr) && $this->postal_code == $adr['postal_code']
+          ) {
             $contact[$this->apiAddressCreate]['id'] = $v['id'];
             $contact[$this->apiAddressCreate]['country'] = $this->country;
+            $postal = true;
             break;
           }
         }
       }
-      if (!array_key_exists('id', $contact[$this->apiAddressCreate])) {
+      if (!$the_same && !$postal) {
+        foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
+          $adr = $this->getAddressValues($v);
+          if (
+            array_key_exists('country_id', $adr) && $this->country_id == $adr['country_id'] &&
+            !array_key_exists('postal_code', $adr)
+          ) {
+            $contact[$this->apiAddressCreate]['id'] = $v['id'];
+            $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+            break;
+          }
+        }
+      }
+      if (!array_key_exists($this->apiAddressCreate, $contact) || !array_key_exists('id', $contact[$this->apiAddressCreate])) {
         unset($contact[$this->apiAddressCreate]);
+        $contact = $this->prepareParamsAddressDefault($contact);
       }
     } else {
       // we have no address, creating new one
