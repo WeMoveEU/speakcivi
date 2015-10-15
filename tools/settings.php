@@ -38,6 +38,9 @@ var_dump($result);
 $result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
 var_dump($result);
 
+$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_sender_mail');
+var_dump($result);
+
 $result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
 var_dump($result);
 

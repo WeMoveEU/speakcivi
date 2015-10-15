@@ -26,6 +26,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
 
   public $country = '';
 
+  public $country_id = 0;
+
   public $postal_code = '';
 
   public $campaign = array();
@@ -35,6 +37,14 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public $customFields = array();
 
   public $new_contact = false;
+
+  private $apiAddressGet = 'api.Address.get';
+
+  private $apiAddressCreate = 'api.Address.create';
+
+  private $apiGroupContactGet = 'api.GroupContact.get';
+
+  private $apiGroupContactCreate = 'api.GroupContact.create';
 
 
   function run() {
@@ -55,7 +65,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if (in_array($this->country, $not_send_confirmation_to_those_countries)) {
       $this->opt_in = 0;
     }
-    CRM_Core_Error::debug_var('$this->opt_in', $this->opt_in, false, true);
     CRM_Core_Error::debug_var('$param_______RUN_PARAM', $param, false, true);
 
     $this->campaign = $this->getCampaign($param->external_id);
@@ -112,23 +121,38 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         if (preg_match($re, $zip, $matches)) {
           $this->country = strtoupper($matches[1]);
           $this->postal_code = trim($matches[2]);
+        } else {
+          $this->postal_code = trim($zip);
         }
+      }
+      if ($this->country) {
+        $params = array(
+          'sequential' => 1,
+          'iso_code' => $this->country,
+        );
+        $result = civicrm_api3('Country', 'get', $params);
+        $this->country_id = (int)$result['values'][0]['id'];
       }
     }
   }
 
 
+  /**
+   * Create a petition in Civi: contact and activity
+   *
+   * @param $param
+   */
   public function petition($param) {
 
     $contact = $this->createContact($param);
     if ($this->new_contact) {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
+
     $opt_in_map_activity_status = array(
       0 => 'Completed',
       1 => 'Scheduled', // default
     );
-    CRM_Core_Error::debug_var('$opt_in_map_activity_status[$this->opt_in]', $opt_in_map_activity_status[$this->opt_in], false, true);
     $activity_status = $opt_in_map_activity_status[$this->opt_in];
     if (
       (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
@@ -136,8 +160,6 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     ) {
       $activity_status = 'optout';
     }
-    CRM_Core_Error::debug_var('$activity_status', $activity_status, false, true);
-
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activity_status);
 
     if ($this->opt_in == 1) {
@@ -149,6 +171,11 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   }
 
 
+  /**
+   * Create a sharing activity
+   *
+   * @param $param
+   */
   public function share($param) {
 
     $contact = $this->createContact($param);
@@ -168,69 +195,96 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
   public function createContact($param) {
     $h = $param->cons_hash;
 
-    $apiAddressGet = 'api.Address.get';
-    $apiAddressCreate = 'api.Address.create';
-    $apiGroupContactGet = 'api.GroupContact.get';
-    $apiGroupContactCreate = 'api.GroupContact.create';
-
     $contact = array(
       'sequential' => 1,
       'contact_type' => 'Individual',
-      'first_name' => $h->firstname,
-      'last_name' => $h->lastname,
       'email' => $h->emails[0]->email,
-      $apiAddressGet => array(
+      $this->apiAddressGet => array(
         'id' => '$value.address_id',
         'contact_id' => '$value.id',
       ),
-      $apiGroupContactGet => array(
+      $this->apiGroupContactGet => array(
         'group_id' => $this->groupId,
         'contact_id' => '$value.id',
         'status' => 'Added',
       ),
+      'return' => 'id,email,first_name,last_name',
     );
-
     $result = civicrm_api3('Contact', 'get', $contact);
 
-    unset($contact[$apiAddressGet]);
-    unset($contact[$apiGroupContactGet]);
-    if ($h->addresses[0]->zip[0] =="[" and $h->addresses[0]->zip[3] == "]") {
-      $contact[$apiAddressCreate] = array(
-       'postal_code' => substr($h->addresses[0]->zip,4),
-       'country' => substr($h->addresses[0]->zip,1,2),
-       'is_primary' => 1,
-      );
+    if ($result['count'] == 1) {
+      $contact = $this->prepareParamsContact($param, $contact, $result, $result['values'][0]['id']);
+    } elseif ($result['count'] > 1) {
+      $new_contact = $contact;
+      $new_contact['first_name'] = $h->firstname;
+      $new_contact['last_name'] = $h->lastname;
+      $similarity = $this->glueSimilarity($new_contact, $result['values']);
+      unset($new_contact);
+      $contact_id_best = $this->chooseBestContact($similarity);
+      $contact = $this->prepareParamsContact($param, $contact, $result, $contact_id_best);
     } else {
-      $contact[$apiAddressCreate] = array(
-        'postal_code' => $h->addresses[0]->zip,
-        'is_primary' => 1,
-      );
+      $this->new_contact = true;
+      $contact = $this->prepareParamsContact($param, $contact, $result);
     }
-       
+
+    CRM_Core_Error::debug_var('$createContact_PARAMS', $contact, false, true);
+    return civicrm_api3('Contact', 'create', $contact);
+
+  }
+
+
+  /**
+   * Preparing params for API Contact.create based on retrieved result.
+   * @param array $param
+   * @param array $contact
+   * @param array $result
+   * @param int $based_on_contact_id
+   *
+   * @return mixed
+   */
+  function prepareParamsContact($param, $contact, $result, $based_on_contact_id = 0) {
+    $h = $param->cons_hash;
+
     $opt_in_map_group_status = array(
       0 => 'Added',
       1 => 'Pending', //default
     );
-    CRM_Core_Error::debug_var('$opt_in_map_group_status[$this->opt_in]', $opt_in_map_group_status[$this->opt_in], false, true);
-    if ($result['count'] == 1) {
-      $contact['id'] = $result['values'][0]['id'];
-      if ($result['values'][0][$apiAddressGet]['count'] == 1) {
-        $contact[$apiAddressCreate]['id'] = $result['values'][0]['address_id'];
-      } else {
-        $contact[$apiAddressCreate]['location_type_id'] = 1;
+
+    unset($contact['return']);
+    unset($contact[$this->apiAddressGet]);
+    unset($contact[$this->apiGroupContactGet]);
+
+    $existing_contact = array();
+    if ($based_on_contact_id > 0) {
+      foreach ($result['values'] as $id => $res) {
+        if ($res['id'] == $based_on_contact_id) {
+          $existing_contact = $res;
+          break;
+        }
       }
-      if ($result['values'][0][$apiGroupContactGet]['count'] == 0) {
-        $contact[$apiGroupContactCreate] = array(
+    }
+
+    if (is_array($existing_contact) && count($existing_contact) > 0) {
+      $contact['id'] = $existing_contact['id'];
+      if ($existing_contact['first_name'] == '') {
+        $contact['first_name'] = $h->firstname;
+      }
+      if ($existing_contact['last_name'] == '') {
+        $contact['last_name'] = $h->lastname;
+      }
+      $contact = $this->prepareParamsAddress($contact, $existing_contact);
+      if ($existing_contact[$this->apiGroupContactGet]['count'] == 0) {
+        $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $this->groupId,
           'contact_id' => '$value.id',
           'status' => $opt_in_map_group_status[$this->opt_in],
         );
       }
     } else {
-      $this->new_contact = true;
       $this->customFields = $this->getCustomFields($this->campaignId);
+      $contact['first_name'] = $h->firstname;
+      $contact['last_name'] = $h->lastname;
       $contact['preferred_language'] = $this->getLanguage();
-      CRM_Core_Error::debug_var('$contact[preferred_language]', $contact['preferred_language'], false, true);
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       if (
         (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
@@ -238,17 +292,171 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       ) {
         $contact['is_opt_out'] = 1;
       }
-      $contact[$apiAddressCreate]['location_type_id'] = 1;
-      $contact[$apiGroupContactCreate] = array(
+      $contact = $this->prepareParamsAddressDefault($contact);
+      $contact[$this->apiGroupContactCreate] = array(
         'group_id' => $this->groupId,
         'contact_id' => '$value.id',
         'status' => $opt_in_map_group_status[$this->opt_in],
       );
     }
 
-    CRM_Core_Error::debug_var('$createContact', $contact, false, true);
-    return civicrm_api3('Contact', 'create', $contact);
+    return $contact;
+  }
 
+
+  /**
+   * Preparing params for creating/update a address.
+   *
+   * @param $contact
+   * @param $existing_contact
+   *
+   * @return mixed
+   */
+  function prepareParamsAddress($contact, $existing_contact) {
+    if ($existing_contact[$this->apiAddressGet]['count'] == 1) {
+      // if we have a one address, we update it by new values (?)
+      $contact[$this->apiAddressCreate]['id'] = $existing_contact[$this->apiAddressGet]['id'];
+      $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+      $contact[$this->apiAddressCreate]['country'] = $this->country;
+    } elseif ($existing_contact[$this->apiAddressGet]['count'] > 1) {
+      // from speakout we have only (postal_code) or (postal_code and country)
+      $the_same = false;
+      foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
+        $adr = $this->getAddressValues($v);
+        if (
+          array_key_exists('country_id', $adr) && $this->country_id == $adr['country_id'] &&
+          array_key_exists('postal_code', $adr) && $this->postal_code == $adr['postal_code']
+        ) {
+          $contact[$this->apiAddressCreate]['id'] = $v['id'];
+          $the_same = true;
+          break;
+        }
+      }
+      $postal = false;
+      if (!$the_same) {
+        foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
+          $adr = $this->getAddressValues($v);
+          if (
+            !array_key_exists('country_id', $adr) &&
+            array_key_exists('postal_code', $adr) && $this->postal_code == $adr['postal_code']
+          ) {
+            $contact[$this->apiAddressCreate]['id'] = $v['id'];
+            $contact[$this->apiAddressCreate]['country'] = $this->country;
+            $postal = true;
+            break;
+          }
+        }
+      }
+      if (!$the_same && !$postal) {
+        foreach ($existing_contact[$this->apiAddressGet]['values'] as $k => $v) {
+          $adr = $this->getAddressValues($v);
+          if (
+            array_key_exists('country_id', $adr) && $this->country_id == $adr['country_id'] &&
+            !array_key_exists('postal_code', $adr)
+          ) {
+            $contact[$this->apiAddressCreate]['id'] = $v['id'];
+            $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+            break;
+          }
+        }
+      }
+      if (!array_key_exists($this->apiAddressCreate, $contact) || !array_key_exists('id', $contact[$this->apiAddressCreate])) {
+        unset($contact[$this->apiAddressCreate]);
+        $contact = $this->prepareParamsAddressDefault($contact);
+      }
+    } else {
+      // we have no address, creating new one
+      $contact = $this->prepareParamsAddressDefault($contact);
+    }
+    return $contact;
+  }
+
+
+  /**
+   * Prepare default address
+   * @param $contact
+   */
+  function prepareParamsAddressDefault($contact) {
+    $contact[$this->apiAddressCreate]['location_type_id'] = 1;
+    $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+    $contact[$this->apiAddressCreate]['country'] = $this->country;
+    return $contact;
+  }
+
+
+  /**
+   * Return relevant keys from address
+   * @param $address
+   *
+   * @return array
+   */
+  function getAddressValues($address) {
+    $expected_keys = array(
+      'city' => '',
+      'street_address' => '',
+      'postal_code' => '',
+      'country_id' => '',
+    );
+    return array_intersect_key($address, $expected_keys);
+  }
+
+
+  /**
+   * Calculate similarity between two contacts based on defined keys.
+   * @param $contact1
+   * @param $contact2
+   *
+   * @return int
+   */
+  function calculateSimilarity($contact1, $contact2) {
+    $keys = array(
+      'first_name',
+      'last_name',
+      'email',
+    );
+    $points = 0;
+    foreach ($keys as $key) {
+      if ($contact1[$key] == $contact2[$key]) {
+        $points++;
+      }
+    }
+    return $points;
+  }
+
+
+  /**
+   * Calculate and glue similarity between new contact and all retrieved from database.
+   *
+   * @param array $new_contact
+   * @param array $contacts Array from API.Contact.get, key 'values'
+   *
+   * @return array
+   */
+  function glueSimilarity($new_contact, $contacts) {
+    $similarity = array();
+    foreach ($contacts as $k => $c) {
+      $similarity[$c['id']] = $this->calculateSimilarity($new_contact, $c);
+    }
+    return $similarity;
+  }
+
+
+  /**
+   * Choose the best contact based on similarity. If similarity is the same, choose the oldest one.
+   *
+   * @param $similarity
+   *
+   * @return mixed
+   */
+  function chooseBestContact($similarity) {
+    $max = max($similarity);
+    $contact_ids = array();
+    foreach ($similarity as $k => $v) {
+      if ($max == $v) {
+        $contact_ids[$k] = $k;
+      }
+    }
+    return min(array_keys($contact_ids));
   }
 
 
@@ -279,7 +487,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
     if (property_exists($param, 'comment') && $param->comment != '') {
       $params['details'] = $param->comment;
     }
-    CRM_Core_Error::debug_var('$paramsCreateActivity', $params, false, true);
+    CRM_Core_Error::debug_var('$CreateActivity_PARAMS', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
   }
 
@@ -407,7 +615,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'campaign_id' => $this->campaignId,
       'from' => $this->getSenderMail(),
     );
-    CRM_Core_Error::debug_var('$paramsSpeakoutSendConfirm', $params, false, true);
+    CRM_Core_Error::debug_var('$SpeakoutSendConfirm_PARAMS', $params, false, true);
     return civicrm_api3("Speakout", "sendconfirm", $params);
   }
 
@@ -426,9 +634,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'return' => "{$this->fieldTemplateId},{$this->fieldLanguage},{$this->fieldSenderMail}",
       'id' => $campaignId,
     );
-    CRM_Core_Error::debug_var('$paramsCampaignGet', $params, false, true);
     $result = civicrm_api3('Campaign', 'get', $params);
-    CRM_Core_Error::debug_var('$resultCampaignGet', $result, false, true);
     if ($result['count'] == 1) {
       return $result['values'][0];
     } else {
