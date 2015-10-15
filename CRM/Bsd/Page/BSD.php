@@ -292,7 +292,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       ) {
         $contact['is_opt_out'] = 1;
       }
-      $contact[$this->apiAddressCreate]['location_type_id'] = 1;
+      $contact = $this->prepareParamsAddressDefault($contact);
       $contact[$this->apiGroupContactCreate] = array(
         'group_id' => $this->groupId,
         'contact_id' => '$value.id',
@@ -347,14 +347,30 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       }
     } else {
       // we have no address, creating new one
-      $contact[$this->apiAddressCreate]['location_type_id'] = 1;
-      $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
-      $contact[$this->apiAddressCreate]['country'] = $this->country;
+      $contact = $this->prepareParamsAddressDefault($contact);
     }
     return $contact;
   }
 
 
+  /**
+   * Prepare default address
+   * @param $contact
+   */
+  function prepareParamsAddressDefault($contact) {
+    $contact[$this->apiAddressCreate]['location_type_id'] = 1;
+    $contact[$this->apiAddressCreate]['postal_code'] = $this->postal_code;
+    $contact[$this->apiAddressCreate]['country'] = $this->country;
+    return $contact;
+  }
+
+
+  /**
+   * Return relevant keys from address
+   * @param $address
+   *
+   * @return array
+   */
   function getAddressValues($address) {
     $expected_keys = array(
       'city' => '',
