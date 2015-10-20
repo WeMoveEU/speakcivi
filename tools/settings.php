@@ -20,29 +20,29 @@ $config = CRM_Core_Config::singleton();
 
 // tests:
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_template_id');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_language');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_sender_mail');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_sender_mail');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
 var_dump($result);

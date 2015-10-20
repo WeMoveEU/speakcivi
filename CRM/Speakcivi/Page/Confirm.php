@@ -2,7 +2,7 @@
 
 require_once 'CRM/Core/Page.php';
 
-class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
+class CRM_Speakcivi_Page_Confirm extends CRM_Core_Page {
   function run() {
     $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
     $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, true);
@@ -15,7 +15,7 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     }
 
     /* Section: Group */
-    $group_id = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+    $group_id = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $result = civicrm_api3('GroupContact', 'get', array(
       'sequential' => 1,
       'contact_id' => $id,
@@ -61,10 +61,10 @@ class CRM_Bsd_Page_Confirm extends CRM_Core_Page {
     /* Section: Country */
     $country = '';
     if ($campaign_id > 0) {
-      $bsd = new CRM_Bsd_Page_BSD();
-      $bsd->setDefaults();
-      $bsd->customFields = $bsd->getCustomFields($campaign_id);
-      $language = $bsd->getLanguage();
+      $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
+      $speakcivi->setDefaults();
+      $speakcivi->customFields = $speakcivi->getCustomFields($campaign_id);
+      $language = $speakcivi->getLanguage();
       if ($language != '') {
         $tab = explode('_', $language);
         if (strlen($tab[0]) == 2) {
