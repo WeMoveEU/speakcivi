@@ -31,12 +31,12 @@ $result = civicrm_api3('Campaign', 'get', $params);
 print_r($result);
 
 
-$bsd = new CRM_Bsd_Page_BSD();
+$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
 
 $campaignId = 3;
-$bsd->customFields = $bsd->getCustomFields($campaignId);
-echo '$bsd->customFields: ';
-print_r($bsd->customFields);
+$speakcivi->customFields = $speakcivi->getCustomFields($campaignId);
+echo '$speakcivi->customFields: ';
+print_r($speakcivi->customFields);
 
 echo 'template: ';
-echo $bsd->getTemplateId();
+echo $speakcivi->getTemplateId();

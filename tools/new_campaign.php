@@ -20,17 +20,17 @@ $config = CRM_Core_Config::singleton();
 
 // tests:
 
-$bsd = new CRM_Bsd_Page_BSD();
+$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
 
 $param = (object)array(
   'external_id' => 9,
 );
 
-$campaign = $bsd->getCampaign($param->external_id);
+$campaign = $speakcivi->getCampaign($param->external_id);
 echo '$campaign GET: ';
 print_r($campaign);
 
-$campaign = $bsd->setCampaign($param, $campaign);
+$campaign = $speakcivi->setCampaign($param, $campaign);
 echo '$campaign NEW: ';
 print_r($campaign);
 

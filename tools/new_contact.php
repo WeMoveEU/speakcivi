@@ -23,7 +23,7 @@ $config = CRM_Core_Config::singleton();
 // campaign id = 8
 
 
-$bsd = new CRM_Bsd_Page_BSD();
+$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
 // petition:
 $param = (object)array(
   'action_name' => 'Nazwa kampanii',
@@ -77,15 +77,15 @@ $param = (object)array(
 );
 //var_dump($param);
 
-$bsd->setDefaults();
-$bsd->setCountry($param);
-$bsd->campaign = $bsd->getCampaign($param->external_id);
-$bsd->campaign = $bsd->setCampaign($param->external_id, $bsd->campaign);
-if ($bsd->isValidCampaign($bsd->campaign)) {
-  $bsd->campaignId = $bsd->campaign['id'];
+$speakcivi->setDefaults();
+$speakcivi->setCountry($param);
+$speakcivi->campaign = $speakcivi->getCampaign($param->external_id);
+$speakcivi->campaign = $speakcivi->setCampaign($param->external_id, $speakcivi->campaign);
+if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
+  $speakcivi->campaignId = $speakcivi->campaign['id'];
 } else {
   echo 'blad :-[';
   exit;
 }
-$result = $bsd->createContact($param);
+$result = $speakcivi->createContact($param);
 print_r($result);

@@ -1,14 +1,14 @@
 <?php
 
-require_once 'bsd.civix.php';
+require_once 'speakcivi.civix.php';
 
 /**
  * Implementation of hook_civicrm_config
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
-function bsd_civicrm_config(&$config) {
-  _bsd_civix_civicrm_config($config);
+function speakcivi_civicrm_config(&$config) {
+  _speakcivi_civix_civicrm_config($config);
 }
 
 /**
@@ -18,8 +18,8 @@ function bsd_civicrm_config(&$config) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
-function bsd_civicrm_xmlMenu(&$files) {
-  _bsd_civix_civicrm_xmlMenu($files);
+function speakcivi_civicrm_xmlMenu(&$files) {
+  _speakcivi_civix_civicrm_xmlMenu($files);
 }
 
 /**
@@ -27,8 +27,8 @@ function bsd_civicrm_xmlMenu(&$files) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
-function bsd_civicrm_install() {
-  _bsd_civix_civicrm_install();
+function speakcivi_civicrm_install() {
+  _speakcivi_civix_civicrm_install();
 }
 
 /**
@@ -36,8 +36,8 @@ function bsd_civicrm_install() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
-function bsd_civicrm_uninstall() {
-  _bsd_civix_civicrm_uninstall();
+function speakcivi_civicrm_uninstall() {
+  _speakcivi_civix_civicrm_uninstall();
 }
 
 /**
@@ -45,8 +45,8 @@ function bsd_civicrm_uninstall() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
-function bsd_civicrm_enable() {
-  _bsd_civix_civicrm_enable();
+function speakcivi_civicrm_enable() {
+  _speakcivi_civix_civicrm_enable();
 }
 
 /**
@@ -54,8 +54,8 @@ function bsd_civicrm_enable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
  */
-function bsd_civicrm_disable() {
-  _bsd_civix_civicrm_disable();
+function speakcivi_civicrm_disable() {
+  _speakcivi_civix_civicrm_disable();
 }
 
 /**
@@ -69,8 +69,8 @@ function bsd_civicrm_disable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
  */
-function bsd_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _bsd_civix_civicrm_upgrade($op, $queue);
+function speakcivi_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  return _speakcivi_civix_civicrm_upgrade($op, $queue);
 }
 
 /**
@@ -81,8 +81,8 @@ function bsd_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
  */
-function bsd_civicrm_managed(&$entities) {
-  _bsd_civix_civicrm_managed($entities);
+function speakcivi_civicrm_managed(&$entities) {
+  _speakcivi_civix_civicrm_managed($entities);
 }
 
 /**
@@ -94,8 +94,8 @@ function bsd_civicrm_managed(&$entities) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
  */
-function bsd_civicrm_caseTypes(&$caseTypes) {
-  _bsd_civix_civicrm_caseTypes($caseTypes);
+function speakcivi_civicrm_caseTypes(&$caseTypes) {
+  _speakcivi_civix_civicrm_caseTypes($caseTypes);
 }
 
 /**
@@ -103,6 +103,6 @@ function bsd_civicrm_caseTypes(&$caseTypes) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
-function bsd_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
-  _bsd_civix_civicrm_alterSettingsFolders($metaDataFolders);
+function speakcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _speakcivi_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }

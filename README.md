@@ -2,7 +2,7 @@
 clone this into your extension folder, enable this civicrm extension. and voila.
 
 ## api endpoint provided
-it creates a new route/url http://yourdomain.org/civicrm/bsd That should behave like an API from BSD
+it creates a new route/url http://yourdomain.org/civicrm/speakcivi That should behave like an API from Speakout
 
 I'm a bit confused by the doc, can't find anything about cons_action
 

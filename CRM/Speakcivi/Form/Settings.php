@@ -3,9 +3,9 @@
  * Form controller class
  *
  */
-class CRM_Bsd_Form_Settings extends CRM_Core_Form {
+class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
 
-  private $_settingFilter = array('group' => 'bsd_api');
+  private $_settingFilter = array('group' => 'speakcivi');
   //everything from this line down is generic & can be re-used for a setting form in another extension
   //actually - I lied - I added a specific call in getFormSettings
 
@@ -39,7 +39,7 @@ class CRM_Bsd_Form_Settings extends CRM_Core_Form {
     $this->assign('elementNames', $this->getRenderableElementNames());
     // export no-editing settings
     $this->assign('country_lang_mapping_title', $settings['country_lang_mapping']['title']);
-    $this->assign('country_lang_mapping', CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping'));
+    $this->assign('country_lang_mapping', CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping'));
     parent::buildQuickForm();
   }
 

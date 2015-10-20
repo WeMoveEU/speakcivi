@@ -5,8 +5,8 @@
 
 return array(
   'opt_in' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'opt_in',
     'type' => 'Boolean',
     'quick_form_type' => 'YesNo',
@@ -19,8 +19,8 @@ return array(
     'help_text' => "Opt-in",
   ),
   'group_id' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'group_id',
     'type' => 'Integer',
     'quick_form_type' => 'Element',
@@ -34,8 +34,8 @@ return array(
     'help_text' => 'Default group Id',
   ),
   'default_template_id' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'default_template_id',
     'type' => 'Integer',
     'quick_form_type' => 'Element',
@@ -49,8 +49,8 @@ return array(
     'help_text' => "Default message template id",
   ),
   'default_language' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'default_language',
     'type' => 'String',
     'quick_form_type' => 'Element',
@@ -64,8 +64,8 @@ return array(
     'help_text' => "Default language",
   ),
   'field_template_id' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'field_template_id',
     'type' => 'String',
     'quick_form_type' => 'Element',
@@ -79,8 +79,8 @@ return array(
     'help_text' => "Custom field for campaign's message template",
   ),
   'field_language' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'field_language',
     'type' => 'String',
     'quick_form_type' => 'Element',
@@ -94,8 +94,8 @@ return array(
     'help_text' => "Custom field for campaign's language",
   ),
   'field_sender_mail' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'field_sender_mail',
     'type' => 'String',
     'quick_form_type' => 'Element',
@@ -109,8 +109,8 @@ return array(
     'help_text' => "Custom field for campaign's sender mail",
   ),
   'from' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'from',
     'type' => 'String',
     'quick_form_type' => 'Element',
@@ -124,8 +124,8 @@ return array(
     'help_text' => "From",
   ),
   'country_lang_mapping' => array(
-    'group_name' => 'BSD API Preferences',
-    'group' => 'bsd_api',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'country_lang_mapping',
     'type' => 'Array',
     'quick_form_type' => 'Element',

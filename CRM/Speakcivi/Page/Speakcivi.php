@@ -2,7 +2,7 @@
 
 require_once 'CRM/Core/Page.php';
 
-class CRM_Bsd_Page_BSD extends CRM_Core_Page {
+class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $opt_in = 0;
 
@@ -86,7 +86,7 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
         break;
 
       default:
-        CRM_Core_Error::debug_var('BSD API, Unsupported Action Type', $param->action_type, false, true);
+        CRM_Core_Error::debug_var('Speakcivi API, Unsupported Action Type', $param->action_type, false, true);
     }
 
   }
@@ -96,16 +96,16 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
    *  Setting up default values for parameters.
    */
   function setDefaults() {
-    $this->opt_in = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'opt_in');
-    $this->groupId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'group_id');
+    $this->opt_in = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
+    $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->default_campaign_type_id = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
-    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_template_id');
-    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'default_language');
-    $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_template_id');
-    $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_language');
-    $this->fieldSenderMail = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'field_sender_mail');
-    $this->from = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'from');
-    $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('BSD API Preferences', 'country_lang_mapping');
+    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
+    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
+    $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_template_id');
+    $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_language');
+    $this->fieldSenderMail = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_sender_mail');
+    $this->from = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
+    $this->country_lang_mapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
   }
 
 
@@ -615,8 +615,8 @@ class CRM_Bsd_Page_BSD extends CRM_Core_Page {
       'campaign_id' => $this->campaignId,
       'from' => $this->getSenderMail(),
     );
-    CRM_Core_Error::debug_var('$SpeakoutSendConfirm_PARAMS', $params, false, true);
-    return civicrm_api3("Speakout", "sendconfirm", $params);
+    CRM_Core_Error::debug_var('$SpeakciviSendConfirm_PARAMS', $params, false, true);
+    return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
 
 

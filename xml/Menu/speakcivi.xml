@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/speakcivi</path>
+    <page_callback>CRM_Speakcivi_Page_Speakcivi</page_callback>
+    <title>Speakcivi</title>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
+  </item>
+  <item>
+    <path>civicrm/speakcivi/settings</path>
+    <page_callback>CRM_Speakcivi_Form_Settings</page_callback>
+    <title>Speakcivi API Settings</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/speakcivi/confirm</path>
+    <page_callback>CRM_Speakcivi_Page_Confirm</page_callback>
+    <title>Your signature is confirmed</title>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
+  </item>
+</menu>
