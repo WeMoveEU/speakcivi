@@ -67,8 +67,8 @@ $param = (object)array(
     ),
     'addresses' => array(
       0 => (object)array(
-//        'zip' => '[pl] 02-333',
-        'zip' => '[pl] 01-111',
+        //'zip' => '[pl] 01-111',
+        'zip' => '[de] 48329 Havixbeck',
       ),
     ),
   ),
@@ -79,6 +79,8 @@ $param = (object)array(
 
 $speakcivi->setDefaults();
 $speakcivi->setCountry($param);
+echo '$speakcivi->country: '. $speakcivi->country."\n";
+echo '$speakcivi->postal_code: '.$speakcivi->postal_code."\n\n\n";
 $speakcivi->campaign = $speakcivi->getCampaign($param->external_id);
 $speakcivi->campaign = $speakcivi->setCampaign($param->external_id, $speakcivi->campaign);
 if ($speakcivi->isValidCampaign($speakcivi->campaign)) {

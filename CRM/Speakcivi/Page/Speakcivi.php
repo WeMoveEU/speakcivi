@@ -120,9 +120,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $re = "/\\[([a-zA-Z]{2})\\](.*)/";
         if (preg_match($re, $zip, $matches)) {
           $this->country = strtoupper($matches[1]);
-          $this->postal_code = trim($matches[2]);
+          $this->postal_code = substr(trim($matches[2]), 0, 12);
         } else {
-          $this->postal_code = trim($zip);
+          $this->postal_code = substr(trim($zip), 0, 12);
         }
       }
       if ($this->country) {
