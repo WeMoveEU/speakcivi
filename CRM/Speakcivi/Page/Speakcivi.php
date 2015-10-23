@@ -485,7 +485,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'status_id' => $activity_status_id,
     );
     if (property_exists($param, 'comment') && $param->comment != '') {
-      $params['details'] = $param->comment;
+      $params['details'] = trim($param->comment);
     }
     CRM_Core_Error::debug_var('$CreateActivity_PARAMS', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
