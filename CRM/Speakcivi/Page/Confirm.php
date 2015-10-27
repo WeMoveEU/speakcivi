@@ -5,7 +5,8 @@ require_once 'CRM/Core/Page.php';
 class CRM_Speakcivi_Page_Confirm extends CRM_Core_Page {
   function run() {
     $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
-    $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, true);
+    $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, false);
+    CRM_Core_Error::debug_var('CONFIRM $aid (activity_id)', $aid, false, true);
     $campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
     CRM_Core_Error::debug_var('CONFIRM $campaign_id', $campaign_id, false, true);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
@@ -41,7 +42,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Core_Page {
     CRM_Core_Error::debug_var('CONFIRM $resultGroupContact-create', $result, false, true);
 
     /* Section: Activity */
-    if ($aid) {
+    if ($aid > 0) {
       $scheduled_id = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
       $params = array(
         'sequential' => 1,
