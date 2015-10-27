@@ -106,3 +106,31 @@ function speakcivi_civicrm_caseTypes(&$caseTypes) {
 function speakcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _speakcivi_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
+
+/**
+ * Implementation of hook_civicrm_tokens
+ *
+ * @param $tokens
+ */
+function speakcivi_civicrm_tokens(&$tokens) {
+  $tokens['contact'] = array(
+    'contact.confirmation_hash' => 'Confirmation hash',
+  );
+}
+
+/**
+ * Implementation of hook_civicrm_tokenValues
+ *
+ * @param $values
+ * @param $cids
+ * @param null $job
+ * @param array $tokens
+ * @param null $context
+ */
+function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
+  if (!empty($tokens['contact'])) {
+    foreach ($cids as $cid) {
+      $values[$cid]['contact.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
+    }
+  }
+}
