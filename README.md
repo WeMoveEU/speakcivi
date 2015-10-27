@@ -33,11 +33,11 @@ SpeakCivi searches contact by primary email.
 
 ### Parameters of contact:
 
-* created_date of contact is given from action data
-* contact type: Individual
-* added to group `speakout members` on status Pending
+* `created_date` of contact is given from action data
+* `contact type`: Individual
+* added to group `speakout members` on status `Pending`
 * `preferred_language` based on language of campaign
-* `source` -> value: "speakout [action_type] [external_id]"
+* `source` -> value: `speakout [action_type] [external_id]`
 * Do you want to be updated about this and other campaigns?
   * default `YES`
   * If user choose `NO` then:
@@ -68,11 +68,11 @@ SpeakCivi searches contact by primary email.
 
 * If contact has a group on status `Pending` -> change status to `Added`
 * If contact doesn't have a group -> add group on status `Added`
-* If activity id is set up, then
+* If `activity id` is set up, then
   * If activity has a status `Scheduled` -> change status to `Completed`
-* If campaign id is set up, then
+* If `campaign id` is set up, then
   * determine country by language
-  * change post url into [country]/post_confirm in order to present proper language version
+  * change post url into `[country]/post_confirm` in order to present proper language version
 
 ## Existing contact
 
