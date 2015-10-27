@@ -6,6 +6,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Core_Page {
   function run() {
     $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
     $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, false);
+    CRM_Core_Error::debug_var('CONFIRM $aid (activity_id)', $aid, false, true);
     $campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
     CRM_Core_Error::debug_var('CONFIRM $campaign_id', $campaign_id, false, true);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
