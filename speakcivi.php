@@ -128,9 +128,13 @@ function speakcivi_civicrm_tokens(&$tokens) {
  * @param null $context
  */
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
+CRM_Core_Error::debug_var('$tokens', $tokens, false, true);
   if (!empty($tokens['contact'])) {
+CRM_Core_Error::debug_var('wlaszl', 1, false, true);
     foreach ($cids as $cid) {
-      $values[$cid]['contact.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
+//      $values[$cid]['contact.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid); // this works on Send en Email action
+      $values[$cid]['confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid); // this ?
     }
+CRM_Core_Error::debug_var('$tokensValues', $values, false, true);
   }
 }

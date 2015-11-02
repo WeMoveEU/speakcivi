@@ -3,8 +3,9 @@
 <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 
 <div class="row">
-<div id="type" class="col-md-3"><div class="graph"></div></div>
-<div id="status" class="col-md-3"><div class="graph"></div></div>
+<div id="campaign" class="col-md-2"><div class="graph"></div></div>
+<div id="type" class="col-md-2"><div class="graph"></div></div>
+<div id="status" class="col-md-2"><div class="graph"></div></div>
 <div id="date" class="col-md-6"><div class="graph"></div></div>
 <table class="table table-striped" id="table">
 
@@ -60,6 +61,20 @@ var totalCount = dc.dataCount("#datacount")
       .dimension(ndx)
       .group(all);
 
+function drawCampaign (dom) {
+  var dim = ndx.dimension(function(d){return d.campaign});
+  var group = dim.group().reduceSum(function(d){return 1;});
+  var graph  = dc.pieChart(dom)
+    .innerRadius(10).radius(90)
+    .width(250)
+    .height(200)
+    .dimension(dim)
+    .colors(d3.scale.category20())
+    .group(group);
+
+  return graph;
+}
+
 function drawStatus (dom) {
   var dim = ndx.dimension(function(d){return activityStatus[d.status_id]});
   var group = dim.group().reduceSum(function(d){return 1;});
@@ -82,7 +97,7 @@ function drawType (dom) {
     .width(250)
     .height(200)
     .dimension(dim)
-    .colors(d3.scale.category10())
+    .colors(d3.scale.category20b())
     .group(group);
 
   return graph;
@@ -97,7 +112,7 @@ function drawDate (dom) {
     .dimension(dim)
     .group(group)
     .brushOn(true)
-    .x(d3.time.scale().domain(d3.extent(dim.top(1000), function(d) { return d.activity_date_time; })))
+    .x(d3.time.scale().domain(d3.extent(dim.top(2000), function(d) { return d.activity_date_time; })))
     .round(d3.time.day.round)
     .elasticY(true)
     .xUnits(d3.time.days);
@@ -110,7 +125,7 @@ function drawTable(dom) {
   var dim = ndx.dimension (function(d) {return d.contact_id});
   var graph = dc.dataTable(dom)
     .dimension(dim)
-    .size(1000)
+    .size(2000)
     .group(function(d){ return ""; })
     .sortBy(function(d){ return d.activity_date_time; })
     .order(d3.descending)
@@ -120,7 +135,7 @@ function drawTable(dom) {
 		return prettyDate(d.activity_date_time);
 	    },
 	    function (d) {
-		return d.campaign_id;
+		return "<a href='https://act.wemove.eu/campaigns/"+d.speakout_id+"' target='_blank'>"+d.campaign+"</a>";
 	    },
 	    function (d) {
 		return "<a href='"+CRM.url("civicrm/contact/view",{cid:d.contact_id})+"'>"+d.display_name+"</a>";
@@ -144,43 +159,12 @@ function drawTable(dom) {
   return graph;
 }
 
-function bla() {
-	var gender = ndx.dimension(function(d){if(d.gender!="") return d.gender; else return 3;});
-		var genderGroup = gender.group().reduceSum(function(d){return d.qty;});
-	var genderPie   = dc.pieChart('#gender')
-	 .innerRadius(10).radius(90)
-	 .width(250)
-	  .height(200)
-	  .dimension(gender)
-	  .colors(d3.scale.category10())
-	  .group(genderGroup);
-	/*
-	  .label(function(d) {
-	    if (genderPie.hasFilter() && !genderPie.hasFilter(d.key))
-		      return d.key + "(0%)";
-	    return d.key+"(" + Math.floor(d.value / all.reduceSum(function(d) {return d.qty;}).value() * 100) + "%)";;
-	  });
-	*/
-
-	var type = ndx.dimension(function(d) {return d.type;});
-	var typeGroup= type.group().reduceSum(function(d){return d.qty;});
-	var typeRow = dc.rowChart('#type')
-		 .height(200)
-		  .margins({top: 20, left: 10, right: 10, bottom: 20})
-		  .dimension(type)
-		  .cap(5)
-		  .ordering (function(d) {return d.qty;})
-		  .colors(d3.scale.category10())
-		  .group(typeGroup)
-		  .elasticX(true);
-//var typePie   = dc.pieChart("#type").innerRadius(10).radius(90);
-}
-
  
 drawTable("#table");
 drawType("#type .graph");
 drawDate("#date .graph");
 drawStatus("#status .graph");
+drawCampaign("#campaign .graph");
 
 dc.renderAll();
 
