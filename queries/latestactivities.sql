@@ -11,6 +11,10 @@ SELECT
     THEN 'Scheduled'
   WHEN a.status_id = 2
     THEN 'Completed'
+  WHEN a.status_id = 4
+    THEN 'Opt-out'
+  ELSE
+    'Other'
   END AS status_name,
   c.created_date AS contact_create_date,
   a.activity_date_time,
