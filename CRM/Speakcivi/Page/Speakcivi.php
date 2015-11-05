@@ -146,6 +146,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $contact = $this->createContact($param);
     if ($this->new_contact) {
+      CRM_Core_Error::debug_var('$this->new_contact', $this->new_contact, false, true);
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
 
@@ -692,12 +693,18 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    *
    */
   public function setContactCreatedDate($contactId, $createdDate) {
+    CRM_Core_Error::debug_var('$createdDate', $createdDate, false, true);
     $format = 'Y-m-d\TH:i:s.uP';
     $dt = DateTime::createFromFormat($format, $createdDate);
+    CRM_Core_Error::debug_var('$dt', $dt, false, true);
     $time = explode(':', $dt->getTimezone()->getName());
+    CRM_Core_Error::debug_var('$time', $time, false, true);
     $hours = $time[0];
+    CRM_Core_Error::debug_var('$hours', $hours, false, true);
     $mins = $time[1];
+    CRM_Core_Error::debug_var('$mins', $mins, false, true);
     $sign = substr($dt->getTimezone()->getName(), 0, 1);
+    CRM_Core_Error::debug_var('$sign', $sign, false, true);
     $dt->modify("{$hours} hour {$sign}{$mins} minutes");
 
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
@@ -705,6 +712,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       1 => array($contactId, 'Integer'),
       2 => array($dt->format("Y-m-d H:i:s"), 'String'),
     );
+    CRM_Core_Error::debug_var('$params', $params, false, true);
     CRM_Core_DAO::executeQuery($query, $params);
   }
 }
