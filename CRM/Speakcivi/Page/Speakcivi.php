@@ -706,6 +706,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $sign = substr($dt->getTimezone()->getName(), 0, 1);
     CRM_Core_Error::debug_var('$sign', $sign, false, true);
     $dt->modify("{$hours} hour {$sign}{$mins} minutes");
+    $dt->modify("+1 hour");
 
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
     $params = array(
