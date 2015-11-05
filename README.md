@@ -1,6 +1,34 @@
-## Setup
+# Setup
 
 Clone this into your extension folder, enable this civicrm extension. and voila.
+
+# Features
+This extension allows an external petition tool to synchronise the action taken there with CiviCRM
+The petition tool simply push each action to a rest interface provided by this extension, that then transform them into the entities civicrm knows. 
+
+Campaign->CiviCRM Campaign
+Signature->Activity type "petition signature" AND either 
+  - create the contact if needed (and do the opt-in "click here to confirm" email)
+  - update the contact if needed
+
+The petition tool doesn't have a notion of "unique user" (eg. an id) that they send to the CRM, so we use the email as the unique identifier (ie. each email is a single person). This is obviously not 100% true, but the alternative (several persons can share an email), did create lots of invalid duplicates, because the same person would use different name (eg Bob vs Robert, Maria Lopez Gonzales vs Maria Lopez, Jean Christophe vs Jean-Christophe...). So for now, each email identifies uniquely a person.
+
+## opt-in
+If opt-in mode is enabled, Each new contact (new email) has to "opt-in", ie. she will receive an email containing a link, and needs to click on that link. This should happen only onces, ie. once a person has confirmed they want to be contacted, we don't need to ask them everytime.
+
+We use a special group "speakout members" to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
+
+## language
+Once a contact accepts to be contacted, we need to assign it to one of the languages we use (eg. "french speaking..", "german speaking.."). I can be done manually (eg. everyone that signed a petition for a campaign in french can go to the french speaking group) but would be much easier if done automatically. It doesn't have to be realtime, but can be done in batch mode every hour (or daily).
+
+However, few rules:
+- a contact should be in only one language group (eg. I shouldn't receive both english and french mailings). 
+- The latest "specific" (ie. everything but english) language of a petition the member signs is her perfered language
+- If she signs a petition in english, the custom field "speak english" is set to true
+
+
+
+# Entities
 
 ## Campaign
 
@@ -83,16 +111,4 @@ SpeakCivi searches contact by primary email.
   * If contact has more than 1 address ->
     * update similar address by missing value
     * add next if there aren't any similar address
-
-## api endpoint provided
-it creates a new route/url http://yourdomain.org/civicrm/speakcivi That should behave like an API from Speakout
-
-I'm a bit confused by the doc, can't find anything about cons_action
-
-
-      Mechanize.new.post(ENV['API_URL']+'/cons_action', {action_name: internal_name, action_type: rthing.action_type, action_technical_type: "#{ENV['DOMAIN']}:#{rthing.action_type}", external_id: id, create_dt: rthing.created_at, cons_hash: rthing.bsd_cons_hash}.to_json)
-
-
-    bsd_cons_hash (rsign)
-    {firstname: firstname, lastname: lastname, emails: [{ email: email}], addresses: [{zip: postcode}]}
 
