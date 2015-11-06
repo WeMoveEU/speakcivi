@@ -149,6 +149,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
 
+    if ($this->opt_in == 1 && !$this->isContactNeedConfirmation($this->new_contact, $contact['id'])) {
+      $this->opt_in = 0;
+    }
+
     $opt_in_map_activity_status = array(
       0 => 'Completed',
       1 => 'Scheduled', // default
@@ -617,6 +621,33 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     );
     CRM_Core_Error::debug_var('$SpeakciviSendConfirm_PARAMS', $params, false, true);
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
+  }
+
+
+  /**
+   * Check If contact need send email confirmation.
+   *
+   * @param $new_contact
+   * @param $contact_id
+   *
+   * @return bool
+   *
+   */
+  public function isContactNeedConfirmation($new_contact, $contact_id) {
+    if ($new_contact) {
+      return true;
+    } else {
+      $params = array(
+        'sequential' => 1,
+        'contact_id' => $contact_id,
+        'group_id' => $this->groupId,
+      );
+      $result = civicrm_api3('GroupContact', 'get', $params);
+      if ($result['count'] == 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
 
