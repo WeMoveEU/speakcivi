@@ -35,8 +35,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     $template = CRM_Core_Smarty::singleton();
     $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
     $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
-    $confirmation_block_html = $template->fetch('../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$language.'.html.tpl');
-    $confirmation_block_text = $template->fetch('../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$language.'.text.tpl');
+    $confirmation_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$language.'.html.tpl');
+    $confirmation_block_text = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$language.'.text.tpl');
     $params['subject'] = getSubjectConfirm($language);
   } else {
     $params['subject'] = getSubjectImpact($language);

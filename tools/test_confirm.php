@@ -36,7 +36,7 @@ $param = (object)array(
     'lastname' => 'Pietrzkowski',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomek@chords.pl',
+        'email' => 'tomasz@caltha.eu',
       )
     ),
     'addresses' => array(
