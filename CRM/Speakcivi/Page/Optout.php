@@ -1,0 +1,91 @@
+<?php
+
+require_once 'CRM/Core/Page.php';
+
+class CRM_Speakcivi_Page_Optout extends CRM_Core_Page {
+  function run() {
+    $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
+    $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, false);
+    CRM_Core_Error::debug_var('OPTOUT $aid (activity_id)', $aid, false, true);
+    $campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
+    CRM_Core_Error::debug_var('OPTOUT $campaign_id', $campaign_id, false, true);
+    $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
+    $hash1 = sha1(CIVICRM_SITE_KEY . $id);
+    if ($hash !== $hash1) {
+      CRM_Core_Error::fatal("hash not matching");
+    }
+
+    // todo contact.is_opt_out = 1
+
+    /* Section: Group */
+    $group_id = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+    $result = civicrm_api3('GroupContact', 'get', array(
+      'sequential' => 1,
+      'contact_id' => $id,
+      'group_id' => $group_id,
+      'status' => "Pending"
+    ));
+    CRM_Core_Error::debug_var('OPTOUT $resultGroupContact-get', $result, false, true);
+
+    if ($result['count'] == 1) {
+      $params = array(
+        'id' => $result["id"],
+        'status' => "Added",
+      );
+    } else {
+      $params = array(
+        'sequential' => 1,
+        'contact_id' => $id,
+        'group_id' => $group_id,
+        'status' => "Added",
+      );
+    }
+    $result = civicrm_api3('GroupContact', 'create', $params);
+    CRM_Core_Error::debug_var('OPTOUT $resultGroupContact-create', $result, false, true);
+
+    /* Section: Activity */
+    if ($aid > 0) {
+      $scheduled_id = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
+      $params = array(
+        'sequential' => 1,
+        'id' => $aid,
+        'status_id' => $scheduled_id,
+      );
+      $result = civicrm_api3('Activity', 'get', $params);
+      CRM_Core_Error::debug_var('OPTOUT $resultActivityGet', $result, false, true);
+      if ($result['count'] == 1) {
+        $optout_id = CRM_Core_OptionGroup::getValue('activity_status', 'optout', 'name', 'String', 'value');
+        $params['status_id'] = $optout_id;
+        $result = civicrm_api3('Activity', 'create', $params);
+        CRM_Core_Error::debug_var('OPTOUT $resultActivity-create', $result, false, true);
+      }
+    }
+
+    /* Section: Contact */
+    $params_contact = array(
+      'sequential' => 1,
+      'id' => $id,
+      'is_opt_out' => 1,
+    );
+    $result = civicrm_api3('Contact', 'create', $params_contact);
+
+
+    /* Section: Country */
+    $country = '';
+    if ($campaign_id > 0) {
+      $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
+      $speakcivi->setDefaults();
+      $speakcivi->customFields = $speakcivi->getCustomFields($campaign_id);
+      $language = $speakcivi->getLanguage();
+      if ($language != '') {
+        $tab = explode('_', $language);
+        if (strlen($tab[0]) == 2) {
+          $country = '/'.$tab[0];
+        }
+      }
+    }
+
+    $url = "{$country}/post_optout";
+    CRM_Utils_System::redirect($url);
+  }
+}

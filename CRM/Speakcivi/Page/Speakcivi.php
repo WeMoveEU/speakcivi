@@ -38,6 +38,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $new_contact = false;
 
+  /** @var bool Determine whether confirmation block with links have to be included in content of confirmation email. */
+  public $confirmation_block = true;
+
   private $apiAddressGet = 'api.Address.get';
 
   private $apiAddressCreate = 'api.Address.create';
@@ -149,27 +152,20 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
 
-    if ($this->opt_in == 1 && !$this->isContactNeedConfirmation($this->new_contact, $contact['id'])) {
-      $this->opt_in = 0;
-    }
-
     $opt_in_map_activity_status = array(
       0 => 'Completed',
       1 => 'Scheduled', // default
     );
     $activity_status = $opt_in_map_activity_status[$this->opt_in];
-    if (
-      (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
-      (!property_exists($param, 'boolean_collection'))
-    ) {
-      $activity_status = 'optout';
-    }
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activity_status);
 
     if ($this->opt_in == 1) {
       $h = $param->cons_hash;
       $this->customFields = $this->getCustomFields($this->campaignId);
-      $this->sendConfirm($contact, $h->emails[0]->email, $activity['id']);
+      if (!$this->isContactNeedConfirmation($this->new_contact, $contact['id'])) {
+        $this->confirmation_block = false;
+      }
+      $this->sendConfirm($contact, $h->emails[0]->email, $activity['id'], $this->confirmation_block);
     }
 
   }
@@ -290,12 +286,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['last_name'] = $h->lastname;
       $contact['preferred_language'] = $this->getLanguage();
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
-      if (
-        (property_exists($param, 'boolean_collection') && $param->boolean_collection == false) ||
-        (!property_exists($param, 'boolean_collection'))
-      ) {
-        $contact['is_opt_out'] = 1;
-      }
       $contact = $this->prepareParamsAddressDefault($contact);
       $contact[$this->apiGroupContactCreate] = array(
         'group_id' => $this->groupId,
@@ -605,11 +595,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $contact_result
    * @param $email
    * @param $activity_id
+   * @param $confirmation_block
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($contact_result, $email, $activity_id) {
+  public function sendConfirm($contact_result, $email, $activity_id, $confirmation_block) {
     $params = array(
       'sequential' => 1,
       'messageTemplateID' => $this->getTemplateId(),
@@ -618,6 +609,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'activity_id' => $activity_id,
       'campaign_id' => $this->campaignId,
       'from' => $this->getSenderMail(),
+      'confirmation_block' => $confirmation_block,
+      'language' => $this->getLanguage(),
     );
     CRM_Core_Error::debug_var('$SpeakciviSendConfirm_PARAMS', $params, false, true);
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
