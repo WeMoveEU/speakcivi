@@ -61,6 +61,10 @@ function getSubjectConfirm($language) {
       return 'You are almost done - please confirm your action';
       break;
 
+    case 'fr_FR':
+      return 'Vous avez presque terminé';
+      break;
+
     case 'pl_PL':
       return 'Prawie skończone - potwierdź podpisanie petycji';
       break;
@@ -76,6 +80,10 @@ function getSubjectImpact($language) {
   switch ($language) {
     case 'de_DE':
       return 'You are almost done - now multiply your impact';
+      break;
+
+    case 'fr_FR':
+      return 'Démultipliez votre impact';
       break;
 
     case 'pl_PL':
