@@ -1,3 +1,5 @@
+To finish signing the petition, please confirm your email address by clicking on the link below:
+
 Confirm my action and keep me updated on campaigns
 {$url_confirm_and_keep}
 
