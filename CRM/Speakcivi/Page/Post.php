@@ -17,6 +17,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    */
   public function setValues() {
     $this->contact_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
+    CRM_Core_Error::debug_var('$contact_id', $this->contact_id, false, true);
     $this->activity_id = CRM_Utils_Request::retrieve('aid', 'Positive', $this, false);
     CRM_Core_Error::debug_var('$activity_id', $this->activity_id, false, true);
     $this->campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
@@ -70,11 +71,13 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
         'id' => $activity_id,
         'status_id' => $scheduled_id,
       );
+      CRM_Core_Error::debug_var('$paramsActivityGet', $params, false, true);
       $result = civicrm_api3('Activity', 'get', $params);
       CRM_Core_Error::debug_var('$resultActivityGet', $result, false, true);
       if ($result['count'] == 1) {
         $new_status_id = CRM_Core_OptionGroup::getValue('activity_status', $status, 'name', 'String', 'value');
         $params['status_id'] = $new_status_id;
+        CRM_Core_Error::debug_var('$paramsActivity-create', $params, false, true);
         $result = civicrm_api3('Activity', 'create', $params);
         CRM_Core_Error::debug_var('$resultActivity-create', $result, false, true);
       }
@@ -112,6 +115,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
         'status' => "Added",
       );
     }
+    CRM_Core_Error::debug_var('$paramsGroupContact-create', $params, false, true);
     $result = civicrm_api3('GroupContact', 'create', $params);
     CRM_Core_Error::debug_var('$resultGroupContact-create', $result, false, true);
   }
