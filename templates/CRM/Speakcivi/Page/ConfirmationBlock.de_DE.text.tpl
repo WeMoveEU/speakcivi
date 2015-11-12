@@ -1,5 +1,7 @@
-Confirm my action and keep me updated on campaigns
+Um Ihre Unterschrift zu bestätigen, klicken Sie bitte hier:
+
+Hiermit bestätige ich meine Unterschrift und bitte Sie, mich über diese und andere Kampagnen auf dem Laufenden zu halten.
 {$url_confirm_and_keep}
 
-If you would rather not receive campaign emails you still need to confirm your action for it count here:
+Falls Sie keine weiteren Mails von uns erhalten wollen, bestätigen Sie bitte ihre Unterschrift hier, so dass wir sie zählen können.
 {$url_confirm_and_not_receive}

@@ -58,7 +58,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 function getSubjectConfirm($language) {
   switch ($language) {
     case 'de_DE':
-      return 'You are almost done - please confirm your action';
+      return 'Sie sind fast fertig. Bitte bestätigen Sie Ihre Unterschrift';
       break;
 
     case 'fr_FR':
@@ -79,7 +79,7 @@ function getSubjectConfirm($language) {
 function getSubjectImpact($language) {
   switch ($language) {
     case 'de_DE':
-      return 'You are almost done - now multiply your impact';
+      return 'Sie sind fast fertig. Bitte helfen Sie nun mit, diese Aktion weiterzuverbreiten.';
       break;
 
     case 'fr_FR':
