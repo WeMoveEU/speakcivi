@@ -2,78 +2,18 @@
 
 require_once 'CRM/Core/Page.php';
 
-class CRM_Speakcivi_Page_Confirm extends CRM_Core_Page {
+class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
   function run() {
-    $id = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
-    $aid = CRM_Utils_Request::retrieve('aid', 'Positive', $this, false);
-    CRM_Core_Error::debug_var('CONFIRM $aid (activity_id)', $aid, false, true);
-    $campaign_id = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
-    CRM_Core_Error::debug_var('CONFIRM $campaign_id', $campaign_id, false, true);
-    $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
-    $hash1 = sha1(CIVICRM_SITE_KEY . $id);
-    if ($hash !== $hash1) {
-      CRM_Core_Error::fatal("hash not matching");
-    }
+    CRM_Core_Error::debug_var('Page_Post', 'CONFIRM', false, true);
 
-    /* Section: Group */
+    $this->setValues();
+
     $group_id = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-    $result = civicrm_api3('GroupContact', 'get', array(
-      'sequential' => 1,
-      'contact_id' => $id,
-      'group_id' => $group_id,
-      'status' => "Pending"
-    ));
-    CRM_Core_Error::debug_var('CONFIRM $resultGroupContact-get', $result, false, true);
+    $this->setGroupStatus($this->contact_id, $group_id);
 
-    if ($result['count'] == 1) {
-      $params = array(
-        'id' => $result["id"],
-        'status' => "Added",
-      );
-    } else {
-      $params = array(
-        'sequential' => 1,
-        'contact_id' => $id,
-        'group_id' => $group_id,
-        'status' => "Added",
-      );
-    }
-    $result = civicrm_api3('GroupContact', 'create', $params);
-    CRM_Core_Error::debug_var('CONFIRM $resultGroupContact-create', $result, false, true);
+    $this->setActivityStatus($this->activity_id, 'Completed');
 
-    /* Section: Activity */
-    if ($aid > 0) {
-      $scheduled_id = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
-      $params = array(
-        'sequential' => 1,
-        'id' => $aid,
-        'status_id' => $scheduled_id,
-      );
-      $result = civicrm_api3('Activity', 'get', $params);
-      CRM_Core_Error::debug_var('CONFIRM $resultActivityGet', $result, false, true);
-      if ($result['count'] == 1) {
-        $completed_id = CRM_Core_OptionGroup::getValue('activity_status', 'Completed', 'name', 'String', 'value');
-        $params['status_id'] = $completed_id;
-        $result = civicrm_api3('Activity', 'create', $params);
-        CRM_Core_Error::debug_var('CONFIRM $resultActivity-create', $result, false, true);
-      }
-    }
-
-    /* Section: Country */
-    $country = '';
-    if ($campaign_id > 0) {
-      $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-      $speakcivi->setDefaults();
-      $speakcivi->customFields = $speakcivi->getCustomFields($campaign_id);
-      $language = $speakcivi->getLanguage();
-      if ($language != '') {
-        $tab = explode('_', $language);
-        if (strlen($tab[0]) == 2) {
-          $country = '/'.$tab[0];
-        }
-      }
-    }
-
+    $country = $this->getCountry($this->campaign_id);
     $url = "{$country}/post_confirm";
     CRM_Utils_System::redirect($url);
   }
