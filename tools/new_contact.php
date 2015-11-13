@@ -80,7 +80,7 @@ $param = (object)array(
 $speakcivi->setDefaults();
 $speakcivi->setCountry($param);
 echo '$speakcivi->country: '. $speakcivi->country."\n";
-echo '$speakcivi->postal_code: '.$speakcivi->postal_code."\n\n\n";
+echo '$speakcivi->postal_code: '.$speakcivi->postalCode."\n\n\n";
 $speakcivi->campaign = $speakcivi->getCampaign($param->external_id);
 $speakcivi->campaign = $speakcivi->setCampaign($param->external_id, $speakcivi->campaign);
 if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
