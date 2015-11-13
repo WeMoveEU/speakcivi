@@ -1,4 +1,4 @@
-{crmTitle title="Here be dragons"}
+{crmTitle string="Latest speakout activities"}
 
 <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 

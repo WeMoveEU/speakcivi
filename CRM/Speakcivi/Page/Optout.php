@@ -21,7 +21,8 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $this->setActivityStatus($this->activity_id, 'optout');
 
     $country = $this->getCountry($this->campaign_id);
-    $url = "{$country}/post_optout";
+//    $url = "{$country}/post_optout"; // temporary fixed unless I resolve redirect to language versions to this page
+    $url = "/post_optout";
     CRM_Utils_System::redirect($url);
   }
 }
