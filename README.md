@@ -14,9 +14,11 @@ Signature->Activity type "petition signature" AND either
 The petition tool doesn't have a notion of "unique user" (eg. an id) that they send to the CRM, so we use the email as the unique identifier (ie. each email is a single person). This is obviously not 100% true, but the alternative (several persons can share an email), did create lots of invalid duplicates, because the same person would use different name (eg Bob vs Robert, Maria Lopez Gonzales vs Maria Lopez, Jean Christophe vs Jean-Christophe...). So for now, each email identifies uniquely a person.
 
 ## opt-in
-If opt-in mode is enabled, Each new contact (new email) has to "opt-in", ie. she will receive an email containing a link, and needs to click on that link. This should happen only onces, ie. once a person has confirmed they want to be contacted, we don't need to ask them everytime.
+If opt-in mode is enabled, Each new contact (new email) has to "opt-in", ie. she will receive an email containing links, and needs to click on one of them. This should happen only onces, ie. once a person has confirmed they want to be contacted, we don't need to ask them everytime.
 
-We use a special group "speakout members" to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
+In confirmation email there are two links. First for confirmation the signature with agreement for receiving mailings. Second for only confirmation the signature without agreement (`NO BULK EMAILS` switched on). Each message template for confirmation needs to contain `#CONFIRMATION_BLOCK`.
+
+We use a special group "speakout members" to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "Added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
 
 ## language
 Once a contact accepts to be contacted, we need to assign it to one of the languages we use (eg. "french speaking..", "german speaking.."). I can be done manually (eg. everyone that signed a petition for a campaign in french can go to the french speaking group) but would be much easier if done automatically. It doesn't have to be realtime, but can be done in batch mode every hour (or daily).
@@ -66,10 +68,6 @@ SpeakCivi searches contact by primary email.
 * added to group `speakout members` on status `Pending`
 * `preferred_language` based on language of campaign
 * `source` -> value: `speakout [action_type] [external_id]`
-* Do you want to be updated about this and other campaigns?
-  * default `YES`
-  * If user choose `NO` then:
-    * `NO BULK EMAIL` is set up to `TRUE`
 
 ### Parameters of activity:
 
@@ -94,6 +92,10 @@ SpeakCivi searches contact by primary email.
 
 ### Click on confirmation url
 
+* There are two types of confirmation:
+  * confirm with agreement for mailing
+  * confirm without agreement for mailing
+    * in this case `NO BULK EMAIL` is set up to `TRUE`
 * If contact has a group on status `Pending` -> change status to `Added`
 * If contact doesn't have a group -> add group on status `Added`
 * If `activity id` is set up, then
@@ -111,4 +113,3 @@ SpeakCivi searches contact by primary email.
   * If contact has more than 1 address ->
     * update similar address by missing value
     * add next if there aren't any similar address
-
