@@ -152,19 +152,22 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setContactCreatedDate($contact['id'], $param->create_dt);
     }
 
+    $opt_in_for_activity_status = $this->opt_in;
+    if (!$this->isContactNeedConfirmation($this->new_contact, $contact['id'])) {
+      $this->confirmation_block = false;
+      $opt_in_for_activity_status = 0;
+    }
+
     $opt_in_map_activity_status = array(
       0 => 'Completed',
       1 => 'Scheduled', // default
     );
-    $activity_status = $opt_in_map_activity_status[$this->opt_in];
+    $activity_status = $opt_in_map_activity_status[$opt_in_for_activity_status];
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activity_status);
 
     if ($this->opt_in == 1) {
       $h = $param->cons_hash;
       $this->customFields = $this->getCustomFields($this->campaignId);
-      if (!$this->isContactNeedConfirmation($this->new_contact, $contact['id'])) {
-        $this->confirmation_block = false;
-      }
       $this->sendConfirm($contact, $h->emails[0]->email, $activity['id'], $this->confirmation_block);
     }
 
