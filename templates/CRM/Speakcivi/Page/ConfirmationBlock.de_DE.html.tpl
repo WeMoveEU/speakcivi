@@ -1,4 +1,4 @@
-<p>Um Ihre Unterschrift zu bestätigen, klicken Sie bitte hier:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Um Ihre Unterschrift zu bestätigen, klicken Sie bitte hier:</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -12,4 +12,4 @@
   </tr>
 </table>
 
-<p>Falls Sie keine weiteren Mails von uns erhalten wollen, bestätigen Sie bitte ihre Unterschrift <a href="{$url_confirm_and_not_receive}">hier</a>, so dass wir sie zählen können.</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Falls Sie keine weiteren Mails von uns erhalten wollen, bestätigen Sie bitte ihre Unterschrift <a href="{$url_confirm_and_not_receive}">hier</a>, so dass wir sie zählen können.</p>
