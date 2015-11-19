@@ -18,7 +18,9 @@ If opt-in mode is enabled, Each new contact (new email) has to "opt-in", ie. she
 
 In confirmation email there are two links. First for confirmation the signature with agreement for receiving mailings. Second for only confirmation the signature without agreement (`NO BULK EMAILS` switched on). Each message template for confirmation needs to contain `#CONFIRMATION_BLOCK`.
 
-We use a special group "speakout members" to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "Added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
+Email is confirmed if a contact has a group `speakout members` on status `Added`.
+
+We use a special group `speakout members` to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "Added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
 
 ## language
 Once a contact accepts to be contacted, we need to assign it to one of the languages we use (eg. "french speaking..", "german speaking.."). I can be done manually (eg. everyone that signed a petition for a campaign in french can go to the french speaking group) but would be much easier if done automatically. It doesn't have to be realtime, but can be done in batch mode every hour (or daily).
