@@ -68,7 +68,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if (in_array($this->country, $not_send_confirmation_to_those_countries)) {
       $this->optIn = 0;
     }
-    CRM_Core_Error::debug_var('$param_______RUN_PARAM', $param, false, true);
 
     $this->campaign = $this->getCampaign($param->external_id);
     $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
@@ -89,7 +88,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         break;
 
       default:
-        CRM_Core_Error::debug_var('Speakcivi API, Unsupported Action Type', $param->action_type, false, true);
     }
 
   }
@@ -230,7 +228,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->prepareParamsContact($param, $contact, $result);
     }
 
-    CRM_Core_Error::debug_var('$createContact_PARAMS', $contact, false, true);
     return civicrm_api3('Contact', 'create', $contact);
 
   }
@@ -484,7 +481,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if (property_exists($param, 'comment') && $param->comment != '') {
       $params['details'] = trim($param->comment);
     }
-    CRM_Core_Error::debug_var('$CreateActivity_PARAMS', $params, false, true);
     return civicrm_api3('Activity', 'create', $params);
   }
 
@@ -615,7 +611,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'confirmation_block' => $confirmationBlock,
       'language' => $this->getLanguage(),
     );
-    CRM_Core_Error::debug_var('$SpeakciviSendConfirm_PARAMS', $params, false, true);
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
 

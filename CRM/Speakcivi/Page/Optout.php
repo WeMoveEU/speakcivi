@@ -4,8 +4,6 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
   function run() {
-    CRM_Core_Error::debug_var('Page_Post', 'OPTOUT', false, true);
-
     $this->setValues();
 
     $params_contact = array(
