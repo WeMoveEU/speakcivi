@@ -1,3 +1,5 @@
+Aby potwierdzić podpisanie petycji kliknij w link poniżej
+
 Potwierdź podpisanie petycji i bądź na bieżąco o tej kampanii
 {$url_confirm_and_keep}
 
