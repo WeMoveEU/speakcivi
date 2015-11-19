@@ -21,7 +21,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 
   $confirmation_block_html = '';
   $confirmation_block_text = '';
-  $language = $params['language'];
+  $locale = $params['language'];
+  $locales = getLocale($params['language']);
   if ($params['confirmation_block']) {
     $cgid = $params['contact_id'];
     $aid = $params['activity_id'];
@@ -35,11 +36,11 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     $template = CRM_Core_Smarty::singleton();
     $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
     $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
-    $confirmation_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$language.'.html.tpl');
-    $confirmation_block_text = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$language.'.text.tpl');
-    $params['subject'] = getSubjectConfirm($language);
+    $confirmation_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl');
+    $confirmation_block_text = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl');
+    $params['subject'] = getSubjectConfirm($locale);
   } else {
-    $params['subject'] = getSubjectImpact($language);
+    $params['subject'] = getSubjectImpact($locale);
   }
 
   $params['html'] = str_replace("#CONFIRMATION_BLOCK", $confirmation_block_html, $dao->html);
@@ -55,8 +56,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 
 
 // todo move dictionary to other better place
-function getSubjectConfirm($language) {
-  switch ($language) {
+function getSubjectConfirm($locale) {
+  switch ($locale) {
     case 'de_DE':
       return 'Sie sind fast fertig. Bitte bestätigen Sie Ihre Unterschrift';
       break;
@@ -76,8 +77,8 @@ function getSubjectConfirm($language) {
 
 
 // todo move dictionary to other better place
-function getSubjectImpact($language) {
-  switch ($language) {
+function getSubjectImpact($locale) {
+  switch ($locale) {
     case 'de_DE':
       return 'Sie sind fast fertig. Bitte helfen Sie nun mit, diese Aktion weiterzuverbreiten.';
       break;
