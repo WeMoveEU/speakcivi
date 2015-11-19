@@ -94,3 +94,23 @@ function getSubjectImpact($language) {
       return 'You are almost done - now multiply your impact';
   }
 }
+
+/**
+ * Get locale version for locale from params. Default is a english version.
+ *
+ * @param string $locale Locale, so format is xx_YY (language_COUNTRY), ex. en_GB
+ *
+ * @return array
+ */
+function getLocale($locale) {
+  $localeTab = array(
+    'html' => 'en_GB',
+    'text' => 'en_GB',
+  );
+  foreach ($localeTab as $type => $localeType) {
+    if (file_exists('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locale.'.html.tpl')) {
+      $localeTab[$type] = $locale;
+    }
+  }
+  return $localeTab;
+}
