@@ -30,7 +30,6 @@ $campaign = $speakcivi->getCampaign($param->external_id);
 echo '$campaign GET: ';
 print_r($campaign);
 
-$campaign = $speakcivi->setCampaign($param, $campaign);
+$campaign = $speakcivi->setCampaign($param->external_id, $campaign);
 echo '$campaign NEW: ';
 print_r($campaign);
-

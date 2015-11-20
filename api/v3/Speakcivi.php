@@ -44,7 +44,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   }
 
   $params['html'] = str_replace("#CONFIRMATION_BLOCK", $confirmation_block_html, $dao->html);
-  $params['text'] = str_replace("#CONFIRMATION_BLOCK", $confirmation_block_text, $dao->text);
+  $params['text'] = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmation_block_text), $dao->text);
 
   $params['format'] = $dao->format;
   $dao->free();
@@ -112,12 +112,13 @@ function getSubjectImpact($locale) {
  * @return array
  */
 function getLocale($locale) {
+  return array ('html'=>$locale,'text'=>$locale);// Tomasz: block under doesn't work TODO BUG
   $localeTab = array(
     'html' => 'en_GB',
     'text' => 'en_GB',
   );
   foreach ($localeTab as $type => $localeType) {
-    if (file_exists('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locale.'.html.tpl')) {
+    if (file_exists(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locale.'.'.$type.'.tpl')) {
       $localeTab[$type] = $locale;
     }
   }
