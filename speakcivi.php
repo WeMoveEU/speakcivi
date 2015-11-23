@@ -113,8 +113,8 @@ function speakcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * @param $tokens
  */
 function speakcivi_civicrm_tokens(&$tokens) {
-  $tokens['contact'] = array(
-    'contact.confirmation_hash' => 'Confirmation hash',
+  $tokens['speakcivi'] = array(
+    'speakcivi.confirmation_hash' => 'Confirmation hash',
   );
 }
 
@@ -128,10 +128,7 @@ function speakcivi_civicrm_tokens(&$tokens) {
  * @param null $context
  */
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
-  if (!empty($tokens['contact'])) {
-    foreach ($cids as $cid) {
-//      $values[$cid]['contact.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid); // this works on Send en Email action
-      $values[$cid]['confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid); // this ?
-    }
+  foreach ($cids as $cid) {
+    $values[$cid]['speakcivi.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
   }
 }
