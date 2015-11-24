@@ -102,6 +102,9 @@ SpeakCivi searches contact by primary email.
 * If contact doesn't have a group -> add group on status `Added`
 * If `activity id` is set up, then
   * If activity has a status `Scheduled` -> change status to `Completed`
+* If `activity id` is NOT set up and we have a `campaign_id`, then
+  * find all activities for this campaign
+  * If activity has a status `Scheduled` -> change status to `Completed`
 * If `campaign id` is set up, then
   * determine country by language
   * change post url into `[country]/post_confirm` in order to present proper language version
