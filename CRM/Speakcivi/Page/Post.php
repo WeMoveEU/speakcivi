@@ -109,4 +109,27 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     }
     $result = civicrm_api3('GroupContact', 'create', $params);
   }
+
+
+  function findActivityIds($activity_id, $campaign_id, $contact_id) {
+    $aids = array();
+    if (!$activity_id && $campaign_id) {
+      $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
+      $activityStatusId = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
+      $query = "SELECT a.id
+                FROM civicrm_activity a JOIN civicrm_activity_contact ac ON a.id = ac.activity_id
+                WHERE ac.contact_id = %1 AND activity_type_id = %2 AND a.status_id = %3 AND a.campaign_id = %4";
+      $params = array(
+        1 => array($contact_id, 'Integer'),
+        2 => array($activityTypeId, 'Integer'),
+        3 => array($activityStatusId, 'Integer'),
+        4 => array($campaign_id, 'Integer'),
+      );
+      $results = CRM_Core_DAO::executeQuery($query, $params);
+      while ($results->fetch()) {
+        $aids[] = $results->id;
+      }
+    }
+    return $aids;
+  }
 }
