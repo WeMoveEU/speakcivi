@@ -22,5 +22,7 @@ $post = new CRM_Speakcivi_Page_Confirm();
 
 $post->contact_id = 7034;
 $post->campaign_id = 16;
-$aids = $post->findActivityIds($post->activity_id, $post->campaign_id, $post->contact_id);
+$aids = $post->findActivitiesIds($post->activity_id, $post->campaign_id, $post->contact_id);
 print_r($aids);
+
+$post->setActivitiesStatuses($post->activity_id, $aids, 'Completed');

@@ -79,6 +79,23 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
 
   /**
+   * Set acitivity status for each activities.
+   * @param integer $activity_id
+   * @param array $aids array of activities ids
+   * @param string $status
+   */
+  public function setActivitiesStatuses($activity_id, $aids, $status = 'Completed') {
+    if (is_array($aids) && count($aids) > 0) {
+      foreach ($aids as $aid) {
+        $this->setActivityStatus($aid, $status);
+      }
+    } else {
+      $this->setActivityStatus($activity_id, $status);
+    }
+  }
+
+
+  /**
    * Set Added status for group. If group is not assigned to contact, It is added.
    *
    * @param int $contact_id
@@ -111,7 +128,16 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   }
 
 
-  function findActivityIds($activity_id, $campaign_id, $contact_id) {
+  /**
+   * Find activities if activity id is not set up in confirmation link
+   *
+   * @param $activity_id
+   * @param $campaign_id
+   * @param $contact_id
+   *
+   * @return array
+   */
+  public function findActivitiesIds($activity_id, $campaign_id, $contact_id) {
     $aids = array();
     if (!$activity_id && $campaign_id) {
       $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
@@ -127,7 +153,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       );
       $results = CRM_Core_DAO::executeQuery($query, $params);
       while ($results->fetch()) {
-        $aids[] = $results->id;
+        $aids[$results->id] = $results->id;
       }
     }
     return $aids;
