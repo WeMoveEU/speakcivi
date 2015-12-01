@@ -70,6 +70,10 @@ function getSubjectConfirm($locale) {
       return 'Ya casi has terminado. Confirma tu acción por favor.';
       break;
 
+    case 'it_IT':
+      return 'Hai quasi finito';
+      break;
+
     case 'pl_PL':
       return 'Prawie skończone - potwierdź podpisanie petycji';
       break;
@@ -93,6 +97,10 @@ function getSubjectImpact($locale) {
 
     case 'es_ES':
       return 'Ya casi has terminado. Ahora multiplica el impacto de tu acción.';
+      break;
+
+    case 'it_IT':
+      return "Moltiplica l'impatto della tua azione";
       break;
 
     case 'pl_PL':
