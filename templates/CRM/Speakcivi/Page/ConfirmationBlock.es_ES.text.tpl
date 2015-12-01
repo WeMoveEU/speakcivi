@@ -1,7 +1,7 @@
-To finish signing the petition, please confirm your email address by clicking on the link below:
+Para terminar de firmar la petición pincha en este enlace:
 
-Confirm my action and keep me updated on campaigns
+Confirmo mi acción; me gustaría saber más sobre otras campañas
 {$url_confirm_and_keep}
 
-If you would rather not receive campaign emails you still need to confirm your action for it count here:
+Confirma aquí si prefieres no recibir más información sobre esta y otras campañas:
 {$url_confirm_and_not_receive}
