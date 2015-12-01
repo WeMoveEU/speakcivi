@@ -38,6 +38,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $newContact = false;
 
+  public $genderMaleValue = 0;
+
+  public $genderFemaleValue = 0;
+
+  public $genderUnspecificValue = 0;
+
   /** @var bool Determine whether confirmation block with links have to be included in content of confirmation email. */
   public $confirmationBlock = true;
 
@@ -107,6 +113,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->fieldSenderMail = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_sender_mail');
     $this->from = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
     $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
+    $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
+    $this->genderMaleValue = CRM_Core_OptionGroup::getValue('gender', 'Male', 'name', 'String', 'value');
+    $this->genderUnspecificValue = CRM_Core_OptionGroup::getValue('gender', 'Transgender', 'name', 'String', 'value');
   }
 
 
@@ -216,9 +225,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if ($result['count'] == 1) {
       $contact = $this->prepareParamsContact($param, $contact, $result, $result['values'][0]['id']);
     } elseif ($result['count'] > 1) {
+      $genderId = $this->getGender($h->lastname);
+      $lastname = $this->getLastname($h->lastname, $genderId);
       $new_contact = $contact;
       $new_contact['first_name'] = $h->firstname;
-      $new_contact['last_name'] = $h->lastname;
+      $new_contact['last_name'] = $lastname;
       $similarity = $this->glueSimilarity($new_contact, $result['values']);
       unset($new_contact);
       $contactIdBest = $this->chooseBestContact($similarity);
@@ -230,6 +241,49 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     return civicrm_api3('Contact', 'create', $contact);
 
+  }
+
+
+  /**
+   * Get gender id based on lastname. Format: Lastname [?], M -> Male, F -> Femail, others -> Unspecific
+   * @param $lastname
+   *
+   * @return int
+   */
+  function getGender($lastname) {
+    $re = '/.* \[([FM])\]$/';
+    if (preg_match($re, $lastname, $matches)) {
+      switch ($matches[1]) {
+        case 'F':
+          return $this->genderFemaleValue;
+
+        case 'M':
+          return $this->genderMaleValue;
+
+        default:
+          return $this->genderUnspecificValue;
+      }
+    }
+    return $this->genderUnspecificValue;
+  }
+
+
+  /**
+   * Get lastname based on lastname and gender. If gender is specified, then remove suffix
+   * @param $lastname
+   * @param $gender
+   *
+   * @return mixed
+   */
+  function getLastname($lastname, $gender) {
+    if (in_array($gender, array($this->genderFemaleValue, $this->genderMaleValue))) {
+      $map = array(
+        $this->genderFemaleValue => 'F',
+        $this->genderMaleValue => 'M',
+      );
+      return str_replace(' ['.$map[$gender].']', '', $lastname);
+    }
+    return $lastname;
   }
 
 
@@ -282,8 +336,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
     } else {
       $this->customFields = $this->getCustomFields($this->campaignId);
+      $genderId = $this->getGender($h->lastname);
+      $lastname = $this->getLastname($h->lastname, $genderId);
       $contact['first_name'] = $h->firstname;
-      $contact['last_name'] = $h->lastname;
+      $contact['last_name'] = $lastname;
+      $contact['gender_id'] = $genderId;
       $contact['preferred_language'] = $this->getLanguage();
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
