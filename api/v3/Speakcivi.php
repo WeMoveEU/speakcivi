@@ -59,7 +59,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 function getSubjectConfirm($locale) {
   switch ($locale) {
     case 'de_DE':
-      return 'Sie sind fast fertig. Bitte bestätigen Sie Ihre Unterschrift';
+      return 'Sie sind fast fertig. Bitte bestätigen Sie Ihre Unterschrift.';
       break;
 
     case 'fr_FR':
