@@ -224,8 +224,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if ($result['count'] == 1) {
       $contact = $this->prepareParamsContact($param, $contact, $result, $result['values'][0]['id']);
     } elseif ($result['count'] > 1) {
-      $genderId = $this->getGenderId($h->lastname);
-      $lastname = $this->getLastname($h->lastname, $genderId);
+      $lastname = $this->cleanLastname($h->lastname);
       $new_contact = $contact;
       $new_contact['first_name'] = $h->firstname;
       $new_contact['last_name'] = $lastname;
@@ -283,21 +282,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
 
   /**
-   * Get lastname based on lastname and gender. If gender is specified, then remove suffix
+   * Clean lastname from gender
    * @param $lastname
-   * @param $gender
    *
    * @return mixed
    */
-  function getLastname($lastname, $gender) {
-    if (in_array($gender, array($this->genderFemaleValue, $this->genderMaleValue))) {
-      $map = array(
-        $this->genderFemaleValue => 'F',
-        $this->genderMaleValue => 'M',
-      );
-      return str_replace(' ['.$map[$gender].']', '', $lastname);
-    }
-    return $lastname;
+  function cleanLastname($lastname) {
+    $re = "/(.*)( \\[.*\\])$/";
+    return preg_replace($re, '${1}', $lastname);
   }
 
 
@@ -352,7 +344,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->customFields = $this->getCustomFields($this->campaignId);
       $genderId = $this->getGenderId($h->lastname);
       $genderShortcut = $this->getGenderShortcut($h->lastname);
-      $lastname = $this->getLastname($h->lastname, $genderId);
+      $lastname = $this->cleanLastname($h->lastname);
       $contact['first_name'] = $h->firstname;
       $contact['last_name'] = $lastname;
       $contact['gender_id'] = $genderId;

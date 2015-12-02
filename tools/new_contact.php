@@ -29,14 +29,14 @@ $param = (object)array(
   'action_name' => 'Nazwa kampanii',
   'action_type' => 'petition',
   'action_technical_type' => 'act2.wemove.eu:petition',
-  'external_id' => 108,
+  'external_id' => 23,
   'create_dt' => '2015-10-13T13:56:59.617+01:00',
   'cons_hash' => (object)array(
-    'firstname' => 'Tomasz2',
-    'lastname' => 'Pietrzkowski [M]',
+    'firstname' => 'Tomasz',
+    'lastname' => 'Pietrzkowski [F]',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomek@chords.pl',
+        'email' => 'tomasz.pietrzkowski8@chords.pl',
       )
     ),
     'addresses' => array(
@@ -53,7 +53,7 @@ $param = (object)array(
 //  'action_name' => 'Nazwa kampanii',
 //  'action_type' => 'share',
 //  'action_technical_type' => 'act2.wemove.eu:share',
-//  'external_id' => 108,
+//  'external_id' => 23,
 //  'create_dt' => '2015-10-13T13:56:59.617+01:00',
 //  'cons_hash' => (object)array(
 //    'firstname' => 'Tomasz',
@@ -92,11 +92,18 @@ if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
 $gender = $speakcivi->getGenderId($param->cons_hash->lastname);
 echo $param->cons_hash->lastname."\n";
 echo '$gender: '. $gender."\n";
-$lastname = $speakcivi->getLastname($param->cons_hash->lastname, $gender);
+$lastname = $speakcivi->cleanLastname($param->cons_hash->lastname);
 echo 'lastname: '.$lastname."\n\n";
-//$result = $speakcivi->createContact($param);
-//print_r($result);
-$speakcivi->customFields = $speakcivi->getCustomFields($speakcivi->campaignId);
-print_r($speakcivi->customFields);
-$locale = $speakcivi->getLanguage();
-echo 'locale: '.$locale."\n";
+$result = $speakcivi->createContact($param);
+print_r($result);
+
+$genderId = $speakcivi->getGenderId($param->cons_hash->lastname);
+$genderShortcut = $speakcivi->getGenderShortcut($param->cons_hash->lastname);
+
+echo "genderId: ".$genderId."\n";
+echo "genderShortcut: ".$genderShortcut."\n";
+var_dump($genderId);
+var_dump($genderShortcut);
+var_dump($speakcivi->genderFemaleValue);
+var_dump($speakcivi->genderMaleValue);
+var_dump($speakcivi->genderUnspecifiedValue);
