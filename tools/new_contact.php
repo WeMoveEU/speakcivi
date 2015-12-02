@@ -29,15 +29,14 @@ $param = (object)array(
   'action_name' => 'Nazwa kampanii',
   'action_type' => 'petition',
   'action_technical_type' => 'act2.wemove.eu:petition',
-  'external_id' => 108,
+  'external_id' => 23,
   'create_dt' => '2015-10-13T13:56:59.617+01:00',
   'cons_hash' => (object)array(
-    'firstname' => 'Tomasz2',
-    'lastname' => 'Pietrzkowski',
-//    'lastname' => '',
+    'firstname' => 'Tomasz',
+    'lastname' => 'Pietrzkowski [F]',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomek@chords.pl',
+        'email' => 'tomasz.pietrzkowski8@chords.pl',
       )
     ),
     'addresses' => array(
@@ -50,31 +49,31 @@ $param = (object)array(
   'comment' => 'Komentarz do petycji',
 );
 // share:
-$param = (object)array(
-  'action_name' => 'Nazwa kampanii',
-  'action_type' => 'share',
-  'action_technical_type' => 'act2.wemove.eu:share',
-  'external_id' => 108,
-  'create_dt' => '2015-10-13T13:56:59.617+01:00',
-  'cons_hash' => (object)array(
-    'firstname' => 'Tomasz',
-//    'lastname' => 'Pietrzkowski',
-    'lastname' => '',
-    'emails' => array(
-      0 => (object)array(
-        'email' => 'tomek@chords.pl',
-      )
-    ),
-    'addresses' => array(
-      0 => (object)array(
-        //'zip' => '[pl] 01-111',
-        'zip' => '[de] 48329 Havixbeck',
-      ),
-    ),
-  ),
-  'boolean_collection' => true,
-  'comment' => 'Komentarz do petycji',
-);
+//$param = (object)array(
+//  'action_name' => 'Nazwa kampanii',
+//  'action_type' => 'share',
+//  'action_technical_type' => 'act2.wemove.eu:share',
+//  'external_id' => 23,
+//  'create_dt' => '2015-10-13T13:56:59.617+01:00',
+//  'cons_hash' => (object)array(
+//    'firstname' => 'Tomasz',
+////    'lastname' => 'Pietrzkowski',
+//    'lastname' => '',
+//    'emails' => array(
+//      0 => (object)array(
+//        'email' => 'tomek@chords.pl',
+//      )
+//    ),
+//    'addresses' => array(
+//      0 => (object)array(
+//        //'zip' => '[pl] 01-111',
+//        'zip' => '[de] 48329 Havixbeck',
+//      ),
+//    ),
+//  ),
+//  'boolean_collection' => true,
+//  'comment' => 'Komentarz do petycji',
+//);
 //var_dump($param);
 
 $speakcivi->setDefaults();
@@ -83,11 +82,28 @@ echo '$speakcivi->country: '. $speakcivi->country."\n";
 echo '$speakcivi->postal_code: '.$speakcivi->postalCode."\n\n\n";
 $speakcivi->campaign = $speakcivi->getCampaign($param->external_id);
 $speakcivi->campaign = $speakcivi->setCampaign($param->external_id, $speakcivi->campaign);
+print_r($speakcivi->campaign);
 if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
   $speakcivi->campaignId = $speakcivi->campaign['id'];
 } else {
   echo 'blad :-[';
   exit;
 }
+$gender = $speakcivi->getGenderId($param->cons_hash->lastname);
+echo $param->cons_hash->lastname."\n";
+echo '$gender: '. $gender."\n";
+$lastname = $speakcivi->cleanLastname($param->cons_hash->lastname);
+echo 'lastname: '.$lastname."\n\n";
 $result = $speakcivi->createContact($param);
 print_r($result);
+
+$genderId = $speakcivi->getGenderId($param->cons_hash->lastname);
+$genderShortcut = $speakcivi->getGenderShortcut($param->cons_hash->lastname);
+
+echo "genderId: ".$genderId."\n";
+echo "genderShortcut: ".$genderShortcut."\n";
+var_dump($genderId);
+var_dump($genderShortcut);
+var_dump($speakcivi->genderFemaleValue);
+var_dump($speakcivi->genderMaleValue);
+var_dump($speakcivi->genderUnspecifiedValue);
