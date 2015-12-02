@@ -46,11 +46,14 @@ class CRM_Speakcivi_Tools_Dictionary {
    * @return int
    */
   public function getEmailGreetingId($locale, $genderShortcut) {
-    if (
-      array_key_exists($locale, $this->emailGreetingIds) &&
-      array_key_exists($genderShortcut, $this->emailGreetingIds[$locale])
-    ) {
-      return $this->emailGreetingIds[$locale][$genderShortcut];
+    if (array_key_exists($locale, $this->emailGreetingIds)) {
+      if (
+        array_key_exists($genderShortcut, $this->emailGreetingIds[$locale]) &&
+        $this->emailGreetingIds[$locale][$genderShortcut] > 0
+      ) {
+        return $this->emailGreetingIds[$locale][$genderShortcut];
+      }
+      return $this->emailGreetingIds[$locale][''];
     }
     return 0;
   }

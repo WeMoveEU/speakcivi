@@ -45,3 +45,6 @@ echo $dict->getEmailGreetingId('fr_FR', 'M')."\n";
 echo $dict->getEmailGreetingId('de_DE', '')."\n";
 echo $dict->getEmailGreetingId('de_DE', 'F')."\n";
 echo $dict->getEmailGreetingId('de_DE', 'M')."\n";
+echo $dict->getEmailGreetingId('es_ES', '')."\n";
+echo $dict->getEmailGreetingId('es_ES', 'F')."\n";
+echo $dict->getEmailGreetingId('es_ES', 'M')."\n";
