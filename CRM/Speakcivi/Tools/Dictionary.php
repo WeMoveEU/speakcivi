@@ -2,74 +2,57 @@
 
 class CRM_Speakcivi_Tools_Dictionary {
 
+  /** @var array Array of ids of email greeting indexed by locale and genderShortcut */
+  public $emailGreetingIds = array();
+
+
   /**
-   * Get salutation based on given gender
-   * @param string $locale
-   * @param string $genderShortcut Female -> F or Male -> M
-   *
-   * @return mixed
+   * Parse all email greeting types in array of locale and gender shortcut
    */
-  public static function getSalutation($locale, $genderShortcut) {
-    if ($genderShortcut == 'F') {
-      return self::getSalutationFemale($locale);
-    } elseif ($genderShortcut == 'M') {
-      return self::getSalutationMale($locale);
+  public function parseGroupEmailGreeting() {
+    CRM_Core_OptionGroup::getAssoc('email_greeting', $group, false, 'name');
+    foreach ($group['description'] as $id => $description) {
+      $tab = $this->parseLocaleGenderShortcut($description);
+      if (is_array($tab) && count($tab) == 2) {
+        $this->emailGreetingIds[$tab['locale']][$tab['genderShortcut']] = $id;
+      }
     }
-    return self::getSalutationUnspecific($locale);
   }
 
 
   /**
-   * Get salutation for female
-   * @param string $locale
+   * Parse description of email greeting type in array of locale and gender shortcut
+   * @param string $description description of email greeting type in format [locale]:[genderShortcut] ex. fr_FR:M
    *
-   * @return string
+   * @return array
    */
-  public static function getSalutationFemale($locale) {
-    $array = array(
-      'de_DE' => 'Liebe',
-      'es_ES' => 'Hola',
-      'fr_FR' => 'Chère',
-      'it_IT' => 'Cara',
-    );
-    $default = 'Dear';
-    return self::getValue($locale, $array, $default);
+  public function parseLocaleGenderShortcut($description) {
+    $re = '/^([a-z]{2,3}_[A-Z]{2})\:(.{0,1})/';
+    if (preg_match($re, $description, $matches)) {
+      return array(
+        'locale' => $matches[1],
+        'genderShortcut' => $matches[2],
+      );
+    }
+    return array();
   }
 
 
   /**
-   * Get salutation for male
+   * Get email greeting Id for locale and gender shortcut
    * @param string $locale
+   * @param string $genderShortcut
    *
-   * @return string
+   * @return int
    */
-  public static function getSalutationMale($locale) {
-    $array = array(
-      'de_DE' => 'Lieber',
-      'es_ES' => 'Hola',
-      'fr_FR' => 'Chèr',
-      'it_IT' => 'Caro',
-    );
-    $default = 'Dear';
-    return self::getValue($locale, $array, $default);
-  }
-
-
-  /**
-   * Get salutation for unspecific gender
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getSalutationUnspecific($locale) {
-    $array = array(
-      'de_DE' => 'Hallo',
-      'es_ES' => 'Hola',
-      'fr_FR' => 'Bonjour',
-      'it_IT' => 'Ciao',
-    );
-    $default = 'Dear';
-    return self::getValue($locale, $array, $default);
+  public function getEmailGreetingId($locale, $genderShortcut) {
+    if (
+      array_key_exists($locale, $this->emailGreetingIds) &&
+      array_key_exists($genderShortcut, $this->emailGreetingIds[$locale])
+    ) {
+      return $this->emailGreetingIds[$locale][$genderShortcut];
+    }
+    return 0;
   }
 
 

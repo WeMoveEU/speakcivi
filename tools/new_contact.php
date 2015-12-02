@@ -89,7 +89,7 @@ if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
   echo 'blad :-[';
   exit;
 }
-$gender = $speakcivi->getGender($param->cons_hash->lastname);
+$gender = $speakcivi->getGenderId($param->cons_hash->lastname);
 echo $param->cons_hash->lastname."\n";
 echo '$gender: '. $gender."\n";
 $lastname = $speakcivi->getLastname($param->cons_hash->lastname, $gender);
@@ -100,5 +100,3 @@ $speakcivi->customFields = $speakcivi->getCustomFields($speakcivi->campaignId);
 print_r($speakcivi->customFields);
 $locale = $speakcivi->getLanguage();
 echo 'locale: '.$locale."\n";
-$salutation = CRM_Speakcivi_Tools_Dictionary::getSalutationMale('fr_FR');
-echo 'salu: '.$salutation."\n\n";
