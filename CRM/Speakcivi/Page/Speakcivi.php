@@ -42,7 +42,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $genderFemaleValue = 0;
 
-  public $genderUnspecificValue = 0;
+  public $genderUnspecifiedValue = 0;
 
   /** @var bool Determine whether confirmation block with links have to be included in content of confirmation email. */
   public $confirmationBlock = true;
@@ -114,7 +114,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
     $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
     $this->genderMaleValue = CRM_Core_OptionGroup::getValue('gender', 'Male', 'name', 'String', 'value');
-    $this->genderUnspecificValue = CRM_Core_OptionGroup::getValue('gender', 'Transgender', 'name', 'String', 'value');
+    $this->genderUnspecifiedValue = CRM_Core_OptionGroup::getValue('gender', 'unspecified', 'name', 'String', 'value');
   }
 
 
@@ -260,10 +260,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           return $this->genderMaleValue;
 
         default:
-          return $this->genderUnspecificValue;
+          return $this->genderUnspecifiedValue;
       }
     }
-    return $this->genderUnspecificValue;
+    return $this->genderUnspecifiedValue;
   }
 
 
