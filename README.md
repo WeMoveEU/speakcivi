@@ -14,23 +14,36 @@ Signature->Activity type "petition signature" AND either
 The petition tool doesn't have a notion of "unique user" (eg. an id) that they send to the CRM, so we use the email as the unique identifier (ie. each email is a single person). This is obviously not 100% true, but the alternative (several persons can share an email), did create lots of invalid duplicates, because the same person would use different name (eg Bob vs Robert, Maria Lopez Gonzales vs Maria Lopez, Jean Christophe vs Jean-Christophe...). So for now, each email identifies uniquely a person.
 
 ## opt-in
-If opt-in mode is enabled, Each new contact (new email) has to "opt-in", ie. she will receive an email containing links, and needs to click on one of them. This should happen only onces, ie. once a person has confirmed they want to be contacted, we don't need to ask them everytime.
+If opt-in mode is enabled, Each new contact (new email) has to "opt-in", ie. she will receive an email containing links, and needs to click on one of them. This should happen only onces, ie. once a person has confirmed they want to be contacted, we don't need to ask them every time.
 
 In confirmation email there are two links. First for confirmation the signature with agreement for receiving mailings. Second for only confirmation the signature without agreement (`NO BULK EMAILS` switched on). Each message template for confirmation needs to contain `#CONFIRMATION_BLOCK`.
 
-Email is confirmed if a contact has a group `speakout members` on status `Added`.
+Email is confirmed if a contact has a group `Members` on status `Added`.
 
-We use a special group `speakout members` to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "Added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
+We use a special group `Members` to flag those that have been confirmed (ie. sent an email is "Pending", once clicked on the link is "Added"). __ If the contact is manually removed from that group, she will receive the opt-in email again next time they sign __
 
 ## language
-Once a contact accepts to be contacted, we need to assign it to one of the languages we use (eg. "french speaking..", "german speaking.."). I can be done manually (eg. everyone that signed a petition for a campaign in french can go to the french speaking group) but would be much easier if done automatically. It doesn't have to be realtime, but can be done in batch mode every hour (or daily).
+Once a contact accepts to be contacted, we need to assign it to one of the languages we use (eg. "french speaking..", "german speaking.."). I can be done manually (eg. everyone that signed a petition for a campaign in french can go to the french speaking group) but would be much easier if done automatically. It doesn't have to be real time, but can be done in batch mode every hour (or daily).
 
 However, few rules:
-- a contact should be in only one language group (eg. I shouldn't receive both english and french mailings). 
-- The latest "specific" (ie. everything but english) language of a petition the member signs is her perfered language
-- If she signs a petition in english, the custom field "speak english" is set to true
 
+* a contact should be in only one language group (eg. I shouldn't receive both english and french mailings).
+* The latest "specific" (ie. everything but english) language of a petition the member signs is her preferred language
+* If she signs a petition in english, the custom field "speak english" is set to true
 
+Language of campaign is determine by `Internal name` in ***speakout***. We use format like this **2015-11-TTIP-ES**, where last `-ES` determine the spanish language.
+
+## gender
+It's possible to designate a gender of a user. If speakout petition has a additional field before a first name then user can select his gender. SpeakCivi extension convert those values in gender in CiviCRM. We use such positions: Female, Male and Unspecified.
+
+## prefix
+If gender is specified during signing a petition then It could be possible to set up a proper prefix. For females is `Mrs.`, for males is `Mr.` for others is not setting at all. There is only one english language version.
+
+## email greeting
+If gender and language is specified then It could be possible to set up a proper email greeting. First of all we have to configure email greeting option groups with special format in description `[locale]:[gender]`
+
+* examples `de_DE:F` stands for german females, `fr_FR:M` stands for french males and `it_IT:` stands for italian unspecified gender
+* In spanish version each gender has the same email greeting, so we have only one email greeting type as `es_ES:`
 
 # Entities
 
@@ -67,7 +80,7 @@ SpeakCivi searches contact by primary email.
 
 * `created_date` of contact is given from action data
 * `contact type`: Individual
-* added to group `speakout members` on status `Pending`
+* added to group `Members` on status `Pending`
 * `preferred_language` based on language of campaign
 * `source` -> value: `speakout [action_type] [external_id]`
 
