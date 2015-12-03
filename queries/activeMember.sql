@@ -21,7 +21,7 @@ WHERE c.id NOT IN (SELECT contact_id FROM civicrm_group_contact WHERE group_id =
     AND a1.activity_date_time >= DATE_ADD(NOW(), INTERVAL -1 MONTH)
     AND a1.activity_date_time >= DATE_ADD(c.created_date, INTERVAL 1 DAY)
 GROUP BY gc.contact_id, c.display_name, c.created_date
-HAVING count(ac1.id) > 1
+HAVING count(ac1.id) >= 1
 ORDER BY c.created_date;
 
 
@@ -42,4 +42,4 @@ FROM (
            AND a1.activity_date_time >= DATE_ADD(NOW(), INTERVAL -1 MONTH)
            AND a1.activity_date_time >= DATE_ADD(c.created_date, INTERVAL 1 DAY)
        GROUP BY gc.contact_id, c.display_name, c.created_date
-       HAVING count(ac1.id) > 1) t;
+       HAVING count(ac1.id) >= 1) t;
