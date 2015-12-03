@@ -597,7 +597,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
         ) {
           $externalCampaign->msg_template_id = $this->defaultTemplateId;
-          $externalCampaign->preferred_language = $this->determineLanguage($externalCampaign->name);
+          $externalCampaign->preferred_language = $this->determineLanguage($externalCampaign->internal_name);
           $params = array(
             'sequential' => 1,
             'title' => $externalCampaign->name,
@@ -629,7 +629,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return string
    */
   function determineLanguage($campaignName) {
-    $re = "/(.*)[_ ]([a-zA-Z]{2})$/";
+    $re = "/(.*)[_\\- ]([a-zA-Z]{2})$/";
     if (preg_match($re, $campaignName, $matches)) {
       $country = strtoupper($matches[2]);
       if (array_key_exists($country, $this->countryLangMapping)) {
