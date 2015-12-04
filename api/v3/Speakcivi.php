@@ -120,7 +120,6 @@ function getSubjectImpact($locale) {
  * @return array
  */
 function getLocale($locale) {
-  return array ('html'=>$locale,'text'=>$locale);// Tomasz: block under doesn't work TODO BUG
   $localeTab = array(
     'html' => 'en_GB',
     'text' => 'en_GB',
