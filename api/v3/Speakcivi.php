@@ -38,9 +38,9 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
     $confirmation_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl');
     $confirmation_block_text = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl');
-    $params['subject'] = getSubjectConfirm($locale);
+    $params['subject'] = CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale);
   } else {
-    $params['subject'] = getSubjectImpact($locale);
+    $params['subject'] = CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale);
   }
 
   $params['html'] = str_replace("#CONFIRMATION_BLOCK", $confirmation_block_html, $dao->html);
@@ -52,64 +52,6 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $sent = CRM_Utils_Mail::send($params);
 
   return civicrm_api3_create_success($sent, $params);
-}
-
-
-// todo move dictionary to other better place
-function getSubjectConfirm($locale) {
-  switch ($locale) {
-    case 'de_DE':
-      return 'Sie sind fast fertig. Bitte bestätigen Sie Ihre Unterschrift.';
-      break;
-
-    case 'fr_FR':
-      return 'Vous avez presque terminé';
-      break;
-
-    case 'es_ES':
-      return 'Ya casi has terminado. Confirma tu acción por favor.';
-      break;
-
-    case 'it_IT':
-      return 'Hai quasi finito';
-      break;
-
-    case 'pl_PL':
-      return 'Prawie skończone - potwierdź podpisanie petycji';
-      break;
-
-    default:
-      return 'You are almost done - please confirm your action';
-  }
-}
-
-
-// todo move dictionary to other better place
-function getSubjectImpact($locale) {
-  switch ($locale) {
-    case 'de_DE':
-      return 'Sie sind fast fertig. Bitte helfen Sie nun mit, diese Aktion weiterzuverbreiten.';
-      break;
-
-    case 'fr_FR':
-      return 'Démultipliez votre impact';
-      break;
-
-    case 'es_ES':
-      return 'Ya casi has terminado. Ahora multiplica el impacto de tu acción.';
-      break;
-
-    case 'it_IT':
-      return "Moltiplica l'impatto della tua azione";
-      break;
-
-    case 'pl_PL':
-      return 'Prawie skończone - powiadom znajomych o petycji';
-      break;
-
-    default:
-      return 'You are almost done - now multiply your impact';
-  }
 }
 
 /**
