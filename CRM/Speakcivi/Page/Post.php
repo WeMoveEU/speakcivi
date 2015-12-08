@@ -10,6 +10,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   public $campaign_id = 0;
 
+
   /**
    * Set values from request.
    *
@@ -37,10 +38,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   public function getCountry($campaign_id) {
     $country = '';
     if ($campaign_id > 0) {
-      $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-      $speakcivi->setDefaults();
-      $speakcivi->customFields = $speakcivi->getCustomFields($campaign_id);
-      $language = $speakcivi->getLanguage();
+      $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
+      $language = $campaign->getLanguage();
       if ($language != '') {
         $tab = explode('_', $language);
         if (strlen($tab[0]) == 2) {
@@ -125,6 +124,44 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       );
     }
     $result = civicrm_api3('GroupContact', 'create', $params);
+  }
+
+
+  /**
+   * Set language group for contact based on language of campaign
+   * @param $contact_id
+   * @param $campaign_id
+   */
+  public function setLanguageGroup($contact_id, $campaign_id) {
+    $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
+    $locale = $campaign->getLanguage();
+    $language = substr($locale, 0, 2);
+    $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+    $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
+    if (!$languageGroupId) {
+      $languageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
+    }
+    $this->setGroupStatus($contact_id, $languageGroupId);
+  }
+
+
+  /**
+   * Get language group id based on language shortcut
+   * @param string $language Example: en, es, fr...
+   * @param string $languageGroupNameSuffix
+   *
+   * @return int
+   */
+  private function findLanguageGroupId($language, $languageGroupNameSuffix) {
+    $result = civicrm_api3('Group', 'get', array(
+      'sequential' => 1,
+      'name' => $language.$languageGroupNameSuffix,
+      'return' => 'id',
+    ));
+    if ($result['count'] == 1) {
+      return $result['id'];
+    }
+    return 0;
   }
 
 
