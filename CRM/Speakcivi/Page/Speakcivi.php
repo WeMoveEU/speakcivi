@@ -8,6 +8,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $groupId = 0;
 
+  /** @var int If language can't be determined or there isn't proper group then we use this default group. */
+  public $defaultLanguageGroupId = 0;
+
   public $defaultCampaignTypeId = 0;
 
   public $defaultTemplateId = 0;
@@ -104,6 +107,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function setDefaults() {
     $this->optIn = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
     $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+    $this->defaultLanguageGroupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
     $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
     $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
     $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
