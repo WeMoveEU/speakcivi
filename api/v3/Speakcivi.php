@@ -43,7 +43,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     $params['subject'] = CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale);
   }
 
-  $params['html'] = str_replace("#CONFIRMATION_BLOCK", $confirmation_block_html, $dao->html);
+  $params['html'] = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmation_block_html), $dao->html);
   $params['text'] = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmation_block_text), $dao->text);
 
   $params['format'] = $dao->format;
