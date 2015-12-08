@@ -133,15 +133,18 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    * @param $campaign_id
    */
   public function setLanguageGroup($contact_id, $campaign_id) {
-    $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
-    $locale = $campaign->getLanguage();
-    $language = substr($locale, 0, 2);
     $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
-    $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
-    if (!$languageGroupId) {
-      $languageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
+    $defaultLanguageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
+    if (!$this->checkLanguageGroup($contact_id, $languageGroupNameSuffix, $defaultLanguageGroupId)) {
+      $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
+      $locale = $campaign->getLanguage();
+      $language = substr($locale, 0, 2);
+      $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
+      if (!$languageGroupId) {
+        $languageGroupId = $defaultLanguageGroupId;
+      }
+      $this->setGroupStatus($contact_id, $languageGroupId);
     }
-    $this->setGroupStatus($contact_id, $languageGroupId);
   }
 
 
@@ -152,7 +155,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @return int
    */
-  private function findLanguageGroupId($language, $languageGroupNameSuffix) {
+  public function findLanguageGroupId($language, $languageGroupNameSuffix) {
     $result = civicrm_api3('Group', 'get', array(
       'sequential' => 1,
       'name' => $language.$languageGroupNameSuffix,
@@ -162,6 +165,29 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       return $result['id'];
     }
     return 0;
+  }
+
+
+  /**
+   * Check if contact has already at least one language group. Default group is skipping.
+   * @param int $contact_id
+   * @param int $defaultLanguageGroupId
+   * @param string $languageGroupNameSuffix
+   *
+   * @return bool
+   */
+  public function checkLanguageGroup($contact_id, $languageGroupNameSuffix, $defaultLanguageGroupId) {
+    $query = "SELECT count(gc.id) group_count
+              FROM civicrm_group_contact gc JOIN civicrm_group g ON gc.group_id = g.id
+              WHERE gc.contact_id = %1 AND g.id <> %2 AND g.name LIKE %3";
+    $params = array(
+      1 => array($contact_id, 'Integer'),
+      2 => array($defaultLanguageGroupId, 'Integer'),
+      3 => array('%'.$languageGroupNameSuffix, 'String'),
+    );
+    $results = CRM_Core_DAO::executeQuery($query, $params);
+    $results->fetch();
+    return (bool)$results->group_count;
   }
 
 
