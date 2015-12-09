@@ -45,6 +45,35 @@ If gender and language is specified then It could be possible to set up a proper
 * examples `de_DE:F` stands for german females, `fr_FR:M` stands for french males and `it_IT:` stands for italian unspecified gender
 * In spanish version each gender has the same email greeting, so we have only one email greeting type as `es_ES:`
 
+## language group
+
+Each contact in group `Members` supposed to be a member of `LANGUAGE language Activists` group
+
+Available groups:
+
+title | name (internal, not visible from CiviCRM)
+--- | ---
+German language Activists | de-language-activists
+English language Activists | en-language-activists
+Spanish language Activists | es-language-activists
+French language Activists | fr-language-activists
+Italian language Activists | it-language-activists
+Polish Language Activists | pl-language-activists
+Romanian language Activists | ro-language-activists
+Other speaking Activists (default) | other-language-activist
+
+* In SpeakCivi `group` is determined by `name`,
+* Only IT team can update `name` value! Remember about this when you will be creating new one or changing names,
+* If language can't be determined or there isn't proper group then we use default group,
+* On `Speakcivi API Settings` page we have such fields:
+  * `Default language group Id`,
+  * `Suffix of language group name`,
+* Adding to such group is invoked after click on confirmation link (in both versions confirm and optout),
+* Contact can have only one language group,
+* If contact has already language group current group is not added,
+* If Speakcivi can't determine language group, default group is adding to contact,
+* Default group is skipping during checking if contact has a language group.
+
 # Entities
 
 ## Campaign
