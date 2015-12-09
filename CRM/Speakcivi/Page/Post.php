@@ -135,15 +135,17 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   public function setLanguageGroup($contact_id, $campaign_id) {
     $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
     $defaultLanguageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
-    if (!$this->checkLanguageGroup($contact_id, $languageGroupNameSuffix, $defaultLanguageGroupId)) {
+    if (!$this->checkLanguageGroup($contact_id, $defaultLanguageGroupId, $languageGroupNameSuffix)) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
       $locale = $campaign->getLanguage();
       $language = substr($locale, 0, 2);
       $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
-      if (!$languageGroupId) {
-        $languageGroupId = $defaultLanguageGroupId;
+      if ($languageGroupId) {
+        $this->setGroupStatus($contact_id, $languageGroupId);
+        $this->deleteLanguageGroup($contact_id, $defaultLanguageGroupId);
+      } else {
+        $this->setGroupStatus($contact_id, $defaultLanguageGroupId);
       }
-      $this->setGroupStatus($contact_id, $languageGroupId);
     }
   }
 
@@ -176,7 +178,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @return bool
    */
-  public function checkLanguageGroup($contact_id, $languageGroupNameSuffix, $defaultLanguageGroupId) {
+  public function checkLanguageGroup($contact_id, $defaultLanguageGroupId, $languageGroupNameSuffix) {
     $query = "SELECT count(gc.id) group_count
               FROM civicrm_group_contact gc JOIN civicrm_group g ON gc.group_id = g.id
               WHERE gc.contact_id = %1 AND g.id <> %2 AND g.name LIKE %3";
@@ -188,6 +190,22 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     $results = CRM_Core_DAO::executeQuery($query, $params);
     $results->fetch();
     return (bool)$results->group_count;
+  }
+
+
+  /**
+   * Delete language group from contact
+   * @param $contact_id
+   * @param $group_id
+   */
+  public function deleteLanguageGroup($contact_id, $group_id) {
+    $query = "DELETE FROM civicrm_group_contact
+              WHERE contact_id = %1 AND group_id = %2";
+    $params = array(
+      1 => array($contact_id, 'Integer'),
+      2 => array($group_id, 'Integer'),
+    );
+    CRM_Core_DAO::executeQuery($query, $params);
   }
 
 

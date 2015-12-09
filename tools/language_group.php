@@ -17,12 +17,8 @@ CRM_Core_ClassLoader::singleton()->register();
 require_once 'CRM/Core/Config.php';
 $config = CRM_Core_Config::singleton();
 
-
 $post = new CRM_Speakcivi_Page_Confirm();
 $post->contact_id = 100;
 $post->campaign_id = 8;
 $post->setLanguageGroup($post->contact_id, $post->campaign_id);
-$country = $post->getCountry($post->campaign_id);
-echo "country: ";
-print_r($country);
 echo "\n\n";
