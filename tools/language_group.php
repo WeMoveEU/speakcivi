@@ -24,4 +24,7 @@ $campaign = new CRM_Speakcivi_Logic_Campaign($post->campaign_id);
 $locale = $campaign->getLanguage();
 $language = substr($locale, 0, 2);
 $post->setLanguageGroup($post->contact_id, $language);
+
+$post->setLanguageTag($post->contact_id, $language);
+
 echo "\n\n";

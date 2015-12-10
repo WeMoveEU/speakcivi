@@ -236,4 +236,81 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     }
     return $aids;
   }
+
+
+  /**
+   * Set language tag for contact based on language of campaign
+   * @param int $contact_id
+   * @param string $language Language in format en, fr, de, pl etc.
+   */
+  public function setLanguageTag($contact_id, $language) {
+    $languageTagNamePrefix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_tag_name_prefix');
+    $tagName = $languageTagNamePrefix.$language;
+    if (!($tagId = $this->getLanguageTagId($tagName))) {
+      $tagId = $this->createLanguageTag($tagName);
+    }
+    if ($tagId) {
+      $this->addLanguageTag($contact_id, $tagId);
+    }
+  }
+
+
+  /**
+   * Get language tag id
+   * @param $tagName
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function getLanguageTagId($tagName) {
+    $params = array(
+      'sequential' => 1,
+      'name' => $tagName,
+    );
+    $result = civicrm_api3('Tag', 'get', $params);
+    if ($result['count'] == 1) {
+      return (int)$result['id'];
+    }
+    return 0;
+  }
+
+
+  /**
+   * Create new language tag
+   * @param $tagName
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function createLanguageTag($tagName) {
+    $params = array(
+      'sequential' => 1,
+      'used_for' => 'civicrm_contact',
+      'name' => $tagName,
+      'description' => $tagName,
+    );
+    $result = civicrm_api3('Tag', 'create', $params);
+    if ($result['count'] == 1) {
+      return (int)$result['id'];
+    }
+    return 0;
+  }
+
+
+  /**
+   * Add tag to contact
+   * @param $contact_id
+   * @param $tag_id
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function addLanguageTag($contact_id, $tag_id) {
+    $params = array(
+      'sequential' => 1,
+      'entity_table' => "civicrm_contact",
+      'entity_id' => $contact_id,
+      'tag_id' => $tag_id,
+    );
+    civicrm_api3('EntityTag', 'create', $params);
+  }
 }

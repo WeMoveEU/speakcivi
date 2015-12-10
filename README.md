@@ -74,6 +74,17 @@ Other speaking Activists (default) | other-language-activist
 * If Speakcivi can't determine language group, default group is adding to contact,
 * Default group is skipping during checking if contact has a language group.
 
+## language tag
+
+Each contact in group `Members` supposed to be a member of `can speak LANGUAGE-SHORTCUT` tag
+
+* `tag` is determined by `name`,
+* Format: `can speak SHORTCUT-LANGUAGE` - this is necessary to find out proper tag by shortcut,
+* `Speakcivi API Settings` page we have a field `Prefix of language tag name` with default value is `can speak `,
+* Examples: `can speak en`, `can speak de`,
+* If tag doesn't exist It's creating new one,
+* Contact can have many tags (not only one).
+
 # Entities
 
 ## Campaign

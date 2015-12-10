@@ -13,6 +13,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $locale = $campaign->getLanguage();
     $language = substr($locale, 0, 2);
     $this->setLanguageGroup($this->contact_id, $language);
+    $this->setLanguageTag($this->contact_id, $language);
 
     $aids = $this->findActivitiesIds($this->activity_id, $this->campaign_id, $this->contact_id);
     $this->setActivitiesStatuses($this->activity_id, $aids, 'Completed');
