@@ -129,16 +129,13 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   /**
    * Set language group for contact based on language of campaign
-   * @param $contact_id
-   * @param $campaign_id
+   * @param int $contact_id
+   * @param string $language Language in format en, fr, de, pl etc.
    */
-  public function setLanguageGroup($contact_id, $campaign_id) {
+  public function setLanguageGroup($contact_id, $language) {
     $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
     $defaultLanguageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
     if (!$this->checkLanguageGroup($contact_id, $defaultLanguageGroupId, $languageGroupNameSuffix)) {
-      $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
-      $locale = $campaign->getLanguage();
-      $language = substr($locale, 0, 2);
       $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
       if ($languageGroupId) {
         $this->setGroupStatus($contact_id, $languageGroupId);
