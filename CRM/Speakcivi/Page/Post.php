@@ -10,6 +10,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   public $campaign_id = 0;
 
+
   /**
    * Set values from request.
    *
@@ -37,10 +38,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   public function getCountry($campaign_id) {
     $country = '';
     if ($campaign_id > 0) {
-      $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-      $speakcivi->setDefaults();
-      $speakcivi->customFields = $speakcivi->getCustomFields($campaign_id);
-      $language = $speakcivi->getLanguage();
+      $campaign = new CRM_Speakcivi_Logic_Campaign($campaign_id);
+      $language = $campaign->getLanguage();
       if ($language != '') {
         $tab = explode('_', $language);
         if (strlen($tab[0]) == 2) {
@@ -129,6 +128,85 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
 
   /**
+   * Set language group for contact based on language of campaign
+   * @param int $contact_id
+   * @param string $language Language in format en, fr, de, pl etc.
+   */
+  public function setLanguageGroup($contact_id, $language) {
+    $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+    $defaultLanguageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
+    if (!$this->checkLanguageGroup($contact_id, $defaultLanguageGroupId, $languageGroupNameSuffix)) {
+      $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
+      if ($languageGroupId) {
+        $this->setGroupStatus($contact_id, $languageGroupId);
+        $this->deleteLanguageGroup($contact_id, $defaultLanguageGroupId);
+      } else {
+        $this->setGroupStatus($contact_id, $defaultLanguageGroupId);
+      }
+    }
+  }
+
+
+  /**
+   * Get language group id based on language shortcut
+   * @param string $language Example: en, es, fr...
+   * @param string $languageGroupNameSuffix
+   *
+   * @return int
+   */
+  public function findLanguageGroupId($language, $languageGroupNameSuffix) {
+    $result = civicrm_api3('Group', 'get', array(
+      'sequential' => 1,
+      'name' => $language.$languageGroupNameSuffix,
+      'return' => 'id',
+    ));
+    if ($result['count'] == 1) {
+      return $result['id'];
+    }
+    return 0;
+  }
+
+
+  /**
+   * Check if contact has already at least one language group. Default group is skipping.
+   * @param int $contact_id
+   * @param int $defaultLanguageGroupId
+   * @param string $languageGroupNameSuffix
+   *
+   * @return bool
+   */
+  public function checkLanguageGroup($contact_id, $defaultLanguageGroupId, $languageGroupNameSuffix) {
+    $query = "SELECT count(gc.id) group_count
+              FROM civicrm_group_contact gc JOIN civicrm_group g ON gc.group_id = g.id
+              WHERE gc.contact_id = %1 AND g.id <> %2 AND g.name LIKE %3";
+    $params = array(
+      1 => array($contact_id, 'Integer'),
+      2 => array($defaultLanguageGroupId, 'Integer'),
+      3 => array('%'.$languageGroupNameSuffix, 'String'),
+    );
+    $results = CRM_Core_DAO::executeQuery($query, $params);
+    $results->fetch();
+    return (bool)$results->group_count;
+  }
+
+
+  /**
+   * Delete language group from contact
+   * @param $contact_id
+   * @param $group_id
+   */
+  public function deleteLanguageGroup($contact_id, $group_id) {
+    $query = "DELETE FROM civicrm_group_contact
+              WHERE contact_id = %1 AND group_id = %2";
+    $params = array(
+      1 => array($contact_id, 'Integer'),
+      2 => array($group_id, 'Integer'),
+    );
+    CRM_Core_DAO::executeQuery($query, $params);
+  }
+
+
+  /**
    * Find activities if activity id is not set up in confirmation link
    *
    * @param $activity_id
@@ -157,5 +235,82 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       }
     }
     return $aids;
+  }
+
+
+  /**
+   * Set language tag for contact based on language of campaign
+   * @param int $contact_id
+   * @param string $language Language in format en, fr, de, pl etc.
+   */
+  public function setLanguageTag($contact_id, $language) {
+    $languageTagNamePrefix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_tag_name_prefix');
+    $tagName = $languageTagNamePrefix.$language;
+    if (!($tagId = $this->getLanguageTagId($tagName))) {
+      $tagId = $this->createLanguageTag($tagName);
+    }
+    if ($tagId) {
+      $this->addLanguageTag($contact_id, $tagId);
+    }
+  }
+
+
+  /**
+   * Get language tag id
+   * @param $tagName
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function getLanguageTagId($tagName) {
+    $params = array(
+      'sequential' => 1,
+      'name' => $tagName,
+    );
+    $result = civicrm_api3('Tag', 'get', $params);
+    if ($result['count'] == 1) {
+      return (int)$result['id'];
+    }
+    return 0;
+  }
+
+
+  /**
+   * Create new language tag
+   * @param $tagName
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function createLanguageTag($tagName) {
+    $params = array(
+      'sequential' => 1,
+      'used_for' => 'civicrm_contact',
+      'name' => $tagName,
+      'description' => $tagName,
+    );
+    $result = civicrm_api3('Tag', 'create', $params);
+    if ($result['count'] == 1) {
+      return (int)$result['id'];
+    }
+    return 0;
+  }
+
+
+  /**
+   * Add tag to contact
+   * @param $contact_id
+   * @param $tag_id
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function addLanguageTag($contact_id, $tag_id) {
+    $params = array(
+      'sequential' => 1,
+      'entity_table' => "civicrm_contact",
+      'entity_id' => $contact_id,
+      'tag_id' => $tag_id,
+    );
+    civicrm_api3('EntityTag', 'create', $params);
   }
 }
