@@ -1,12 +1,16 @@
 <?xml version="1.0"?>
 <extension key="eu.wemove.speakcivi" type="module">
   <file>speakcivi</file>
-  <name>speakcivi compatible api endpoint</name>
-  <description>This allows to a 3rd party to talk to civicrm as if it were a speakcivi CRM</description>
+  <name>SpeakCivi compatible API endpoint</name>
+  <description>This allows to a 3rd party to talk to civicrm as if it were a SpeakCivi CRM</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>xavier</author>
     <email>xavier@tttp.eu</email>
+  </maintainer>
+  <maintainer>
+    <author>scardinius</author>
+    <email>scardinius@chords.pl</email>
   </maintainer>
   <urls>
     <url desc="Main Extension Page">https://github.com/WeMoveEU/speakcivi</url>
