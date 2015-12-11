@@ -249,7 +249,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int
    */
   function getGenderId($lastname) {
-    $re = '/.* \[([FM])\]$/';
+    $re = '/.*\[([FM])\]$/';
     if (preg_match($re, $lastname, $matches)) {
       switch ($matches[1]) {
         case 'F':
@@ -273,7 +273,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return string
    */
   function getGenderShortcut($lastname) {
-    $re = '/.* \[([FM])\]$/';
+    $re = '/.*\[([FM])\]$/';
     if (preg_match($re, $lastname, $matches)) {
       return $matches[1];
     }
@@ -288,8 +288,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return mixed
    */
   function cleanLastname($lastname) {
-    $re = "/(.*)( \\[.*\\])$/";
-    return preg_replace($re, '${1}', $lastname);
+    $re = "/(.*)(\\[.*\\])$/";
+    return trim(preg_replace($re, '${1}', $lastname));
   }
 
 
