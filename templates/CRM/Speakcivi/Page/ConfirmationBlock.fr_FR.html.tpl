@@ -12,4 +12,4 @@
   </tr>
 </table>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;"><a href="{$url_confirm_and_not_receive}">Je confirme ma signature mais je ne souhaite pas recevoir de lettre d’informations de WeMove.EU</a></p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;"><a href="{$url_confirm_and_not_receive}">Je confirme ma signature mais je ne souhaite pas recevoir de lettre d’information de WeMove.EU</a></p>
