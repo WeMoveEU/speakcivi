@@ -6,12 +6,7 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
   function run() {
     $this->setValues();
 
-    $params_contact = array(
-      'sequential' => 1,
-      'id' => $this->contact_id,
-      'is_opt_out' => 1,
-    );
-    $result = civicrm_api3('Contact', 'create', $params_contact);
+    $this->setIsOptOut($this->contact_id, 1);
 
     $group_id = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->setGroupStatus($this->contact_id, $group_id);

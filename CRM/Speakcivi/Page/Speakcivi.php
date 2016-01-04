@@ -159,7 +159,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $optInForActivityStatus = $this->optIn;
-    if (!$this->isContactNeedConfirmation($this->newContact, $contact['id'])) {
+    if (!$this->isContactNeedConfirmation($this->newContact, $contact['id'], $contact['values'][0]['is_opt_out'])) {
       $this->confirmationBlock = false;
       $optInForActivityStatus = 0;
     }
@@ -691,12 +691,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    *
    * @param $newContact
    * @param $contactId
+   * @param $isOptOut
    *
    * @return bool
    *
    */
-  public function isContactNeedConfirmation($newContact, $contactId) {
-    if ($newContact) {
+  public function isContactNeedConfirmation($newContact, $contactId, $isOptOut) {
+    if ($newContact || $isOptOut) {
       return true;
     } else {
       $params = array(
