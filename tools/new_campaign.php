@@ -20,7 +20,7 @@ $config = CRM_Core_Config::singleton();
 
 // tests:
 
-$urlSpeakout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
+$urlSpeakout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
 echo '$urlSpeakout: '.$urlSpeakout."\n\n";
 
 if ($urlSpeakout) {
