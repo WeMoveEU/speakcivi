@@ -149,6 +149,7 @@ SpeakCivi searches contact by primary email.
 
 * There are two types of confirmation:
   * confirm with agreement for mailing
+    * in this case `NO BULK EMAIL` is set up to `FALSE`
   * confirm without agreement for mailing
     * in this case `NO BULK EMAIL` is set up to `TRUE`
 * If contact has a group on status `Pending` -> change status to `Added`
@@ -164,10 +165,12 @@ SpeakCivi searches contact by primary email.
 
 ## Existing contact
 
-* Add contact to group `speakout member`
+* Add contact to group `Members`
 * Update address
   * If contact has no address -> add new address
   * If contact has 1 address -> update by new values
   * If contact has more than 1 address ->
     * update similar address by missing value
     * add next if there aren't any similar address
+* Send confirmation mail
+  * If `NO BULK EMAIL` is set up to `TRUE` content of mail also contains `#CONFIRMATION_BLOCK`

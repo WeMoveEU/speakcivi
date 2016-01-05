@@ -6,6 +6,8 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
   function run() {
     $this->setValues();
 
+    $this->setIsOptOut($this->contact_id, 0);
+
     $group_id = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->setGroupStatus($this->contact_id, $group_id);
 
