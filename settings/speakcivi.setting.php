@@ -4,6 +4,21 @@
  */
 
 return array(
+  'url_speakout' => array(
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
+    'name' => 'url_speakout',
+    'type' => 'String',
+    'quick_form_type' => 'Element',
+    'html_type' => 'text',
+    'default' => 'act.wemove.eu/campaign',
+    'add' => '4.6',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'title' => 'Url to Speakout API',
+    'description' => "Url to Speakout API",
+    'help_text' => "Url to Speakout API",
+  ),
   'opt_in' => array(
     'group_name' => 'Speakcivi API Preferences',
     'group' => 'speakcivi',
