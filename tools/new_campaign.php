@@ -20,16 +20,21 @@ $config = CRM_Core_Config::singleton();
 
 // tests:
 
-$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
+$urlSpeakout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
+echo '$urlSpeakout: '.$urlSpeakout."\n\n";
 
-$param = (object)array(
-  'external_id' => 9,
-);
+if ($urlSpeakout) {
+  $campaignObj = new CRM_Speakcivi_Logic_Campaign();
 
-$campaign = $speakcivi->getCampaign($param->external_id);
-echo '$campaign GET: ';
-print_r($campaign);
+  $param = (object)array(
+    'external_id' => 49,
+  );
 
-$campaign = $speakcivi->setCampaign($param->external_id, $campaign);
-echo '$campaign NEW: ';
-print_r($campaign);
+  $campaign = $campaignObj->getCampaign($param->external_id);
+  echo '$campaign GET: ';
+  print_r($campaign);
+
+  $campaign = $campaignObj->setCampaign($param->external_id, $campaign);
+  echo '$campaign NEW: ';
+  print_r($campaign);
+}

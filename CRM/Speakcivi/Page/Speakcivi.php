@@ -30,6 +30,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $postalCode = '';
 
+  public $campaignObj;
+
   public $campaign = array();
 
   public $campaignId = 0;
@@ -74,9 +76,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->optIn = 0;
     }
 
-    $this->campaign = $this->getCampaign($param->external_id);
-    $this->campaign = $this->setCampaign($param->external_id, $this->campaign);
-    if ($this->isValidCampaign($this->campaign)) {
+    $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
+    $this->campaign = $this->campaignObj->getCampaign($param->external_id);
+    $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign);
+    if ($this->campaignObj->isValidCampaign($this->campaign)) {
       $this->campaignId = $this->campaign['id'];
     } else {
       header('HTTP/1.1 503 Men at work');
@@ -553,109 +556,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $params['details'] = trim($param->comment);
     }
     return civicrm_api3('Activity', 'create', $params);
-  }
-
-
-  /**
-   * Get campaign by external identifier.
-   *
-   * @param $externalIdentifier
-   *
-   * @return array
-   * @throws CiviCRM_API3_Exception
-   */
-  public function getCampaign($externalIdentifier) {
-    if ($externalIdentifier > 0) {
-      $params = array(
-        'sequential' => 1,
-        'external_identifier' => (int)$externalIdentifier,
-      );
-      $result = civicrm_api3('Campaign', 'get', $params);
-      if ($result['count'] == 1) {
-        return $result['values'][0];
-      }
-    }
-    return array();
-  }
-
-
-  /**
-   * Setting up new campaign in CiviCRM if this is necessary.
-   *
-   * @param $externalIdentifier
-   * @param $campaign
-   *
-   * @return array
-   * @throws CiviCRM_API3_Exception
-   */
-  public function setCampaign($externalIdentifier, $campaign) {
-    if (!$this->isValidCampaign($campaign)) {
-      if ($externalIdentifier > 0) {
-        $externalCampaign = (object)json_decode(@file_get_contents("https://act.wemove.eu/campaigns/{$externalIdentifier}.json"));
-        if (is_object($externalCampaign) &&
-          property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
-          property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
-        ) {
-          $externalCampaign->msg_template_id = $this->defaultTemplateId;
-          $externalCampaign->preferred_language = $this->determineLanguage($externalCampaign->internal_name);
-          $params = array(
-            'sequential' => 1,
-            'title' => $externalCampaign->name,
-            'external_identifier' => $externalCampaign->id,
-            'campaign_type_id' => $this->defaultCampaignTypeId,
-            'start_date' => date('Y-m-d H:i:s'),
-            $this->fieldTemplateId => $externalCampaign->msg_template_id,
-            $this->fieldLanguage => $externalCampaign->preferred_language,
-            $this->fieldSenderMail => $this->from,
-          );
-          $result = civicrm_api3('Campaign', 'create', $params);
-          if ($result['count'] == 1) {
-            return $result['values'][0];
-          }
-        }
-      }
-      return array();
-    } else {
-      return $campaign;
-    }
-  }
-
-
-  /**
-   * Determine language based on campaign name which have to include country on the end, ex. *_EN.
-   *
-   * @param $campaignName
-   *
-   * @return string
-   */
-  function determineLanguage($campaignName) {
-    $re = "/(.*)[_\\- ]([a-zA-Z]{2})$/";
-    if (preg_match($re, $campaignName, $matches)) {
-      $country = strtoupper($matches[2]);
-      if (array_key_exists($country, $this->countryLangMapping)) {
-        return $this->countryLangMapping[$country];
-      }
-    }
-    return $this->defaultLanguage;
-  }
-
-
-  /**
-   * Determine whether $campaign table has a valid structure.
-   *
-   * @param $campaign
-   *
-   * @return bool
-   */
-  public function isValidCampaign($campaign) {
-    if (
-      is_array($campaign) &&
-      array_key_exists('id', $campaign) &&
-      $campaign['id'] > 0
-    ) {
-      return true;
-    }
-    return false;
   }
 
 

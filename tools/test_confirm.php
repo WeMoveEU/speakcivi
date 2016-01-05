@@ -29,8 +29,8 @@ $param = (object)array(
   'action_name' => 'Nazwa kampanii',
   'action_type' => 'petition',
   'action_technical_type' => 'act2.wemove.eu:petition',
-  'external_id' => 23,
-  'create_dt' => '2015-11-09T21:00:00.617+01:00',
+  'external_id' => 49,
+  'create_dt' => '2016-01-05T14:50:00.617+01:00',
   'cons_hash' => (object)array(
     'firstname' => 'Tomasz',
     'lastname' => 'Pietrzkowski',
@@ -52,9 +52,10 @@ var_dump($param);
 
 $speakcivi->setDefaults();
 $speakcivi->setCountry($param);
-$speakcivi->campaign = $speakcivi->getCampaign($param->external_id);
-$speakcivi->campaign = $speakcivi->setCampaign($param->external_id, $speakcivi->campaign);
-if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
+$speakcivi->campaignObj = new CRM_Speakcivi_Logic_Campaign();
+$speakcivi->campaign = $speakcivi->campaignObj->getCampaign($param->external_id);
+$speakcivi->campaign = $speakcivi->campaignObj->setCampaign($param->external_id, $speakcivi->campaign);
+if ($speakcivi->campaignObj->isValidCampaign($speakcivi->campaign)) {
   $speakcivi->campaignId = $speakcivi->campaign['id'];
 } else {
   echo 'blad :-[';
