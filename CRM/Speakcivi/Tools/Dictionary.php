@@ -156,4 +156,88 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'You are almost done - now multiply your impact';
     }
   }
+
+
+  /**
+   * Get default value for welcome for new users
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getWelcomeNew($locale) {
+    switch ($locale) {
+      default:
+        return 'Hi {contact.first_name},';
+    }
+  }
+
+
+  /**
+   * Get default value for welcome for current users
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getWelcomeCurrent($locale) {
+    switch ($locale) {
+      default:
+        return 'Hi {contact.first_name},';
+    }
+  }
+
+
+  /**
+   * Get default value for goodbye for new users
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getGoodbyeNew($locale) {
+    switch ($locale) {
+      default:
+        return 'Thank you,<br>Mika, Xavier, Virginia, Olga, Oliver and the WeMove.EU team';
+    }
+  }
+
+
+  /**
+   * Get default value for goodbye for current users
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getGoodbyeCurrent($locale) {
+    switch ($locale) {
+      default:
+        return 'Thank you,<br>Mika, Xavier, Virginia, Olga, Oliver and the WeMove.EU team';
+    }
+  }
+
+
+  /**
+   * Get default value for Share on Facebook
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getShareFacebook($locale) {
+    switch ($locale) {
+      default:
+        return 'Share on Facebook';
+    }
+  }
+
+
+  /**
+   * Get default value for Share on Twitter
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getShareTwitter($locale) {
+    switch ($locale) {
+      default:
+        return 'Share on Twitter';
+    }
+  }
 }
