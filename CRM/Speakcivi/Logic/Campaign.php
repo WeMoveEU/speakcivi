@@ -14,6 +14,20 @@ class CRM_Speakcivi_Logic_Campaign {
 
 	public $fieldSenderMail = '';
 
+	public $fieldUrlCampaign = '';
+
+	public $fieldUtmCampaign = '';
+
+	public $fieldTwitterShareText = '';
+
+	public $fieldSubjectNew = '';
+
+	public $fieldSubjectCurrent = '';
+
+	public $fieldMessageNew = '';
+
+	public $fieldMessageCurrent = '';
+
 	public $from = '';
 
 	public $urlSpeakout = '';
@@ -137,7 +151,15 @@ class CRM_Speakcivi_Logic_Campaign {
 				) {
 					$this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
 					$this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
+					$this->fieldUrlCampaign = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_url_campaign');
+					$this->fieldUtmCampaign = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_utm_campaign');
+					$this->fieldTwitterShareText = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_twitter_share_text');
+					$this->fieldSubjectNew = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_subject_new');
+					$this->fieldSubjectCurrent = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_subject_current');
+					$this->fieldMessageNew = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_message_new');
+					$this->fieldMessageCurrent = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_message_current');
 					$this->from = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
+					$locale = $this->determineLanguage($externalCampaign->internal_name);
 					$params = array(
 						'sequential' => 1,
 						'title' => $externalCampaign->name,
@@ -147,6 +169,13 @@ class CRM_Speakcivi_Logic_Campaign {
 						$this->fieldTemplateId => $this->defaultTemplateId,
 						$this->fieldLanguage => $this->determineLanguage($externalCampaign->internal_name),
 						$this->fieldSenderMail => $this->from,
+						$this->fieldUrlCampaign => "https://".$this->urlSpeakout."/".$externalCampaign->slug,
+						$this->fieldUtmCampaign => ($externalCampaign->slug != '' ? $externalCampaign->slug : $externalCampaign->id),
+						$this->fieldTwitterShareText => $externalCampaign->twitter_share_text,
+						$this->fieldSubjectNew => CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale),
+						$this->fieldSubjectCurrent => CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale),
+						$this->fieldMessageNew => CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale),
+						$this->fieldMessageCurrent => CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale),
 					);
 					$result = civicrm_api3('Campaign', 'create', $params);
 					if ($result['count'] == 1) {
@@ -168,7 +197,7 @@ class CRM_Speakcivi_Logic_Campaign {
 	 *
 	 * @return string
 	 */
-	function determineLanguage($campaignName) {
+	public function determineLanguage($campaignName) {
 		$re = "/(.*)[_\\- ]([a-zA-Z]{2})$/";
 		if (preg_match($re, $campaignName, $matches)) {
 			$country = strtoupper($matches[2]);

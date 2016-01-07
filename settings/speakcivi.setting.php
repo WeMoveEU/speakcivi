@@ -243,10 +243,10 @@ return array(
     'description' => 'Subject for the emails to the contacts that are already members and don\'t need to confirm their signature',
     'help_text' => 'Subject for the emails to the contacts that are already members and don\'t need to confirm their signature',
   ),
-  'message_new' => array(
+  'field_message_new' => array(
     'group_name' => 'Speakcivi API Preferences',
     'group' => 'speakcivi',
-    'name' => 'message_new',
+    'name' => 'field_message_new',
     'type' => 'String',
     'quick_form_type' => 'Element',
     'html_type' => 'text',
@@ -258,10 +258,10 @@ return array(
     'description' => 'Body for the emails to the contacts that aren\'t already members and need to confirm their signature',
     'help_text' => 'Body for the emails to the contacts that aren\'t already members and need to confirm their signature',
   ),
-  'message_current' => array(
+  'field_message_current' => array(
     'group_name' => 'Speakcivi API Preferences',
     'group' => 'speakcivi',
-    'name' => 'message_current',
+    'name' => 'field_message_current',
     'type' => 'String',
     'quick_form_type' => 'Element',
     'html_type' => 'text',

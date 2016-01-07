@@ -28,10 +28,11 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     $aid = $params['activity_id'];
     $campaign_id = $params['campaign_id'];
     $hash = sha1(CIVICRM_SITE_KEY . $cgid);
+    $utm_content = 'version_'.($cgid % 2);
     $url_confirm_and_keep = CRM_Utils_System::url('civicrm/speakcivi/confirm',
-      "id=$cgid&aid=$aid&cid=$campaign_id&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=speakout_confirm", true);
+      "id=$cgid&aid=$aid&cid=$campaign_id&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=speakout_confirm&utm_content=$utm_content", true);
     $url_confirm_and_not_receive = CRM_Utils_System::url('civicrm/speakcivi/optout',
-      "id=$cgid&aid=$aid&cid=$campaign_id&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=speakout_optout", true);
+      "id=$cgid&aid=$aid&cid=$campaign_id&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=speakout_optout&utm_content=$utm_content", true);
 
     $template = CRM_Core_Smarty::singleton();
     $template->assign('url_confirm_and_keep', $url_confirm_and_keep);

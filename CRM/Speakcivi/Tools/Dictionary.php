@@ -240,4 +240,41 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Share on Twitter';
     }
   }
+
+
+  /**
+   * Get default content of message for new user
+   * @param $locale
+   *
+   * @return mixed|string
+   */
+  public static function getMessageNew($locale) {
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.html.tpl';
+    if (file_exists($filename)) {
+      $content = implode('', file($filename));
+      $content = str_replace('#WELCOME', CRM_Speakcivi_Tools_Dictionary::getWelcomeNew($locale), $content);
+      $content = str_replace('#GOODBYE', CRM_Speakcivi_Tools_Dictionary::getGoodbyeNew($locale), $content);
+      return $content;
+    }
+    return '';
+  }
+
+
+  /**
+   * Get default content of message for current user
+   * @param $locale
+   *
+   * @return mixed|string
+   */
+  public static function getMessageCurrent($locale) {
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.html.tpl';
+    if (file_exists($filename)) {
+      $content = implode('', file($filename));
+      $content = str_replace('#WELCOME', CRM_Speakcivi_Tools_Dictionary::getWelcomeCurrent($locale), $content);
+      $content = str_replace('#GOODBYE', CRM_Speakcivi_Tools_Dictionary::getGoodbyeCurrent($locale), $content);
+      return $content;
+    }
+    return '';
+  }
+
 }
