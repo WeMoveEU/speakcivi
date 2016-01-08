@@ -10,8 +10,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $defaultCampaignTypeId = 0;
 
-  public $defaultTemplateId = 0;
-
   public $defaultLanguage = '';
 
   public $fieldTemplateId = '';
@@ -108,7 +106,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->optIn = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
     $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
-    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
     $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
     $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_template_id');
     $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_language');
@@ -573,7 +570,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function sendConfirm($contactResult, $email, $activityId, $confirmationBlock) {
     $params = array(
       'sequential' => 1,
-      'messageTemplateID' => $this->getTemplateId(),
       'toEmail' => $email,
       'contact_id' => $contactResult['id'],
       'activity_id' => $activityId,

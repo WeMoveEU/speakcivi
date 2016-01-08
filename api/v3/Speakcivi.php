@@ -4,7 +4,6 @@ function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
   $params['toEmail']['api.required'] = 1;
   $params['contact_id']['api.required'] = 1;
   $params['campaign_id']['api.required'] = 1;
-  $params['messageTemplateID']['api.default'] = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
   $params['from']['api.default'] = html_entity_decode(CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from'));
 }
 

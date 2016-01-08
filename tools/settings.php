@@ -26,9 +26,6 @@ var_dump($result);
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
 var_dump($result);
 
-$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
-var_dump($result);
-
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
 var_dump($result);
 
