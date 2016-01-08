@@ -173,8 +173,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     if ($this->optIn == 1) {
       $h = $param->cons_hash;
-      $this->customFields = $this->getCustomFields($this->campaignId);
-      $this->sendConfirm($contact, $h->emails[0]->email, $activity['id'], $this->confirmationBlock);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
     }
 
   }
@@ -559,24 +558,23 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /**
    * Send confirmation mail to contact.
    *
-   * @param $contactResult
    * @param $email
+   * @param $contactId
    * @param $activityId
+   * @param $campaignId
    * @param $confirmationBlock
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($contactResult, $email, $activityId, $confirmationBlock) {
+  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock) {
     $params = array(
       'sequential' => 1,
       'toEmail' => $email,
-      'contact_id' => $contactResult['id'],
+      'contact_id' => $contactId,
       'activity_id' => $activityId,
-      'campaign_id' => $this->campaignId,
-      'from' => $this->getSenderMail(),
+      'campaign_id' => $campaignId,
       'confirmation_block' => $confirmationBlock,
-      'language' => $this->getLanguage(),
     );
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
