@@ -134,7 +134,7 @@ class CRM_Speakcivi_Logic_Campaign {
 	 */
 	public function getUrlCampaign() {
 		if (is_array($this->customFields) && array_key_exists($this->fieldUrlCampaign, $this->customFields)) {
-			return $this->customFields[$this->fieldSenderMail];
+			return $this->customFields[$this->fieldUrlCampaign];
 		}
 		return '';
 	}
