@@ -62,9 +62,21 @@ class CRM_Speakcivi_Logic_Campaign {
 	 * @throws CiviCRM_API3_Exception
 	 */
 	public function getCustomFields($campaignId) {
+		$fields = array(
+			$this->fieldTemplateId,
+			$this->fieldLanguage,
+			$this->fieldSenderMail,
+			$this->fieldUrlCampaign,
+			$this->fieldUtmCampaign,
+			$this->fieldTwitterShareText,
+			$this->fieldSubjectNew,
+			$this->fieldSubjectCurrent,
+			$this->fieldMessageNew,
+			$this->fieldMessageCurrent,
+		);
 		$params = array(
 			'sequential' => 1,
-			'return' => "{$this->fieldTemplateId},{$this->fieldLanguage},{$this->fieldSenderMail}",
+			'return' => implode(",", $fields),
 			'id' => $campaignId,
 		);
 		$result = civicrm_api3('Campaign', 'get', $params);
@@ -251,6 +263,7 @@ class CRM_Speakcivi_Logic_Campaign {
 					$this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
 					$this->from = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
 					$locale = $this->determineLanguage($externalCampaign->internal_name);
+					$utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : $externalCampaign->id);
 					$params = array(
 						'sequential' => 1,
 						'title' => $externalCampaign->name,
@@ -260,8 +273,8 @@ class CRM_Speakcivi_Logic_Campaign {
 						$this->fieldTemplateId => $this->defaultTemplateId,
 						$this->fieldLanguage => $this->determineLanguage($externalCampaign->internal_name),
 						$this->fieldSenderMail => $this->from,
-						$this->fieldUrlCampaign => "https://".$this->urlSpeakout."/".$externalCampaign->slug,
-						$this->fieldUtmCampaign => ($externalCampaign->slug != '' ? $externalCampaign->slug : $externalCampaign->id),
+						$this->fieldUrlCampaign => "https://".$this->urlSpeakout."/".$utmCampaign,
+						$this->fieldUtmCampaign => $utmCampaign,
 						$this->fieldTwitterShareText => $externalCampaign->twitter_share_text,
 						$this->fieldSubjectNew => CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale),
 						$this->fieldSubjectCurrent => CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale),
@@ -278,6 +291,24 @@ class CRM_Speakcivi_Logic_Campaign {
 		} else {
 			return $campaign;
 		}
+	}
+
+
+	/**
+	 * Set new value of custom field
+	 * @param int $campaignId
+	 * @param string $customField For example $this->fieldMessageNew
+	 * @param mixed $value
+	 *
+	 * @throws \CiviCRM_API3_Exception
+	 */
+	public function setCustomField($campaignId, $customField, $value) {
+		$params = array(
+			'id' => $campaignId,
+			'sequential' => 1,
+			$customField => $value,
+		);
+		civicrm_api3('Campaign', 'create', $params);
 	}
 
 
