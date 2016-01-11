@@ -31,10 +31,10 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   if (!$message) {
     if ($confirmationBlock) {
       $message = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
-      $campaignObj->setCustomField($campaignId, $campaignObj->fieldMessageNew, $message);
+      $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageNew, $message);
     } else {
       $message = CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale);
-      $campaignObj->setCustomField($campaignId, $campaignObj->fieldMessageCurrent, $message);
+      $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageCurrent, $message);
     }
   }
 

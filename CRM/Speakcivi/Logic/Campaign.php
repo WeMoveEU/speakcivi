@@ -281,6 +281,9 @@ class CRM_Speakcivi_Logic_Campaign {
 					);
 					$result = civicrm_api3('Campaign', 'create', $params);
 					if ($result['count'] == 1) {
+						// todo perhabs this chode will be necessary
+						//$this->setCustomFieldBySQL($result['id'], $this->fieldMessageNew, CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale));
+						//$this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale));
 						return $result['values'][0];
 					}
 				}
@@ -307,6 +310,37 @@ class CRM_Speakcivi_Logic_Campaign {
 			$customField => $value,
 		);
 		civicrm_api3('Campaign', 'create', $params);
+	}
+
+
+	/**
+	 * Set new value of custom field by using SQL query
+	 * @param int $campaignId
+	 * @param string $customField For example $this->fieldMessageNew
+	 * @param mixed $value
+	 *
+	 * @throws \CiviCRM_API3_Exception
+	 */
+	public function setCustomFieldBySQL($campaignId, $customField, $value) {
+		$query = "SELECT cg.table_name, cf.column_name
+							FROM civicrm_custom_group cg
+							JOIN civicrm_custom_field cf ON cg.id = cf.custom_group_id
+							WHERE cg.extends = 'Campaign' AND CONCAT('custom_', cf.id) = %1";
+		$params = array(
+			1 => array($customField, 'String'),
+		);
+		$results = CRM_Core_DAO::executeQuery($query, $params);
+		if ($results->fetch()) {
+			if ($results->table_name && $results->column_name) {
+				$query = "UPDATE $results->table_name
+									SET $results->column_name = '".addslashes($value)."'
+									WHERE entity_id = %1";
+				$params = array(
+					1 => array($campaignId, 'Integer'),
+				);
+				CRM_Core_DAO::executeQuery($query, $params);
+			}
+		}
 	}
 
 

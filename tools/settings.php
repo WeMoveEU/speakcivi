@@ -23,7 +23,19 @@ $config = CRM_Core_Config::singleton();
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
 var_dump($result);
 
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
+var_dump($result);
+
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_tag_name_prefix');
 var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
@@ -36,6 +48,27 @@ $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_lang
 var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_sender_mail');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_url_campaign');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_utm_campaign');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_twitter_share_text');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_subject_new');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_subject_current');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_message_new');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_message_current');
 var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
