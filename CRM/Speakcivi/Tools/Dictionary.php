@@ -167,7 +167,7 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getWelcomeNew($locale) {
     switch ($locale) {
       default:
-        return 'Hi {contact.first_name},';
+        return 'Hi {$contact.first_name},';
     }
   }
 
@@ -181,7 +181,7 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getWelcomeCurrent($locale) {
     switch ($locale) {
       default:
-        return 'Hi {contact.first_name},';
+        return 'Hi {$contact.first_name},';
     }
   }
 

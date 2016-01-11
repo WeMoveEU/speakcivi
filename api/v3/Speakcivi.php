@@ -118,6 +118,7 @@ function getLocale($locale) {
  * @return string
  */
 function convertHtmlToText($html) {
+  $html = str_ireplace(array('<br>', '<br/>', '<br />'), "\n", $html);
   $html = strip_tags($html, '<a>');
   $re = '/<a href="(.*)">(.*)<\/a>/';
   if (preg_match_all($re, $html, $matches)) {
