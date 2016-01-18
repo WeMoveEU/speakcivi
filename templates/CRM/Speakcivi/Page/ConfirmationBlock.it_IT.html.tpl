@@ -1,4 +1,4 @@
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Per concludere la tua azione, è necessaria la confermarla cliccando sul link sotto:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Per concludere la tua azione, è necessaria la conferma del tuo indirizzo mail cliccando il seguente link:</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
