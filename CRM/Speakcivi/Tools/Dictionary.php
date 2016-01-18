@@ -133,7 +133,7 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getSubjectImpact($locale) {
     switch ($locale) {
       case 'de_DE':
-        return 'Sie sind fast fertig. Bitte helfen Sie nun mit, diese Aktion weiterzuverbreiten.';
+        return 'Sie sind fast fertig. Bitte helfen Sie mit, diese Aktion weiterzuverbreiten.';
         break;
 
       case 'fr_FR':
@@ -159,62 +159,6 @@ class CRM_Speakcivi_Tools_Dictionary {
 
 
   /**
-   * Get default value for welcome for new users
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getWelcomeNew($locale) {
-    switch ($locale) {
-      default:
-        return 'Hi {$contact.first_name},';
-    }
-  }
-
-
-  /**
-   * Get default value for welcome for current users
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getWelcomeCurrent($locale) {
-    switch ($locale) {
-      default:
-        return 'Hi {$contact.first_name},';
-    }
-  }
-
-
-  /**
-   * Get default value for goodbye for new users
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getGoodbyeNew($locale) {
-    switch ($locale) {
-      default:
-        return 'Thank you,<br>Mika, Xavier, Virginia, Olga, Oliver and the WeMove.EU team';
-    }
-  }
-
-
-  /**
-   * Get default value for goodbye for current users
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getGoodbyeCurrent($locale) {
-    switch ($locale) {
-      default:
-        return 'Thank you,<br>Mika, Xavier, Virginia, Olga, Oliver and the WeMove.EU team';
-    }
-  }
-
-
-  /**
    * Get default value for Share on Facebook
    * @param string $locale
    *
@@ -222,6 +166,18 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getShareFacebook($locale) {
     switch ($locale) {
+      case 'fr_FR':
+        return 'Partager sur Facebook';
+        break;
+
+      case 'es_ES':
+        return 'Comparte en Facebook';
+        break;
+
+      case 'it_IT':
+        return "Condividi su Facebook";
+        break;
+
       default:
         return 'Share on Facebook';
     }
@@ -236,6 +192,18 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getShareTwitter($locale) {
     switch ($locale) {
+      case 'fr_FR':
+        return 'Tweeter à vos abonnés';
+        break;
+
+      case 'es_ES':
+        return 'Comparte en Twitter';
+        break;
+
+      case 'it_IT':
+        return "Condividi su Twitter";
+        break;
+
       default:
         return 'Share on Twitter';
     }
@@ -249,14 +217,9 @@ class CRM_Speakcivi_Tools_Dictionary {
    * @return mixed|string
    */
   public static function getMessageNew($locale) {
-    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.html.tpl';
-    if (file_exists($filename)) {
-      $content = implode('', file($filename));
-      $content = str_replace('#WELCOME', CRM_Speakcivi_Tools_Dictionary::getWelcomeNew($locale), $content);
-      $content = str_replace('#GOODBYE', CRM_Speakcivi_Tools_Dictionary::getGoodbyeNew($locale), $content);
-      return $content;
-    }
-    return '';
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.'.$locale.'.tpl';
+    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.tpl';
+    return self::getMessageContent($filename, $default);
   }
 
 
@@ -267,14 +230,26 @@ class CRM_Speakcivi_Tools_Dictionary {
    * @return mixed|string
    */
   public static function getMessageCurrent($locale) {
-    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.html.tpl';
-    if (file_exists($filename)) {
-      $content = implode('', file($filename));
-      $content = str_replace('#WELCOME', CRM_Speakcivi_Tools_Dictionary::getWelcomeCurrent($locale), $content);
-      $content = str_replace('#GOODBYE', CRM_Speakcivi_Tools_Dictionary::getGoodbyeCurrent($locale), $content);
-      return $content;
-    }
-    return '';
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.'.$locale.'.tpl';
+    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.tpl';
+    return self::getMessageContent($filename, $default);
   }
 
+
+  /**
+   * Get content of message (file) for localized version or default in case of localized isn't exist
+   * @param string $filename Path to localize filename
+   * @param string $default Path to default filename
+   *
+   * @return string
+   */
+  public static function getMessageContent($filename, $default) {
+    $content = '';
+    if (file_exists($filename)) {
+      $content = implode('', file($filename));
+    } elseif (file_exists($default)) {
+      $content = implode('', file($default));
+    }
+    return $content;
+  }
 }
