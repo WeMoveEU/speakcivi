@@ -166,6 +166,10 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getShareFacebook($locale) {
     switch ($locale) {
+      case 'de_DE':
+        return 'Teilen auf Facebook';
+        break;
+
       case 'fr_FR':
         return 'Partager sur Facebook';
         break;
@@ -192,6 +196,10 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getShareTwitter($locale) {
     switch ($locale) {
+      case 'de_DE':
+        return 'Teilen auf Twitter';
+        break;
+
       case 'fr_FR':
         return 'Tweeter à vos abonnés';
         break;
