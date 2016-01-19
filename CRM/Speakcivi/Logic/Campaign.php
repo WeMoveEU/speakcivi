@@ -276,14 +276,11 @@ class CRM_Speakcivi_Logic_Campaign {
 						$this->fieldTwitterShareText => $externalCampaign->twitter_share_text,
 						$this->fieldSubjectNew => CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale),
 						$this->fieldSubjectCurrent => CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale),
-						$this->fieldMessageNew => CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale),
-						$this->fieldMessageCurrent => CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale),
 					);
 					$result = civicrm_api3('Campaign', 'create', $params);
 					if ($result['count'] == 1) {
-						// todo perhabs this chode will be necessary
-						//$this->setCustomFieldBySQL($result['id'], $this->fieldMessageNew, CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale));
-						//$this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale));
+						$this->setCustomFieldBySQL($result['id'], $this->fieldMessageNew, CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale));
+						$this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale));
 						return $result['values'][0];
 					}
 				}
