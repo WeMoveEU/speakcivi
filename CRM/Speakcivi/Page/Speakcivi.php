@@ -10,8 +10,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $defaultCampaignTypeId = 0;
 
-  public $defaultTemplateId = 0;
-
   public $defaultLanguage = '';
 
   public $fieldTemplateId = '';
@@ -19,6 +17,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public $fieldLanguage = '';
 
   public $fieldSenderMail = '';
+
+  public $locale = '';
 
   public $from = '';
 
@@ -81,6 +81,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign);
     if ($this->campaignObj->isValidCampaign($this->campaign)) {
       $this->campaignId = $this->campaign['id'];
+      $this->campaignObj->customFields = $this->campaignObj->getCustomFields($this->campaignId);
+      $this->locale = $this->campaignObj->getLanguage();
     } else {
       header('HTTP/1.1 503 Men at work');
       return;
@@ -108,7 +110,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->optIn = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
     $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
-    $this->defaultTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_template_id');
     $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
     $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_template_id');
     $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_language');
@@ -176,8 +177,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     if ($this->optIn == 1) {
       $h = $param->cons_hash;
-      $this->customFields = $this->getCustomFields($this->campaignId);
-      $this->sendConfirm($contact, $h->emails[0]->email, $activity['id'], $this->confirmationBlock);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
     }
 
   }
@@ -344,7 +344,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         );
       }
     } else {
-      $this->customFields = $this->getCustomFields($this->campaignId);
       $genderId = $this->getGenderId($h->lastname);
       $genderShortcut = $this->getGenderShortcut($h->lastname);
       $lastname = $this->cleanLastname($h->lastname);
@@ -354,11 +353,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['prefix_id'] = CRM_Speakcivi_Tools_Dictionary::getPrefix($genderShortcut);
       $dict = new CRM_Speakcivi_Tools_Dictionary();
       $dict->parseGroupEmailGreeting();
-      $emailGreetingId = $dict->getEmailGreetingId($this->getLanguage(), $genderShortcut);
+      $emailGreetingId = $dict->getEmailGreetingId($this->locale, $genderShortcut);
       if ($emailGreetingId) {
         $contact['email_greeting_id'] = $emailGreetingId;
       }
-      $contact['preferred_language'] = $this->getLanguage();
+      $contact['preferred_language'] = $this->locale;
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
       $contact[$this->apiGroupContactCreate] = array(
@@ -562,25 +561,23 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /**
    * Send confirmation mail to contact.
    *
-   * @param $contactResult
    * @param $email
+   * @param $contactId
    * @param $activityId
+   * @param $campaignId
    * @param $confirmationBlock
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($contactResult, $email, $activityId, $confirmationBlock) {
+  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock) {
     $params = array(
       'sequential' => 1,
-      'messageTemplateID' => $this->getTemplateId(),
       'toEmail' => $email,
-      'contact_id' => $contactResult['id'],
+      'contact_id' => $contactId,
       'activity_id' => $activityId,
-      'campaign_id' => $this->campaignId,
-      'from' => $this->getSenderMail(),
+      'campaign_id' => $campaignId,
       'confirmation_block' => $confirmationBlock,
-      'language' => $this->getLanguage(),
     );
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
@@ -611,68 +608,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
     }
     return false;
-  }
-
-
-  /**
-   * Get custom fields for campaign Id.
-   * Warning! Switch on permission "CiviCRM: access all custom data" for "ANONYMOUS USER"
-   * @param $campaignId
-   *
-   * @return array
-   * @throws CiviCRM_API3_Exception
-   */
-  public function getCustomFields($campaignId) {
-    $params = array(
-      'sequential' => 1,
-      'return' => "{$this->fieldTemplateId},{$this->fieldLanguage},{$this->fieldSenderMail}",
-      'id' => $campaignId,
-    );
-    $result = civicrm_api3('Campaign', 'get', $params);
-    if ($result['count'] == 1) {
-      return $result['values'][0];
-    } else {
-      return array();
-    }
-  }
-
-
-  /**
-   * Get message template id from $customFields array generated by getCustomFields() method
-   *
-   * @return int
-   */
-  public function getTemplateId() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldTemplateId, $this->customFields)) {
-      return (int)$this->customFields[$this->fieldTemplateId];
-    }
-    return 0;
-  }
-
-
-  /**
-   * Get language from $customFields array generated by getCustomFields() method
-   *
-   * @return string
-   */
-  public function getLanguage() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldLanguage, $this->customFields)) {
-      return $this->customFields[$this->fieldLanguage];
-    }
-    return '';
-  }
-
-
-  /**
-   * Get language from $customFields array generated by getCustomFields() method
-   *
-   * @return int
-   */
-  public function getSenderMail() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldSenderMail, $this->customFields)) {
-      return $this->customFields[$this->fieldSenderMail];
-    }
-    return '';
   }
 
 

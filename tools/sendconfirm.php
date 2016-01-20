@@ -18,25 +18,19 @@ require_once 'CRM/Core/Config.php';
 $config = CRM_Core_Config::singleton();
 
 
-// tests on localhost:
-// group id = 9
-// campaign id = 8
-
-
-$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-// petition:
+// tests:
 $param = (object)array(
-  'action_name' => 'Nazwa kampanii',
+  'action_name' => 'Testowa kampania',
   'action_type' => 'petition',
   'action_technical_type' => 'act2.wemove.eu:petition',
   'external_id' => 49,
-  'create_dt' => '2016-01-05T14:50:00.617+01:00',
+  'create_dt' => '2016-01-08T11:56:59.617+01:00',
   'cons_hash' => (object)array(
     'firstname' => 'Tomasz',
-    'lastname' => 'Pietrzkowski',
+    'lastname' => 'Pietrzkowski [M]',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomasz@caltha.eu',
+        'email' => 'tomasz.pietrzkowski@chords.pl',
       )
     ),
     'addresses' => array(
@@ -45,10 +39,11 @@ $param = (object)array(
       ),
     ),
   ),
+  'boolean_collection' => true,
   'comment' => 'Komentarz do petycji',
 );
 
-var_dump($param);
+$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
 
 $speakcivi->setDefaults();
 $speakcivi->setCountry($param);
@@ -63,4 +58,5 @@ if ($speakcivi->campaignObj->isValidCampaign($speakcivi->campaign)) {
   echo 'blad :-[';
   exit;
 }
+
 $speakcivi->petition($param);
