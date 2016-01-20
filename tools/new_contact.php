@@ -33,7 +33,7 @@ $param = (object)array(
   'create_dt' => '2015-10-13T13:56:59.617+01:00',
   'cons_hash' => (object)array(
     'firstname' => 'Tomasz',
-    'lastname' => 'Pietrzkowski [F]',
+    'lastname' => 'Pietrzkowski [M]',
     'emails' => array(
       0 => (object)array(
         'email' => 'tomasz.pietrzkowski8@chords.pl',
@@ -80,11 +80,16 @@ $speakcivi->setDefaults();
 $speakcivi->setCountry($param);
 echo '$speakcivi->country: '. $speakcivi->country."\n";
 echo '$speakcivi->postal_code: '.$speakcivi->postalCode."\n\n\n";
-$speakcivi->campaign = $speakcivi->getCampaign($param->external_id);
-$speakcivi->campaign = $speakcivi->setCampaign($param->external_id, $speakcivi->campaign);
-print_r($speakcivi->campaign);
-if ($speakcivi->isValidCampaign($speakcivi->campaign)) {
+$speakcivi->campaignObj = new CRM_Speakcivi_Logic_Campaign();
+$speakcivi->campaign = $speakcivi->campaignObj->getCampaign($param->external_id);
+$speakcivi->campaign = $speakcivi->campaignObj->setCampaign($param->external_id, $speakcivi->campaign);
+if ($speakcivi->campaignObj->isValidCampaign($speakcivi->campaign)) {
   $speakcivi->campaignId = $speakcivi->campaign['id'];
+  $speakcivi->campaignObj->customFields = $speakcivi->campaignObj->getCustomFields($speakcivi->campaignId);
+  $speakcivi->locale = $speakcivi->campaignObj->getLanguage();
+  echo "locale: \n";
+  var_dump($speakcivi->locale);
+  echo "\n\n";
 } else {
   echo 'blad :-[';
   exit;

@@ -29,14 +29,3 @@ var_dump($params);
 
 $result = civicrm_api3('Campaign', 'get', $params);
 print_r($result);
-
-
-$speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-
-$campaignId = 3;
-$speakcivi->customFields = $speakcivi->getCustomFields($campaignId);
-echo '$speakcivi->customFields: ';
-print_r($speakcivi->customFields);
-
-echo 'template: ';
-echo $speakcivi->getTemplateId();
