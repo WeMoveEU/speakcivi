@@ -57,6 +57,8 @@ $speakcivi->campaign = $speakcivi->campaignObj->getCampaign($param->external_id)
 $speakcivi->campaign = $speakcivi->campaignObj->setCampaign($param->external_id, $speakcivi->campaign);
 if ($speakcivi->campaignObj->isValidCampaign($speakcivi->campaign)) {
   $speakcivi->campaignId = $speakcivi->campaign['id'];
+  $speakcivi->campaignObj->customFields = $speakcivi->campaignObj->getCustomFields($speakcivi->campaignId);
+  $speakcivi->locale = $speakcivi->campaignObj->getLanguage();
 } else {
   echo 'blad :-[';
   exit;
