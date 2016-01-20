@@ -7,8 +7,9 @@
 <div id="type" class="col-md-2"><div class="graph"></div></div>
 <div id="status" class="col-md-2"><div class="graph"></div></div>
 <div id="date" class="col-md-6"><div class="graph"></div></div>
-<table class="table table-striped" id="table">
 
+
+<table class="table table-striped" id="table">
 <thead><tr>
 <th>campaign</th>
 <th>language</th>
@@ -41,13 +42,13 @@ var totalCount = dc.dataCount("#datacount")
 
 
 function drawTable(dom) {
-  var dim = ndx.dimension (function(d) {return d.contact_id});
+  var dim = ndx.dimension (function(d) {return d.campaign_id});
   var graph = dc.dataTable(dom)
     .dimension(dim)
     .size(2000)
     .group(function(d){ return ""; })
-    .sortBy(function(d){ return d.activity_date_time; })
-    .order(d3.descending)
+    .sortBy(function(d){ return d.speakout_title; })
+    .order(d3.ascending)
     .columns(
 	[
 	    function (d) {

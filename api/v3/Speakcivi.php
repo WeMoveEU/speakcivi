@@ -1,5 +1,15 @@
 <?php
 
+function civicrm_api3_speakcivi_update_stats ($params) {
+ $config = CRM_Core_Config::singleton();
+  //run the query
+  $sql = file_get_contents(dirname( __FILE__ ) .'/sql/update.sql', true);
+die ($sql);
+  return civicrm_api3_create_success(array("query"=>$sql), $params);
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
+
+}
+
 function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
   $params['toEmail']['api.required'] = 1;
   $params['contact_id']['api.required'] = 1;
