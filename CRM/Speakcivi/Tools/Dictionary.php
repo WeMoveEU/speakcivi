@@ -156,4 +156,108 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'You are almost done - now multiply your impact';
     }
   }
+
+
+  /**
+   * Get default value for Share on Facebook
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getShareFacebook($locale) {
+    switch ($locale) {
+      case 'de_DE':
+        return 'Teilen auf Facebook';
+        break;
+
+      case 'fr_FR':
+        return 'Partager sur Facebook';
+        break;
+
+      case 'es_ES':
+        return 'Comparte en Facebook';
+        break;
+
+      case 'it_IT':
+        return "Condividi su Facebook";
+        break;
+
+      default:
+        return 'Share on Facebook';
+    }
+  }
+
+
+  /**
+   * Get default value for Share on Twitter
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getShareTwitter($locale) {
+    switch ($locale) {
+      case 'de_DE':
+        return 'Teilen auf Twitter';
+        break;
+
+      case 'fr_FR':
+        return 'Tweeter à vos abonnés';
+        break;
+
+      case 'es_ES':
+        return 'Comparte en Twitter';
+        break;
+
+      case 'it_IT':
+        return "Condividi su Twitter";
+        break;
+
+      default:
+        return 'Share on Twitter';
+    }
+  }
+
+
+  /**
+   * Get default content of message for new user
+   * @param $locale
+   *
+   * @return mixed|string
+   */
+  public static function getMessageNew($locale) {
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.'.$locale.'.tpl';
+    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.tpl';
+    return self::getMessageContent($filename, $default);
+  }
+
+
+  /**
+   * Get default content of message for current user
+   * @param $locale
+   *
+   * @return mixed|string
+   */
+  public static function getMessageCurrent($locale) {
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.'.$locale.'.tpl';
+    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.tpl';
+    return self::getMessageContent($filename, $default);
+  }
+
+
+  /**
+   * Get content of message (file) for localized version or default in case of localized isn't exist
+   * @param string $filename Path to localize filename
+   * @param string $default Path to default filename
+   *
+   * @return string
+   */
+  private static function getMessageContent($filename, $default) {
+    $content = '';
+    if (file_exists($filename)) {
+      $content = implode('', file($filename));
+    } elseif (file_exists($default)) {
+      $content = implode('', file($default));
+    }
+    return $content;
+  }
 }
