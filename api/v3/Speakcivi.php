@@ -81,7 +81,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('utm_campaign', $campaignObj->getUtmCampaign());
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
-  $template->assign('twitter_share_text', $campaignObj->getTwitterShareText());
+  $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
   $sharing_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
 
   $template->clearTemplateVars();
