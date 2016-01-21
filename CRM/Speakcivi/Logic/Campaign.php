@@ -262,7 +262,7 @@ class CRM_Speakcivi_Logic_Campaign {
 					$this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
 					$this->from = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
 					$locale = $this->determineLanguage($externalCampaign->internal_name);
-					$utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : $externalCampaign->id);
+					$utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
 					$params = array(
 						'sequential' => 1,
 						'title' => $externalCampaign->name,
