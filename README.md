@@ -3,7 +3,7 @@
 Clone this into your extension folder, enable this civicrm extension. and voila.
 
 # Features
-This extension allows an external petition tool to synchronise the action taken there with CiviCRM
+This extension allows an external petition tool to synchronise the action taken there with CiviCRM.
 The petition tool simply push each action to a rest interface provided by this extension, that then transform them into the entities civicrm knows. 
 
 Campaign->CiviCRM Campaign
@@ -33,6 +33,16 @@ However, few rules:
 
 Language of campaign is determine by `Internal name` in ***speakout***. We use format like this **2015-11-TTIP-ES**, where last `-ES` determine the spanish language.
 
+### Valid values for language fields:
+
+Country | language in Internal name | language in custom field
+------- | ------------------------- | ------------------------
+English | EN | en_GB
+French | FR | fr_FR
+German | DE | de_DE
+Italian | IT | it_IT
+Spanish | ES | es_ES
+
 ## gender
 It's possible to designate a gender of a user. If speakout petition has a additional field before a first name then user can select his gender. SpeakCivi extension convert those values in gender in CiviCRM. We use such positions: Female, Male and Unspecified.
 
@@ -47,19 +57,19 @@ If gender and language is specified then It could be possible to set up a proper
 
 ## language group
 
-Each contact in group `Members` supposed to be a member of `LANGUAGE language Activists` group
+Each contact in group `Members` supposed to be a member of `LANGUAGE language Members` group
 
 Available groups:
 
 title | name (internal, not visible from CiviCRM)
 --- | ---
-German language Activists | de-language-activists
-English language Activists | en-language-activists
-Spanish language Activists | es-language-activists
-French language Activists | fr-language-activists
-Italian language Activists | it-language-activists
-Polish Language Activists | pl-language-activists
-Romanian language Activists | ro-language-activists
+German language Members | de-language-activists
+English language Members | en-language-activists
+Spanish language Members | es-language-activists
+French language Members | fr-language-activists
+Italian language Members | it-language-activists
+Polish language Members | pl-language-activists
+Romanian language Members | ro-language-activists
 Other speaking Activists (default) | other-language-activist
 
 * In SpeakCivi `group` is determined by `name`,
@@ -84,6 +94,35 @@ Each contact in group `Members` supposed to be a member of `can speak LANGUAGE-S
 * Examples: `can speak en`, `can speak de`,
 * If tag doesn't exist It's creating new one,
 * Contact can have many tags (not only one).
+
+## message templates
+
+Message templates for new and current users can be set up in custom fields at campaign edit form.
+
+* We use two different message template,
+* `message_new` for new users - body for the emails to the contacts that aren't already members and need to confirm their signature,
+* `message_member` for current users - body for the emails to the contacts that are already members and don't need to confirm their signature,
+* each templates have a default content in proper language,
+* `message_new` has to contain line  &lt;div&gt;#CONFIRMATION_BLOCK&lt;/div&gt;,
+* `message_member` has to contain line  &lt;div&gt;#SHARING_BLOCK&lt;/div&gt;,
+* It's possible to improve default content by edit in **Edit Campaign** form.
+
+## a/b testing in messages
+
+Content of messages are prepared by `Smarty`. Therefore It's possible to create simple a/b test. Look at example:
+
+```tpl
+{if $contact.id mod 2 eq 0}
+ Hi {$contact.display_name}
+{else}
+ Hi {$contact.first_name}
+{/if}
+```
+
+* **Cautions!** WYSIWYG editor adds additional HTML tags to line with smarty code! In order to save such template you need to:
+    * switch to `Source document` layout,
+    * remove additional &lt;p&gt;&lt;/p&gt; tags,
+    * save campaign.
 
 # Entities
 
