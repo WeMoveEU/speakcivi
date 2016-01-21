@@ -61,7 +61,7 @@ Each contact in group `Members` supposed to be a member of `LANGUAGE language Me
 
 Available groups:
 
-title | name (internal, not visible from CiviCRM)
+title | name (internal, not visible from CiviCRM admin interface)
 --- | ---
 German language Members | de-language-activists
 English language Members | en-language-activists
