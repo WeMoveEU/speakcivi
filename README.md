@@ -100,8 +100,8 @@ Each contact in group `Members` supposed to be a member of `can speak LANGUAGE-S
 Message templates for new and current users can be set up in custom fields at campaign edit form.
 
 * We use two different message template,
-* `message_new` for new users - body for the emails to the contacts that aren't already members and need to confirm their signature,
-* `message_member` for current users - body for the emails to the contacts that are already members and don't need to confirm their signature,
+    * `message_new` for new users - body for the emails to the contacts that aren't already members and need to confirm their signature,
+    * `message_member` for current users - body for the emails to the contacts that are already members and don't need to confirm their signature,
 * each templates have a default content in proper language,
 * `message_new` has to contain line  &lt;div&gt;#CONFIRMATION_BLOCK&lt;/div&gt;,
 * `message_member` has to contain line  &lt;div&gt;#SHARING_BLOCK&lt;/div&gt;,

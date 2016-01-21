@@ -37,4 +37,8 @@ if ($urlSpeakout) {
   $campaign = $campaignObj->setCampaign($param->external_id, $campaign);
   echo '$campaign NEW: ';
   print_r($campaign);
+
+  $campaignObj->customFields = $campaignObj->getCustomFields($campaign['id']);
+  echo 'customFields: ';
+  print_r($campaignObj->customFields);
 }
