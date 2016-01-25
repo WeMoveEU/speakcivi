@@ -612,9 +612,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $hours = $time[0];
     $mins = $time[1];
     $sign = substr($dt->getTimezone()->getName(), 0, 1);
+
+    if (!($hours == "Z")) {
     $dt->modify("{$hours} hour {$sign}{$mins} minutes");
     // todo temporary solution https://github.com/WeMoveEU/speakcivi/issues/48
     $dt->modify("+1 hour");
+    }
 
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
     $params = array(
