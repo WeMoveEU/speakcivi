@@ -1,0 +1,3 @@
+{"query":"
+SELECT id, name, subject, scheduled_date as date, created_id, campaign_id FROM civicrm_mailing;
+","params":{"1":{"name":"speakout_id","type":"Integer"}}}
