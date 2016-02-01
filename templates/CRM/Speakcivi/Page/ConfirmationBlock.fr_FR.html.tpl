@@ -14,4 +14,4 @@ Il est très important pour nous de savoir que c’est bien vous qui nous avez c
   </tr>
 </table>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Vous recevrez des mises à jour sur cette campagne et d’autres campagnes similaires</a></p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Vous recevrez des mises à jour sur cette campagne et d’autres campagnes similaires; si vous ne souhaitez pas en recevoir, cliquez <a href="{$url_confirm_and_not_receive}">ici</a></p>
