@@ -20,9 +20,9 @@ $config = CRM_Core_Config::singleton();
 
 $post = new CRM_Speakcivi_Page_Confirm();
 
-$post->contact_id = 7034;
-$post->campaign_id = 16;
-$aids = $post->findActivitiesIds($post->activity_id, $post->campaign_id, $post->contact_id);
+$post->contactId = 7034;
+$post->campaignId = 16;
+$aids = $post->findActivitiesIds($post->activityId, $post->campaignId, $post->contactId);
 print_r($aids);
 
-$post->setActivitiesStatuses($post->activity_id, $aids, 'Completed');
+$post->setActivitiesStatuses($post->activityId, $aids, 'Completed');

@@ -56,6 +56,7 @@ class CRM_Speakcivi_Logic_Campaign {
 	/**
 	 * Get custom fields for campaign Id.
 	 * Warning! Switch on permission "CiviCRM: access all custom data" for "ANONYMOUS USER"
+	 *
 	 * @param $campaignId
 	 *
 	 * @return array
@@ -294,6 +295,7 @@ class CRM_Speakcivi_Logic_Campaign {
 
 	/**
 	 * Set new value of custom field
+	 *
 	 * @param int $campaignId
 	 * @param string $customField For example $this->fieldMessageNew
 	 * @param mixed $value
@@ -312,6 +314,7 @@ class CRM_Speakcivi_Logic_Campaign {
 
 	/**
 	 * Set new value of custom field by using SQL query
+	 *
 	 * @param int $campaignId
 	 * @param string $customField For example $this->fieldMessageNew
 	 * @param mixed $value

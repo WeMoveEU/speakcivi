@@ -5,13 +5,12 @@
  */
 class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
 
-  private $_settingFilter = array('group' => 'speakcivi');
-  //everything from this line down is generic & can be re-used for a setting form in another extension
-  //actually - I lied - I added a specific call in getFormSettings
+  private $settingFilter = array('group' => 'speakcivi');
 
-  private $_submittedValues = array();
+  private $submittedValues = array();
 
-  private $_settings = array();
+  // todo check using of this variable
+  private $settings = array();
 
 
   function buildQuickForm() {
@@ -35,9 +34,7 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
         'isDefault' => TRUE,
       )
     ));
-    // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
-    // export no-editing settings
     $this->assign('country_lang_mapping_title', $settings['country_lang_mapping']['title']);
     $this->assign('country_lang_mapping', CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping'));
     parent::buildQuickForm();
@@ -45,7 +42,7 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
 
 
   function postProcess() {
-    $this->_submittedValues = $this->exportValues();
+    $this->submittedValues = $this->exportValues();
     $this->saveSettings();
     parent::postProcess();
   }
@@ -57,10 +54,6 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
    * @return array (string)
    */
   function getRenderableElementNames() {
-    // The _elements list includes some items which should not be
-    // auto-rendered in the loop -- such as "qfKey" and "buttons". These
-    // items don't have labels. We'll identify renderable by filtering on
-    // the 'label'.
     $elementNames = array();
     foreach ($this->_elements as $element) {
       $label = $element->getLabel();
@@ -78,8 +71,8 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
    * @return array
    */
   function getFormSettings() {
-    if (empty($this->_settings)) {
-      $settings = civicrm_api3('Setting', 'getfields', array('filters' => $this->_settingFilter));
+    if (empty($this->settings)) {
+      $settings = civicrm_api3('Setting', 'getfields', array('filters' => $this->settingFilter));
     }
     $extraSettings = civicrm_api3('Setting', 'getfields', array('filters' => array('group' => 'accountsync')));
     $settings = $settings['values'] + $extraSettings['values'];
@@ -94,7 +87,7 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
    */
   function saveSettings() {
     $settings = $this->getFormSettings();
-    $values = array_intersect_key($this->_submittedValues, $settings);
+    $values = array_intersect_key($this->submittedValues, $settings);
     civicrm_api3('Setting', 'create', $values);
   }
 

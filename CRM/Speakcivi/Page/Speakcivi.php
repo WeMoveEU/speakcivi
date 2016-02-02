@@ -58,11 +58,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->setDefaults();
     $this->setCountry($param);
 
-    $not_send_confirmation_to_those_countries = array(
+    $notSendConfirmationToThoseCountries = array(
       'UK',
       'GB',
     );
-    if (in_array($this->country, $not_send_confirmation_to_those_countries)) {
+    if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
       $this->optIn = 0;
     }
 
@@ -109,6 +109,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Setting up country and postal code from address key
+   *
    * @param $param
    */
   function setCountry($param) {
@@ -213,11 +214,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->prepareParamsContact($param, $contact, $result, $result['values'][0]['id']);
     } elseif ($result['count'] > 1) {
       $lastname = $this->cleanLastname($h->lastname);
-      $new_contact = $contact;
-      $new_contact['first_name'] = $h->firstname;
-      $new_contact['last_name'] = $lastname;
-      $similarity = $this->glueSimilarity($new_contact, $result['values']);
-      unset($new_contact);
+      $newContact = $contact;
+      $newContact['first_name'] = $h->firstname;
+      $newContact['last_name'] = $lastname;
+      $similarity = $this->glueSimilarity($newContact, $result['values']);
+      unset($newContact);
       $contactIdBest = $this->chooseBestContact($similarity);
       $contact = $this->prepareParamsContact($param, $contact, $result, $contactIdBest);
     } else {
@@ -232,6 +233,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Get gender id based on lastname. Format: Lastname [?], M -> Male, F -> Femail, others -> Unspecific
+   *
    * @param $lastname
    *
    * @return int
@@ -256,6 +258,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Get gender shortcut based on lastname. Format: Lastname [?], M -> Male, F -> Femail, others -> Unspecific
+   *
    * @param $lastname
    *
    * @return string
@@ -271,6 +274,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Clean lastname from gender
+   *
    * @param $lastname
    *
    * @return mixed
@@ -283,6 +287,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Preparing params for API Contact.create based on retrieved result.
+   *
    * @param array $param
    * @param array $contact
    * @param array $result
@@ -372,7 +377,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact[$this->apiAddressCreate]['country'] = $this->country;
     } elseif ($existingContact[$this->apiAddressGet]['count'] > 1) {
       // from speakout we have only (postal_code) or (postal_code and country)
-      $the_same = false;
+      $theSame = false;
       foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
         $adr = $this->getAddressValues($v);
         if (
@@ -380,12 +385,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
         ) {
           $contact[$this->apiAddressCreate]['id'] = $v['id'];
-          $the_same = true;
+          $theSame = true;
           break;
         }
       }
       $postal = false;
-      if (!$the_same) {
+      if (!$theSame) {
         foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
           $adr = $this->getAddressValues($v);
           if (
@@ -399,7 +404,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           }
         }
       }
-      if (!$the_same && !$postal) {
+      if (!$theSame && !$postal) {
         foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
           $adr = $this->getAddressValues($v);
           if (
@@ -426,6 +431,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Prepare default address
+   *
    * @param $contact
    */
   function prepareParamsAddressDefault($contact) {
@@ -438,6 +444,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Return relevant keys from address
+   *
    * @param $address
    *
    * @return array
@@ -454,7 +461,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
 
   /**
-   * Calculate similarity between two contacts based on defined keys.
+   * Calculate similarity between two contacts based on defined keys
+   *
    * @param $contact1
    * @param $contact2
    *
@@ -477,17 +485,17 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
 
   /**
-   * Calculate and glue similarity between new contact and all retrieved from database.
+   * Calculate and glue similarity between new contact and all retrieved from database
    *
-   * @param array $new_contact
+   * @param array $newContact
    * @param array $contacts Array from API.Contact.get, key 'values'
    *
    * @return array
    */
-  function glueSimilarity($new_contact, $contacts) {
+  function glueSimilarity($newContact, $contacts) {
     $similarity = array();
     foreach ($contacts as $k => $c) {
-      $similarity[$c['id']] = $this->calculateSimilarity($new_contact, $c);
+      $similarity[$c['id']] = $this->calculateSimilarity($newContact, $c);
     }
     return $similarity;
   }
@@ -502,18 +510,18 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   function chooseBestContact($similarity) {
     $max = max($similarity);
-    $contact_ids = array();
+    $contactIds = array();
     foreach ($similarity as $k => $v) {
       if ($max == $v) {
-        $contact_ids[$k] = $k;
+        $contactIds[$k] = $k;
       }
     }
-    return min(array_keys($contact_ids));
+    return min(array_keys($contactIds));
   }
 
 
   /**
-   * Create new activity for contact.
+   * Create new activity for contact
    *
    * @param $param
    * @param $contactId
@@ -544,7 +552,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
 
   /**
-   * Send confirmation mail to contact.
+   * Send confirmation mail to contact
    *
    * @param $email
    * @param $contactId
@@ -569,7 +577,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
 
   /**
-   * Check If contact need send email confirmation.
+   * Check If contact need send email confirmation
    *
    * @param $newContact
    * @param $contactId

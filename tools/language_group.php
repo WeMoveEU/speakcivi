@@ -18,13 +18,13 @@ require_once 'CRM/Core/Config.php';
 $config = CRM_Core_Config::singleton();
 
 $post = new CRM_Speakcivi_Page_Confirm();
-$post->contact_id = 100;
-$post->campaign_id = 8;
-$campaign = new CRM_Speakcivi_Logic_Campaign($post->campaign_id);
+$post->contactId = 100;
+$post->campaignId = 8;
+$campaign = new CRM_Speakcivi_Logic_Campaign($post->campaignId);
 $locale = $campaign->getLanguage();
 $language = substr($locale, 0, 2);
-$post->setLanguageGroup($post->contact_id, $language);
+$post->setLanguageGroup($post->contactId, $language);
 
-$post->setLanguageTag($post->contact_id, $language);
+$post->setLanguageTag($post->contactId, $language);
 
 echo "\n\n";

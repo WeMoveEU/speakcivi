@@ -71,8 +71,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
   $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
   $locales = getLocale($locale);
-  $confirmation_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl');
-  $confirmation_block_text = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl');
+  $confirmationBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl');
+  $confirmationBlockText = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl');
 
   /* SHARING_BLOCK */
   $template->clearTemplateVars();
@@ -82,19 +82,19 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
-  $sharing_block_html = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
+  $sharingBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
 
   $template->clearTemplateVars();
   $template->assign('contact', $contact);
   $message = $template->fetch('string:'.$message);
 
-  $message_html = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmation_block_html), $message);
-  $message_text = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmation_block_text), $message);
-  $message_html = str_replace("#SHARING_BLOCK", html_entity_decode($sharing_block_html), $message_html);
-  $message_text = str_replace("#SHARING_BLOCK", html_entity_decode($sharing_block_html), $message_text);
+  $messageHtml = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmationBlockHtml), $message);
+  $messageText = str_replace("#CONFIRMATION_BLOCK", html_entity_decode($confirmationBlockText), $message);
+  $messageHtml = str_replace("#SHARING_BLOCK", html_entity_decode($sharingBlockHtml), $messageHtml);
+  $messageText = str_replace("#SHARING_BLOCK", html_entity_decode($sharingBlockHtml), $messageText);
 
-  $params['html'] = $message_html;
-  $params['text'] = convertHtmlToText($message_text);
+  $params['html'] = $messageHtml;
+  $params['text'] = convertHtmlToText($messageText);
   $sent = CRM_Utils_Mail::send($params);
   return civicrm_api3_create_success($sent, $params);
 }
