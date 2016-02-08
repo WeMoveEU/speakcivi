@@ -48,8 +48,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   private $apiGroupContactCreate = 'api.GroupContact.create';
 
   function run() {
+	CRM_Core_Error::debug("param", "pe");
 
     $param = json_decode(file_get_contents('php://input'));
+
+	CRM_Core_Error::debug("param", $param);
 
     if (!$param) {
       die ("missing POST PARAM");
@@ -87,6 +90,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->share($param);
         break;
 
+      case 'speakout':
+        $this->mail($param);
+        break;
       default:
     }
 
@@ -158,7 +164,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       1 => 'Scheduled', // default
     );
     $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
-    $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
+    $activity = $this->createActivity($param, $contact['id'], 'Petition Signature', $activityStatus);
 
     if ($this->optIn == 1) {
       $h = $param->cons_hash;
@@ -179,6 +185,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
 
   }
+
+  /**
+   * Create a representative mail activity
+   *
+   * @param $param
+   */
+  public function mail($param) {
+
+    $contact = $this->createContact($param);
+    $activity = $this->createActivity($param, $contact['id'], 'Email', 'Completed');
+
+  }
+
 
 
   /**
@@ -525,6 +544,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function createActivity($param, $contactId, $activityType = 'Petition', $activityStatus = 'Scheduled') {
     $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', $activityType, 'name', 'String', 'value');
+	CRM_Core_Error::debug("activitytypeid", $activityTypeId);
+
     $activityStatusId = CRM_Core_OptionGroup::getValue('activity_status', $activityStatus, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contactId,
@@ -536,9 +557,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'status_id' => $activityStatusId,
     );
-    if (property_exists($param, 'comment') && $param->comment != '') {
-      $params['details'] = trim($param->comment);
-    }
+    if (property_exists($param, 'metadata')) {
+            if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
+                $params['details'] = trim($param->metadata->comment);
+            }
+
+            if (property_exists($param->metadata, 'mail_to_subject') 
+                && property_exists($param->metadata, 'mail_to_body')) {
+                $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
+            }
+        }
     return civicrm_api3('Activity', 'create', $params);
   }
 
