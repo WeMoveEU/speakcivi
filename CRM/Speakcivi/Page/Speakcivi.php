@@ -87,6 +87,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->share($param);
         break;
 
+      case 'mail':
+        $this->mail($param);
+        break;
       default:
     }
 
@@ -179,6 +182,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
 
   }
+
+  /**
+   * Create a representative mail activity
+   *
+   * @param $param
+   */
+  public function mail($param) {
+
+    $contact = $this->createContact($param);
+    $activity = $this->createActivity($param, $contact['id'], 'E-mail', 'Completed');
+
+  }
+
 
 
   /**
@@ -536,9 +552,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'status_id' => $activityStatusId,
     );
-    if (property_exists($param, 'comment') && $param->comment != '') {
-      $params['details'] = trim($param->comment);
-    }
+    if (property_exists($param, 'metadata') {
+            if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
+                $params['details'] = trim($param->metadata->comment);
+            }
+
+            if (property_exists($param->metadata, 'mail_to_subject') 
+                && property_exists($param->metadata, 'mail_to_body')) {
+                $params['details'] = trip($param->metadata->mail_to_subject) . "\n\n" . trip($param->metadata->mail_to_body);
+            }
+        }
     return civicrm_api3('Activity', 'create', $params);
   }
 
