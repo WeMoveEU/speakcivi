@@ -93,6 +93,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $messageHtml = str_replace("#SHARING_BLOCK", html_entity_decode($sharingBlockHtml), $messageHtml);
   $messageText = str_replace("#SHARING_BLOCK", html_entity_decode($sharingBlockHtml), $messageText);
 
+  $params['subject'] = $template->fetch('string:'.$params['subject']);
   $params['html'] = $messageHtml;
   $params['text'] = convertHtmlToText($messageText);
   $sent = CRM_Utils_Mail::send($params);
