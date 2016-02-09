@@ -12,3 +12,19 @@
   </tr>
 </table>
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">If you would rather not receive campaign emails you still need to confirm your action for it count <a href="{$url_confirm_and_not_receive}">here</a>.</p>
+<script type="application/ld+json">
+{ldelim}
+  "@context": "http://schema.org",
+  "@type": "EmailMessage",
+  "potentialAction": {ldelim}
+    "@type": "ConfirmAction",
+    "name": "Confirm my signature",
+    "handler": {ldelim}
+      "@type": "HttpActionHandler",
+      "url": "{$url_confirm_and_keep}"
+    {rdelim}
+  {rdelim},
+  "description": "Confirm my action and keep me updated on campaigns"
+{rdelim}
+</script>
+
