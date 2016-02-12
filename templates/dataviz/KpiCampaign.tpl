@@ -14,7 +14,7 @@
 <th>campaign</th>
 <th>language</th>
 <th>Signatures</th>
-<th>new people</th>
+<th>From new people</th>
 <th>came in</th>
 <th>ratio added</th>
 <th>actually added</th>
@@ -47,8 +47,8 @@ function drawTable(dom) {
     .dimension(dim)
     .size(2000)
     .group(function(d){ return ""; })
-    .sortBy(function(d){ return d.speakout_title; })
-    .order(d3.ascending)
+    .sortBy(function(d){ return d.campaign_id; })
+    .order(d3.descending)
     .columns(
 	[
 	    function (d) {
