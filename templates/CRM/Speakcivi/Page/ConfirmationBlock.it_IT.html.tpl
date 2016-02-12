@@ -11,5 +11,21 @@
     </td>
   </tr>
 </table>
+<script type="application/ld+json">
+{ldelim}
+  "@context": "http://schema.org",
+  "@type": "EmailMessage",
+  "potentialAction": {ldelim}
+    "@type": "ConfirmAction",
+    "name": "Confermo la mia azione",
+    "handler": {ldelim}
+      "@type": "HttpActionHandler",
+      "url": "{$url_confirm_and_keep}-schema"
+    {rdelim}
+  {rdelim},
+  "description": "Confermo la mia azione e vorrei essere aggiornato/a su altre campagne"
+{rdelim}
+</script>
+
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Confermo la mia azione ma non vorrei essere aggiornato/a su altre <a href="{$url_confirm_and_not_receive}">campagne</a></p>

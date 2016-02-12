@@ -13,3 +13,20 @@
 </table>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Falls Sie keine weiteren Mails von uns erhalten wollen, bestätigen Sie bitte ihre Unterschrift <a href="{$url_confirm_and_not_receive}">hier</a>, so dass wir sie zählen können.</p>
+
+<script type="application/ld+json">
+{ldelim}
+  "@context": "http://schema.org",
+  "@type": "EmailMessage",
+  "potentialAction": {ldelim}
+    "@type": "ConfirmAction",
+    "name": "Unterschrift bestätigt",
+    "handler": {ldelim}
+      "@type": "HttpActionHandler",
+      "url": "{$url_confirm_and_keep}-schema"
+    {rdelim}
+  {rdelim},
+  "description": "Ich bestätige meine Unterschrift und möchte über weitere Kampagnen informiert werden"
+{rdelim}
+</script>
+

@@ -21,7 +21,7 @@
     "name": "Confirm my signature",
     "handler": {ldelim}
       "@type": "HttpActionHandler",
-      "url": "{$url_confirm_and_keep}"
+      "url": "{$url_confirm_and_keep}-schema"
     {rdelim}
   {rdelim},
   "description": "Confirm my action and keep me updated on campaigns"
