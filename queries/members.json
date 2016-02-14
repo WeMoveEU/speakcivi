@@ -3,7 +3,7 @@ JOIN civicrm_group_contact gc ON contact.id = gc.contact_id AND gc.group_id = %1
 where is_deleted=0 
   AND is_opt_out=0
   AND created_date is not null
-join civicrm_email email on e.contact_id=contact.id
+join civicrm_email email on email.contact_id=contact.id
 where email.is_primary IS true  
  and email.on_hold =0 
 group by DATE(created_date), contact_type, gender_id, source;"
