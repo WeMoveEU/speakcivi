@@ -112,17 +112,13 @@ class CRM_Speakcivi_Tools_Stat {
 
 
   private static function isValid($filename, $description) {
-    return (
-      self::$isActive && $filename && $description &&
-      array_key_exists('CiviCRM', $_SESSION) &&
-      array_key_exists('qfSessionID', $_SESSION['CiviCRM']) && $_SESSION['CiviCRM']['qfSessionID']
-    );
+    return (self::$isActive && $filename && $description);
   }
 
 
   private static function setData($description) {
     return array(
-      self::COL_SID => $_SESSION['CiviCRM']['qfSessionID'],
+      self::COL_SID => CRM_Core_Key::sessionID(),
       self::COL_DESC => $description,
       self::COL_SEC => microtime(true),
     );
@@ -131,8 +127,9 @@ class CRM_Speakcivi_Tools_Stat {
 
   private static function writeCsv($filename, $data) {
     $path = dirname(__FILE__).self::PATH.$filename;
-    $fp = fopen($path, 'a');
-    fputcsv($fp, $data, self::DELIMITER, self::ENCLOSURE);
+    if (($fp = fopen($path, 'a')) !== FALSE) {
+      fputcsv($fp, $data, self::DELIMITER, self::ENCLOSURE);
+    }
     fclose($fp);
   }
 
