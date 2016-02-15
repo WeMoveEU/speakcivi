@@ -18,11 +18,6 @@ require_once 'CRM/Core/Config.php';
 $config = CRM_Core_Config::singleton();
 
 
-// tests on localhost:
-// group id = 9
-// campaign id = 8
-
-
 $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
 // petition:
 $param = (object)array(
@@ -48,33 +43,7 @@ $param = (object)array(
   'boolean_collection' => true,
   'comment' => 'Komentarz do petycji',
 );
-// share:
-//$param = (object)array(
-//  'action_name' => 'Nazwa kampanii',
-//  'action_type' => 'share',
-//  'action_technical_type' => 'act2.wemove.eu:share',
-//  'external_id' => 23,
-//  'create_dt' => '2015-10-13T13:56:59.617+01:00',
-//  'cons_hash' => (object)array(
-//    'firstname' => 'Tomasz',
-////    'lastname' => 'Pietrzkowski',
-//    'lastname' => '',
-//    'emails' => array(
-//      0 => (object)array(
-//        'email' => 'tomek@chords.pl',
-//      )
-//    ),
-//    'addresses' => array(
-//      0 => (object)array(
-//        //'zip' => '[pl] 01-111',
-//        'zip' => '[de] 48329 Havixbeck',
-//      ),
-//    ),
-//  ),
-//  'boolean_collection' => true,
-//  'comment' => 'Komentarz do petycji',
-//);
-//var_dump($param);
+
 
 $speakcivi->setDefaults();
 $speakcivi->setCountry($param);
