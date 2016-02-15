@@ -249,14 +249,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'email' => $email,
       'return' => "contact_id",
     );
-    print_r($params);
     $result = civicrm_api3('Email', 'get', $params);
-    print_r($result);
     if ($result['count'] > 0) {
       foreach ($result['values'] as $contact) {
         $ids[$contact['contact_id']] = $contact['contact_id'];
       }
-      print_r($ids);
     }
     return $ids;
   }
