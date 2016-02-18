@@ -7,7 +7,10 @@
 <div id="type" class="col-md-2"><div class="graph"></div></div>
 <div id="status" class="col-md-2"><div class="graph"></div></div>
 <div id="date" class="col-md-6"><div class="graph"></div></div>
+</div>
+<div class="row">
 
+<div ><span class="glyphicon glyphicon-download-alt"></span><span id='csv'>CSV</span></div>
 
 <table class="table table-striped" id="table">
 <thead><tr>
@@ -36,6 +39,31 @@ var data = {crmSQL file="kpicampaign" debug=1};
 var ndx  = crossfilter(data.values)
   , all = ndx.groupAll();
 
+function toCsv (dom,array) {
+
+  var str = '';
+
+  var line = '';
+  for (var index in array[0]) {
+    if (line != '') line += ','
+    line += index;
+  }
+  var str = line;
+
+  for (var i = 0; i < array.length; i++) {
+    var line = '';
+    for (var index in array[i]) {
+      if (line != '') line += ','
+      line += array[i][index];
+    }
+    str += line + '\r\n';
+  }
+   
+
+  var data = "text/csv;charset=utf-8," + encodeURIComponent(str);
+  jQuery (dom).html('<a href="data:' + data + '" download="data.csv">Download</a>');
+} 
+
 var totalCount = dc.dataCount("#datacount")
       .dimension(ndx)
       .group(all);
@@ -43,6 +71,7 @@ var totalCount = dc.dataCount("#datacount")
 
 function drawTable(dom) {
   var dim = ndx.dimension (function(d) {return d.campaign_id});
+  toCsv('#csv',dim.top(Infinity) ); 
   var graph = dc.dataTable(dom)
     .dimension(dim)
     .size(2000)
@@ -78,7 +107,7 @@ function drawTable(dom) {
   return graph;
 }
 
- 
+
 drawTable("#table");
 
 dc.renderAll();
