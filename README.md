@@ -80,7 +80,7 @@ Other speaking Activists (default) | other-language-activist
   * `Suffix of language group name`,
 * Adding to such group is invoked after click on confirmation link (in both versions confirm and optout),
 * Contact can have only one language group,
-* If contact has already language group current group is not added,
+* If contact has already language group, new group is not added,
 * If Speakcivi can't determine language group, default group is adding to contact,
 * Default group is skipping during checking if contact has a language group.
 
@@ -106,6 +106,21 @@ Message templates for new and current users can be set up in custom fields at ca
 * `message_new` has to contain line  &lt;div&gt;#CONFIRMATION_BLOCK&lt;/div&gt;,
 * `message_member` has to contain line  &lt;div&gt;#SHARING_BLOCK&lt;/div&gt;,
 * It's possible to improve default content by edit in **Edit Campaign** form.
+
+## variables in messages and subjects
+
+Content of messages and subjects are prepared by `Smarty`. Therefore It's possible to use variables in such format:
+
+```tpl
+Example of contact's variables:
+First name: {$contact.first_name}
+Last name: {$contact.last_name}
+Display name: {$contact.display_name}
+
+Special variables:
+Link to confirm: {$url_confirm_and_keep}
+Link to confirm and opt out: {$url_confirm_and_not_receive}
+```
 
 ## a/b testing in messages
 
