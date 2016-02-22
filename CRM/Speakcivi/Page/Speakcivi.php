@@ -164,8 +164,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if ($this->optIn == 1) {
       $h = $param->cons_hash;
       $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
+    } else {
+      $language = substr($this->locale, 0, 2);
+      $pagePost = new CRM_Speakcivi_Page_Post();
+      $pagePost->setLanguageGroup($contact['id'], $language);
+      $pagePost->setLanguageTag($contact['id'], $language);
     }
-
   }
 
 
@@ -175,10 +179,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $param
    */
   public function share($param) {
-
     $contact = $this->createContact($param);
     $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
-
   }
 
 
