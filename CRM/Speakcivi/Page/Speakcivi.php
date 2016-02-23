@@ -48,11 +48,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   private $apiGroupContactCreate = 'api.GroupContact.create';
 
   function run() {
-	CRM_Core_Error::debug("param", "pe");
 
     $param = json_decode(file_get_contents('php://input'));
-
-	CRM_Core_Error::debug("param", $param);
 
     if (!$param) {
       die ("missing POST PARAM");
@@ -164,7 +161,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       1 => 'Scheduled', // default
     );
     $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
-    $activity = $this->createActivity($param, $contact['id'], 'Petition Signature', $activityStatus);
+    $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
 
     if ($this->optIn == 1) {
       $h = $param->cons_hash;
@@ -544,8 +541,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function createActivity($param, $contactId, $activityType = 'Petition', $activityStatus = 'Scheduled') {
     $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', $activityType, 'name', 'String', 'value');
-	CRM_Core_Error::debug("activitytypeid", $activityTypeId);
-
     $activityStatusId = CRM_Core_OptionGroup::getValue('activity_status', $activityStatus, 'name', 'String', 'value');
     $params = array(
       'source_contact_id' => $contactId,
