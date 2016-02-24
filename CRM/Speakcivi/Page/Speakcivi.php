@@ -90,6 +90,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       case 'speakout':
         $this->mail($param);
         break;
+
+      case 'donate':
+	$this->donate($param);
+	break;
+
       default:
     }
 
@@ -195,7 +200,63 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   }
 
+  public function bark($text) {
+   $fh = fopen("/tmp/civi.log", "a");
+   fwrite($fh, $text . "\n");
+   fclose($fh);
+  }
 
+  /**
+   * Create a transaction for donation
+   *
+   * @param $param
+   */
+  public function donate($param) {
+
+    if ($param->metadata->status == "success") {
+      $contact = $this->createContact($param);
+      if ($this->newContact) {
+      	$this->setContactCreatedDate($contact['id'], $param->create_dt);
+      }
+
+      $contribution = $this->createContribution($param, $contact["id"]);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  /**
+   * Create a transaction entity
+   *
+   * @param $param
+   */
+  public function createContribution($param, $contactId) {
+    $financialTypeId = 1; // How to fetch it by name? No documentation mentions this, so it remains hardcoded, yey!
+
+    $this->bark("Campaign: " . $this->campaignId);
+    $params = array(
+      'source_contact_id' => $contactId,
+      'contact_id' => $contactId,
+      'contribution_campaign_id' => $this->campaignId,
+      'financial_type_id' => $financialTypeId,
+      'receive_date' => $param->create_dt,
+      'total_amount' => $param->metadata->amount / 100,
+      'fee_amount' => $param->metadata->amount_charged / 100,
+      'net_amount' => ($param->metadata->amount - $param->metadata->amount_charged) / 100,
+      'trxn_id' => $param->metadata->transaction_id,
+      'contribution_status' => 'Completed',
+      'currency' => $param->metadata->currency,
+      
+      'subject' => $param->action_name,
+      'location' => $param->action_technical_type,
+    );
+
+    return civicrm_api3('Contribution', 'create', $params);
+  }
+
+    
 
   /**
    * Create or update contact
