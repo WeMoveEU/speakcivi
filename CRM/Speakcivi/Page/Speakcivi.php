@@ -87,6 +87,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->share($param);
         break;
 
+      case 'speakout':
+        $this->mail($param);
+        break;
+
+      case 'donate':
+	$this->donate($param);
+	break;
+
       default:
     }
 
@@ -183,6 +191,75 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
   }
 
+  /**
+   * Create a representative mail activity
+   *
+   * @param $param
+   */
+  public function mail($param) {
+
+    $contact = $this->createContact($param);
+    $activity = $this->createActivity($param, $contact['id'], 'Email', 'Completed');
+
+  }
+
+  public function bark($text) {
+   $fh = fopen("/tmp/civi.log", "a");
+   fwrite($fh, $text . "\n");
+   fclose($fh);
+  }
+
+  /**
+   * Create a transaction for donation
+   *
+   * @param $param
+   */
+  public function donate($param) {
+
+    if ($param->metadata->status == "success") {
+      $contact = $this->createContact($param);
+      if ($this->newContact) {
+      	$this->setContactCreatedDate($contact['id'], $param->create_dt);
+      }
+
+      $contribution = $this->createContribution($param, $contact["id"]);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  /**
+   * Create a transaction entity
+   *
+   * @param $param
+   */
+  public function createContribution($param, $contactId) {
+    $financialTypeId = 1; // How to fetch it by name? No documentation mentions this, so it remains hardcoded, yey!
+
+    $this->bark("Campaign: " . $this->campaignId);
+    $params = array(
+      'source_contact_id' => $contactId,
+      'contact_id' => $contactId,
+      'contribution_campaign_id' => $this->campaignId,
+      'financial_type_id' => $financialTypeId,
+      'receive_date' => $param->create_dt,
+      'total_amount' => $param->metadata->amount / 100,
+      'fee_amount' => $param->metadata->amount_charged / 100,
+      'net_amount' => ($param->metadata->amount - $param->metadata->amount_charged) / 100,
+      'trxn_id' => $param->metadata->transaction_id,
+      'contribution_status' => 'Completed',
+      'currency' => $param->metadata->currency,
+      
+      'subject' => $param->action_name,
+      'location' => $param->action_technical_type,
+    );
+
+    return civicrm_api3('Contribution', 'create', $params);
+  }
+
+    
 
   /**
    * Create or update contact
@@ -574,9 +651,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'status_id' => $activityStatusId,
     );
-    if (property_exists($param, 'comment') && $param->comment != '') {
-      $params['details'] = trim($param->comment);
-    }
+    if (property_exists($param, 'metadata')) {
+            if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
+                $params['details'] = trim($param->metadata->comment);
+            }
+
+            if (property_exists($param->metadata, 'mail_to_subject') 
+                && property_exists($param->metadata, 'mail_to_body')) {
+                $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
+            }
+        }
     return civicrm_api3('Activity', 'create', $params);
   }
 
@@ -650,9 +734,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $hours = $time[0];
     $mins = $time[1];
     $sign = substr($dt->getTimezone()->getName(), 0, 1);
+
+    if (!($hours == "Z")) {
     $dt->modify("{$hours} hour {$sign}{$mins} minutes");
     // todo temporary solution https://github.com/WeMoveEU/speakcivi/issues/48
     $dt->modify("+1 hour");
+    }
 
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
     $params = array(
