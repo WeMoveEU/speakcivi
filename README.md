@@ -139,6 +139,27 @@ Content of messages are prepared by `Smarty`. Therefore It's possible to create 
     * remove additional &lt;p&gt;&lt;/p&gt; tags,
     * save campaign.
 
+## confirmation link
+
+There are two types of confirmation link in email - confirm and optout.
+
+Template for confirm:
+https://SITE/civicrm/speakcivi/confirm?id={contact.contact_id}&hash={speakcivi.confirmation_hash}&cid=CID&aid=AID
+
+Template for optout:
+https://SITE/civicrm/speakcivi/optout?id={contact.contact_id}&hash={speakcivi.confirmation_hash}&cid=CID&aid=AID
+
+Where:
+
+* `SITE` REQUIRED ;-) - our site,
+* `{contact.contact_id}` REQUIRED - token for contact id,
+* `{speakcivi.confirmation_hash}` REQUIRED - token for confirmation hash,
+* `CID` - Campaign ID from CiviCRM (not from Speakout!),
+    * based on this id Speakcivi has a information about language of campaign and in next step speakcivi add user to language group and tag!
+* `AID` - Activity ID
+    * If AID is not set and CID is set then
+        * Speakcivi tries to find all activities for this campaign and changed their status
+
 # Entities
 
 ## Campaign
