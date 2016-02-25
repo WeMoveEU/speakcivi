@@ -144,10 +144,10 @@ Content of messages are prepared by `Smarty`. Therefore It's possible to create 
 There are two types of confirmation link in email - confirm and optout.
 
 Template for confirm:
-https://SITE/civicrm/speakcivi/confirm?id={contact.contact_id}&hash={speakcivi.confirmation_hash}&cid=CID&aid=AID
+https://`SITE`/civicrm/speakcivi/confirm?id=`{contact.contact_id}`&hash=`{speakcivi.confirmation_hash}`&cid=`CID`&aid=`AID`
 
 Template for optout:
-https://SITE/civicrm/speakcivi/optout?id={contact.contact_id}&hash={speakcivi.confirmation_hash}&cid=CID&aid=AID
+https://`SITE`/civicrm/speakcivi/optout?id=`{contact.contact_id}`&hash=`{speakcivi.confirmation_hash}`&cid=`CID`&aid=`AID`
 
 Where:
 
