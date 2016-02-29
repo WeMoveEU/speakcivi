@@ -428,11 +428,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     if (is_array($existingContact) && count($existingContact) > 0) {
       $contact['id'] = $existingContact['id'];
-      if ($existingContact['first_name'] == '') {
+      if ($existingContact['first_name'] == '' && $h->firstname) {
         $contact['first_name'] = $h->firstname;
       }
-      if ($existingContact['last_name'] == '') {
-        $contact['last_name'] = $h->lastname;
+      if ($existingContact['last_name'] == '' && $h->lastname) {
+        $lastname = $this->cleanLastname($h->lastname);
+        if ($lastname) {
+          $contact['last_name'] = $lastname;
+        }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
       if ($existingContact[$this->apiGroupContactGet]['count'] == 0) {
