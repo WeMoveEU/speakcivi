@@ -656,6 +656,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'status_id' => $activityStatusId,
     );
+    if (property_exists($param, 'comment') && $param->comment != '') {
+      $params['details'] = trim($param->comment);
+    }
     if (property_exists($param, 'metadata')) {
       if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
         $params['details'] = trim($param->metadata->comment);
