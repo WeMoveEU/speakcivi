@@ -92,8 +92,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         break;
 
       case 'donate':
-	$this->donate($param);
-	break;
+        $this->donate($param);
+        break;
 
       default:
     }
@@ -191,37 +191,41 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
   }
 
+
   /**
    * Create a representative mail activity
    *
    * @param $param
    */
   public function mail($param) {
-
     $contact = $this->createContact($param);
     $activity = $this->createActivity($param, $contact['id'], 'Email', 'Completed');
-
   }
 
+
+  /**
+   * @param $text
+   */
   public function bark($text) {
    $fh = fopen("/tmp/civi.log", "a");
    fwrite($fh, $text . "\n");
    fclose($fh);
   }
 
+
   /**
    * Create a transaction for donation
    *
    * @param $param
+   *
+   * @return bool
    */
   public function donate($param) {
-
     if ($param->metadata->status == "success") {
       $contact = $this->createContact($param);
       if ($this->newContact) {
       	$this->setContactCreatedDate($contact['id'], $param->create_dt);
       }
-
       $contribution = $this->createContribution($param, $contact["id"]);
       return true;
     } else {
@@ -234,10 +238,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * Create a transaction entity
    *
    * @param $param
+   *
+   * @return array
    */
   public function createContribution($param, $contactId) {
     $financialTypeId = 1; // How to fetch it by name? No documentation mentions this, so it remains hardcoded, yey!
-
     $this->bark("Campaign: " . $this->campaignId);
     $params = array(
       'source_contact_id' => $contactId,
@@ -251,14 +256,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'trxn_id' => $param->metadata->transaction_id,
       'contribution_status' => 'Completed',
       'currency' => $param->metadata->currency,
-      
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
     );
-
     return civicrm_api3('Contribution', 'create', $params);
   }
-
     
 
   /**
