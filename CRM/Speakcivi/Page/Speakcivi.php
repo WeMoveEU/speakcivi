@@ -654,15 +654,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'status_id' => $activityStatusId,
     );
     if (property_exists($param, 'metadata')) {
-            if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
-                $params['details'] = trim($param->metadata->comment);
-            }
+      if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
+        $params['details'] = trim($param->metadata->comment);
+      }
 
-            if (property_exists($param->metadata, 'mail_to_subject') 
-                && property_exists($param->metadata, 'mail_to_body')) {
-                $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
-            }
-        }
+      if (property_exists($param->metadata, 'mail_to_subject') && property_exists($param->metadata, 'mail_to_body')) {
+        $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
+      }
+    }
     return civicrm_api3('Activity', 'create', $params);
   }
 
@@ -738,9 +737,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $sign = substr($dt->getTimezone()->getName(), 0, 1);
 
     if (!($hours == "Z")) {
-    $dt->modify("{$hours} hour {$sign}{$mins} minutes");
-    // todo temporary solution https://github.com/WeMoveEU/speakcivi/issues/48
-    $dt->modify("+1 hour");
+      $dt->modify("{$hours} hour {$sign}{$mins} minutes");
+      // todo temporary solution https://github.com/WeMoveEU/speakcivi/issues/48
+      $dt->modify("+1 hour");
     }
 
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
