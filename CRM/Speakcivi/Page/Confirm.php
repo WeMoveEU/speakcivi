@@ -22,6 +22,8 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'Completed');
 
+    CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId);
+
     $country = $this->getCountry($this->campaignId);
     $url = "{$country}/post_confirm";
     CRM_Utils_System::redirect($url);
