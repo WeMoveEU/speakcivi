@@ -11,6 +11,8 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->setGroupStatus($this->contactId, $groupId);
 
+    CRM_Speakcivi_Logic_Activity::leave($this->contactId, 'confirmation_link', $this->campaignId);
+
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
       $locale = $campaign->getLanguage();

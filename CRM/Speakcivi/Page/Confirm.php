@@ -9,11 +9,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setIsOptOut($this->contactId, 0);
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-    $groupContactId = $this->isGroupContact($this->contactId, $groupId);
-    $this->setGroupContact($this->contactId, $groupId, $groupContactId);
-    if (!$groupContactId) {
-      CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId);
-    }
+    $this->setGroupStatus($this->contactId, $groupId);
 
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
