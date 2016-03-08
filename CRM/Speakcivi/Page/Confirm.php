@@ -9,7 +9,11 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setIsOptOut($this->contactId, 0);
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-    $this->setGroupStatus($this->contactId, $groupId);
+    $groupContactId = $this->isGroupContact($this->contactId, $groupId);
+    $this->setGroupContact($this->contactId, $groupId, $groupContactId);
+    if (!$groupContactId) {
+      CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId);
+    }
 
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
@@ -21,8 +25,6 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
 
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'Completed');
-
-    CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId);
 
     $country = $this->getCountry($this->campaignId);
     $url = "{$country}/post_confirm";

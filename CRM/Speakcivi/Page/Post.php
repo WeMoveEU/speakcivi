@@ -96,6 +96,49 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
 
   /**
+   * Check If contact is member of group on status Added
+   *
+   * @param $contactId
+   * @param $groupId
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function isGroupContact($contactId, $groupId) {
+    $result = civicrm_api3('GroupContact', 'get', array(
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'group_id' => $groupId,
+      'status' => "Added"
+    ));
+    return (int)$result['id'];
+  }
+
+
+  /**
+   * Set Added status for group
+   *
+   * @param $contactId
+   * @param $groupId
+   * @param int $groupContactId
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function setGroupContact($contactId, $groupId, $groupContactId = 0) {
+    $params = array(
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'group_id' => $groupId,
+      'status' => "Added",
+    );
+    if ($groupContactId) {
+      $params['id'] = $groupContactId;
+    }
+    civicrm_api3('GroupContact', 'create', $params);
+  }
+
+
+  /**
    * Set Added status for group. If group is not assigned to contact, It is added.
    *
    * @param int $contactId
