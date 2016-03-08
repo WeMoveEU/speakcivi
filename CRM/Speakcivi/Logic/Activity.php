@@ -65,11 +65,9 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $campaignId
    */
   public static function join($contactId, $subject = '', $campaignId = 0) {
-    if ($contactId) {
-      $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-      $activityTypeId = self::getTypeId($activityTypeName);
-      self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
-    }
+    $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
+    $activityTypeId = self::getTypeId($activityTypeName);
+    self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
   }
 
 
@@ -81,10 +79,8 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $campaignId
    */
   public static function leave($contactId, $subject = '', $campaignId = 0) {
-    if ($contactId) {
-      $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
-      $activityTypeId = self::getTypeId($activityTypeName);
-      self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
-    }
+    $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
+    $activityTypeId = self::getTypeId($activityTypeName);
+    self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
   }
 }
