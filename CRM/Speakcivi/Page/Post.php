@@ -96,22 +96,69 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
 
   /**
-   * Check If contact is member of group on status Added
+   * Check If contact is member of group on given status
+   *
+   * @param $contactId
+   * @param $groupId
+   * @param $status
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function isGroupContact($contactId, $groupId, $status = "Added") {
+    $result = civicrm_api3('GroupContact', 'get', array(
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'group_id' => $groupId,
+      'status' => $status
+    ));
+    return (int)$result['id'];
+  }
+
+
+  /**
+   * Check If contact is member of group on Added status
    *
    * @param $contactId
    * @param $groupId
    *
    * @return int
+   */
+  public function isGroupContactAdded($contactId, $groupId) {
+    return $this->isGroupContact($contactId, $groupId, "Added");
+  }
+
+
+  /**
+   * Check If contact is member of group on Removed status
+   *
+   * @param $contactId
+   * @param $groupId
+   *
+   * @return int
+   */
+  public function isGroupContactRemoved($contactId, $groupId) {
+    return $this->isGroupContact($contactId, $groupId, "Removed");
+  }
+
+
+  /**
+   * Set given status for group
+   *
+   * @param $contactId
+   * @param $groupId
+   * @param $status
+   *
    * @throws \CiviCRM_API3_Exception
    */
-  public function isGroupContact($contactId, $groupId) {
-    $result = civicrm_api3('GroupContact', 'get', array(
+  private function setGroupContact($contactId, $groupId, $status = "Added") {
+    $params = array(
       'sequential' => 1,
       'contact_id' => $contactId,
       'group_id' => $groupId,
-      'status' => "Added"
-    ));
-    return (int)$result['id'];
+      'status' => $status,
+    );
+    civicrm_api3('GroupContact', 'create', $params);
   }
 
 
@@ -120,21 +167,20 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @param $contactId
    * @param $groupId
-   * @param int $groupContactId
-   *
-   * @throws \CiviCRM_API3_Exception
    */
-  public function setGroupContact($contactId, $groupId, $groupContactId = 0) {
-    $params = array(
-      'sequential' => 1,
-      'contact_id' => $contactId,
-      'group_id' => $groupId,
-      'status' => "Added",
-    );
-    if ($groupContactId) {
-      $params['id'] = $groupContactId;
-    }
-    civicrm_api3('GroupContact', 'create', $params);
+  public function setGroupContactAdded($contactId, $groupId) {
+    $this->setGroupContact($contactId, $groupId, "Added");
+  }
+
+
+  /**
+   * Set Removed status for group
+   *
+   * @param $contactId
+   * @param $groupId
+   */
+  public function setGroupContactRemoved($contactId, $groupId) {
+    $this->setGroupContact($contactId, $groupId, "Removed");
   }
 
 
