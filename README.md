@@ -143,10 +143,10 @@ Content of messages are prepared by `Smarty`. Therefore It's possible to create 
 
 There are two types of confirmation link in email - confirm and optout.
 
-Template for confirm:
+**Template for confirm**:
 https://`SITE`/civicrm/speakcivi/confirm?id=`{contact.contact_id}`&hash=`{speakcivi.confirmation_hash}`&cid=`CID`&aid=`AID`
 
-Template for optout:
+**Template for optout**:
 https://`SITE`/civicrm/speakcivi/optout?id=`{contact.contact_id}`&hash=`{speakcivi.confirmation_hash}`&cid=`CID`&aid=`AID`
 
 Where:
@@ -159,6 +159,15 @@ Where:
 * `AID` - Activity ID
     * If AID is not set and CID is set then
         * Speakcivi tries to find all activities for this campaign and changed their status
+
+## Leave activity
+
+When user click on optout link in confirmation email then:
+
+* contact is removed from group `Members`,
+* activity `Leave` type is added to contact
+    * with subject `confirmation_link`,
+    * with campaign if it's set in link.
 
 # Entities
 
