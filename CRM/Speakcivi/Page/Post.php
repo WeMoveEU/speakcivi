@@ -96,6 +96,95 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
 
   /**
+   * Check If contact is member of group on given status
+   *
+   * @param $contactId
+   * @param $groupId
+   * @param $status
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function isGroupContact($contactId, $groupId, $status = "Added") {
+    $result = civicrm_api3('GroupContact', 'get', array(
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'group_id' => $groupId,
+      'status' => $status
+    ));
+    return (int)$result['id'];
+  }
+
+
+  /**
+   * Check If contact is member of group on Added status
+   *
+   * @param $contactId
+   * @param $groupId
+   *
+   * @return int
+   */
+  public function isGroupContactAdded($contactId, $groupId) {
+    return $this->isGroupContact($contactId, $groupId, "Added");
+  }
+
+
+  /**
+   * Check If contact is member of group on Removed status
+   *
+   * @param $contactId
+   * @param $groupId
+   *
+   * @return int
+   */
+  public function isGroupContactRemoved($contactId, $groupId) {
+    return $this->isGroupContact($contactId, $groupId, "Removed");
+  }
+
+
+  /**
+   * Set given status for group
+   *
+   * @param $contactId
+   * @param $groupId
+   * @param $status
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function setGroupContact($contactId, $groupId, $status = "Added") {
+    $params = array(
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'group_id' => $groupId,
+      'status' => $status,
+    );
+    civicrm_api3('GroupContact', 'create', $params);
+  }
+
+
+  /**
+   * Set Added status for group
+   *
+   * @param $contactId
+   * @param $groupId
+   */
+  public function setGroupContactAdded($contactId, $groupId) {
+    $this->setGroupContact($contactId, $groupId, "Added");
+  }
+
+
+  /**
+   * Set Removed status for group
+   *
+   * @param $contactId
+   * @param $groupId
+   */
+  public function setGroupContactRemoved($contactId, $groupId) {
+    $this->setGroupContact($contactId, $groupId, "Removed");
+  }
+
+
+  /**
    * Set Added status for group. If group is not assigned to contact, It is added.
    *
    * @param int $contactId
