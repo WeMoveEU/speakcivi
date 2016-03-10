@@ -61,7 +61,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    */
   public function setActivityStatus($activityId, $status = 'optout') {
     if ($activityId > 0) {
-      $scheduledId = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
+      $scheduledId = CRM_Speakcivi_Logic_Activity::getStatusId('Scheduled');
       $params = array(
         'sequential' => 1,
         'id' => $activityId,
@@ -69,9 +69,9 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       );
       $result = civicrm_api3('Activity', 'get', $params);
       if ($result['count'] == 1) {
-        $newStatusId = CRM_Core_OptionGroup::getValue('activity_status', $status, 'name', 'String', 'value');
+        $newStatusId = CRM_Speakcivi_Logic_Activity::getStatusId($status);
         $params['status_id'] = $newStatusId;
-        $result = civicrm_api3('Activity', 'create', $params);
+        civicrm_api3('Activity', 'create', $params);
       }
     }
   }
