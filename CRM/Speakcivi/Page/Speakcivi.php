@@ -177,6 +177,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $pagePost = new CRM_Speakcivi_Page_Post();
       $pagePost->setLanguageGroup($contact['id'], $language);
       $pagePost->setLanguageTag($contact['id'], $language);
+      if (!$pagePost->isGroupContactAdded($contact['id'], $this->groupId)) {
+        CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
+        $pagePost->setGroupContactAdded($contact['id'], $this->groupId);
+      }
     }
   }
 
@@ -407,11 +411,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function prepareParamsContact($param, $contact, $result = array(), $basedOnContactId = 0) {
     $h = $param->cons_hash;
 
-    $optInMapGroupStatus = array(
-      0 => 'Added',
-      1 => 'Pending', //default
-    );
-
     unset($contact['return']);
     unset($contact[$this->apiAddressGet]);
     unset($contact[$this->apiGroupContactGet]);
@@ -438,11 +437,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
-      if ($existingContact[$this->apiGroupContactGet]['count'] == 0) {
+      if (!$this->optIn && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
         $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $this->groupId,
           'contact_id' => '$value.id',
-          'status' => $optInMapGroupStatus[$this->optIn],
+          'status' => 'Added',
         );
       }
     } else {
@@ -462,11 +461,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['preferred_language'] = $this->locale;
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
-      $contact[$this->apiGroupContactCreate] = array(
-        'group_id' => $this->groupId,
-        'contact_id' => '$value.id',
-        'status' => $optInMapGroupStatus[$this->optIn],
-      );
+      if (!$this->optIn) {
+        $contact[$this->apiGroupContactCreate] = array(
+          'group_id' => $this->groupId,
+          'contact_id' => '$value.id',
+          'status' => 'Added',
+        );
+      }
     }
 
     return $contact;
