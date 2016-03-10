@@ -30,6 +30,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $newContact = false;
 
+  public $addJoinActivity = false;
+
   public $genderMaleValue = 0;
 
   public $genderFemaleValue = 0;
@@ -65,6 +67,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
       $this->optIn = 0;
     }
+
 
     $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
     $this->campaign = $this->campaignObj->getCampaign($param->external_id);
@@ -177,6 +180,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $pagePost = new CRM_Speakcivi_Page_Post();
       $pagePost->setLanguageGroup($contact['id'], $language);
       $pagePost->setLanguageTag($contact['id'], $language);
+      if ($this->addJoinActivity) {
+        CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
+      }
     }
   }
 
@@ -407,11 +413,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function prepareParamsContact($param, $contact, $result = array(), $basedOnContactId = 0) {
     $h = $param->cons_hash;
 
-    $optInMapGroupStatus = array(
-      0 => 'Added',
-      1 => 'Pending', //default
-    );
-
     unset($contact['return']);
     unset($contact[$this->apiAddressGet]);
     unset($contact[$this->apiGroupContactGet]);
@@ -438,12 +439,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
-      if ($existingContact[$this->apiGroupContactGet]['count'] == 0) {
+      if (!$this->optIn && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
         $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $this->groupId,
           'contact_id' => '$value.id',
-          'status' => $optInMapGroupStatus[$this->optIn],
+          'status' => 'Added',
         );
+        $this->addJoinActivity = true;
       }
     } else {
       $genderId = $this->getGenderId($h->lastname);
@@ -462,11 +464,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['preferred_language'] = $this->locale;
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
-      $contact[$this->apiGroupContactCreate] = array(
-        'group_id' => $this->groupId,
-        'contact_id' => '$value.id',
-        'status' => $optInMapGroupStatus[$this->optIn],
-      );
+      if (!$this->optIn) {
+        $contact[$this->apiGroupContactCreate] = array(
+          'group_id' => $this->groupId,
+          'contact_id' => '$value.id',
+          'status' => 'Added',
+        );
+        $this->addJoinActivity = true;
+      }
     }
 
     return $contact;
