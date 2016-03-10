@@ -68,7 +68,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->optIn = 0;
     }
 
-
     $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
     $this->campaign = $this->campaignObj->getCampaign($param->external_id);
     $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign);
@@ -660,6 +659,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
       'status_id' => $activityStatusId,
+      'api.ActivityContact.create' => array(
+        'sequential' => 1,
+        'activity_id' => '$value.id',
+        'contact_id' => $contactId,
+        'record_type_id' => 1,
+      ),
     );
     if (property_exists($param, 'comment') && $param->comment != '') {
       $params['details'] = trim($param->comment);

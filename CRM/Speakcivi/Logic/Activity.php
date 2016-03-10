@@ -26,6 +26,29 @@ class CRM_Speakcivi_Logic_Activity {
 
 
   /**
+   * Get activity status id. If status isn't exist, create it.
+   *
+   * @param string $activityStatus Internal name of status
+   *
+   * @return int
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function getStatusId($activityStatus) {
+    $params = array(
+      'sequential' => 1,
+      'option_group_id' => 'activity_status',
+      'name' => $activityStatus,
+    );
+    $result = civicrm_api3('OptionValue', 'get', $params);
+    if ($result['count'] == 0) {
+      $params['is_active'] = 1;
+      $result = civicrm_api3('OptionValue', 'create', $params);
+    }
+    return (int)$result['values'][0]['value'];
+  }
+
+
+  /**
    * Create activity for contact.
    *
    * @param $contactId
