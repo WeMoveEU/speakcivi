@@ -159,18 +159,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $optInForActivityStatus = $this->optIn;
-    $isMember = false;
     if (!$this->isContactNeedConfirmation($this->newContact, $contact['id'], $contact['values'][0]['is_opt_out'])) {
       $this->confirmationBlock = false;
       $optInForActivityStatus = 0;
-      $isMember = true;
     }
 
     $optInMapActivityStatus = array(
       0 => 'Completed',
       1 => 'Scheduled', // default
     );
-    if (!$isMember && !$this->optIn) {
+    if ($this->addJoinActivity && !$this->optIn) {
       $optInMapActivityStatus[0] = 'optin';
     }
     $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
