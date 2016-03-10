@@ -168,6 +168,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       0 => 'Completed',
       1 => 'Scheduled', // default
     );
+    if ($this->newContact) {
+      $optInMapActivityStatus[0] = 'optin';
+    }
     $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
 
