@@ -30,6 +30,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $newContact = false;
 
+  public $addJoinActivity = false;
+
   public $genderMaleValue = 0;
 
   public $genderFemaleValue = 0;
@@ -65,6 +67,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
       $this->optIn = 0;
     }
+
 
     $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
     $this->campaign = $this->campaignObj->getCampaign($param->external_id);
@@ -177,9 +180,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $pagePost = new CRM_Speakcivi_Page_Post();
       $pagePost->setLanguageGroup($contact['id'], $language);
       $pagePost->setLanguageTag($contact['id'], $language);
-      if (!$pagePost->isGroupContactAdded($contact['id'], $this->groupId)) {
+      if ($this->addJoinActivity) {
         CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
-        $pagePost->setGroupContactAdded($contact['id'], $this->groupId);
       }
     }
   }
@@ -443,6 +445,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           'contact_id' => '$value.id',
           'status' => 'Added',
         );
+        $this->addJoinActivity = true;
       }
     } else {
       $genderId = $this->getGenderId($h->lastname);
@@ -467,6 +470,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           'contact_id' => '$value.id',
           'status' => 'Added',
         );
+        $this->addJoinActivity = true;
       }
     }
 
