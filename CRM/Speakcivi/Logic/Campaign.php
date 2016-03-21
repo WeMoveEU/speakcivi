@@ -345,6 +345,21 @@ class CRM_Speakcivi_Logic_Campaign {
 
 
 	/**
+	 * Determine domain of speakout by parsing param. If false, returns default.
+	 * @param $param
+	 *
+	 * @return mixed|string
+	 */
+	public function determineUrlSpeakout($param) {
+		if (is_object($param) && property_exists($param, 'action_technical_type') && $param->action_technical_type != '') {
+			$domain = explode(":", $param->action_technical_type);
+			return $domain[0]."/campaigns";
+		}
+		return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
+	}
+
+
+	/**
 	 * Determine language based on campaign name which have to include country on the end, ex. *_EN.
 	 *
 	 * @param $campaignName
