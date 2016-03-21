@@ -247,14 +247,15 @@ class CRM_Speakcivi_Logic_Campaign {
 	 *
 	 * @param $externalIdentifier
 	 * @param $campaign
+	 * @param $param
 	 *
 	 * @return array
 	 * @throws CiviCRM_API3_Exception
 	 */
-	public function setCampaign($externalIdentifier, $campaign) {
+	public function setCampaign($externalIdentifier, $campaign, $param = null) {
 		if (!$this->isValidCampaign($campaign)) {
 			if ($externalIdentifier > 0) {
-				$this->urlSpeakout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
+				$this->urlSpeakout = $this->determineUrlSpeakout($param);
 				$externalCampaign = (object)json_decode(@file_get_contents("https://".$this->urlSpeakout."/{$externalIdentifier}.json"));
 				if (is_object($externalCampaign) &&
 					property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
