@@ -28,13 +28,14 @@ if ($urlSpeakout) {
 
   $param = (object)array(
     'external_id' => 49,
+    'action_technical_type' => 'you.wemove.eu:petition',
   );
 
   $campaign = $campaignObj->getCampaign($param->external_id);
   echo '$campaign GET: ';
   print_r($campaign);
 
-  $campaign = $campaignObj->setCampaign($param->external_id, $campaign);
+  $campaign = $campaignObj->setCampaign($param->external_id, $campaign, $param);
   echo '$campaign NEW: ';
   print_r($campaign);
 
