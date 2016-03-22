@@ -247,14 +247,17 @@ class CRM_Speakcivi_Logic_Campaign {
 	 *
 	 * @param $externalIdentifier
 	 * @param $campaign
+	 * @param $param
 	 *
 	 * @return array
 	 * @throws CiviCRM_API3_Exception
 	 */
-	public function setCampaign($externalIdentifier, $campaign) {
+	public function setCampaign($externalIdentifier, $campaign, $param = null) {
 		if (!$this->isValidCampaign($campaign)) {
 			if ($externalIdentifier > 0) {
-				$this->urlSpeakout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
+				$this->urlSpeakout = $this->determineUrlSpeakout($param);
+        // fixme fix for invalid url
+        $this->urlSpeakout = str_replace('act2.wemove.eu', 'act.wemove.eu', $this->urlSpeakout);
 				$externalCampaign = (object)json_decode(@file_get_contents("https://".$this->urlSpeakout."/{$externalIdentifier}.json"));
 				if (is_object($externalCampaign) &&
 					property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
@@ -341,6 +344,21 @@ class CRM_Speakcivi_Logic_Campaign {
 				CRM_Core_DAO::executeQuery($query, $params);
 			}
 		}
+	}
+
+
+	/**
+	 * Determine domain of speakout by parsing param. If false, returns default.
+	 * @param $param
+	 *
+	 * @return mixed|string
+	 */
+	public function determineUrlSpeakout($param) {
+		if (is_object($param) && property_exists($param, 'action_technical_type') && $param->action_technical_type != '') {
+			$domain = explode(":", $param->action_technical_type);
+			return $domain[0]."/campaigns";
+		}
+		return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
 	}
 
 

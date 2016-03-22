@@ -51,7 +51,7 @@ echo '$speakcivi->country: '. $speakcivi->country."\n";
 echo '$speakcivi->postal_code: '.$speakcivi->postalCode."\n\n\n";
 $speakcivi->campaignObj = new CRM_Speakcivi_Logic_Campaign();
 $speakcivi->campaign = $speakcivi->campaignObj->getCampaign($param->external_id);
-$speakcivi->campaign = $speakcivi->campaignObj->setCampaign($param->external_id, $speakcivi->campaign);
+$speakcivi->campaign = $speakcivi->campaignObj->setCampaign($param->external_id, $speakcivi->campaign, $param);
 if ($speakcivi->campaignObj->isValidCampaign($speakcivi->campaign)) {
   $speakcivi->campaignId = $speakcivi->campaign['id'];
   $speakcivi->campaignObj->customFields = $speakcivi->campaignObj->getCustomFields($speakcivi->campaignId);
