@@ -106,6 +106,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Vous avez presque terminé';
         break;
 
+      case 'el_GR':
+        return 'You are almost done - please confirm your action';
+        break;
+
       case 'es_ES':
         return 'Ya casi has terminado. Confirma tu acción por favor.';
         break;
@@ -138,6 +142,10 @@ class CRM_Speakcivi_Tools_Dictionary {
 
       case 'fr_FR':
         return 'Démultipliez votre impact';
+        break;
+
+      case 'el_GR':
+        return "You are almost done - now multiply your impact";
         break;
 
       case 'es_ES':
@@ -174,6 +182,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Partager sur Facebook';
         break;
 
+      case 'el_GR':
+        return "Share on Facebook";
+        break;
+
       case 'es_ES':
         return 'Comparte en Facebook';
         break;
@@ -202,6 +214,10 @@ class CRM_Speakcivi_Tools_Dictionary {
 
       case 'fr_FR':
         return 'Tweeter à vos abonnés';
+        break;
+
+      case 'el_GR':
+        return 'Share on Twitter';
         break;
 
       case 'es_ES':

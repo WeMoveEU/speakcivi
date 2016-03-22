@@ -315,6 +315,7 @@ return array(
       'EN' => 'en_GB',
       'ES' => 'es_ES',
       'FR' => 'fr_FR',
+      'GR' => 'el_GR',
       'IT' => 'it_IT',
       'PL' => 'pl_PL',
     ),
