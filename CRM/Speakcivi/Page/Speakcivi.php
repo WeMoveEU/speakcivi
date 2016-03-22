@@ -173,6 +173,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
     $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
+    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
 
     if ($this->optIn == 1) {
       $h = $param->cons_hash;
@@ -197,6 +198,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function share($param) {
     $contact = $this->createContact($param);
     $activity = $this->createActivity($param, $contact['id'], 'share', 'Completed');
+    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
   }
 
 
@@ -208,6 +210,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function mail($param) {
     $contact = $this->createContact($param);
     $activity = $this->createActivity($param, $contact['id'], 'Email', 'Completed');
+    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
   }
 
 
