@@ -106,4 +106,33 @@ class CRM_Speakcivi_Logic_Activity {
     $activityTypeId = self::getTypeId($activityTypeName);
     self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
   }
+
+
+  /**
+   * Set source fields in custom fields
+   *
+   * @param $activityId
+   * @param $fields
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function setSourceFields($activityId, $fields) {
+    $params = array(
+      'sequential' => 1,
+      'id' => $activityId,
+    );
+    $fields = (array)$fields;
+    if (array_key_exists('source', $fields) && $fields['source']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_source')] = $fields['source'];
+    }
+    if (array_key_exists('medium', $fields) && $fields['medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium')] = $fields['medium'];
+    }
+    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign')] = $fields['campaign'];
+    }
+    if (count($params) > 2) {
+      civicrm_api3('Activity', 'create', $params);
+    }
+  }
 }
