@@ -106,6 +106,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Vous avez presque terminé';
         break;
 
+      case 'da_DK':
+        return 'You are almost done - please confirm your action';
+        break;
+
       case 'el_GR':
         return 'You are almost done - please confirm your action';
         break;
@@ -118,8 +122,16 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Hai quasi finito';
         break;
 
+      case 'nl_NL':
+        return 'You are almost done - please confirm your action';
+        break;
+
       case 'pl_PL':
         return 'Prawie skończone - potwierdź podpisanie petycji';
+        break;
+
+      case 'pt_PT':
+        return 'You are almost done - please confirm your action';
         break;
 
       default:
@@ -144,6 +156,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Démultipliez votre impact';
         break;
 
+      case 'da_DK':
+        return "You are almost done - now multiply your impact";
+        break;
+
       case 'el_GR':
         return "You are almost done - now multiply your impact";
         break;
@@ -156,8 +172,16 @@ class CRM_Speakcivi_Tools_Dictionary {
         return "Moltiplica l'impatto della tua azione";
         break;
 
+      case 'nl_NL':
+        return "You are almost done - now multiply your impact";
+        break;
+
       case 'pl_PL':
         return 'Prawie skończone - powiadom znajomych o petycji';
+        break;
+
+      case 'pt_PT':
+        return "You are almost done - now multiply your impact";
         break;
 
       default:
@@ -182,6 +206,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Partager sur Facebook';
         break;
 
+      case 'da_DK':
+        return "Share on Facebook";
+        break;
+
       case 'el_GR':
         return "Share on Facebook";
         break;
@@ -192,6 +220,14 @@ class CRM_Speakcivi_Tools_Dictionary {
 
       case 'it_IT':
         return "Condividi su Facebook";
+        break;
+
+      case 'nl_NL':
+        return "Share on Facebook";
+        break;
+
+      case 'pt_PT':
+        return "Share on Facebook";
         break;
 
       default:
@@ -216,6 +252,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'Tweeter à vos abonnés';
         break;
 
+      case 'da_DK':
+        return 'Share on Twitter';
+        break;
+
       case 'el_GR':
         return 'Share on Twitter';
         break;
@@ -226,6 +266,14 @@ class CRM_Speakcivi_Tools_Dictionary {
 
       case 'it_IT':
         return "Condividi su Twitter";
+        break;
+
+      case 'nl_NL':
+        return 'Share on Twitter';
+        break;
+
+      case 'pt_PT':
+        return 'Share on Twitter';
         break;
 
       default:
