@@ -256,6 +256,8 @@ class CRM_Speakcivi_Logic_Campaign {
 		if (!$this->isValidCampaign($campaign)) {
 			if ($externalIdentifier > 0) {
 				$this->urlSpeakout = $this->determineUrlSpeakout($param);
+        // fixme fix for invalid url
+        $this->urlSpeakout = str_replace('act2.wemove.eu', 'act.wemove.eu', $this->urlSpeakout);
 				$externalCampaign = (object)json_decode(@file_get_contents("https://".$this->urlSpeakout."/{$externalIdentifier}.json"));
 				if (is_object($externalCampaign) &&
 					property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
