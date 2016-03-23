@@ -114,6 +114,7 @@ French | can speak fr
 German | can speak de
 Greek | can speak el
 Italian | can speak it
+Polish | can speak pl
 Portuguese | can speak pt
 Spanish | can speak es
 

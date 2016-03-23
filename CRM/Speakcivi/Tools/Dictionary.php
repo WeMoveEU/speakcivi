@@ -226,6 +226,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return "Share on Facebook";
         break;
 
+      case 'pl_PL':
+        return "Udostępnij na Facebooku";
+        break;
+
       case 'pt_PT':
         return "Share on Facebook";
         break;
@@ -270,6 +274,10 @@ class CRM_Speakcivi_Tools_Dictionary {
 
       case 'nl_NL':
         return 'Share on Twitter';
+        break;
+
+      case 'pl_PL':
+        return 'Udostępnij na Twitterze';
         break;
 
       case 'pt_PT':

@@ -1,4 +1,4 @@
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Aby potwierdzić podpisanie petycji kliknij w link poniżej</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Aby potwierdzić podpisanie petycji kliknij w poniższy link:</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
