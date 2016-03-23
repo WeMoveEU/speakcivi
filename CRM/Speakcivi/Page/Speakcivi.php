@@ -175,8 +175,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
 
+    $h = $param->cons_hash;
     if ($this->optIn == 1) {
-      $h = $param->cons_hash;
       $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
     } else {
       $language = substr($this->locale, 0, 2);
@@ -186,6 +186,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($this->addJoinActivity) {
         CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
       }
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false);
     }
   }
 
