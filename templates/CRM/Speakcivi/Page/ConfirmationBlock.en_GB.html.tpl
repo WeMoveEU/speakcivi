@@ -27,4 +27,3 @@
   "description": "Confirm my action and keep me updated on campaigns"
 {rdelim}
 </script>
-

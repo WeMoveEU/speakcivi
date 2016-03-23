@@ -29,4 +29,3 @@
   "description": "Ich bestätige meine Unterschrift und möchte über weitere Kampagnen informiert werden"
 {rdelim}
 </script>
-

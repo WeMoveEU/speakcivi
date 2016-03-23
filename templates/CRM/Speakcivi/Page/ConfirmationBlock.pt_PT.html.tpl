@@ -1,4 +1,4 @@
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">To finish signing the petition, please confirm your email address by clicking on the link below:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Para terminar de assinar a petição, por favor confirme o seu endereço de e-mail clicando no link abaixo:</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -27,4 +27,3 @@
   "description": "Confirm my action and keep me updated on campaigns"
 {rdelim}
 </script>
-

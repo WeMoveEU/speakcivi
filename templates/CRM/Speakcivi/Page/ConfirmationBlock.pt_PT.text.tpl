@@ -1,4 +1,4 @@
-To finish signing the petition, please confirm your email address by clicking on the link below:
+Para terminar de assinar a petição, por favor confirme o seu endereço de e-mail clicando no link abaixo:
 
 Confirmo o meu apoio á campanha e gostaria que me mantivessem actualizado/a
 {$url_confirm_and_keep}

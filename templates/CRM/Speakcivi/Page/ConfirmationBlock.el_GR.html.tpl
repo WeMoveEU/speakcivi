@@ -1,4 +1,4 @@
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">To finish signing the petition, please confirm your email address by clicking on the link below:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Για να ολοκληρώσετε την υπογραφή της αίτησης, παρακαλούμε να επιβεβαιώσετε τη διεύθυνση ηλεκτρονικού ταχυδρομείου σας κάνοντας κλικ στον παρακάτω σύνδεσμο:</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>

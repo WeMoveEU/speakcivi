@@ -1,4 +1,4 @@
-To finish signing the petition, please confirm your email address by clicking on the link below:
+Για να ολοκληρώσετε την υπογραφή της αίτησης, παρακαλούμε να επιβεβαιώσετε τη διεύθυνση ηλεκτρονικού ταχυδρομείου σας κάνοντας κλικ στον παρακάτω σύνδεσμο::
 
 Επιβεβαιώστε την ενέργειά μου και ενημερώνετέ με για άλλες καμπάνιες
 {$url_confirm_and_keep}
