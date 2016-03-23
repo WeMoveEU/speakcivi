@@ -676,10 +676,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $params['details'] = trim($param->comment);
     }
     if (property_exists($param, 'metadata')) {
-      if (property_exists($param->metadata, 'sign_comment') && $param->metadata->comment != '') {
-        $params['details'] = trim($param->metadata->comment);
+      if (property_exists($param->metadata, 'sign_comment') && $param->metadata->sign_comment != '') {
+        $params['details'] = trim($param->metadata->sign_comment);
       }
-
       if (property_exists($param->metadata, 'mail_to_subject') && property_exists($param->metadata, 'mail_to_body')) {
         $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
       }
