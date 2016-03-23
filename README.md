@@ -37,10 +37,14 @@ Language of campaign is determine by `Internal name` in ***speakout***. We use f
 
 Country | language in Internal name | language in custom field
 ------- | ------------------------- | ------------------------
+Danish | DK | da_DK
+Dutch | NL | nl_NL
 English | EN | en_GB
 French | FR | fr_FR
 German | DE | de_DE
+Greek | GR | el_GR
 Italian | IT | it_IT
+Portuguese | PT | pt_PT
 Spanish | ES | es_ES
 
 ## gender
@@ -59,16 +63,20 @@ If gender and language is specified then It could be possible to set up a proper
 
 Each contact in group `Members` supposed to be a member of `LANGUAGE language Members` group
 
-Available groups:
+### available groups:
 
 title | name (internal, not visible from CiviCRM admin interface)
 --- | ---
+Danish language Members | da-language-activists
+Dutch language Members | nl-language-activists
 German language Members | de-language-activists
+Greek language Members | el-language-activists
 English language Members | en-language-activists
 Spanish language Members | es-language-activists
 French language Members | fr-language-activists
 Italian language Members | it-language-activists
 Polish language Members | pl-language-activists
+Portuguese language Members | pt-language-activists
 Romanian language Members | ro-language-activists
 Other speaking Activists (default) | other-language-activist
 
@@ -94,6 +102,20 @@ Each contact in group `Members` supposed to be a member of `can speak LANGUAGE-S
 * Examples: `can speak en`, `can speak de`,
 * If tag doesn't exist It's creating new one,
 * Contact can have many tags (not only one).
+
+### available tags
+
+Country | Tag
+--- | ---
+Danish | can speak da
+Dutch | can speak nl
+English | can speak en
+French | can speak fr
+German | can speak de
+Greek | can speak el
+Italian | can speak it
+Portuguese | can speak pt
+Spanish | can speak es
 
 ## message templates
 
