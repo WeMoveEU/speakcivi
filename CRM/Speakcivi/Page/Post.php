@@ -275,7 +275,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    */
   public function checkLanguageGroup($contactId, $defaultLanguageGroupId, $languageGroupNameSuffix) {
     $query = "SELECT count(gc.id) group_count
-              FROM civicrm_group_contact gc JOIN civicrm_group g ON gc.group_id = g.id
+              FROM civicrm_group_contact gc JOIN civicrm_group g ON gc.group_id = g.id AND gc.status = 'Added'
               WHERE gc.contact_id = %1 AND g.id <> %2 AND g.name LIKE %3";
     $params = array(
       1 => array($contactId, 'Integer'),
