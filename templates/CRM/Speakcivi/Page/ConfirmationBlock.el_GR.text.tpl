@@ -1,7 +1,7 @@
 To finish signing the petition, please confirm your email address by clicking on the link below:
 
-Confirm my action and keep me updated on campaigns
+Επιβεβαιώστε την ενέργειά μου και ενημερώνετέ με για άλλες καμπάνιες
 {$url_confirm_and_keep}
 
-If you would rather not receive campaign emails you still need to confirm your action for it count here:
+Εάν δεν θα ήθελες να λαμβάνεις μηνύματα ηλεκτρονικού ταχυδρομείου για καμπάνιες, πάλι πρέπει να επιβεβαιώσεις την ενέργειά σου ώστε να μετρήσει εδώ:
 {$url_confirm_and_not_receive}

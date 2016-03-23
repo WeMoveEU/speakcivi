@@ -1,7 +1,7 @@
 To finish signing the petition, please confirm your email address by clicking on the link below:
 
-Confirm my action and keep me updated on campaigns
+Confirmo o meu apoio á campanha e gostaria que me mantivessem actualizado/a
 {$url_confirm_and_keep}
 
-If you would rather not receive campaign emails you still need to confirm your action for it count here:
+Se preferir não ser informado/a via e-mail das actualizações deverá mesmo assim confirmar a sua participação nesta acção para que ela possa ser válida aqui:
 {$url_confirm_and_not_receive}
