@@ -1,4 +1,4 @@
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">For at afslutte underskrive andragendet, skal du bekræfte din e-mailadresse ved at klikke på linket nedenfor:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">For at afslutte underskrivningen af underskriftindsamlingen, så bekræft venligst din e-mailadresse, ved at klikke på linket nedenfor:</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>

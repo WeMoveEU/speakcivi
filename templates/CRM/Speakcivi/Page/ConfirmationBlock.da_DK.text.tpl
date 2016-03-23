@@ -1,4 +1,4 @@
-For at afslutte underskrive andragendet, skal du bekræfte din e-mailadresse ved at klikke på linket nedenfor:
+For at afslutte underskrivningen af underskriftindsamlingen, så bekræft venligst din e-mailadresse, ved at klikke på linket nedenfor:
 
 Bekræft min handling og hold mig opdateret om kampagner
 {$url_confirm_and_keep}
