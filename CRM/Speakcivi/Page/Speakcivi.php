@@ -152,11 +152,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $param
    */
   public function petition($param) {
-
     $contact = $this->createContact($param);
-    if ($this->newContact) {
-      $this->setContactCreatedDate($contact['id'], $param->create_dt);
-    }
 
     $optInForActivityStatus = $this->optIn;
     if (!$this->isContactNeedConfirmation($this->newContact, $contact['id'], $contact['values'][0]['is_opt_out'])) {
@@ -174,6 +170,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
+    if ($this->newContact) {
+      $this->setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
+    }
 
     $h = $param->cons_hash;
     if ($this->optIn == 1) {
@@ -235,10 +234,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function donate($param) {
     if ($param->metadata->status == "success") {
       $contact = $this->createContact($param);
-      if ($this->newContact) {
-      	$this->setContactCreatedDate($contact['id'], $param->create_dt);
-      }
       $contribution = $this->createContribution($param, $contact["id"]);
+      if ($this->newContact) {
+        $this->setContactCreatedDate($contact['id'], $contribution['values'][0]['receive_date']);
+      }
       return true;
     } else {
       return false;
@@ -257,6 +256,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $financialTypeId = 1; // How to fetch it by name? No documentation mentions this, so it remains hardcoded, yey!
     $this->bark("Campaign: " . $this->campaignId);
     $params = array(
+      'sequential' => 1,
       'source_contact_id' => $contactId,
       'contact_id' => $contactId,
       'contribution_campaign_id' => $this->campaignId,
@@ -658,6 +658,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', $activityType, 'name', 'String', 'value');
     $activityStatusId = CRM_Core_OptionGroup::getValue('activity_status', $activityStatus, 'name', 'String', 'value');
     $params = array(
+      'sequential' => 1,
       'source_contact_id' => $contactId,
       'source_record_id' => $param->external_id,
       'campaign_id' => $this->campaignId,
@@ -745,23 +746,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    *
    */
   public function setContactCreatedDate($contactId, $createdDate) {
-    $format = 'Y-m-d\TH:i:s.uP';
-    $dt = DateTime::createFromFormat($format, $createdDate);
-    $time = explode(':', $dt->getTimezone()->getName());
-    $hours = $time[0];
-    $mins = $time[1];
-    $sign = substr($dt->getTimezone()->getName(), 0, 1);
-
-    if (!($hours == "Z")) {
-      $dt->modify("{$hours} hour {$sign}{$mins} minutes");
-      // todo temporary solution https://github.com/WeMoveEU/speakcivi/issues/48
-      $dt->modify("+1 hour");
-    }
-
     $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
     $params = array(
       1 => array($contactId, 'Integer'),
-      2 => array($dt->format("Y-m-d H:i:s"), 'String'),
+      2 => array($createdDate, 'String'),
     );
     CRM_Core_DAO::executeQuery($query, $params);
   }
