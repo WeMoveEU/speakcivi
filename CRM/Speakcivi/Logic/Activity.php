@@ -66,12 +66,6 @@ class CRM_Speakcivi_Logic_Activity {
       'status_id' => 'Completed',
       'subject' => $subject,
       'source_contact_id' => $contactId,
-      'api.ActivityContact.create' => array(
-        'sequential' => 1,
-        'activity_id' => '$value.id',
-        'contact_id' => $contactId,
-        'record_type_id' => 1,
-      ),
     );
     if ($campaignId) {
       $params['campaign_id'] = $campaignId;
