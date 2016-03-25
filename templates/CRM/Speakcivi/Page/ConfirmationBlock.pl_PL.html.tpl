@@ -13,3 +13,19 @@
 </table>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Jeśli nie chcesz otrzymywać wiadomości nt. kampanii, potwierdź podpisanie petycji w tym <a href="{$url_confirm_and_not_receive}">linku</a></p>
+
+<script type="application/ld+json">
+{ldelim}
+  "@context": "http://schema.org",
+  "@type": "EmailMessage",
+  "potentialAction": {ldelim}
+    "@type": "ConfirmAction",
+    "name": "Potwierdź podpisanie petycji",
+    "handler": {ldelim}
+      "@type": "HttpActionHandler",
+      "url": "{$url_confirm_and_keep}-schema"
+    {rdelim}
+  {rdelim},
+  "description": "Potwierdź podpisanie petycji i bądź na bieżąco informowany o tej kampanii"
+{rdelim}
+</script>
