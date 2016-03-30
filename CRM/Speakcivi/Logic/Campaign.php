@@ -269,7 +269,9 @@ class CRM_Speakcivi_Logic_Campaign {
 					$utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
 					$params = array(
 						'sequential' => 1,
-						'title' => $externalCampaign->name,
+						'name' => $externalCampaign->internal_name,
+						'title' => $externalCampaign->internal_name,
+						'description' => $externalCampaign->name,
 						'external_identifier' => $externalCampaign->id,
 						'campaign_type_id' => $this->defaultCampaignTypeId,
 						'start_date' => date('Y-m-d H:i:s'),
