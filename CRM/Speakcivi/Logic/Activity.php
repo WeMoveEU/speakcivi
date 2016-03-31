@@ -55,10 +55,11 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $typeId
    * @param $subject
    * @param $campaignId
+   * @param $parentActivityId
    *
    * @throws \CiviCRM_API3_Exception
    */
-  private static function createActivity($contactId, $typeId, $subject = '', $campaignId = 0) {
+  private static function createActivity($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
     $params = array(
       'sequential' => 1,
       'activity_type_id' => $typeId,
@@ -70,6 +71,9 @@ class CRM_Speakcivi_Logic_Activity {
     if ($campaignId) {
       $params['campaign_id'] = $campaignId;
     }
+    if ($parentActivityId) {
+      $params['parent_id'] = $parentActivityId;
+    }
     civicrm_api3('Activity', 'create', $params);
   }
 
@@ -80,11 +84,12 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $contactId
    * @param $subject
    * @param $campaignId
+   * @param $parentActivityId
    */
-  public static function join($contactId, $subject = '', $campaignId = 0) {
+  public static function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
     $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
     $activityTypeId = self::getTypeId($activityTypeName);
-    self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
+    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
   }
 
 
@@ -94,11 +99,12 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $contactId
    * @param $subject
    * @param $campaignId
+   * @param $parentActivityId
    */
-  public static function leave($contactId, $subject = '', $campaignId = 0) {
+  public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
     $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
     $activityTypeId = self::getTypeId($activityTypeName);
-    self::createActivity($contactId, $activityTypeId, $subject, $campaignId);
+    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
   }
 
 
