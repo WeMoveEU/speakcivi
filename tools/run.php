@@ -17,8 +17,8 @@ CRM_Core_ClassLoader::singleton()->register();
 require_once 'CRM/Core/Config.php';
 $config = CRM_Core_Config::singleton();
 
-// old speakout
-$param = (object)array(
+// old speakout petition
+/*$param = (object)array(
   'action_name' => 'Testowa kampania',
   'action_type' => 'petition',
   'action_technical_type' => 'act2.wemove.eu:petition',
@@ -29,7 +29,7 @@ $param = (object)array(
     'lastname' => 'Pietrzkowski [M]',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomasz.pietrzkowski@chords.pl',
+        'email' => 'scardinius@chords.pl',
       )
     ),
     'addresses' => array(
@@ -40,10 +40,28 @@ $param = (object)array(
   ),
   'boolean_collection' => true,
   'comment' => 'Komentarz do petycji',
-);
+);*/
 
-// new speakout (you.wemove.eu)
-$param = (object)array(
+// old speakout share
+/*$param = (object)array(
+  'action_name' => '2016-03-TradeSecrets-ES',
+  'action_type' => 'share',
+  'action_technical_type' => 'act2.wemove.eu:share',
+  'external_id' => 23,
+  'create_dt' => '2016-03-30T15:22:06.075+01:00',
+  'cons_hash' => (object)array(
+    'firstname' => 'Tomasz',
+    'lastname' => 'Pietrzkowski [M]',
+    'emails' => array(
+      0 => (object)array(
+        'email' => 'scardinius@chords.pl',
+      )
+    ),
+  ),
+);*/
+
+// new speakout (you.wemove.eu) petition
+/*$param = (object)array(
   'action_type' => 'petition',
   'action_technical_type' => 'you.wemove.eu:petition',
   'create_dt' => '2016-03-22T12:40:12.531Z',
@@ -54,14 +72,10 @@ $param = (object)array(
     'lastname' => 'Pietrzkowski',
     'emails' => array(
       0 => (object)array(
-        'email' => 'tomasz.pietrzkowski@caltha.eu',
+        'email' => 'scardinius@chords.pl',
       )
     ),
     'addresses' => array(
-      /*0 => (object)array( // default format
-        'zip' => '02-222',
-        'country' => "pl",
-      ),*/
       0 => (object)array(
         'zip' => '[pl] 02-222',
       ),
@@ -77,7 +91,32 @@ $param = (object)array(
     "medium" => "facebook",
     "campaign" => "diem25-GR",
   ),
-);
+);*/
+
+// new speakout (you.wemove.eu) share
+/*$param = (object)array(
+  'action_type' => 'share',
+  'action_technical_type' => 'you.wemove.eu:share',
+  'create_dt' => '2016-03-31T10:05:19.752Z',
+  'action_name' => 'tomasz-test-you-PL',
+  'external_id' => 10015,
+  'cons_hash' => (object)array(
+    'firstname' => 'Tomasz',
+    'lastname' => 'Pietrzkowski',
+    'emails' => array(
+      0 => (object)array(
+        'email' => 'scardinius@chords.pl',
+      )
+    ),
+    'addresses' => array(
+      0 => (object)array(
+        // 'zip' => '[pl] 02-222', // valid
+        'zip' => null,
+        'country' => 'uk',
+      ),
+    ),
+  ),
+);*/
 
 
 
@@ -115,4 +154,5 @@ switch ($param->action_type) {
   default:
 }
 
+print_r($param);
 print_r($speakcivi);
