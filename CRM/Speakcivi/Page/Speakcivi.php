@@ -479,7 +479,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->addJoinActivity = true;
       }
     }
-
+    $contact = $this->removeNullAddress($contact);
     return $contact;
   }
 
@@ -561,6 +561,30 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $contact[$this->apiAddressCreate]['location_type_id'] = 1;
     $contact[$this->apiAddressCreate]['postal_code'] = $this->postalCode;
     $contact[$this->apiAddressCreate]['country'] = $this->country;
+    return $contact;
+  }
+
+
+  /**
+   * Remove null params from address
+   *
+   * @param $contact
+   *
+   * @return array
+   */
+  function removeNullAddress($contact) {
+    if (array_key_exists('postal_code', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['postal_code'] == '') {
+      unset($contact[$this->apiAddressCreate]['postal_code']);
+    }
+    if (array_key_exists('country', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country'] == '') {
+      unset($contact[$this->apiAddressCreate]['country']);
+    }
+    if (array_key_exists('id', $contact[$this->apiAddressCreate]) && count($contact[$this->apiAddressCreate]) == 1) {
+      unset($contact[$this->apiAddressCreate]['id']);
+    }
+    if (count($contact[$this->apiAddressCreate]) == 0) {
+      unset($contact[$this->apiAddressCreate]);
+    }
     return $contact;
   }
 
