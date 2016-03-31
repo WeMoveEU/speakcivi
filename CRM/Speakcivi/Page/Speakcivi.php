@@ -155,7 +155,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $contact = $this->createContact($param);
 
     $optInForActivityStatus = $this->optIn;
-    if (!$this->isContactNeedConfirmation($this->newContact, $contact['id'], $contact['values'][0]['is_opt_out'])) {
+    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['values'][0]['is_opt_out'])) {
       $this->confirmationBlock = false;
       $optInForActivityStatus = 0;
     }
@@ -171,7 +171,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     if ($this->newContact) {
-      $this->setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
+      CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
     }
 
     $h = $param->cons_hash;
@@ -236,7 +236,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->createContact($param);
       $contribution = $this->createContribution($param, $contact["id"]);
       if ($this->newContact) {
-        $this->setContactCreatedDate($contact['id'], $contribution['values'][0]['receive_date']);
+        CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $contribution['values'][0]['receive_date']);
       }
       return true;
     } else {
@@ -249,6 +249,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * Create a transaction entity
    *
    * @param $param
+   * @param $contactId
    *
    * @return array
    */
@@ -301,7 +302,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'return' => 'id,email,first_name,last_name',
     );
 
-    $contacIds = $this->getContactByEmail($h->emails[0]->email);
+    $contacIds = CRM_Speakcivi_Logic_Contact::getContactByEmail($h->emails[0]->email);
     if (is_array($contacIds) && count($contacIds) > 0) {
       $contact['id'] = array('IN' => array_keys($contacIds));
       $result = civicrm_api3('Contact', 'get', $contact);
@@ -323,32 +324,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     return civicrm_api3('Contact', 'create', $contact);
-  }
-
-
-  /**
-   * Get contact id (or ids) by using Email API
-   *
-   * @param $email
-   *
-   * @return array
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function getContactByEmail($email) {
-    $ids = array();
-    $params = array(
-      'sequential' => 1,
-      'is_primary' => 1,
-      'email' => $email,
-      'return' => "contact_id",
-    );
-    $result = civicrm_api3('Email', 'get', $params);
-    if ($result['count'] > 0) {
-      foreach ($result['values'] as $contact) {
-        $ids[$contact['contact_id']] = $contact['contact_id'];
-      }
-    }
-    return $ids;
   }
 
 
@@ -729,52 +704,5 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'confirmation_block' => $confirmationBlock,
     );
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
-  }
-
-
-  /**
-   * Check If contact need send email confirmation
-   *
-   * @param $newContact
-   * @param $contactId
-   * @param $isOptOut
-   *
-   * @return bool
-   *
-   */
-  public function isContactNeedConfirmation($newContact, $contactId, $isOptOut) {
-    if ($newContact || $isOptOut) {
-      return true;
-    } else {
-      $params = array(
-        'sequential' => 1,
-        'contact_id' => $contactId,
-        'group_id' => $this->groupId,
-      );
-      $result = civicrm_api3('GroupContact', 'get', $params);
-      if ($result['count'] == 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  /**
-   * Set up own created date. Column created_date is kind of timestamp and therefore It can't be set up during creating new contact.
-   *
-   * @param $contactId
-   * @param $createdDate
-   *
-   * @return bool
-   *
-   */
-  public function setContactCreatedDate($contactId, $createdDate) {
-    $query = "UPDATE civicrm_contact SET created_date = %2 WHERE id = %1";
-    $params = array(
-      1 => array($contactId, 'Integer'),
-      2 => array($createdDate, 'String'),
-    );
-    CRM_Core_DAO::executeQuery($query, $params);
   }
 }
