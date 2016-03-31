@@ -116,8 +116,12 @@ $config = CRM_Core_Config::singleton();
       ),
     ),
   ),
+  'source' => (object)array(
+    "source" => "generic",
+    "medium" => "web",
+    "campaign" => "tomasz-test-you-PL",
+  ),
 );*/
-
 
 
 $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
@@ -154,5 +158,5 @@ switch ($param->action_type) {
   default:
 }
 
-print_r($param);
 print_r($speakcivi);
+print_r($param);
