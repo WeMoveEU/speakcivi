@@ -11,7 +11,9 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $activityStatus = 'Completed'; // Completed existing member
     if (!$this->isGroupContactAdded($this->contactId, $groupId)) {
-      CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId, $this->activityId);
+      if (!CRM_Speakcivi_Logic_Activity::hasJoin($this->activityId)) {
+        CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId, $this->activityId);
+      }
       $this->setGroupContactAdded($this->contactId, $groupId);
       $activityStatus = 'optin'; // Completed new member
     }
