@@ -153,7 +153,6 @@ class CRM_Speakcivi_Logic_Activity {
       'activity_type_id' => $activityTypeId,
       'parent_id' => $activityId,
     );
-    $result = civicrm_api3('Activity', 'getcount', $params);
-    return (bool)$result['result'];
+    return (bool)civicrm_api3('Activity', 'getcount', $params);
   }
 }
