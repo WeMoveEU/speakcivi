@@ -135,4 +135,25 @@ class CRM_Speakcivi_Logic_Activity {
       civicrm_api3('Activity', 'create', $params);
     }
   }
+
+
+  /**
+   * Check If activity has own Join activity
+   *
+   * @param $activityId
+   *
+   * @return bool
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function hasJoin($activityId) {
+    $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
+    $activityTypeId = self::getTypeId($activityTypeName);
+    $params = array(
+      'sequential' => 1,
+      'activity_type_id' => $activityTypeId,
+      'parent_id' => $activityId,
+    );
+    $result = civicrm_api3('Activity', 'getcount', $params);
+    return (bool)$result['result'];
+  }
 }
