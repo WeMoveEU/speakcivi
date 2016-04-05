@@ -29,7 +29,6 @@ However, few rules:
 
 * a contact should be in only one language group (eg. I shouldn't receive both english and french mailings).
 * The latest "specific" (ie. everything but english) language of a petition the member signs is her preferred language
-* If she signs a petition in english, the custom field "speak english" is set to true
 
 Language of campaign is determine by `Internal name` in ***speakout***. We use format like this **2015-11-TTIP-ES**, where last `-ES` determine the spanish language.
 
@@ -44,6 +43,7 @@ French | FR | fr_FR
 German | DE | de_DE
 Greek | GR | el_GR
 Italian | IT | it_IT
+Polish | PL | pl_PL
 Portuguese | PT | pt_PT
 Spanish | ES | es_ES
 
@@ -183,14 +183,38 @@ Where:
     * If AID is not set and CID is set then
         * Speakcivi tries to find all activities for this campaign and changed their status
 
-## Leave activity
+## Join activity
 
-When user click on optout link in confirmation email then:
+When user click on confirmation link in confirmation email then:
 
-* contact is removed from group `Members`,
-* activity `Leave` type is added to contact
+* contact is added to group `Members`,
+* unique activity `Join` type is added to contact
     * with subject `confirmation_link`,
-    * with campaign if it's set in link.
+    * with campaign if it's set in link,
+    * with parent activity set up to `Petition Signature`
+
+So even If user clicks several times on the same confirmation link, only one unique `Join` activity will be added to contact.
+
+## Confirmation email for new user
+
+User receives confirmation email for new user when he/she is not member of `Members` group.
+
+* He/she has to click on confirmation link in order to confirm his/her signing,
+* email contains #CONFIRMATION_BLOCK,
+* after click user receives confirmation email for current user in order to share.
+
+## Confirmation email for current user
+
+User receives confirmation email for current user when
+
+1. he/she is member of `Members` group or
+2. he/she is from UK
+
+* email contains #SHARING_BLOCK
+
+## UTM fields
+
+`Petition Signature` and `share` activities can have additional information in custom fields about
 
 # Entities
 
