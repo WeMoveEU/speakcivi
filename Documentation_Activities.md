@@ -22,6 +22,15 @@ duration:=
 
 ### 5 Leave
 
+Leave with reason in subject. Subject can be a combination of such reasons:
+
+- is\_opt_out
+- do\_not_email
+- is_deleted
+- is_deceased
+- on_hold:1
+- on_hold:2
+
 ## special Tables for SpeakCivi
 
 ? Table for utm_ - Values.
@@ -78,10 +87,3 @@ where v.value in (1,2,4,9)
 9	Completed New Member	optin
 
 
-Leave with reason in subject. Subject can be a combination of such reasons:
-- is_opt_out
-- do_not_email
-- is_deleted
-- is_deceased
-- on_hold:1
-- on_hold:2
