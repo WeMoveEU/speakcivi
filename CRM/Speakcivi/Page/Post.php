@@ -79,16 +79,12 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       $params = array(
         'sequential' => 1,
         'id' => $activityId,
-        'status_id' => $this->activityStatusId['Scheduled'],
+        'status_id' => $this->activityStatusId[$status],
       );
-      $result = civicrm_api3('Activity', 'get', $params);
-      if ($result['count'] == 1) {
-        $params['status_id'] = $this->activityStatusId[$status];
-        if ($location) {
-          $params['location'] = $location;
-        }
-        civicrm_api3('Activity', 'create', $params);
+      if ($location) {
+        $params['location'] = $location;
       }
+      civicrm_api3('Activity', 'create', $params);
     }
   }
 
