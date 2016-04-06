@@ -4,6 +4,7 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
   function run() {
+    $this->setActivityStatusIds();
     $this->setValues();
 
     $this->setIsOptOut($this->contactId, 0);

@@ -10,6 +10,20 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   public $campaignId = 0;
 
+  public $activityStatusId = array();
+
+
+  /**
+   * Set activity status ids
+   */
+  public function setActivityStatusIds() {
+    $this->activityStatusId = array();
+    $this->activityStatusId['Scheduled'] = CRM_Speakcivi_Logic_Activity::getStatusId('Scheduled');
+    $this->activityStatusId['Completed'] = CRM_Speakcivi_Logic_Activity::getStatusId('Completed');
+    $this->activityStatusId['optout'] = CRM_Speakcivi_Logic_Activity::getStatusId('optout');
+    $this->activityStatusId['optin'] = CRM_Speakcivi_Logic_Activity::getStatusId('optin');
+  }
+
 
   /**
    * Set values from request.
@@ -62,17 +76,17 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    */
   public function setActivityStatus($activityId, $status = 'optout', $location = '') {
     if ($activityId > 0) {
-      $scheduledId = CRM_Speakcivi_Logic_Activity::getStatusId('Scheduled');
       $params = array(
         'sequential' => 1,
         'id' => $activityId,
-        'status_id' => $scheduledId,
+        'status_id' => $this->activityStatusId['Scheduled'],
       );
       $result = civicrm_api3('Activity', 'get', $params);
       if ($result['count'] == 1) {
-        $newStatusId = CRM_Speakcivi_Logic_Activity::getStatusId($status);
-        $params['status_id'] = $newStatusId;
-        $params['location'] = $location;
+        $params['status_id'] = $this->activityStatusId[$status];
+        if ($location) {
+          $params['location'] = $location;
+        }
         civicrm_api3('Activity', 'create', $params);
       }
     }
