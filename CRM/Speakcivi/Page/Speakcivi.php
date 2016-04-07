@@ -697,8 +697,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'activity_id' => $activityId,
       'campaign_id' => $campaignId,
       'confirmation_block' => $confirmationBlock,
-      'share_utm_source' => $share_utm_source,
     );
+    if ($share_utm_source) {
+      $params['share_utm_source'] = $share_utm_source;
+    }
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
 }
