@@ -14,6 +14,7 @@ function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
   $params['contact_id']['api.required'] = 1;
   $params['campaign_id']['api.required'] = 1;
   $params['from']['api.default'] = html_entity_decode(CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from'));
+  $params['share_utm_source']['api.default'] = 'member';
 }
 
 
@@ -74,6 +75,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('url_campaign', $campaignObj->getUrlCampaign());
   $template->assign('url_campaign_fb', prepareCleanUrl($campaignObj->getUrlCampaign()));
   $template->assign('utm_campaign', $campaignObj->getUtmCampaign());
+  $template->assign('share_utm_source', urlencode($params['share_utm_source']));
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
