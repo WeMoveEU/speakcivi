@@ -189,7 +189,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($this->addJoinActivity) {
         CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
       }
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, 'new_uk_member');
     }
   }
 
@@ -684,11 +684,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $activityId
    * @param $campaignId
    * @param $confirmationBlock
+   * @param $share_utm_source
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock) {
+  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $share_utm_source = '') {
     $params = array(
       'sequential' => 1,
       'toEmail' => $email,
@@ -696,6 +697,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'activity_id' => $activityId,
       'campaign_id' => $campaignId,
       'confirmation_block' => $confirmationBlock,
+      'share_utm_source' => $share_utm_source,
     );
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
