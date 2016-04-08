@@ -1,12 +1,10 @@
 <?php
 
 function civicrm_api3_speakcivi_update_stats ($params) {
- $config = CRM_Core_Config::singleton();
-  //run the query
+  $config = CRM_Core_Config::singleton();
   $sql = file_get_contents(dirname( __FILE__ ) .'/../../sql/update.sql', true);
   CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
   return civicrm_api3_create_success(array("query"=>$sql), $params);
-
 }
 
 function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
@@ -14,6 +12,7 @@ function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
   $params['contact_id']['api.required'] = 1;
   $params['campaign_id']['api.required'] = 1;
   $params['from']['api.default'] = html_entity_decode(CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from'));
+  $params['share_utm_source']['api.default'] = 'member';
 }
 
 
@@ -74,6 +73,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('url_campaign', $campaignObj->getUrlCampaign());
   $template->assign('url_campaign_fb', prepareCleanUrl($campaignObj->getUrlCampaign()));
   $template->assign('utm_campaign', $campaignObj->getUtmCampaign());
+  $template->assign('share_utm_source', urlencode($params['share_utm_source']));
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
@@ -96,6 +96,82 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $params['text'] = html_entity_decode(convertHtmlToText($messageText));
   $sent = CRM_Utils_Mail::send($params);
   return civicrm_api3_create_success($sent, $params);
+}
+
+
+function _civicrm_api3_speakcivi_getcount_spec(&$params) {
+  $params['group_id']['api.required'] = 1;
+  $params['group_id']['api.default'] = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+}
+
+
+function civicrm_api3_speakcivi_getcount($params) {
+  $groupId = $params['group_id'];
+  $results = CRM_Speakcivi_Cleanup_Leave::getCount($groupId);
+  return civicrm_api3_create_success($results, $params);
+}
+
+
+function _civicrm_api3_speakcivi_leave_spec(&$params) {
+  $params['group_id']['api.required'] = 1;
+  $params['group_id']['api.default'] = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+  $params['limit']['api.required'] = 1;
+  $params['limit']['api.default'] = 100;
+}
+
+
+function civicrm_api3_speakcivi_leave($params) {
+  $start = microtime(true);
+  $tx = new CRM_Core_Transaction();
+  try {
+    $groupId = $params['group_id'];
+    $limit = $params['limit'];
+    CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
+    CRM_Speakcivi_Cleanup_Leave::loadTemporary($groupId, $limit);
+    CRM_Speakcivi_Cleanup_Leave::cleanUp($groupId);
+    $data = CRM_Speakcivi_Cleanup_Leave::getDataForActivities();
+    CRM_Speakcivi_Cleanup_Leave::createActivitiesInBatch($data);
+    $count = CRM_Speakcivi_Cleanup_Leave::countTemporaryContacts();
+    CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
+    $tx->commit();
+    $results = array(
+      'count' => $count,
+      'time' => microtime(true) - $start,
+    );
+    return civicrm_api3_create_success($results, $params);
+  } catch (Exception $ex) {
+    $tx->rollback()->commit();
+    throw $ex;
+  }
+}
+
+
+function _civicrm_api3_speakcivi_join_spec(&$params) {
+  $params['group_id']['api.required'] = 1;
+  $params['group_id']['api.default'] = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+  $params['activity_type_id']['api.required'] = 1;
+  $params['limit']['api.required'] = 1;
+  $params['limit']['api.default'] = 1000;
+}
+
+
+function civicrm_api3_speakcivi_join($params) {
+  $start = microtime(true);
+  $groupId = $params['group_id'];
+  $activityTypeId = $params['activity_type_id'];
+  $limit = $params['limit'];
+  $query = "SELECT speakciviUpdateJoinActivities(%1, %2, %3) AS results;";
+  $query_params = array(
+    1 => array($groupId, 'Integer'),
+    2 => array($activityTypeId, 'Integer'),
+    3 => array($limit, 'Integer'),
+  );
+  $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
+  $results = array(
+    'count' => $count,
+    'time' => microtime(true) - $start,
+  );
+  return civicrm_api3_create_success($results, $params);
 }
 
 
