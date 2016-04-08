@@ -87,7 +87,7 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $parentActivityId
    */
   public static function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
-    // todo move to construct?
+    // todo change to id of type, then remove getTypeId()
     $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
     $activityTypeId = self::getTypeId($activityTypeName);
     self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
@@ -103,7 +103,7 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $parentActivityId
    */
   public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
-    // todo move to construct?
+    // todo change to id of type, then remove getTypeId()
     $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
     $activityTypeId = self::getTypeId($activityTypeName);
     self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
