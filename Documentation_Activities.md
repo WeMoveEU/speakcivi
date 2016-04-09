@@ -10,7 +10,18 @@
 
 ### 1 Petition Signature
 Subject:= 
+
 status:=
+
+
+
+- scheduled
+- optout
+- completed
+- completed new member
+(new UK people are also completed new member)
+
+
 date:= 
 duration:=
 
@@ -36,16 +47,28 @@ Leave with reason in subject. Subject can be a combination of such reasons:
 ? Table for utm_ - Values.
 
 
+speakcivi\_rsign_source := table for older data until 2016-02-18. 
+
+
 # Guide to writing SQL on WeMove.EU
 
 
 ## specific numbers for WeMove.EU
 
+
+### activity_type
 - 32	Petition Signature	
 - 54	share	
 - 55	Created a petition	
 - 56	Leave	
 - 57	Join	
+
+### activits.status
+- 1	Scheduled	Scheduled
+- 2	Completed	Completed
+- 4	Opt-out	optout
+- 9	Completed New Member	optin
+
 
 ## Definition of variables
 
