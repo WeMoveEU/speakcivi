@@ -46,6 +46,11 @@ Leave with reason in subject. Subject can be a combination of such reasons:
 
 ? Table for utm_ - Values.
 
+civicrm\_value\_speakout\_integration_2
+
+civicrm_value_a2_1, civicrm_value_action_source_4, civicrm_value_donor_extra_information_3
+
+
 
 speakcivi\_rsign_source := table for older data until 2016-02-18. 
 
@@ -63,11 +68,18 @@ speakcivi\_rsign_source := table for older data until 2016-02-18.
 - 56	Leave	
 - 57	Join	
 
-### activits.status
+### activity.status
 - 1	Scheduled	Scheduled
 - 2	Completed	Completed
 - 4	Opt-out	optout
 - 9	Completed New Member	optin
+
+### civicrm\_group_contact.status
+_(standard civicrm)_
+
+- 'Added'
+- 'Pending'
+- 'Removed'
 
 
 ## Definition of variables
@@ -85,6 +97,14 @@ set @optout=4;
 set @completed_new=9; 
 set @member_group=42;
 ```
+
+## Todos
+
+- change Number-of-mails.sql to be run only once per hour. 
+- recent_scheduled not confimred.sql : to let campaigners know when confirmation reminders are important. 
+
+
+## old stuff that needs to be sorted
 
 select v.id, v.value, v.label, v.name from civicrm_option_value v 
 join civicrm_option_group g on v.option_group_id = g.id and g.name="activity_type" 
