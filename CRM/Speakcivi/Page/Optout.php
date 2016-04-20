@@ -14,6 +14,9 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     if ($this->isGroupContactAdded($this->contactId, $groupId)) {
       $this->setGroupContactRemoved($this->contactId, $groupId);
       $location = 'removed from Members after optout link';
+      if (CRM_Speakcivi_Cleanup_Leave::hasJoins($this->contactId)) {
+        CRM_Speakcivi_Logic_Activity::leave($this->contactId, 'confirmation_link', $this->campaignId, $this->activityId, '', 'Added by SpeakCivi Optout');
+      }
     }
 
     if ($this->campaignId) {

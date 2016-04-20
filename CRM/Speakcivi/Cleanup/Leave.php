@@ -155,4 +155,32 @@ class CRM_Speakcivi_Cleanup_Leave {
       CRM_Speakcivi_Logic_Activity::leave($contact['id'], $contact['subject'], 0, 0, $contact['max_modified_date'], 'Added by SpeakCivi API');
     }
   }
+
+
+  /**
+   * Check If contact has more Joins than Leaves
+   *
+   * @param $contactId
+   *
+   * @return bool
+   */
+  public static function hasJoins($contactId) {
+    $query = "SELECT
+                (SELECT count(DISTINCT a.id)
+                FROM civicrm_activity a
+                  JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+                WHERE a.activity_type_id = %2 AND ac.contact_id = c.id) -
+                    (SELECT count(DISTINCT a.id)
+                    FROM civicrm_activity a
+                      JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+                    WHERE a.activity_type_id = %3 AND ac.contact_id = c.id) AS cc
+              FROM civicrm_contact c
+              WHERE c.id = %1;";
+    $params = array(
+      1 => array($contactId, 'Integer'),
+      2 => array(57, 'Integer'),  // todo get from settings, Join
+      3 => array(56, 'Integer'),  // todo get from settings, Leave
+    );
+    return (bool)CRM_Core_DAO::singleValueQuery($query, $params);
+  }
 }
