@@ -56,10 +56,12 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $subject
    * @param $campaignId
    * @param $parentActivityId
+   * @param $activity_date_time
+   * @param $location
    *
    * @throws \CiviCRM_API3_Exception
    */
-  private static function createActivity($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
+  private static function createActivity($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '') {
     $params = array(
       'sequential' => 1,
       'activity_type_id' => $typeId,
@@ -73,6 +75,12 @@ class CRM_Speakcivi_Logic_Activity {
     }
     if ($parentActivityId) {
       $params['parent_id'] = $parentActivityId;
+    }
+    if ($activity_date_time) {
+      $params['activity_date_time'] = $activity_date_time;
+    }
+    if ($location) {
+      $params['location'] = $location;
     }
     civicrm_api3('Activity', 'create', $params);
   }
@@ -101,12 +109,14 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $subject
    * @param $campaignId
    * @param $parentActivityId
+   * @param $activity_date_time
+   * @param $location
    */
-  public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
+  public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '') {
     // todo change to id of type, then remove getTypeId()
     $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
     $activityTypeId = self::getTypeId($activityTypeName);
-    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
+    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId, $activity_date_time, $location);
   }
 
 
