@@ -125,11 +125,22 @@ class CRM_Speakcivi_Cleanup_Leave {
    * @return array
    */
   public static function getDataForActivities() {
-    $query = "SELECT id, subject, (SELECT max(modified_date)
+    $query = "SELECT l.id, l.subject,
+                (SELECT max(modified_date)
                 FROM civicrm_log
                 WHERE entity_table = 'civicrm_contact' AND entity_id = l.id) AS max_modified_date
-              FROM speakcivi_cleanup_leave l";
-    $dao = CRM_Core_DAO::executeQuery($query);
+              FROM speakcivi_cleanup_leave l
+              WHERE l.id IN (
+                SELECT ac.contact_id
+                FROM civicrm_activity a
+                  JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+                  JOIN speakcivi_cleanup_leave l2 ON l2.id = ac.contact_id
+                WHERE a.activity_type_id = %1 AND a.activity_date_time < (
+                  SELECT max(modified_date) FROM civicrm_log WHERE entity_table = 'civicrm_contact' AND entity_id = l2.id
+                )
+              )";
+    $params = array(1 => array(57, 'Integer')); // todo get from settings
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
     return $dao->fetchAll();
   }
 
