@@ -6,6 +6,7 @@ CREATE FUNCTION speakciviUpdateJoinActivities(groupId INT, activityType INT, nli
   BEGIN
     DECLARE cid, results INT;
     DECLARE done INT DEFAULT FALSE;
+    -- find contacts which are added to group (Members) and which contacts don't have any Joins
     DECLARE cur1 CURSOR FOR
       SELECT DISTINCT sh.contact_id
       FROM civicrm_subscription_history sh
@@ -16,6 +17,7 @@ CREATE FUNCTION speakciviUpdateJoinActivities(groupId INT, activityType INT, nli
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
     SET results = 0;
 
+    -- find contacts which already have at least one Join activity
     DELETE FROM speakcivi_cleanup_join;
     INSERT INTO speakcivi_cleanup_join (id)
       SELECT DISTINCT sh.contact_id
@@ -36,6 +38,8 @@ CREATE FUNCTION speakciviUpdateJoinActivities(groupId INT, activityType INT, nli
         DECLARE id2, naid, campaignId INT;
         DECLARE aDate DATETIME;
         DECLARE done2 INT DEFAULT FALSE;
+        -- find date of Join based on history of group (Members)
+        -- only first subscription can have a Join activity
         DECLARE cur2 CURSOR FOR
           SELECT date
           FROM civicrm_subscription_history sh
@@ -46,7 +50,7 @@ CREATE FUNCTION speakciviUpdateJoinActivities(groupId INT, activityType INT, nli
             WHERE sh.group_id = groupId AND sh.contact_id = cid AND sh.status IN ('Added')) t ON sh.id = t.history_id
           WHERE group_id = groupId AND contact_id = cid AND sh.status IN ('Added')
           ORDER BY sh.date ASC
-          LIMIT 1; -- only first subscription can have a Join activity
+          LIMIT 1;
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done2 = 1;
         OPEN cur2;
         loop_history: LOOP
@@ -56,6 +60,8 @@ CREATE FUNCTION speakciviUpdateJoinActivities(groupId INT, activityType INT, nli
             LEAVE loop_history;
           END IF;
 
+          -- find campaign by source of contact
+          -- works only for contacts which were created by speakout
           SELECT ca.id INTO campaignId
           FROM civicrm_contact c
             JOIN civicrm_campaign ca ON concat('speakout petition ', ca.external_identifier) = c.source
