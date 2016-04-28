@@ -71,14 +71,25 @@ On the opposite side is activity *Leave* which means that contact dismisses our 
 
 ? Table for utm_ - Values.
 
-civicrm\_value\_speakout\_integration_2
-
 civicrm_value_a2_1, civicrm_value_action_source_4, civicrm_value_donor_extra_information_3
-
-
 
 speakcivi\_rsign_source := table for older data until 2016-02-18. 
 
+### civicrm_value_speakout_integration_2
+
+| Field                 | Type             | Null | Key | Default                                     | Extra          | Comment |
+| --- | --- | --- | --- | --- | --- | --- |
+| id                    | int(10) unsigned | NO   | PRI | NULL                                        | auto_increment | |
+| entity_id             | int(10) unsigned | NO   | UNI | NULL                                        |                | campaign\_id |
+| language_4            | varchar(5)       | YES  | MUL | en_GB                                       |                | |
+| sender_email_5        | varchar(255)     | YES  |     | "Xavier - WeMove.EU" \&lt;info@wemove.eu\&gt; |                | |
+| url_campaign_8        | varchar(255)     | YES  |     | NULL                                        |                | |
+| utm_campaign_11       | varchar(255)     | YES  |     | NULL                                        |                | |
+| twitter_share_text_16 | text             | YES  |     | NULL                                        |                | |
+| subject_new_17        | varchar(255)     | YES  |     | NULL                                        |                | |
+| subject_member_18     | varchar(255)     | YES  |     | NULL                                        |                | |
+| message_new_19        | text             | YES  |     | NULL                                        |                | |
+| message_member_20     | text             | YES  |     | NULL                                        |                | |
 
 # Guide to writing SQL on WeMove.EU
 
