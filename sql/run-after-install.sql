@@ -95,7 +95,7 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
     DECLARE cur1 CURSOR FOR
       SELECT lg.id
       FROM speakcivi_cleanup_languagegroup lg
-        LEFT JOIN (SELECT DISTINCT contact_id
+        LEFT JOIN (SELECT contact_id
         FROM civicrm_group_contact
         WHERE group_id = groupId AND status = 'Added') gc ON gc.contact_id = lg.id
       WHERE gc.contact_id IS NULL
