@@ -5,10 +5,10 @@
 1. Petition Signature
 2. Share
 3. Created a petition
-2. Join
-3. Leave
+4. Join
+5. Leave
 
-### 1 Petition Signature
+### 1. Petition Signature
 Subject:= 
 
 status:=
@@ -25,15 +25,35 @@ status:=
 date:= 
 duration:=
 
-### 2 Share
+### 2. Share
 
-### 3 Created a petition
+### 3. Created a petition
 
-### 4 Join
+### 4. Join
 
-### 5 Leave
+*Join* is added when contact becomes our member. There are several ways how this becomes and this is linked with *subject* of activity:
 
-Leave with reason in subject. Subject can be a combination of such reasons:
+| Subject | Meaning |
+| --- | --- |
+| confirmation_link | user clicks on confirmation link in email (confirm, not optout) |
+| optIn:0 | UK user signs petition |
+| updateBySQL | user is added by cron job (restore from history of Members) |
+
+
+**CRON JOB Assumptions**
+
+API action `Speakcivi.join` can restore Joins from history of group Members. How this action works:
+
+* adds new Join only if contact doesn't have any Joins
+* adds only one and first (the oldest) based on date of history of Members
+* set campaign based on contact.source
+    * only for contacts created by speakout (source = 'speakout petition %')
+
+On the opposite side is activity *Leave* which means that contact dismisses our membership. One contact can have several Joins but only alternately with *Leave*.
+
+### 5. Leave
+
+*Leave* is added when contact dismisses our membership (and only when had *Join** before). *Leave* has reason in subject. Subject can be a combination of such reasons:
 
 - is\_opt_out
 - do\_not_email
@@ -42,18 +62,34 @@ Leave with reason in subject. Subject can be a combination of such reasons:
 - on_hold:1
 - on_hold:2
 
+*Leave* is created in two cases:
+
+1. when user clicks on optout link in confirmation e-mail
+2. when `Speakcivi.leave` cron job remove contact from group Members
+
 ## special Tables for SpeakCivi
 
 ? Table for utm_ - Values.
 
-civicrm\_value\_speakout\_integration_2
-
 civicrm_value_a2_1, civicrm_value_action_source_4, civicrm_value_donor_extra_information_3
-
-
 
 speakcivi\_rsign_source := table for older data until 2016-02-18. 
 
+### civicrm_value_speakout_integration_2
+
+| Field                 | Type             | Null | Key | Default                                     | Extra          | Comment |
+| --- | --- | --- | --- | --- | --- | --- |
+| id                    | int(10) unsigned | NO   | PRI | NULL                                        | auto_increment | |
+| entity_id             | int(10) unsigned | NO   | UNI | NULL                                        |                | campaign\_id |
+| language_4            | varchar(5)       | YES  | MUL | en_GB                                       |                | |
+| sender_email_5        | varchar(255)     | YES  |     | "Xavier - WeMove.EU" \&lt;info@wemove.eu\&gt; |                | |
+| url_campaign_8        | varchar(255)     | YES  |     | NULL                                        |                | |
+| utm_campaign_11       | varchar(255)     | YES  |     | NULL                                        |                | |
+| twitter_share_text_16 | text             | YES  |     | NULL                                        |                | |
+| subject_new_17        | varchar(255)     | YES  |     | NULL                                        |                | |
+| subject_member_18     | varchar(255)     | YES  |     | NULL                                        |                | |
+| message_new_19        | text             | YES  |     | NULL                                        |                | |
+| message_member_20     | text             | YES  |     | NULL                                        |                | |
 
 # Guide to writing SQL on WeMove.EU
 
@@ -84,18 +120,22 @@ _(standard civicrm)_
 
 ## Definition of variables
 
-```mysql
-set @share:= 54;
-set @signature:=32;
-set @created_pet:=55;
-set @leave:=56;
-set @join:=57;
+```sql
+-- activity types
+SET @share = 54;
+SET @signature = 32;
+SET @created_pet = 55;
+SET @leave = 56;
+SET @join = 57;
 
-set @scheduled=1;
-set @completed=2;
-set @optout=4;
-set @completed_new=9; 
-set @member_group=42;
+-- activity statuses:
+SET @scheduled = 1;
+SET @completed = 2;
+SET @optout = 4;
+SET @completed_new = 9;
+
+-- groups:
+SET @member_group = 42;
 ```
 
 ## Todos

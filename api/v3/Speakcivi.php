@@ -176,6 +176,42 @@ function civicrm_api3_speakcivi_join($params) {
 }
 
 
+function _civicrm_api3_speakcivi_removelanguagegroup_spec(&$params) {
+  $params['limit']['api.required'] = 1;
+  $params['limit']['api.default'] = 10000;
+}
+
+
+function civicrm_api3_speakcivi_removelanguagegroup($params) {
+  $start = microtime(true);
+  $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+  $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+  $limit = $params['limit'];
+
+  if ($groupId && $languageGroupNameSuffix && $limit) {
+    $query = "SELECT speakciviRemoveLanguageGroup(%1, %2, %3) AS results;";
+    $query_params = array(
+      1 => array($groupId, 'Integer'),
+      2 => array($languageGroupNameSuffix, 'String'),
+      3 => array($limit, 'Integer'),
+    );
+    $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
+    $results = array(
+      'count' => $count,
+      'time' => microtime(true) - $start,
+    );
+    return civicrm_api3_create_success($results, $params);
+  } else {
+    $data = array(
+      'groupId' => $groupId,
+      'languageGroupNameSuffix' => $languageGroupNameSuffix,
+      'limit' => $limit
+    );
+    return civicrm_api3_create_error('Not valid params', $data);
+  }
+}
+
+
 /**
  * Get locale version for locale from params. Default is a english version.
  *
