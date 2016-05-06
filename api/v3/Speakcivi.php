@@ -146,9 +146,6 @@ function civicrm_api3_speakcivi_leave($params) {
 
 
 function _civicrm_api3_speakcivi_join_spec(&$params) {
-  $params['group_id']['api.required'] = 1;
-  $params['group_id']['api.default'] = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-  $params['activity_type_id']['api.required'] = 1;
   $params['limit']['api.required'] = 1;
   $params['limit']['api.default'] = 1000;
 }
@@ -156,8 +153,10 @@ function _civicrm_api3_speakcivi_join_spec(&$params) {
 
 function civicrm_api3_speakcivi_join($params) {
   $start = microtime(true);
-  $groupId = $params['group_id'];
-  $activityTypeId = $params['activity_type_id'];
+  $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+  // todo change to id of type, then remove getTypeId()
+  // $activityTypeId  = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
+  $activityTypeId = 57;
   $limit = $params['limit'];
   $query = "SELECT speakciviUpdateJoinActivities(%1, %2, %3) AS results;";
   $query_params = array(
