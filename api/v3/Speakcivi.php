@@ -182,7 +182,7 @@ function _civicrm_api3_speakcivi_removelanguagegroup_spec(&$params) {
 }
 
 
-function civicrm_api3_speakcivi_removelanguagegroup_spec($params) {
+function civicrm_api3_speakcivi_removelanguagegroup($params) {
   $start = microtime(true);
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
