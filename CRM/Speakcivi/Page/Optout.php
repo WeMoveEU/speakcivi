@@ -23,7 +23,6 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
       $locale = $campaign->getLanguage();
       $language = substr($locale, 0, 2);
-      $this->setLanguageGroup($this->contactId, $language);
       $this->setLanguageTag($this->contactId, $language);
     }
 
