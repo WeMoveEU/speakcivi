@@ -85,5 +85,69 @@ CREATE FUNCTION speakciviUpdateJoinActivities(groupId INT, activityType INT, nli
     RETURN results;
   END#
 
+
+-- If contact is not in Members, remove contact from language groups.
+DROP FUNCTION IF EXISTS speakciviRemoveLanguageGroup#
+CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffix VARCHAR(255), nLimit INT) RETURNS INT
+  BEGIN
+    DECLARE cid, gid, results INT;
+    DECLARE done1 INT DEFAULT FALSE;
+    DECLARE cur1 CURSOR FOR
+      SELECT lg.id
+      FROM speakcivi_cleanup_languagegroup lg
+        LEFT JOIN (SELECT DISTINCT contact_id
+        FROM civicrm_group_contact
+        WHERE group_id = groupId AND status = 'Added') gc ON gc.contact_id = lg.id
+      WHERE gc.contact_id IS NULL
+      LIMIT nLimit;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = 1;
+    SET results = 0;
+
+    DELETE FROM speakcivi_cleanup_languagegroup;
+    INSERT INTO speakcivi_cleanup_languagegroup
+      SELECT DISTINCT gc.contact_id
+      FROM civicrm_group_contact gc
+      WHERE gc.status = 'Added' AND
+          gc.group_id IN (SELECT id FROM civicrm_group WHERE name LIKE CONCAT('%', languageGroupNameSuffix COLLATE utf8_unicode_ci))
+      ORDER BY gc.contact_id;
+
+    OPEN cur1;
+    loop_contacts: LOOP
+      FETCH cur1 INTO cid;
+      IF done1 THEN
+        CLOSE cur1;
+        LEAVE loop_contacts;
+      END IF;
+      BEGIN
+        DECLARE done2 INT DEFAULT FALSE;
+        DECLARE cur2 CURSOR FOR
+          SELECT group_id FROM civicrm_group_contact
+          WHERE contact_id = cid AND
+              status = 'Added' AND
+              group_id IN (SELECT id
+              FROM civicrm_group
+              WHERE name LIKE CONCAT('%', languageGroupNameSuffix COLLATE utf8_unicode_ci));
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done2 = 1;
+        OPEN cur2;
+        loop_groups: LOOP
+          FETCH cur2 INTO gid;
+          IF done2 THEN
+            CLOSE cur2;
+            LEAVE loop_groups;
+          END IF;
+          BEGIN
+            INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
+            VALUES (cid, gid, NOW(), 'Admin', 'Removed');
+            UPDATE civicrm_group_contact
+            SET status = 'Removed'
+            WHERE contact_id = cid AND group_id = gid;
+          END;
+        END LOOP loop_groups;
+      END;
+      SET results = results + 1;
+    END LOOP loop_contacts;
+    RETURN results;
+  END#
+
 DELIMITER ;
 COMMIT ;
