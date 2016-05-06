@@ -146,6 +146,7 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
       END;
       SET results = results + 1;
     END LOOP loop_contacts;
+    DELETE FROM speakcivi_cleanup_languagegroup;
     RETURN results;
   END#
 
