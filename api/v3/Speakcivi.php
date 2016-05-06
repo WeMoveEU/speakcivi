@@ -114,8 +114,6 @@ function civicrm_api3_speakcivi_getcount($params) {
 
 
 function _civicrm_api3_speakcivi_leave_spec(&$params) {
-  $params['group_id']['api.required'] = 1;
-  $params['group_id']['api.default'] = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $params['limit']['api.required'] = 1;
   $params['limit']['api.default'] = 100;
 }
@@ -125,7 +123,7 @@ function civicrm_api3_speakcivi_leave($params) {
   $start = microtime(true);
   $tx = new CRM_Core_Transaction();
   try {
-    $groupId = $params['group_id'];
+    $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $limit = $params['limit'];
     CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
     CRM_Speakcivi_Cleanup_Leave::loadTemporary($groupId, $limit);
