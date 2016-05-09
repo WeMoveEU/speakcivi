@@ -120,7 +120,8 @@ class CRM_Speakcivi_Cleanup_Leave {
 
 
   /**
-   * Get data (contact id and subject) for creating activity
+   * Get data (contact id and subject) for creating activity.
+   * Only when contact already has Join.
    *
    * @return array
    */
@@ -139,7 +140,8 @@ class CRM_Speakcivi_Cleanup_Leave {
                   SELECT max(modified_date) FROM civicrm_log WHERE entity_table = 'civicrm_contact' AND entity_id = l2.id
                 )
               )";
-    $params = array(1 => array(57, 'Integer')); // todo get from settings
+    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
+    $params = array(1 => array($activityTypeId, 'Integer'));
     $dao = CRM_Core_DAO::executeQuery($query, $params);
     return $dao->fetchAll();
   }
@@ -176,10 +178,12 @@ class CRM_Speakcivi_Cleanup_Leave {
                     WHERE a.activity_type_id = %3 AND ac.contact_id = c.id) AS cc
               FROM civicrm_contact c
               WHERE c.id = %1;";
+    $activityJoinTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
+    $activityLeaveTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
     $params = array(
       1 => array($contactId, 'Integer'),
-      2 => array(57, 'Integer'),  // todo get from settings, Join
-      3 => array(56, 'Integer'),  // todo get from settings, Leave
+      2 => array($activityJoinTypeId, 'Integer'),
+      3 => array($activityLeaveTypeId, 'Integer'),
     );
     return (bool)CRM_Core_DAO::singleValueQuery($query, $params);
   }
