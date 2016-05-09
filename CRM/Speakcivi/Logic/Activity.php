@@ -2,28 +2,6 @@
 
 class CRM_Speakcivi_Logic_Activity {
 
-  /**
-   * Get activity type id. If type isn't exist, create it.
-   *
-   * @param string $activityName
-   *
-   * @return int
-   * @throws \CiviCRM_API3_Exception
-   */
-  private static function getTypeId($activityName) {
-    $params = array(
-      'sequential' => 1,
-      'option_group_id' => 'activity_type',
-      'name' => $activityName,
-    );
-    $result = civicrm_api3('OptionValue', 'get', $params);
-    if ($result['count'] == 0) {
-      $params['is_active'] = 1;
-      $result = civicrm_api3('OptionValue', 'create', $params);
-    }
-    return (int)$result['values'][0]['value'];
-  }
-
 
   /**
    * Get activity status id. If status isn't exist, create it.
@@ -95,9 +73,7 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $parentActivityId
    */
   public static function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
-    // todo change to id of type, then remove getTypeId()
-    $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $activityTypeId = self::getTypeId($activityTypeName);
+    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
     self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
   }
 
@@ -113,9 +89,7 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $location
    */
   public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '') {
-    // todo change to id of type, then remove getTypeId()
-    $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
-    $activityTypeId = self::getTypeId($activityTypeName);
+    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
     self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId, $activity_date_time, $location);
   }
 
@@ -158,8 +132,7 @@ class CRM_Speakcivi_Logic_Activity {
    * @throws \CiviCRM_API3_Exception
    */
   public static function hasJoin($activityId) {
-    $activityTypeName = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $activityTypeId = self::getTypeId($activityTypeName);
+    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
     $params = array(
       'sequential' => 1,
       'activity_type_id' => $activityTypeId,
