@@ -76,3 +76,9 @@ var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
 var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
+var_dump($result);

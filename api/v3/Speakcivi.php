@@ -133,9 +133,14 @@ function civicrm_api3_speakcivi_leave($params) {
     $count = CRM_Speakcivi_Cleanup_Leave::countTemporaryContacts();
     CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
     $tx->commit();
+    $ids = array();
+    foreach ($data as $k => $v) {
+      $ids[$v['id']] = $v['id'];
+    }
     $results = array(
       'count' => $count,
       'time' => microtime(true) - $start,
+      'ids' => $ids,
     );
     return civicrm_api3_create_success($results, $params);
   } catch (Exception $ex) {
@@ -154,9 +159,7 @@ function _civicrm_api3_speakcivi_join_spec(&$params) {
 function civicrm_api3_speakcivi_join($params) {
   $start = microtime(true);
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-  // todo change to id of type, then remove getTypeId()
-  // $activityTypeId  = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-  $activityTypeId = 57;
+  $activityTypeId  = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
   $limit = $params['limit'];
   $query = "SELECT speakciviUpdateJoinActivities(%1, %2, %3) AS results;";
   $query_params = array(
