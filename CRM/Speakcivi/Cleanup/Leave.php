@@ -126,10 +126,7 @@ class CRM_Speakcivi_Cleanup_Leave {
    * @return array
    */
   public static function getDataForActivities() {
-    $query = "SELECT l.id, l.subject,
-                (SELECT max(modified_date)
-                FROM civicrm_log
-                WHERE entity_table = 'civicrm_contact' AND entity_id = l.id) AS max_modified_date
+    $query = "SELECT l.id, l.subject, NOW() AS activity_date_time
               FROM speakcivi_cleanup_leave l
               WHERE l.id IN (
                 SELECT ac.contact_id
@@ -154,7 +151,7 @@ class CRM_Speakcivi_Cleanup_Leave {
    */
   public static function createActivitiesInBatch($data) {
     foreach((array)$data as $contact) {
-      CRM_Speakcivi_Logic_Activity::leave($contact['id'], $contact['subject'], 0, 0, $contact['max_modified_date'], 'Added by SpeakCivi API');
+      CRM_Speakcivi_Logic_Activity::leave($contact['id'], $contact['subject'], 0, 0, $contact['activity_date_time'], 'Added by SpeakCivi API');
     }
   }
 
