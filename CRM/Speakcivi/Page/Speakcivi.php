@@ -61,8 +61,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->setCountry($param);
 
     $notSendConfirmationToThoseCountries = array(
-      'UK',
+      'FR',
       'GB',
+      'IT',
+      'UK',
     );
     if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
       $this->optIn = 0;
