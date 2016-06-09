@@ -191,7 +191,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($this->addJoinActivity) {
         CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
       }
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, 'new_uk_member');
+      $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, $share_utm_source);
     }
   }
 
