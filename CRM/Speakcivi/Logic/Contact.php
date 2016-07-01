@@ -92,4 +92,33 @@ class CRM_Speakcivi_Logic_Contact {
     }
     return false;
   }
+
+
+  /**
+   * Set source fields in custom fields to contact
+   *
+   * @param int $contactId
+   * @param array $fields
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function setSourceFields($contactId, $fields) {
+    $params = array(
+      'sequential' => 1,
+      'id' => $contactId,
+    );
+    $fields = (array)$fields;
+    if (array_key_exists('source', $fields) && $fields['source']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_source')] = $fields['source'];
+    }
+    if (array_key_exists('medium', $fields) && $fields['medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_medium')] = $fields['medium'];
+    }
+    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_campaign')] = $fields['campaign'];
+    }
+    if (count($params) > 2) {
+      civicrm_api3('Contact', 'create', $params);
+    }
+  }
 }
