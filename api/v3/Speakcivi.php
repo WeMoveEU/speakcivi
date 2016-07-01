@@ -212,6 +212,105 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
 }
 
 
+function _civicrm_api3_speakcivi_remind_spec(&$params) {
+}
+
+
+function civicrm_api3_speakcivi_remind($params) {
+
+  // how old not confirmed petitions
+  $days = 3;
+  $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+  $activityTypeId = 32; // Signature Petition
+
+  $query = "SELECT acp.activity_id, ap.campaign_id, acp.contact_id
+          FROM civicrm_activity ap
+            JOIN civicrm_activity_contact acp ON acp.activity_id = ap.id
+            JOIN civicrm_contact c ON c.id = acp.contact_id
+            LEFT JOIN civicrm_group_contact gc ON gc.contact_id = acp.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
+          WHERE ap.activity_type_id = %2 AND ap.status_id = 1 AND ap.activity_date_time <= date_add(current_date, INTERVAL -%3 DAY)
+              AND c.is_opt_out = 0 AND c.is_deleted = 0 AND c.is_deceased = 0 AND c.do_not_email = 0 AND gc.id IS NULL";
+  $params = array(
+    1 => array($groupId, 'Integer'),
+    2 => array($activityTypeId, 'Integer'),
+    3 => array($days, 'Integer'),
+  );
+  $dao = CRM_Core_DAO::executeQuery($query, $params);
+  $contacts = array();
+  $campaigns = array();
+  while ($dao->fetch()) {
+    $contacts[$dao->campaign_id][$dao->contact_id] = $dao->contact_id;
+    $campaigns[$dao->campaign_id] = $dao->campaign_id;
+  }
+  
+  $message = array();
+  $subject = array();
+  $utmCampaign = array();
+  $locale = array();
+  foreach ($campaigns as $cid) {
+    $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
+    $message[$cid] = $campaignObj->getMessageNew();
+    $subject[$cid] = $campaignObj->getSubjectNew();
+    $utmCampaign[$cid] = $campaignObj->getUtmCampaign();
+    $locale[$cid] = $campaignObj->getLanguage();
+  }
+
+  // fetch confirmation block
+  $messageHtml = array();
+  $messageText = array();
+  foreach ($message as $cid => $msg) {
+    $url_confirm_and_keep = CRM_Utils_System::url('civicrm/speakcivi/confirm', null, true).
+      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
+    $url_confirm_and_not_receive = CRM_Utils_System::url('civicrm/speakcivi/optout', null, true).
+      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
+    $locales = getLocale($locale[$cid]);
+    $confirmationBlockHtml = implode('', file('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl'));
+    $confirmationBlockText = implode('', file('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl'));
+    $confirmationBlockHtml = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockHtml);
+    $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
+    $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
+    $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
+    $messageHtml[$cid] = removeDelim(strip_tags(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg), '<p><div><span><a><b><u><i><strong><table><tr><td><th>'));
+    $messageText[$cid] = convertHtmlToText(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg));
+  }
+
+  // creating new mailings
+  foreach ($campaigns as $cid) {
+    $mailingName = date('Y-m-d').'-Reminder--campaign_id='.$cid; // todo change to internal name of campaign
+    $params = array(
+      'name' => $mailingName,
+      'subject' => $subject[$cid],
+      'body_text' => $messageText[$cid],
+      'body_html' => $messageHtml[$cid],
+      'created_id' => 2, // todo change to admin :-)
+      'created_date' => date('YmsHis'),
+      'campaign_id' => $cid,
+      'mailing_type' => 'standalone',
+      'unsubscribe_id' => 5,
+      'resubscribe_id' => 6,
+      'optout_id' => 7,
+      'open_tracking' => 1,
+      'url_tracking' => 1,
+    );
+    $mailing = new CRM_Mailing_BAO_Mailing();
+    $mm = $mailing->add($params);
+
+//    $mailing->replaceGroups($mm->id, 'exclude', 'groups', array($groupId));
+
+    // todo or add contacts directly to mailing
+    $params = array(
+      'mailing_id' => $mm->id,
+      'group_type' => 'exclude',
+      'entity_table' => CRM_Contact_BAO_Group::getTableName(),
+      'values' => array(array('entity_id' => $groupId)),
+    );
+    $result = civicrm_api3('mailing_group', 'replace', $params);
+  }
+
+
+}
+
+
 /**
  * Get locale version for locale from params. Default is a english version.
  *
@@ -265,4 +364,18 @@ function prepareCleanUrl($url) {
   );
   $url = str_replace($search, '', $url);
   return urlencode($url);
+}
+
+
+/**
+ * Remove delim code from string (confirmation block)
+ * @param string $str
+ *
+ * @return mixed
+ */
+function removeDelim($str) {
+  $first = strpos($str, '{ldelim}');
+  $last = strrpos($str, '{rdelim}');
+  $str = substr_replace($str, '', $first, $last-$first+8);
+  return $str;
 }
