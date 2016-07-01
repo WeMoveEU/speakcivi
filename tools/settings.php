@@ -71,6 +71,24 @@ var_dump($result);
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_message_current');
 var_dump($result);
 
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_source');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_source');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_medium');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_campaign');
+var_dump($result);
+
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
 var_dump($result);
 

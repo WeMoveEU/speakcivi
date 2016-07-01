@@ -178,6 +178,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     if ($this->newContact) {
       CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
+      CRM_Speakcivi_Logic_Contact::setSourceFields($contact['id'], @$param->source);
     }
 
     $h = $param->cons_hash;
