@@ -28,4 +28,4 @@
 </script>
 
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Confirma si prefieres no recibir más información sobre esta y otras <a href="{$url_confirm_and_not_receive}">aquí</a>.</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Confirma si prefieres no recibir más información sobre esta y otras campañas <a href="{$url_confirm_and_not_receive}">aquí</a>.</p>
