@@ -224,12 +224,12 @@ function civicrm_api3_speakcivi_remind($params) {
   $activityTypeId = 32; // Signature Petition
 
   $query = "SELECT acp.activity_id, ap.campaign_id, acp.contact_id
-          FROM civicrm_activity ap
-            JOIN civicrm_activity_contact acp ON acp.activity_id = ap.id
-            JOIN civicrm_contact c ON c.id = acp.contact_id
-            LEFT JOIN civicrm_group_contact gc ON gc.contact_id = acp.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
-          WHERE ap.activity_type_id = %2 AND ap.status_id = 1 AND ap.activity_date_time <= date_add(current_date, INTERVAL -%3 DAY)
-              AND c.is_opt_out = 0 AND c.is_deleted = 0 AND c.is_deceased = 0 AND c.do_not_email = 0 AND gc.id IS NULL";
+            FROM civicrm_activity ap
+              JOIN civicrm_activity_contact acp ON acp.activity_id = ap.id
+              JOIN civicrm_contact c ON c.id = acp.contact_id
+              LEFT JOIN civicrm_group_contact gc ON gc.contact_id = acp.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
+            WHERE ap.activity_type_id = %2 AND ap.status_id = 1 AND ap.activity_date_time <= date_add(current_date, INTERVAL -%3 DAY)
+                AND c.is_opt_out = 0 AND c.is_deleted = 0 AND c.is_deceased = 0 AND c.do_not_email = 0 AND gc.id IS NULL";
   $params = array(
     1 => array($groupId, 'Integer'),
     2 => array($activityTypeId, 'Integer'),
@@ -247,12 +247,14 @@ function civicrm_api3_speakcivi_remind($params) {
   $subject = array();
   $utmCampaign = array();
   $locale = array();
+  $email = array();
   foreach ($campaigns as $cid) {
     $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
     $message[$cid] = $campaignObj->getMessageNew();
     $subject[$cid] = $campaignObj->getSubjectNew();
     $utmCampaign[$cid] = $campaignObj->getUtmCampaign();
     $locale[$cid] = $campaignObj->getLanguage();
+    $email[$cid] = parseSenderEmail($campaignObj->getSenderMail());
   }
 
   // fetch confirmation block
@@ -291,16 +293,15 @@ function civicrm_api3_speakcivi_remind($params) {
       'optout_id' => 7,
       'open_tracking' => 1,
       'url_tracking' => 1,
+      'from_name' => $email[$cid]['from_name'],
+      'from_email' => $email[$cid]['from_email'],
     );
     $mailing = new CRM_Mailing_BAO_Mailing();
     $mm = $mailing->add($params);
 
-//    $mailing->replaceGroups($mm->id, 'exclude', 'groups', array($groupId));
-
-    // todo or add contacts directly to mailing
     $params = array(
       'mailing_id' => $mm->id,
-      'group_type' => 'exclude',
+      'group_type' => 'Exclude',
       'entity_table' => CRM_Contact_BAO_Group::getTableName(),
       'values' => array(array('entity_id' => $groupId)),
     );
@@ -378,4 +379,20 @@ function removeDelim($str) {
   $last = strrpos($str, '{rdelim}');
   $str = substr_replace($str, '', $first, $last-$first+8);
   return $str;
+}
+
+
+/**
+ * Parse sender email fields as from name and email separately
+ * @param $senderEmail
+ *
+ * @return array
+ */
+function parseSenderEmail($senderEmail) {
+  $senderEmail = str_replace('>', '&gt;', str_replace('<', '&lt;', $senderEmail));
+  $arr = explode('&lt;', $senderEmail);
+  return array(
+    'from_name' => trim(str_replace('"', '', $arr[0])),
+    'from_email' => trim(str_replace('&gt;', '', $arr[1])),
+  );
 }
