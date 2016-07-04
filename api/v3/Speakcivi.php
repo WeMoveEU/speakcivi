@@ -285,7 +285,7 @@ function civicrm_api3_speakcivi_remind($params) {
       'body_text' => $messageText[$cid],
       'body_html' => $messageHtml[$cid],
       'created_id' => 2, // todo change to admin :-)
-      'created_date' => date('YmsHis'),
+      'created_date' => date('YmdHis'),
       'campaign_id' => $cid,
       'mailing_type' => 'standalone',
       'unsubscribe_id' => 5,
@@ -306,6 +306,36 @@ function civicrm_api3_speakcivi_remind($params) {
       'values' => array(array('entity_id' => $groupId)),
     );
     $result = civicrm_api3('mailing_group', 'replace', $params);
+
+    $includeGroupName = 'Reminder--CAMP_ID_'.$cid;
+    $params = array(
+      'sequential' => 1,
+      'title' => $includeGroupName,
+      'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR, // mailing type
+      'visibility' => 'User and User Admin Only',
+      'source' => 'speakcivi',
+    );
+    $result = civicrm_api3('Group', 'create', $params);
+    $includeGroupId = $result['id'];
+
+    foreach ($contacts[$cid] as $contactId) {
+      $params = array(
+        'sequential' => 1,
+        'group_id' => $includeGroupId,
+        'contact_id' => $contactId,
+        'status' => "Added",
+      );
+      $result = civicrm_api3('GroupContact', 'create', $params);
+    }
+
+    $params = array(
+      'mailing_id' => $mm->id,
+      'group_type' => 'Include',
+      'entity_table' => CRM_Contact_BAO_Group::getTableName(),
+    'values' => array(array('entity_id' => $includeGroupId)),
+    );
+    $result = civicrm_api3('mailing_group', 'replace', $params);
+
   }
 
 
