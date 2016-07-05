@@ -213,15 +213,16 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
 
 
 function _civicrm_api3_speakcivi_remind_spec(&$params) {
+  $params['days']['api.required'] = 1;
+  $params['days']['api.default'] = 3;
 }
 
 
 function civicrm_api3_speakcivi_remind($params) {
-
   // how old not confirmed petitions
-  $days = 3;
+  $days = $params['days'];
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-  $activityTypeId = 32; // Signature Petition
+  $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
 
   $query = "SELECT acp.activity_id, ap.campaign_id, acp.contact_id
             FROM civicrm_activity ap
