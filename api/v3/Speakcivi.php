@@ -215,12 +215,15 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
 function _civicrm_api3_speakcivi_remind_spec(&$params) {
   $params['days']['api.required'] = 1;
   $params['days']['api.default'] = 3;
+  $params['days_contact']['api.required'] = 1;
+  $params['days_contact']['api.default'] = 1;
 }
 
 
 function civicrm_api3_speakcivi_remind($params) {
   // how old not confirmed petitions
   $days = $params['days'];
+  $daysContact = $params['days_contact'];
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
 
@@ -230,11 +233,13 @@ function civicrm_api3_speakcivi_remind($params) {
               JOIN civicrm_contact c ON c.id = acp.contact_id
               LEFT JOIN civicrm_group_contact gc ON gc.contact_id = acp.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
             WHERE ap.activity_type_id = %2 AND ap.status_id = 1 AND ap.activity_date_time <= date_add(current_date, INTERVAL -%3 DAY)
+                AND c.created_date >= date_add(current_date, INTERVAL -%4 DAY)
                 AND c.is_opt_out = 0 AND c.is_deleted = 0 AND c.is_deceased = 0 AND c.do_not_email = 0 AND gc.id IS NULL";
   $params = array(
     1 => array($groupId, 'Integer'),
     2 => array($activityTypeId, 'Integer'),
     3 => array($days, 'Integer'),
+    4 => array($daysContact, 'Integer'),
   );
   $dao = CRM_Core_DAO::executeQuery($query, $params);
   $contacts = array();
