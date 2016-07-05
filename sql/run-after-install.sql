@@ -95,9 +95,7 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
     DECLARE cur1 CURSOR FOR
       SELECT lg.id
       FROM speakcivi_cleanup_languagegroup lg
-        LEFT JOIN (SELECT contact_id
-        FROM civicrm_group_contact
-        WHERE group_id = groupId AND status = 'Added') gc ON gc.contact_id = lg.id
+        LEFT JOIN speakcivi_cleanup_languagegroup_gc gc ON gc.contact_id = lg.id
       WHERE gc.contact_id IS NULL
       LIMIT nLimit;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = 1;
@@ -110,6 +108,13 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
       WHERE gc.status = 'Added' AND
           gc.group_id IN (SELECT id FROM civicrm_group WHERE name LIKE CONCAT('%', languageGroupNameSuffix COLLATE utf8_unicode_ci))
       ORDER BY gc.contact_id;
+
+    DELETE FROM speakcivi_cleanup_languagegroup_gc;
+    INSERT IGNORE INTO speakcivi_cleanup_languagegroup_gc
+      SELECT contact_id
+      FROM civicrm_group_contact
+      WHERE group_id = groupId AND status = 'Added';
+
 
     OPEN cur1;
     loop_contacts: LOOP

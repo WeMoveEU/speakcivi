@@ -4,6 +4,12 @@ CREATE TABLE `speakcivi_cleanup_languagegroup` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS speakcivi_cleanup_languagegroup_gc;
+CREATE TABLE speakcivi_cleanup_languagegroup_gc (
+  `contact_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`contact_id`)
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS speakcivi_cleanup_leave;
 CREATE TABLE `speakcivi_cleanup_leave` (
   `id` int(10) unsigned NOT NULL,
