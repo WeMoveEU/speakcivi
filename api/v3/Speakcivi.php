@@ -400,6 +400,8 @@ function removeDelim($str) {
   $last = strrpos($str, '{rdelim}');
   if ($first !== false && $last !== false) {
     $str = substr_replace($str, '', $first, $last-$first+8);
+    $str = preg_replace('/<script[^>]*>/i', '', $str);
+    $str = preg_replace('/<\/script>/i', '', $str);
   }
   return $str;
 }
