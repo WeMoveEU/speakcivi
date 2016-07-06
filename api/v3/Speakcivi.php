@@ -279,7 +279,7 @@ function civicrm_api3_speakcivi_remind($params) {
     $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
     $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
     $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
-    $messageHtml[$cid] = removeDelim(strip_tags(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg), '<p><div><span><a><b><u><i><strong><table><tr><td><th>'));
+    $messageHtml[$cid] = removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg));
     $messageText[$cid] = convertHtmlToText(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg));
   }
 
@@ -398,7 +398,9 @@ function prepareCleanUrl($url) {
 function removeDelim($str) {
   $first = strpos($str, '{ldelim}');
   $last = strrpos($str, '{rdelim}');
-  $str = substr_replace($str, '', $first, $last-$first+8);
+  if ($first !== false && $last !== false) {
+    $str = substr_replace($str, '', $first, $last-$first+8);
+  }
   return $str;
 }
 
