@@ -216,7 +216,7 @@ function _civicrm_api3_speakcivi_remind_spec(&$params) {
   $params['days']['api.required'] = 1;
   $params['days']['api.default'] = 3;
   $params['days_contact']['api.required'] = 1;
-  $params['days_contact']['api.default'] = 1;
+  $params['days_contact']['api.default'] = 3;
 }
 
 
@@ -225,6 +225,9 @@ function civicrm_api3_speakcivi_remind($params) {
   $start = microtime(true);
   $days = $params['days'];
   $daysContact = $params['days_contact'];
+  if ($daysContact < $days) {
+    $daysContact = $days;
+  }
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
   $adminId = 1;
