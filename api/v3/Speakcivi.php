@@ -227,6 +227,7 @@ function civicrm_api3_speakcivi_remind($params) {
   $daysContact = $params['days_contact'];
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
+  $adminId = 1;
 
   $query = "SELECT acp.activity_id, ap.campaign_id, acp.contact_id
             FROM civicrm_activity ap
@@ -298,7 +299,7 @@ function civicrm_api3_speakcivi_remind($params) {
         'subject' => $subject[$cid],
         'body_text' => $messageText[$cid],
         'body_html' => $messageHtml[$cid],
-        'created_id' => 2, // todo change to admin :-)
+        'created_id' => $adminId,
         'created_date' => date('YmdHis'),
         'campaign_id' => $cid,
         'mailing_type' => 'standalone',
