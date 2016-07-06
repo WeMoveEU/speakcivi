@@ -222,6 +222,7 @@ function _civicrm_api3_speakcivi_remind_spec(&$params) {
 
 function civicrm_api3_speakcivi_remind($params) {
   // how old not confirmed petitions
+  $start = microtime(true);
   $days = $params['days'];
   $daysContact = $params['days_contact'];
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
@@ -325,9 +326,10 @@ function civicrm_api3_speakcivi_remind($params) {
       }
     }
   }
-
-
-
+  $results = array(
+    'time' => microtime(true) - $start,
+  );
+  return civicrm_api3_create_success($results, $params);
 }
 
 
