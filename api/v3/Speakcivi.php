@@ -288,45 +288,49 @@ function civicrm_api3_speakcivi_remind($params) {
   }
 
   foreach ($campaigns as $cid) {
-    if ($mailingId = findNotCompletedMailing($cid)) {
-      if ($linkedGroupId = findLinkedGroup($mailingId)) {
-        addContactsToGroup($contacts[$cid], $linkedGroupId);
+    $sentContacts = findSentContacts($cid);
+    $contacts[$cid] = excludeContacts($contacts[$cid], $sentContacts);
+    if (is_array($contacts[$cid]) && count($contacts[$cid]) > 0) {
+      if ($mailingId = findNotCompletedMailing($cid)) {
+        if ($linkedGroupId = findLinkedGroup($mailingId)) {
+          addContactsToGroup($contacts[$cid], $linkedGroupId);
+        } else {
+          $includeGroupId = createGroup($cid);
+          addContactsToGroup($contacts[$cid], $includeGroupId);
+          includeGroup($mailingId, $includeGroupId);
+        }
       } else {
-        $includeGroupId = createGroup($cid);
-        addContactsToGroup($contacts[$cid], $includeGroupId);
-        includeGroup($mailingId, $includeGroupId);
-      }
-    } else {
-      $params = array(
-        'name' => date('Y-m-d').'-Reminder--CAMP_ID_'.$cid,
-        'subject' => $subject[$cid],
-        'body_text' => $messageText[$cid],
-        'body_html' => $messageHtml[$cid],
-        'created_id' => $adminId,
-        'created_date' => date('YmdHis'),
-        'campaign_id' => $cid,
-        'mailing_type' => 'standalone',
-        'unsubscribe_id' => 5,
-        'resubscribe_id' => 6,
-        'optout_id' => 7,
-        'open_tracking' => 1,
-        'url_tracking' => 1,
-        'from_name' => $email[$cid]['from_name'],
-        'from_email' => $email[$cid]['from_email'],
-      );
-      $mailing = new CRM_Mailing_BAO_Mailing();
-      $mm = $mailing->add($params);
+        $params = array(
+          'name' => date('Y-m-d').'-Reminder--CAMP_ID_'.$cid,
+          'subject' => $subject[$cid],
+          'body_text' => $messageText[$cid],
+          'body_html' => $messageHtml[$cid],
+          'created_id' => $adminId,
+          'created_date' => date('YmdHis'),
+          'campaign_id' => $cid,
+          'mailing_type' => 'standalone',
+          'unsubscribe_id' => 5,
+          'resubscribe_id' => 6,
+          'optout_id' => 7,
+          'open_tracking' => 1,
+          'url_tracking' => 1,
+          'from_name' => $email[$cid]['from_name'],
+          'from_email' => $email[$cid]['from_email'],
+        );
+        $mailing = new CRM_Mailing_BAO_Mailing();
+        $mm = $mailing->add($params);
 
-      excludeGroup($mm->id, $groupId);
+        excludeGroup($mm->id, $groupId);
 
-      if ($existingGroupId = findExistingGroup($cid)) {
-        cleanGroup($existingGroupId);
-        addContactsToGroup($contacts[$cid], $existingGroupId);
-        includeGroup($mm->id, $existingGroupId);
-      } else {
-        $includeGroupId = createGroup($cid);
-        addContactsToGroup($contacts[$cid], $includeGroupId);
-        includeGroup($mm->id, $includeGroupId);
+        if ($existingGroupId = findExistingGroup($cid)) {
+          cleanGroup($existingGroupId);
+          addContactsToGroup($contacts[$cid], $existingGroupId);
+          includeGroup($mm->id, $existingGroupId);
+        } else {
+          $includeGroupId = createGroup($cid);
+          addContactsToGroup($contacts[$cid], $includeGroupId);
+          includeGroup($mm->id, $includeGroupId);
+        }
       }
     }
   }
@@ -437,6 +441,35 @@ function findNotCompletedMailing($campaignId) {
     1 => array($campaignId, 'Integer'),
   );
   return (int)CRM_Core_DAO::singleValueQuery($query, $params);
+}
+
+
+function findSentContacts($campaignId) {
+  $query = "SELECT eq.contact_id
+            FROM civicrm_mailing m
+              JOIN civicrm_mailing_job mj ON mj.mailing_id = m.id
+              JOIN civicrm_mailing_event_queue eq ON eq.job_id = mj.id
+            WHERE m.campaign_id = %1 AND m.name LIKE '%Reminder--CAMP\_ID\_%'";
+  $params = array(
+    1 => array($campaignId, 'Integer'),
+  );
+  $dao = CRM_Core_DAO::executeQuery($query, $params);
+  $contacts = array();
+  while ($dao->fetch()) {
+    $contacts[$dao->contact_id] = $dao->contact_id;
+  }
+  return $contacts;
+}
+
+
+function excludeContacts($base, $exclude) {
+  $arr = $base;
+  foreach ($base as $baseContact) {
+    if (array_key_exists($baseContact, $exclude)) {
+      unset($base[$baseContact]);
+    }
+  }
+  return $arr;
 }
 
 
