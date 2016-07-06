@@ -258,7 +258,7 @@ function civicrm_api3_speakcivi_remind($params) {
   foreach ($campaigns as $cid) {
     $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
     $message[$cid] = $campaignObj->getMessageNew();
-    $subject[$cid] = $campaignObj->getSubjectNew();
+    $subject[$cid] = substr($campaignObj->getSubjectNew(), 0, 128);
     $utmCampaign[$cid] = $campaignObj->getUtmCampaign();
     $locale[$cid] = $campaignObj->getLanguage();
     $email[$cid] = parseSenderEmail($campaignObj->getSenderMail());
