@@ -582,8 +582,9 @@ function createGroup($campaignId) {
 
 
 function determineMailingName($campaignId) {
-  $name = date('Y-m-d').'-Reminder--CAMP\_ID\_'.$campaignId;
-  $nameParams = $name.'%';
+  $dt = date('Y-m-d');
+  $name = $dt.'-Reminder--CAMP_ID_'.$campaignId;
+  $nameParams = $dt.'-Reminder--CAMP\_ID\_'.$campaignId.'%';
   $query = "SELECT count(id) FROM civicrm_mailing WHERE name LIKE %1";
   $params = array(
     1 => array($nameParams, 'String'),
