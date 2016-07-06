@@ -422,7 +422,7 @@ function parseSenderEmail($senderEmail) {
 function findNotCompletedMailing($campaignId) {
   $query = "SELECT id
             FROM civicrm_mailing
-            WHERE campaign_id = %1 AND name LIKE '%Reminder%' AND is_completed IS NULL
+            WHERE campaign_id = %1 AND name LIKE '%Reminder--CAMP\_ID\_%' AND is_completed IS NULL
             ORDER BY id
             LIMIT 1";
   $params = array(
