@@ -300,8 +300,9 @@ function civicrm_api3_speakcivi_remind($params) {
           includeGroup($mailingId, $includeGroupId);
         }
       } else {
+        $name = determineMailingName($cid);
         $params = array(
-          'name' => date('Y-m-d').'-Reminder--CAMP_ID_'.$cid,
+          'name' => $name,
           'subject' => $subject[$cid],
           'body_text' => $messageText[$cid],
           'body_html' => $messageHtml[$cid],
@@ -577,4 +578,19 @@ function createGroup($campaignId) {
   );
   $result = civicrm_api3('Group', 'create', $params);
   return (int)$result['id'];
+}
+
+
+function determineMailingName($campaignId) {
+  $name = date('Y-m-d').'-Reminder--CAMP\_ID\_'.$campaignId;
+  $nameParams = $name.'%';
+  $query = "SELECT count(id) FROM civicrm_mailing WHERE name LIKE %1";
+  $params = array(
+    1 => array($nameParams, 'String'),
+  );
+  $count = (int)CRM_Core_DAO::singleValueQuery($query, $params);
+  if ($count) {
+    $name .= '_'.$count;
+  }
+  return $name;
 }
