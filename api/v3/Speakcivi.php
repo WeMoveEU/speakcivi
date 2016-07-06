@@ -312,8 +312,10 @@ function civicrm_api3_speakcivi_remind($params) {
           'unsubscribe_id' => 5,
           'resubscribe_id' => 6,
           'optout_id' => 7,
+          'reply_id' => 8,
           'open_tracking' => 1,
           'url_tracking' => 1,
+          'dedupe_email' => 1,
           'from_name' => $email[$cid]['from_name'],
           'from_email' => $email[$cid]['from_email'],
         );
