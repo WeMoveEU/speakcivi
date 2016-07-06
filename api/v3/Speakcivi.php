@@ -283,8 +283,8 @@ function civicrm_api3_speakcivi_remind($params) {
     $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
     $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
     $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
-    $messageHtml[$cid] = removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg));
-    $messageText[$cid] = convertHtmlToText(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg)));
+    $messageHtml[$cid] = convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg)));
+    $messageText[$cid] = convertHtmlToText(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg))));
   }
 
   foreach ($campaigns as $cid) {
@@ -414,6 +414,17 @@ function removeDelim($str) {
     $str = preg_replace('/<\/script>/i', '', $str);
   }
   return $str;
+}
+
+
+/**
+ * Convert smarty tokens into civicrm format
+ * @param $content
+ *
+ * @return mixed
+ */
+function convertTokens($content) {
+  return str_replace('{$', '{', $content);
 }
 
 
