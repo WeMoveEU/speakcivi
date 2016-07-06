@@ -273,14 +273,14 @@ function civicrm_api3_speakcivi_remind($params) {
     $url_confirm_and_not_receive = CRM_Utils_System::url('civicrm/speakcivi/optout', null, true).
       "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
     $locales = getLocale($locale[$cid]);
-    $confirmationBlockHtml = implode('', file('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl'));
-    $confirmationBlockText = implode('', file('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl'));
+    $confirmationBlockHtml = implode('', file(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl'));
+    $confirmationBlockText = implode('', file(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl'));
     $confirmationBlockHtml = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockHtml);
     $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
     $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
     $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
     $messageHtml[$cid] = removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg));
-    $messageText[$cid] = convertHtmlToText(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg));
+    $messageText[$cid] = convertHtmlToText(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg)));
   }
 
   foreach ($campaigns as $cid) {
