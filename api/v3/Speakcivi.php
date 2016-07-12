@@ -477,13 +477,12 @@ function findSentContacts($campaignId) {
 
 
 function excludeContacts($base, $exclude) {
-  $arr = $base;
   foreach ($base as $baseContact) {
     if (array_key_exists($baseContact, $exclude)) {
       unset($base[$baseContact]);
     }
   }
-  return $arr;
+  return $base;
 }
 
 
