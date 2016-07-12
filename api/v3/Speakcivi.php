@@ -385,7 +385,7 @@ function convertHtmlToText($html) {
 
 
 /**
- * Prepare clean url for Facebook sharing
+ * Prepare clean url for Facebook sharing.
  * @param $url
  *
  * @return string
@@ -401,7 +401,7 @@ function prepareCleanUrl($url) {
 
 
 /**
- * Remove delim code from string (confirmation block)
+ * Remove delim code from string (confirmation block).
  * @param string $str
  *
  * @return mixed
@@ -419,7 +419,7 @@ function removeDelim($str) {
 
 
 /**
- * Convert smarty tokens into civicrm format
+ * Convert smarty tokens into civicrm format.
  * @param $content
  *
  * @return mixed
@@ -430,7 +430,7 @@ function convertTokens($content) {
 
 
 /**
- * Parse sender email fields as from name and email separately
+ * Parse sender email fields as from name and email separately.
  * @param $senderEmail
  *
  * @return array
@@ -445,6 +445,12 @@ function parseSenderEmail($senderEmail) {
 }
 
 
+/**
+ * Find not completed (not scheduled) mailing which can be use.
+ * @param int $campaignId
+ *
+ * @return int
+ */
 function findNotCompletedMailing($campaignId) {
   $query = "SELECT id
             FROM civicrm_mailing
@@ -458,6 +464,12 @@ function findNotCompletedMailing($campaignId) {
 }
 
 
+/**
+ * Find contacts which already received reminder mailing for this campaign.
+ * @param int $campaignId
+ *
+ * @return array
+ */
 function findSentContacts($campaignId) {
   $query = "SELECT eq.contact_id
             FROM civicrm_mailing m
@@ -476,6 +488,13 @@ function findSentContacts($campaignId) {
 }
 
 
+/**
+ * Exclude contacts from base.
+ * @param array $base
+ * @param array $exclude
+ *
+ * @return array
+ */
 function excludeContacts($base, $exclude) {
   foreach ($base as $baseContact) {
     if (array_key_exists($baseContact, $exclude)) {
@@ -486,6 +505,12 @@ function excludeContacts($base, $exclude) {
 }
 
 
+/**
+ * Find group used for existing mailing.
+ * @param int $mailingId
+ *
+ * @return int
+ */
 function findLinkedGroup($mailingId) {
   $query = "SELECT entity_id
             FROM civicrm_mailing_group
@@ -499,6 +524,12 @@ function findLinkedGroup($mailingId) {
 }
 
 
+/**
+ * Find reminder group used for given campaign.
+ * @param int $campaignId
+ *
+ * @return int
+ */
 function findExistingGroup($campaignId) {
   $query = "SELECT id
             FROM civicrm_group
@@ -510,6 +541,12 @@ function findExistingGroup($campaignId) {
 }
 
 
+/**
+ * Remove contacts from group.
+ * @param int $groupId
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
 function cleanGroup($groupId) {
   $params = array(
     'sequential' => 1,
@@ -532,6 +569,13 @@ function cleanGroup($groupId) {
 }
 
 
+/**
+ * Add contacts to group.
+ * @param array $contacts
+ * @param int $groupId
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
 function addContactsToGroup($contacts, $groupId) {
   foreach ($contacts as $contactId) {
     $params = array(
@@ -545,6 +589,13 @@ function addContactsToGroup($contacts, $groupId) {
 }
 
 
+/**
+ * Add include group to mailing.
+ * @param int $mailingId
+ * @param int $groupId
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
 function includeGroup($mailingId, $groupId) {
   $params = array(
     'mailing_id' => $mailingId,
@@ -556,6 +607,13 @@ function includeGroup($mailingId, $groupId) {
 }
 
 
+/**
+ * Add exclude group to mailing.
+ * @param int $mailingId
+ * @param int $groupId
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
 function excludeGroup($mailingId, $groupId) {
   $params = array(
     'mailing_id' => $mailingId,
@@ -567,6 +625,13 @@ function excludeGroup($mailingId, $groupId) {
 }
 
 
+/**
+ * Create new reminder group for campaign.
+ * @param int $campaignId
+ *
+ * @return int
+ * @throws \CiviCRM_API3_Exception
+ */
 function createGroup($campaignId) {
   $params = array(
     'sequential' => 1,
@@ -580,6 +645,12 @@ function createGroup($campaignId) {
 }
 
 
+/**
+ * Determine unique mailing name for given campaign. Format: YYYY-MM-DD-Reminder--CAMP_ID_X
+ * @param int $campaignId
+ *
+ * @return string
+ */
 function determineMailingName($campaignId) {
   $dt = date('Y-m-d');
   $name = $dt.'-Reminder--CAMP_ID_'.$campaignId;
