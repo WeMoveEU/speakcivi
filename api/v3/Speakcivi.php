@@ -262,7 +262,7 @@ function civicrm_api3_speakcivi_remind($params) {
   foreach ($campaigns as $cid) {
     $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
     $message[$cid] = $campaignObj->getMessageNew();
-    $subject[$cid] = substr($campaignObj->getSubjectNew(), 0, 128);
+    $subject[$cid] = substr(removeSmartyIfClause(convertTokens($campaignObj->getSubjectNew())), 0, 128);
     $utmCampaign[$cid] = $campaignObj->getUtmCampaign();
     $locale[$cid] = $campaignObj->getLanguage();
     $email[$cid] = parseSenderEmail($campaignObj->getSenderMail());
@@ -283,8 +283,8 @@ function civicrm_api3_speakcivi_remind($params) {
     $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
     $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
     $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
-    $messageHtml[$cid] = convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg)));
-    $messageText[$cid] = convertHtmlToText(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg))));
+    $messageHtml[$cid] = removeSmartyIfClause(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg))));
+    $messageText[$cid] = convertHtmlToText(removeSmartyIfClause(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg)))));
   }
 
   foreach ($campaigns as $cid) {
@@ -426,6 +426,26 @@ function removeDelim($str) {
  */
 function convertTokens($content) {
   return str_replace('{$', '{', $content);
+}
+
+
+/**
+ * Simplify whole smarty If clause to text from first block.
+ * @param string $str
+ *
+ * @return string
+ */
+function removeSmartyIfClause($str) {
+  if (strpos($str, '{if ') !== FALSE) {
+    // 1. remove block else-endif
+    $re = "/\\{else\\}(.*)\\{\\/if\\}/s";
+    $str = preg_replace($re, '{/if}', $str);
+    // 2. clean out block if-endif
+    $re = "/\\{if[^\\}]*\\}(.*)\\{\\/if\\}/s";
+    preg_match($re, $str, $matches);
+    $str = $matches[1];
+  }
+  return $str;
 }
 
 
