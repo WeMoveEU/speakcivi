@@ -438,12 +438,15 @@ function convertTokens($content) {
 function removeSmartyIfClause($str) {
   if (strpos($str, '{if ') !== FALSE) {
     // 1. remove block else-endif
-    $re = "/\\{else\\}(.*)\\{\\/if\\}/s";
+    $re = "/\\{else\\}(.*)\\{\\/if\\}/sU";
     $str = preg_replace($re, '{/if}', $str);
     // 2. clean out block if-endif
-    $re = "/\\{if[^\\}]*\\}(.*)\\{\\/if\\}/s";
-    preg_match($re, $str, $matches);
-    $str = $matches[1];
+    $re = "/\\{if[^\\}]*\\}(.*)\\{\\/if\\}/sU";
+    if (preg_match_all($re, $str, $matches, PREG_SET_ORDER)) {
+      foreach ($matches as $key => $match) {
+        $str = str_replace($match[0], $match[1], $str);
+      }
+    }
   }
   return $str;
 }
