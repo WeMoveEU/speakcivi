@@ -477,7 +477,7 @@ function parseSenderEmail($senderEmail) {
 function findNotCompletedMailing($campaignId) {
   $query = "SELECT id
             FROM civicrm_mailing
-            WHERE campaign_id = %1 AND name LIKE '%Reminder--CAMP\_ID\_%' AND is_completed IS NULL
+            WHERE campaign_id = %1 AND name LIKE '%Reminder--CAMP-ID-%' AND is_completed IS NULL
             ORDER BY id
             LIMIT 1";
   $params = array(
@@ -498,7 +498,7 @@ function findSentContacts($campaignId) {
             FROM civicrm_mailing m
               JOIN civicrm_mailing_job mj ON mj.mailing_id = m.id
               JOIN civicrm_mailing_event_queue eq ON eq.job_id = mj.id
-            WHERE m.campaign_id = %1 AND m.name LIKE '%Reminder--CAMP\_ID\_%'";
+            WHERE m.campaign_id = %1 AND m.name LIKE '%Reminder--CAMP-ID-%'";
   $params = array(
     1 => array($campaignId, 'Integer'),
   );
@@ -558,7 +558,7 @@ function findExistingGroup($campaignId) {
             FROM civicrm_group
             WHERE title = %1";
   $params = array(
-    1 => array('Reminder--CAMP_ID_'.$campaignId, 'String'),
+    1 => array('Reminder--CAMP-ID-'.$campaignId, 'String'),
   );
   return (int)CRM_Core_DAO::singleValueQuery($query, $params);
 }
@@ -658,7 +658,7 @@ function excludeGroup($mailingId, $groupId) {
 function createGroup($campaignId) {
   $params = array(
     'sequential' => 1,
-    'title' => 'Reminder--CAMP_ID_'.$campaignId,
+    'title' => 'Reminder--CAMP-ID-'.$campaignId,
     'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR, // mailing type
     'visibility' => 'User and User Admin Only',
     'source' => 'speakcivi',
@@ -669,18 +669,17 @@ function createGroup($campaignId) {
 
 
 /**
- * Determine unique mailing name for given campaign. Format: YYYY-MM-DD-Reminder--CAMP_ID_X
+ * Determine unique mailing name for given campaign. Format: YYYY-MM-DD-Reminder--CAMP-ID-X
  * @param int $campaignId
  *
  * @return string
  */
 function determineMailingName($campaignId) {
   $dt = date('Y-m-d');
-  $name = $dt.'-Reminder--CAMP_ID_'.$campaignId;
-  $nameParams = $dt.'-Reminder--CAMP\_ID\_'.$campaignId.'%';
+  $name = $dt.'-Reminder--CAMP-ID-'.$campaignId;
   $query = "SELECT count(id) FROM civicrm_mailing WHERE name LIKE %1";
   $params = array(
-    1 => array($nameParams, 'String'),
+    1 => array($name.'%', 'String'),
   );
   $count = (int)CRM_Core_DAO::singleValueQuery($query, $params);
   if ($count) {
