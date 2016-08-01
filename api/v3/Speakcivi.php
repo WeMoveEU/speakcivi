@@ -258,6 +258,7 @@ function civicrm_api3_speakcivi_remind($params) {
   $subject = array();
   $utmCampaign = array();
   $locale = array();
+  $language = array();
   $email = array();
   foreach ($campaigns as $cid) {
     $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
@@ -265,6 +266,7 @@ function civicrm_api3_speakcivi_remind($params) {
     $subject[$cid] = substr(removeSmartyIfClause(convertTokens($campaignObj->getSubjectNew())), 0, 128);
     $utmCampaign[$cid] = $campaignObj->getUtmCampaign();
     $locale[$cid] = $campaignObj->getLanguage();
+    $language[$cid] = strtoupper(substr($locale[$cid], 0, 2));
     $email[$cid] = parseSenderEmail($campaignObj->getSenderMail());
   }
 
@@ -295,12 +297,12 @@ function civicrm_api3_speakcivi_remind($params) {
         if ($linkedGroupId = findLinkedGroup($mailingId)) {
           addContactsToGroup($contacts[$cid], $linkedGroupId);
         } else {
-          $includeGroupId = createGroup($cid);
+          $includeGroupId = createGroup($cid, $language[$cid]);
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mailingId, $includeGroupId);
         }
       } else {
-        $name = determineMailingName($cid);
+        $name = determineMailingName($cid, $language[$cid]);
         $params = array(
           'name' => $name,
           'subject' => $subject[$cid],
@@ -330,7 +332,7 @@ function civicrm_api3_speakcivi_remind($params) {
           addContactsToGroup($contacts[$cid], $existingGroupId);
           includeGroup($mm->id, $existingGroupId);
         } else {
-          $includeGroupId = createGroup($cid);
+          $includeGroupId = createGroup($cid, $language[$cid]);
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mm->id, $includeGroupId);
         }
@@ -477,7 +479,7 @@ function parseSenderEmail($senderEmail) {
 function findNotCompletedMailing($campaignId) {
   $query = "SELECT id
             FROM civicrm_mailing
-            WHERE campaign_id = %1 AND name LIKE '%Reminder--CAMP-ID-%' AND is_completed IS NULL
+            WHERE campaign_id = %1 AND name LIKE '%Reminder-__--CAMP-ID-%' AND is_completed IS NULL
             ORDER BY id
             LIMIT 1";
   $params = array(
@@ -498,7 +500,7 @@ function findSentContacts($campaignId) {
             FROM civicrm_mailing m
               JOIN civicrm_mailing_job mj ON mj.mailing_id = m.id
               JOIN civicrm_mailing_event_queue eq ON eq.job_id = mj.id
-            WHERE m.campaign_id = %1 AND m.name LIKE '%Reminder--CAMP-ID-%'";
+            WHERE m.campaign_id = %1 AND m.name LIKE '%Reminder-__--CAMP-ID-%'";
   $params = array(
     1 => array($campaignId, 'Integer'),
   );
@@ -556,9 +558,11 @@ function findLinkedGroup($mailingId) {
 function findExistingGroup($campaignId) {
   $query = "SELECT id
             FROM civicrm_group
-            WHERE title = %1";
+            WHERE title LIKE %1
+            ORDER BY id
+            LIMIT 1";
   $params = array(
-    1 => array('Reminder--CAMP-ID-'.$campaignId, 'String'),
+    1 => array('Reminder-__--CAMP-ID-'.$campaignId, 'String'),
   );
   return (int)CRM_Core_DAO::singleValueQuery($query, $params);
 }
@@ -650,15 +654,16 @@ function excludeGroup($mailingId, $groupId) {
 
 /**
  * Create new reminder group for campaign.
+ *
  * @param int $campaignId
+ * @param string $language
  *
  * @return int
- * @throws \CiviCRM_API3_Exception
  */
-function createGroup($campaignId) {
+function createGroup($campaignId, $language) {
   $params = array(
     'sequential' => 1,
-    'title' => 'Reminder--CAMP-ID-'.$campaignId,
+    'title' => 'Reminder-'.$language.'--CAMP-ID-'.$campaignId,
     'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR, // mailing type
     'visibility' => 'User and User Admin Only',
     'source' => 'speakcivi',
@@ -669,14 +674,15 @@ function createGroup($campaignId) {
 
 
 /**
- * Determine unique mailing name for given campaign. Format: YYYY-MM-DD-Reminder--CAMP-ID-X
+ * Determine unique mailing name for given campaign. Format: YYYY-MM-DD-Reminder-ZZ--CAMP-ID-X
  * @param int $campaignId
+ * @param string $language
  *
  * @return string
  */
-function determineMailingName($campaignId) {
+function determineMailingName($campaignId, $language) {
   $dt = date('Y-m-d');
-  $name = $dt.'-Reminder--CAMP-ID-'.$campaignId;
+  $name = $dt.'-Reminder-'.$language.'--CAMP-ID-'.$campaignId;
   $query = "SELECT count(id) FROM civicrm_mailing WHERE name LIKE %1";
   $params = array(
     1 => array($name.'%', 'String'),
