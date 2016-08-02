@@ -575,24 +575,20 @@ function findExistingGroup($campaignId) {
  * @throws \CiviCRM_API3_Exception
  */
 function cleanGroup($groupId) {
+  $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
+            SELECT contact_id, group_id, NOW(), 'Admin', 'Deleted'
+            FROM civicrm_group_contact
+            WHERE group_id = %1";
   $params = array(
-    'sequential' => 1,
-    'return' => "contact_id",
-    'group_id' => $groupId,
-    'status' => "Added",
+    1 => array($groupId, 'Integer'),
   );
-  $result = civicrm_api3('GroupContact', 'get', $params);
-  if ($result['count'] > 0) {
-    foreach ($result['values'] as $c) {
-      $params = array(
-        'sequential' => 1,
-        'group_id' => $groupId,
-        'contact_id' => $c['contact_id'],
-        'status' => "Removed",
-      );
-      civicrm_api3('GroupContact', 'create', $params);
-    }
-  }
+  CRM_Core_DAO::executeQuery($query, $params);
+  $query = "DELETE FROM civicrm_group_contact
+            WHERE group_id = %1";
+  $params = array(
+    1 => array($groupId, 'Integer'),
+  );
+  CRM_Core_DAO::executeQuery($query, $params);
 }
 
 
