@@ -295,7 +295,6 @@ function civicrm_api3_speakcivi_remind($params) {
     if (is_array($contacts[$cid]) && count($contacts[$cid]) > 0) {
       if ($mailingId = findNotCompletedMailing($cid)) {
         if ($linkedGroupId = findLinkedGroup($mailingId)) {
-          cleanGroup($linkedGroupId);
           addContactsToGroup($contacts[$cid], $linkedGroupId);
         } else {
           $includeGroupId = createGroup($cid, $language[$cid]);
