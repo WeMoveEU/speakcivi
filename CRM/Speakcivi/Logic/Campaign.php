@@ -222,18 +222,24 @@ class CRM_Speakcivi_Logic_Campaign {
 	/**
 	 * Get campaign by external identifier.
 	 *
-	 * @param $externalIdentifier
+	 * @param int $id External identifier (default) or local civicrm_campaign.id
+	 * @param boolean $useLocalId Use local id or external id (default)
 	 *
 	 * @return array
 	 * @throws CiviCRM_API3_Exception
 	 */
-	public function getCampaign($externalIdentifier) {
-		if ($externalIdentifier > 0) {
-			$params = array(
-				'sequential' => 1,
-				'external_identifier' => (int)$externalIdentifier,
-			);
-			$result = civicrm_api3('Campaign', 'get', $params);
+	public function getCampaign($id, $useLocalId = false) {
+		if ($id > 0) {
+		  if ($useLocalId) {
+        $field = 'id';
+      } else {
+        $field = 'external_identifier';
+      }
+      $params = array(
+        'sequential' => 1,
+        $field => (int)$id,
+      );
+      $result = civicrm_api3('Campaign', 'get', $params);
 			if ($result['count'] == 1) {
 				return $result['values'][0];
 			}
