@@ -291,6 +291,56 @@ class CRM_Speakcivi_Tools_Dictionary {
 
 
   /**
+   * Get default value for Share by email (Forward as Email)
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getShareEmail($locale) {
+    switch ($locale) {
+      case 'de_DE':
+        return 'Als E-Mail weiterleiten';
+        break;
+
+      case 'fr_FR':
+        return 'Transférer comme Email';
+        break;
+
+      case 'da_DK':
+        return 'Videresend som e-mail';
+        break;
+
+      case 'el_GR':
+        return 'Προώθηση ως Email';
+        break;
+
+      case 'es_ES':
+        return 'Reenviar como correo electrónico';
+        break;
+
+      case 'it_IT':
+        return "Inoltra come e-mail";
+        break;
+
+      case 'nl_NL':
+        return 'Forward als e-mail';
+        break;
+
+      case 'pl_PL':
+        return 'Prześlij jako e-mail';
+        break;
+
+      case 'pt_PT':
+        return 'Encaminhar como Email';
+        break;
+
+      default:
+        return 'Forward as Email';
+    }
+  }
+
+
+  /**
    * Get default content of message for new user
    * @param $locale
    *
