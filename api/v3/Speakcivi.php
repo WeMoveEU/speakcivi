@@ -24,6 +24,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $activityId = $params['activity_id'];
 
   $campaignObj = new CRM_Speakcivi_Logic_Campaign($campaignId);
+  $campaign = $campaignObj->getCampaign($campaignId, TRUE);
   $locale = $campaignObj->getLanguage();
   $params['from'] = $campaignObj->getSenderMail();
   $params['format'] = null;
@@ -77,6 +78,9 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
+  $template->assign('share_email', CRM_Speakcivi_Tools_Dictionary::getShareEmail($locale));
+  $template->assign('email_body', urlencode($campaignObj->getTwitterShareText()));
+  $template->assign('email_subject', urlencode($campaign['description']));
   $template->assign('contact', $contact);
 
   /* FETCHING SMARTY TEMPLATES */
