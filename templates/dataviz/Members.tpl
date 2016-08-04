@@ -6,8 +6,8 @@
 	</div>
 	<div style="clear:both"></div>
 	<div id="type" style="width:350px;">
-	    <strong>Type</strong>
-	    <a class="reset" href="javascript:typePie.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+	    <strong>Language</strong>
+	    <a class="reset" href="javascript:langPie.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 	    <div class="clearfix"></div>
 	</div>
 		<div class="source">
@@ -53,7 +53,7 @@
 
 			var dateFormat = d3.time.format("%Y-%m-%d");
 
-			var genderPie=null, typePie=null, sourceRow=null, monthLine=null, weekRow=null;
+			var genderPie=null,langPie=null, sourceRow=null, monthLine=null, weekRow=null;
 
 			cj(function($) {
 				var totalContacts = 0;
@@ -72,10 +72,11 @@
 				// 	console.log(d);
 				// });
 
-				var min = d3.time.day.offset(d3.min(data.values, function(d) { return d.dd;} ),-2);
+				//var min = d3.time.day.offset(d3.min(data.values, function(d) { return d.dd;} ),-2);
+				var min = dateFormat.parse("2015-09-01");
 				var max = d3.time.day.offset(d3.max(data.values, function(d) { return d.dd;} ), 2);
 
-				typePie 	= dc.pieChart("#type").innerRadius(10).radius(90);
+		                langPie 	= dc.pieChart("#type").innerRadius(10).radius(90);
 				genderPie 	= dc.pieChart('#gender').innerRadius(10).radius(90);
 				sourceRow 	= dc.rowChart(guid + '.source');
 				monthLine 	= dc.lineChart('#contacts-by-month');
@@ -95,8 +96,8 @@
 				var source = ndx.dimension(function(d){ return d.source;});
 				var sourceGroup = source.group().reduceSum(function(d){return d.count;});
 
-				var type        = ndx.dimension(function(d) {return d.type;});
-				var typeGroup   = type.group().reduceSum(function(d) { return d.count; });
+				var lang        = ndx.dimension(function(d) {return d.language;});
+				var langGroup   = lang.group().reduceSum(function(d) { return d.count; });
 
 				var creationMonth = ndx.dimension(function(d) { return d.dd; });
 				var creationMonthGroup = creationMonth.group().reduceSum(function(d) { return d.count; });
@@ -122,18 +123,19 @@
 					}
 				};
 
-				typePie
+				langPie
 					.width(250)
 					.height(200)
-					.dimension(type)
+					.dimension(lang)
 					.colors(d3.scale.category10())
-					.group(typeGroup)
+					.group(langGroup)
 					.label(function(d){
-						if (typePie.hasFilter() && !typePie.hasFilter(d.key))
-			                return d.key + "(0%)";
-						return d.key+"(" + Math.floor(d.value / all.reduceSum(function(d) {return d.count;}).value() * 100) + "%)";
-					})
-					.renderlet(function (chart) {			
+                                           return d.key.substring(0,2);
+                                        })
+                                        .title (function (d) {
+					  if (langPie.hasFilter() && !langPie.hasFilter(d.key))
+			                    return d.key + "(0%)";
+					   return d.key+': '+d.value+" (" + Math.floor(d.value / all.reduceSum(function(d) {return d.count;}).value() * 100) + "%)";
 					});
 
 				genderPie
@@ -191,6 +193,7 @@
 					.x(d3.time.scale().domain([min, max]))
 					.round(d3.time.day.round)
 					.elasticY(true)
+                                        .renderArea(true)
 					.xUnits(d3.time.days);
 				
 				dc.renderAll();

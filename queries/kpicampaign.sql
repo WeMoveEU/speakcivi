@@ -1,5 +1,5 @@
 SELECT 
-    campaign_id,
+    campaign_id as id,
     speakout_id,
     speakout_title,
     language,
