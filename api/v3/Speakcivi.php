@@ -81,7 +81,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('share_email', CRM_Speakcivi_Tools_Dictionary::getShareEmail($locale));
   $template->assign('email_body', $campaignObj->getTwitterShareText());
   $template->assign('email_subject', $campaign['description']);
-  $template->assign('email_url', $campaignObj->getUrlCampaign().'?urm_source=mail_share&utm_medium=email&utm_campaign='.$utm_campaign.'&utm_content='.$utm_content);
+  $template->assign('email_url', urlencode($campaignObj->getUrlCampaign().'?utm_source=mail_share&utm_medium=email&utm_campaign='.$utm_campaign.'&utm_content='.$utm_content));
   $template->assign('contact', $contact);
 
   /* FETCHING SMARTY TEMPLATES */
