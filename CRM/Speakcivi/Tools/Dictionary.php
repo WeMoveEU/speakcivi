@@ -299,11 +299,11 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getShareEmail($locale) {
     switch ($locale) {
       case 'de_DE':
-        return 'Als E-Mail weiterleiten';
+        return 'Per E-Mail teilen';
         break;
 
       case 'fr_FR':
-        return 'Transférer comme Email';
+        return 'Partager par email';
         break;
 
       case 'da_DK':
@@ -315,11 +315,11 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'es_ES':
-        return 'Reenviar como correo electrónico';
+        return 'Comparte por email';
         break;
 
       case 'it_IT':
-        return "Inoltra come e-mail";
+        return "Condividi tramite email";
         break;
 
       case 'nl_NL':
@@ -327,7 +327,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pl_PL':
-        return 'Prześlij jako e-mail';
+        return 'Udostępnij przez e-mail';
         break;
 
       case 'pt_PT':
