@@ -31,7 +31,7 @@
     <td>
       <table border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td align="center" style="-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;" bgcolor="#941b80"><a href="mailto:?subject={$email_subject}&body={$email_body}%20%09%09%0A%0A{$url_campaign}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; padding: 12px 18px; border: 1px solid #941b80; display: inline-block;">{$share_email}</a></td>
+          <td align="center" style="-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;" bgcolor="#941b80"><a href="mailto:?subject={$email_subject}&body={$email_body}%20%09%09%0A%0A{$email_url}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; padding: 12px 18px; border: 1px solid #941b80; display: inline-block;">{$share_email}</a></td>
         </tr>
       </table>
     </td>
