@@ -44,11 +44,11 @@ $config = CRM_Core_Config::singleton();
 
 // old speakout share
 /*$param = (object)array(
-  'action_name' => '2016-03-TradeSecrets-ES',
+  'action_name' => 'tomasz_test-PL',
   'action_type' => 'share',
   'action_technical_type' => 'act2.wemove.eu:share',
   'external_id' => 23,
-  'create_dt' => '2016-03-30T15:22:06.075+01:00',
+  'create_dt' => '2016-08-18T15:22:06.075+01:00',
   'cons_hash' => (object)array(
     'firstname' => 'Tomasz',
     'lastname' => 'Pietrzkowski [M]',
@@ -57,6 +57,15 @@ $config = CRM_Core_Config::singleton();
         'email' => 'scardinius@chords.pl',
       )
     ),
+  ),
+  'source' => array(
+    'source' => 'utm_sourceA',
+    'medium' => 'utm_mediumB',
+    'campaign' => 'utm_campaignC',
+  ),
+  'rshares' => array(
+    'medium' => 'facebook',
+    'tracking_code' => '123456qwerty',
   ),
 );*/
 
@@ -121,6 +130,10 @@ $config = CRM_Core_Config::singleton();
     "medium" => "web",
     "campaign" => "tomasz-test-you-PL",
   ),
+  'rshares' => array(
+    'medium' => 'facebook',
+    'tracking_code' => '123456qwerty',
+  ),
 );*/
 
 
@@ -152,7 +165,7 @@ switch ($param->action_type) {
     break;
 
   case 'share':
-    $speakcivi->share($param);
+    $speakcivi->addActivity($param, 'share');
     break;
 
   default:
