@@ -138,6 +138,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $this->postalCode = substr(trim($matches[2]), 0, 12);
         } else {
           $this->postalCode = substr(trim($zip), 0, 12);
+          $this->country = strtoupper(@$param->cons_hash->addresses[0]->country);
         }
       }
       if ($this->country) {
