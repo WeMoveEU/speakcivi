@@ -210,6 +210,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $contact = $this->createContact($param);
     $activity = $this->createActivity($param, $contact['id'], $type, $status);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
+    CRM_Speakcivi_Logic_Activity::setShareFields($activity['id'], @$param->rshares);
   }
 
 
