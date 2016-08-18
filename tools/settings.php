@@ -89,6 +89,12 @@ var_dump($result);
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_campaign');
 var_dump($result);
 
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_share_medium');
+var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_share_tracking_code');
+var_dump($result);
+
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
 var_dump($result);
 
