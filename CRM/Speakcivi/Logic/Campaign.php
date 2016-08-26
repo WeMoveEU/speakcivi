@@ -262,7 +262,7 @@ class CRM_Speakcivi_Logic_Campaign {
 		if (!$this->isValidCampaign($campaign)) {
 			if ($externalIdentifier > 0) {
 				$this->urlSpeakout = $this->determineUrlSpeakout($param);
-				$externalCampaign = (object)json_decode(@file_get_contents("https://".$this->urlSpeakout."/{$externalIdentifier}.json"));
+				$externalCampaign = (object)json_decode($this->getContent("https://".$this->urlSpeakout."/{$externalIdentifier}.json"));
 				if (is_object($externalCampaign) &&
 					property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
 					property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
@@ -406,4 +406,22 @@ class CRM_Speakcivi_Logic_Campaign {
 		}
 		return false;
 	}
+
+
+  /**
+   * Get content of external file.
+   *
+   * @param string $url
+   *
+   * @return mixed
+   */
+  public function getContent($url){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
+  }
 }
