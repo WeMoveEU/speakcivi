@@ -65,6 +65,23 @@ class CRM_Speakcivi_Logic_Activity {
 
 
   /**
+   * Set activity
+   *
+   * @param array $params
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function setActivity($params) {
+    $result = civicrm_api3('Activity', 'get', $params);
+    if ($result['count'] == 0) {
+      $result = civicrm_api3('Activity', 'create', $params);
+    }
+    return $result;
+  }
+
+
+  /**
    * Add Join activity to contact
    *
    * @param $contactId
