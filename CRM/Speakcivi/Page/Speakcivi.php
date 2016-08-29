@@ -678,7 +678,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
       }
     }
-    return civicrm_api3('Activity', 'create', $params);
+    return CRM_Speakcivi_Logic_Activity::setActivity($params);
   }
 
 
