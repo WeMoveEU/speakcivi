@@ -65,7 +65,8 @@ class CRM_Speakcivi_Logic_Activity {
 
 
   /**
-   * Set activity
+   * Set unique activity. Method gets activity by given params and creates only if needed.
+   * Need more performance but provide database consistency.
    *
    * @param array $params
    *
