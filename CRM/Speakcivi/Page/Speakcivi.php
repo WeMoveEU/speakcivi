@@ -52,6 +52,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function run() {
 
     $param = json_decode(file_get_contents('php://input'));
+    CRM_Speakcivi_Tools_Hooks::setParams($param);
 
     if (!$param) {
       die ("missing POST PARAM");
