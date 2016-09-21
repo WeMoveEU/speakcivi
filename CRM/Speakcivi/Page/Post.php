@@ -125,7 +125,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       'group_id' => $groupId,
       'status' => $status
     ));
-    return (int)$result['id'];
+    return (int)$result['count'];
   }
 
 
