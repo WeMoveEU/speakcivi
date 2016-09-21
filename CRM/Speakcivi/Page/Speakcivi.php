@@ -50,14 +50,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   private $apiGroupContactCreate = 'api.GroupContact.create';
 
   function run() {
-
     $param = json_decode(file_get_contents('php://input'));
     CRM_Speakcivi_Tools_Hooks::setParams($param);
-
     if (!$param) {
       die ("missing POST PARAM");
     }
+    $this->runParam($param);
+  }
 
+  public function runParam($param) {
+    CRM_Speakcivi_Tools_Hooks::setParams($param);
     $this->setDefaults();
     $this->setCountry($param);
 
@@ -106,7 +108,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
       default:
     }
-
   }
 
 
