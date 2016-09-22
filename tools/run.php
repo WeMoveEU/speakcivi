@@ -63,9 +63,13 @@ $config = CRM_Core_Config::singleton();
     'medium' => 'utm_mediumB',
     'campaign' => 'utm_campaignC',
   ),
-  'rshares' => array(
-    'medium' => 'facebook',
-    'tracking_code' => '123456qwerty',
+  'metadata' => (object)array(
+    'tracking_codes' => (object)array(
+      'source' => 'member_b34404d7',
+      'medium' => 'facebook',
+      'campaign' => '123456qwerty',
+      'content' => 'b34404d7',
+    )
   ),
 );*/
 
@@ -106,7 +110,7 @@ $config = CRM_Core_Config::singleton();
 /*$param = (object)array(
   'action_type' => 'share',
   'action_technical_type' => 'you.wemove.eu:share',
-  'create_dt' => '2016-03-31T10:05:19.752Z',
+  'create_dt' => '2016-09-22T10:05:19.752Z',
   'action_name' => 'tomasz-test-you-PL',
   'external_id' => 10015,
   'cons_hash' => (object)array(
@@ -130,46 +134,19 @@ $config = CRM_Core_Config::singleton();
     "medium" => "web",
     "campaign" => "tomasz-test-you-PL",
   ),
-  'rshares' => array(
-    'medium' => 'facebook',
-    'tracking_code' => '123456qwerty',
+  'metadata' => (object)array(
+    'tracking_codes' => (object)array(
+      'source' => 'member_b34404d7',
+      'medium' => 'facebook',
+      'campaign' => '123456qwerty',
+      'content' => 'b34404d7',
+    )
   ),
 );*/
 
 
 $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-$speakcivi->setDefaults();
-$speakcivi->setCountry($param);
-$notSendConfirmationToThoseCountries = array(
-  'UK',
-  'GB',
-);
-if (in_array($speakcivi->country, $notSendConfirmationToThoseCountries)) {
-  $speakcivi->optIn = 0;
-}
-$speakcivi->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-$speakcivi->campaign = $speakcivi->campaignObj->getCampaign($param->external_id);
-$speakcivi->campaign = $speakcivi->campaignObj->setCampaign($param->external_id, $speakcivi->campaign, $param);
-if ($speakcivi->campaignObj->isValidCampaign($speakcivi->campaign)) {
-  $speakcivi->campaignId = $speakcivi->campaign['id'];
-  $speakcivi->campaignObj->customFields = $speakcivi->campaignObj->getCustomFields($speakcivi->campaignId);
-  $speakcivi->locale = $speakcivi->campaignObj->getLanguage();
-} else {
-  echo 'blad :-[';
-  exit;
-}
-
-switch ($param->action_type) {
-  case 'petition':
-    $speakcivi->petition($param);
-    break;
-
-  case 'share':
-    $speakcivi->addActivity($param, 'share');
-    break;
-
-  default:
-}
-
+$speakcivi->runParam($param);
 print_r($speakcivi);
 print_r($param);
+exit;
