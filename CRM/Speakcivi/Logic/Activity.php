@@ -155,11 +155,11 @@ class CRM_Speakcivi_Logic_Activity {
       'id' => $activityId,
     );
     $fields = (array)$fields;
-    if (array_key_exists('medium', $fields) && $fields['medium']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_share_medium')] = $fields['medium'];
+    if (array_key_exists('utm_medium', $fields) && $fields['utm_medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_medium')] = $fields['medium'];
     }
-    if (array_key_exists('tracking_code', $fields) && $fields['tracking_code']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_share_tracking_code')] = $fields['tracking_code'];
+    if (array_key_exists('utm_campaign', $fields) && $fields['utm_campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_campaign')] = $fields['tracking_code'];
     }
     if (count($params) > 2) {
       civicrm_api3('Activity', 'create', $params);
