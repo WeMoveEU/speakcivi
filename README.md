@@ -214,7 +214,44 @@ User receives confirmation email for current user when
 
 ## UTM fields
 
-`Petition Signature` and `share` activities can have additional information in custom fields about
+### Contact
+
+#### Custom group WeMove
+
+source param | destination custom field
+--- | ---
+$param->source->source | utm_source
+$param->source->medium | utm_media
+$param->source->campaign | utm_campaign
+
+### Activity Petition Signature
+
+#### Custom group action_source
+
+source param | destination custom field
+--- | ---
+$param->source->source | source
+$param->source->medium | medium
+$param->source->campaign | campaign
+
+### Activity share
+
+#### Custom group action_source
+
+source param | destination custom field
+--- | ---
+$param->source->source | source
+$param->source->medium | medium
+$param->source->campaign | campaign
+
+#### Custom group share_params
+
+source param | destination custom field
+--- | ---
+$param->metadata->tracking_codes->source | source
+$param->metadata->tracking_codes->medium | medium
+$param->metadata->tracking_codes->campaign | campaign
+$param->metadata->tracking_codes->content | content
 
 # Entities
 
