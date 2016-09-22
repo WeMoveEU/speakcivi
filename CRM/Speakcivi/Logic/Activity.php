@@ -155,14 +155,14 @@ class CRM_Speakcivi_Logic_Activity {
       'id' => $activityId,
     );
     $fields = (array)$fields;
-    if (array_key_exists('utm_source', $fields) && $fields['utm_source']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_source')] = $fields['utm_source'];
+    if (array_key_exists('source', $fields) && $fields['source']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_source')] = $fields['source'];
     }
-    if (array_key_exists('utm_medium', $fields) && $fields['utm_medium']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_medium')] = $fields['utm_medium'];
+    if (array_key_exists('medium', $fields) && $fields['medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_medium')] = $fields['medium'];
     }
-    if (array_key_exists('utm_campaign', $fields) && $fields['utm_campaign']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_campaign')] = $fields['utm_campaign'];
+    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_campaign')] = $fields['campaign'];
     }
     if (count($params) > 2) {
       civicrm_api3('Activity', 'create', $params);
