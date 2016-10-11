@@ -74,13 +74,58 @@ class CRM_Speakcivi_Logic_Activity {
    * @throws \CiviCRM_API3_Exception
    */
   public static function setActivity($params) {
-    $result = civicrm_api3('Activity', 'get', $params);
+    $contactId = $params['source_contact_id'];
+    $getParams = $params;
+    unset($getParams['status_id']);
+    unset($getParams['source_contact_id']);
+    $getParams['api.ActivityContact.get'] = array(
+      'activity_id' => '$value.id',
+      'contact_id' => $contactId,
+      'record_type_id' => 2, // means source, added by
+    );
+    $result = civicrm_api3('Activity', 'get', $getParams);
     if ($result['count'] == 0) {
-      $result = civicrm_api3('Activity', 'create', $params);
+      return civicrm_api3('Activity', 'create', $params);
+    } elseif ($result['count'] >= 1) {
+      $activity = self::findActivity($result, $contactId);
+      if ($activity) {
+        return $activity;
+      } else {
+        return civicrm_api3('Activity', 'create', $params);
+      }
     }
-    return $result;
   }
 
+
+  /**
+   * Activity for contacts means source_contact_id (civicrm_activity_contact.record_type_id = 2)
+   *
+   * @param array $getResult
+   * @param int $contactId
+   *
+   * @return array
+   */
+  private static function findActivity($getResult, $contactId) {
+    $tab = array();
+    $recordTypeId = 2; // source, added by
+    foreach ($getResult['values'] as $a => $activity) {
+      if ($activity['api.ActivityContact.get']['count'] >= 1) {
+        foreach ($activity['api.ActivityContact.get']['values'] as $c => $contact) {
+          if ($contact['contact_id'] == $contactId && $contact['record_type_id'] == $recordTypeId) {
+            $tab[] = $activity;
+          }
+        }
+      }
+    }
+    if (is_array($tab) && count($tab) == 1) {
+      return array(
+        'count' => 1,
+        'id' => $tab[0]['id'],
+        'values' => array(0 => $tab[0]),
+      );
+    }
+    return array();
+  }
 
   /**
    * Add Join activity to contact
