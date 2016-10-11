@@ -121,7 +121,7 @@ class CRM_Speakcivi_Logic_Activity {
       return array(
         'count' => 1,
         'id' => $tab[0]['id'],
-        'values' => array(0 => $tab),
+        'values' => array(0 => $tab[0]),
       );
     }
     return array();
