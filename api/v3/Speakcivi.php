@@ -326,6 +326,7 @@ function civicrm_api3_speakcivi_remind($params) {
           'dedupe_email' => 1,
           'from_name' => $email[$cid]['from_name'],
           'from_email' => $email[$cid]['from_email'],
+          'footer_id' => chooseFooter($language[$cid]),
         );
         $mailing = new CRM_Mailing_BAO_Mailing();
         $mm = $mailing->add($params);
@@ -693,4 +694,22 @@ function determineMailingName($campaignId, $language) {
     $name .= '_'.$count;
   }
   return $name;
+}
+
+
+function chooseFooter($language) {
+  switch ($language) {
+    case 'ES':
+      return 13;
+    case 'DE':
+      return 10;
+    case 'FR':
+      return 12;
+    case 'IT':
+      return 11;
+    case 'PL':
+      return 15;
+    default:
+      return 14;
+  }
 }
