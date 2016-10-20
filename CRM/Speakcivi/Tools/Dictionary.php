@@ -103,7 +103,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'fr_FR':
-        return 'Vous avez presque terminé';
+        return 'Confirmez votre action';
         break;
 
       case 'da_DK':
