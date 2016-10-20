@@ -268,7 +268,6 @@ class CRM_Speakcivi_Logic_Campaign {
 					property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
 				) {
 					$this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
-					$this->from = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
 					$locale = $this->determineLanguage($externalCampaign->internal_name);
 					$utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
 					$params = array(
@@ -280,7 +279,7 @@ class CRM_Speakcivi_Logic_Campaign {
 						'campaign_type_id' => $this->defaultCampaignTypeId,
 						'start_date' => date('Y-m-d H:i:s'),
 						$this->fieldLanguage => $this->determineLanguage($externalCampaign->internal_name),
-						$this->fieldSenderMail => $this->from,
+						$this->fieldSenderMail => CRM_Speakcivi_Tools_Dictionary::getSenderMail($locale),
 						$this->fieldUrlCampaign => "https://".$this->urlSpeakout."/".$utmCampaign,
 						$this->fieldUtmCampaign => $utmCampaign,
 						$this->fieldTwitterShareText => $externalCampaign->twitter_share_text,

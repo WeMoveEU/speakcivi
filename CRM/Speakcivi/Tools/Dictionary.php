@@ -91,6 +91,44 @@ class CRM_Speakcivi_Tools_Dictionary {
 
 
   /**
+   * Get sender email for confirmation mail
+   * @param string $locale
+   *
+   * @return string
+   */
+  public static function getSenderMail($locale) {
+    switch ($locale) {
+      case 'de_DE':
+        return '"Jörg Rohwedder - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
+      case 'fr_FR':
+        return '"Mika - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
+      case 'en_GB':
+        return '"Martin - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
+      case 'es_ES':
+        return '"Virginia - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
+      case 'it_IT':
+        return '"Olga - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
+      case 'pl_PL':
+        return '"Julia - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
+      default:
+        return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
+    }
+  }
+
+
+  /**
    * Get subject of email for confirmation mail
    * @param string $locale
    *
