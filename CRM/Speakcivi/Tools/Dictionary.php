@@ -149,7 +149,7 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getSubjectImpact($locale) {
     switch ($locale) {
       case 'de_DE':
-        return 'Ihre Beteiligung ist großartig: Bitte helfen Sie nun, diese Aktion weiter zu verbreiten.';
+        return 'Bitte helfen Sie mit, diese Aktion weiterzuverbreiten.';
         break;
 
       case 'fr_FR':
