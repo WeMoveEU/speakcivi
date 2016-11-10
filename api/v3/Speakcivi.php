@@ -7,13 +7,6 @@ function civicrm_api3_speakcivi_update_stats ($params) {
   return civicrm_api3_create_success(array("query"=>$sql), $params);
 }
 
-function civicrm_api3_speakcivi_update_mailing_metrics ($params) {
-  $config = CRM_Core_Config::singleton();
-  $sql = file_get_contents(dirname( __FILE__ ) .'/../../sql/update_mailing_metrics.sql', true);
-  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
-  return civicrm_api3_create_success(array("query"=>$sql), $params);
-}
-
 function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
   $params['toEmail']['api.required'] = 1;
   $params['contact_id']['api.required'] = 1;
