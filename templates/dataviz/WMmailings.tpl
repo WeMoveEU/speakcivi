@@ -25,6 +25,7 @@
 <th>Shares</th>
 <th>Viral Signs</th>
 <th>Viral Shares</th>
+<th>New members</th>
 </tr></thead>
 </table>
 </div>
@@ -223,6 +224,9 @@ function drawTable(dom) {
 	    },
 	    function (d) {
               return "<span title='"+d.viral_share+" contacts' >"+Math.round (100*d.viral_share/d.recipients)+"%</span>";
+	    },
+	    function (d) {
+              return "<span>"+ (d.new_member||0) +"</span>";
 	    },
 
 	]
