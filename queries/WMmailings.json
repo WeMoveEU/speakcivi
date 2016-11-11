@@ -5,11 +5,11 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   r.value AS recipients,
   o.value AS open,
   c.value AS click,
-  (new_signs.value + known_signs.value) AS sign,
+  (coalesce(new_signs.value, 0) + coalesce(known_signs.value, 0) + coalesce(optout_signs.value, 0) + coalesce(pending_signs.value, 0)) AS sign,
   shares.value AS share,
-  (new_vsigns.value + known_vsigns.value) AS viral_sign,
+  (coalesce(new_vsigns.value, 0) + coalesce(known_vsigns.value, 0) + coalesce(optout_vsigns.value, 0) + coalesce(pending_vsigns.value, 0)) AS viral_sign,
   vshares.value AS viral_share,
-  (new_signs.value + new_vsigns.value) AS new_member
+  (coalesce(new_signs.value, 0) + coalesce(new_vsigns.value, 0)) AS new_member
 FROM civicrm_mailing as m
 LEFT JOIN civicrm_campaign as camp ON m.campaign_id = camp.id
 LEFT JOIN civicrm_contact createdContact ON ( m.created_id = createdContact.id )
@@ -18,9 +18,13 @@ LEFT JOIN data_mailing_counter o ON o.mailing_id=m.id AND o.counter='opens' AND 
 LEFT JOIN data_mailing_counter c ON c.mailing_id=m.id AND c.counter='clicks' AND c.timebox=144000
 LEFT JOIN data_mailing_counter new_signs ON new_signs.mailing_id=m.id AND new_signs.counter='new_direct_signs' AND new_signs.timebox=144000
 LEFT JOIN data_mailing_counter known_signs ON known_signs.mailing_id=m.id AND known_signs.counter='known_direct_signs' AND known_signs.timebox=144000
+LEFT JOIN data_mailing_counter optout_signs ON optout_signs.mailing_id=m.id AND optout_signs.counter='optout_direct_signs' AND optout_signs.timebox=144000
+LEFT JOIN data_mailing_counter pending_signs ON pending_signs.mailing_id=m.id AND pending_signs.counter='pending_direct_signs' AND pending_signs.timebox=144000
 LEFT JOIN data_mailing_counter shares ON shares.mailing_id=m.id AND shares.counter='direct_shares' AND shares.timebox=144000
 LEFT JOIN data_mailing_counter new_vsigns ON new_vsigns.mailing_id=m.id AND new_vsigns.counter='new_viral_signs' AND new_vsigns.timebox=144000
 LEFT JOIN data_mailing_counter known_vsigns ON known_vsigns.mailing_id=m.id AND known_vsigns.counter='known_viral_signs' AND known_vsigns.timebox=144000
+LEFT JOIN data_mailing_counter optout_vsigns ON optout_vsigns.mailing_id=m.id AND optout_vsigns.counter='optout_viral_signs' AND optout_vsigns.timebox=144000
+LEFT JOIN data_mailing_counter pending_vsigns ON pending_vsigns.mailing_id=m.id AND pending_vsigns.counter='pending_viral_signs' AND pending_vsigns.timebox=144000
 LEFT JOIN data_mailing_counter vshares ON vshares.mailing_id=m.id AND vshares.counter='viral_shares' AND vshares.timebox=144000
 WHERE is_completed = true;
 ","params":{"1":{"name":"campaign_id","type":"Integer"}}}
