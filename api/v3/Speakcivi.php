@@ -351,6 +351,32 @@ function civicrm_api3_speakcivi_remind($params) {
   return civicrm_api3_create_success($results, $params);
 }
 
+function _civicrm_api3_speakcivi_englishgroups_spec(&$params) {
+}
+
+function civicrm_api3_speakcivi_englishgroups($params) {
+  $start = microtime(true);
+  $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+
+  if ($languageGroupNameSuffix) {
+    $query = "SELECT speakciviEnglishGroups(%1) AS results;";
+    $query_params = array(
+      1 => array($languageGroupNameSuffix, 'String'),
+    );
+    $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
+    $results = array(
+      'count' => $count,
+      'time' => microtime(true) - $start,
+    );
+    return civicrm_api3_create_success($results, $params);
+  } else {
+    $data = array(
+      'languageGroupNameSuffix' => $languageGroupNameSuffix,
+    );
+    return civicrm_api3_create_error('Not valid params', $data);
+  }
+}
+
 
 /**
  * Get locale version for locale from params. Default is a english version.
