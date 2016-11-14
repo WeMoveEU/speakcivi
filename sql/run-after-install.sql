@@ -155,5 +155,123 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
     RETURN results;
   END#
 
+-- Each english language contact should be in UK or INT subgroup
+DROP FUNCTION IF EXISTS speakciviEnglishGroups#
+CREATE FUNCTION speakciviEnglishGroups(languageGroupNameSuffix VARCHAR(255)) RETURNS INT
+  BEGIN
+    DECLARE name_en, name_uk, name_int VARCHAR(255);
+    DECLARE id_en, id_uk, id_int, id_country_uk, cid, i INT;
+    DECLARE done0 INT DEFAULT FALSE;
+    DECLARE cur1_uk CURSOR FOR
+      SELECT u.id
+      FROM speakcivi_english_uk u LEFT JOIN civicrm_group_contact gc
+          ON gc.contact_id = u.id AND gc.group_id = id_uk AND gc.status = 'Added'
+      WHERE gc.id IS NULL;
+    DECLARE cur1_int CURSOR FOR
+      SELECT i.id
+      FROM speakcivi_english_int i LEFT JOIN civicrm_group_contact gc
+          ON gc.contact_id = i.id AND gc.group_id = id_int AND gc.status = 'Added'
+      WHERE gc.id IS NULL;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done0 = 1;
+
+    SET name_en = CONCAT('en', languageGroupNameSuffix COLLATE utf8_unicode_ci);
+    SET name_uk = CONCAT(name_en, '-uk');
+    SET name_int = CONCAT(name_en, '-int');
+    SELECT id INTO id_en FROM civicrm_group WHERE name = name_en COLLATE utf8_unicode_ci;
+    SELECT id INTO id_uk FROM civicrm_group WHERE name = name_uk COLLATE utf8_unicode_ci;
+    SELECT id INTO id_int FROM civicrm_group WHERE name = name_int COLLATE utf8_unicode_ci;
+    SELECT id INTO id_country_uk FROM civicrm_country WHERE iso_code = 'GB';
+
+    DELETE FROM speakcivi_english_uk;
+    DELETE FROM speakcivi_english_int;
+
+    -- list of uk english contacts
+    INSERT IGNORE INTO speakcivi_english_uk
+      SELECT c.id
+      FROM civicrm_group_contact gc
+        JOIN civicrm_contact c ON c.id = gc.contact_id AND gc.group_id = id_en AND gc.status = 'Added'
+        JOIN civicrm_address a ON a.contact_id = c.id AND a.is_primary = 1
+      WHERE a.country_id = id_country_uk;
+
+    -- list of int english contacts
+    INSERT IGNORE INTO speakcivi_english_int
+      SELECT gc.contact_id
+      FROM civicrm_group_contact gc
+        LEFT JOIN speakcivi_english_uk u ON u.id = gc.contact_id
+      WHERE gc.group_id = id_en AND gc.status = 'Added' AND u.id IS NULL;
+
+    -- remove UK
+    DELETE FROM speakcivi_english_ids;
+    INSERT INTO speakcivi_english_ids
+      SELECT g.contact_id
+      FROM civicrm_group_contact g
+        LEFT JOIN speakcivi_english_uk u ON u.id = g.contact_id
+      WHERE g.group_id = id_uk AND g.status = 'Added' AND u.id IS NULL;
+    DELETE gc FROM civicrm_group_contact gc
+      JOIN speakcivi_english_ids i ON i.id = gc.contact_id AND gc.group_id = id_uk;
+
+    -- remove INT
+    DELETE FROM speakcivi_english_ids;
+    INSERT INTO speakcivi_english_ids
+      SELECT g.contact_id
+      FROM civicrm_group_contact g
+        LEFT JOIN speakcivi_english_int u ON u.id = g.contact_id
+      WHERE g.group_id = id_int AND g.status = 'Added' AND u.id IS NULL;
+    DELETE gc FROM civicrm_group_contact gc
+      JOIN speakcivi_english_ids i ON i.id = gc.contact_id AND gc.group_id = id_int;
+
+    -- add new to uk
+    SET done0 = 0;
+    SET i = 0;
+    OPEN cur1_uk;
+    loop_new_uk: LOOP
+      FETCH cur1_uk INTO cid;
+      IF done0 THEN
+        CLOSE cur1_uk;
+        LEAVE loop_new_uk;
+      END IF;
+      BEGIN
+        SET i = i + 1;
+        IF (SELECT id FROM civicrm_group_contact WHERE contact_id = cid AND group_id = id_uk) THEN
+          UPDATE civicrm_group_contact
+          SET status = 'Added'
+          WHERE contact_id = cid AND group_id = id_uk;
+        ELSE
+          INSERT INTO civicrm_group_contact (group_id, contact_id, status)
+          VALUES(id_uk, cid, 'Added');
+        END IF;
+        INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
+        VALUES (cid, id_uk, NOW(), 'Admin', 'Added');
+      END;
+    END LOOP loop_new_uk;
+
+
+    -- add new to int
+    SET done0 = 0;
+    OPEN cur1_int;
+    loop_new_int: LOOP
+      FETCH cur1_int INTO cid;
+      IF done0 THEN
+        CLOSE cur1_int;
+        LEAVE loop_new_int;
+      END IF;
+      BEGIN
+        SET i = i + 1;
+        IF (SELECT id FROM civicrm_group_contact WHERE contact_id = cid AND group_id = id_int) THEN
+          UPDATE civicrm_group_contact
+          SET status = 'Added'
+          WHERE contact_id = cid AND group_id = id_int;
+        ELSE
+          INSERT INTO civicrm_group_contact (group_id, contact_id, status)
+          VALUES(id_int, cid, 'Added');
+        END IF;
+        INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
+        VALUES (cid, id_int, NOW(), 'Admin', 'Added');
+      END;
+    END LOOP loop_new_int;
+
+    RETURN i;
+  END#
+
 DELIMITER ;
 COMMIT ;
