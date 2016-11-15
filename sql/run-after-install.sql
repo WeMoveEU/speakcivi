@@ -157,10 +157,9 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
 
 -- Each english language contact should be in UK or INT subgroup
 DROP FUNCTION IF EXISTS speakciviEnglishGroups#
-CREATE FUNCTION speakciviEnglishGroups(languageGroupNameSuffix VARCHAR(255)) RETURNS INT
+CREATE FUNCTION speakciviEnglishGroups(id_en INT, id_uk INT, id_int INT) RETURNS INT
   BEGIN
-    DECLARE name_en, name_uk, name_int VARCHAR(255);
-    DECLARE id_en, id_uk, id_int, id_country_uk, cid, i INT;
+    DECLARE id_country_uk, cid, i INT;
     DECLARE done0 INT DEFAULT FALSE;
     DECLARE cur1_uk CURSOR FOR
       SELECT u.id
@@ -174,12 +173,6 @@ CREATE FUNCTION speakciviEnglishGroups(languageGroupNameSuffix VARCHAR(255)) RET
       WHERE gc.id IS NULL;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done0 = 1;
 
-    SET name_en = CONCAT('en', languageGroupNameSuffix COLLATE utf8_unicode_ci);
-    SET name_uk = CONCAT(name_en, '-uk');
-    SET name_int = CONCAT(name_en, '-int');
-    SELECT id INTO id_en FROM civicrm_group WHERE name = name_en COLLATE utf8_unicode_ci;
-    SELECT id INTO id_uk FROM civicrm_group WHERE name = name_uk COLLATE utf8_unicode_ci;
-    SELECT id INTO id_int FROM civicrm_group WHERE name = name_int COLLATE utf8_unicode_ci;
     SELECT id INTO id_country_uk FROM civicrm_country WHERE iso_code = 'GB';
 
     DELETE FROM speakcivi_english_uk;

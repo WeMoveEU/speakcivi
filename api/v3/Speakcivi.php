@@ -352,16 +352,21 @@ function civicrm_api3_speakcivi_remind($params) {
 }
 
 function _civicrm_api3_speakcivi_englishgroups_spec(&$params) {
+  $params['parent_id']['api.required'] = 1;
+  $params['uk_id']['api.required'] = 1;
+  $params['int_id']['api.required'] = 1;
 }
 
 function civicrm_api3_speakcivi_englishgroups($params) {
   $start = microtime(true);
   $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
 
-  if ($languageGroupNameSuffix) {
-    $query = "SELECT speakciviEnglishGroups(%1) AS results;";
+  if ($params['parent_id'] && $params['uk_id'] && $params['int_id']) {
+    $query = "SELECT speakciviEnglishGroups(%1, %2, %3) AS results;";
     $query_params = array(
-      1 => array($languageGroupNameSuffix, 'String'),
+      1 => array($params['parent_id'], 'Integer'),
+      2 => array($params['uk_id'], 'Integer'),
+      3 => array($params['int_id'], 'Integer'),
     );
     $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
     $results = array(
