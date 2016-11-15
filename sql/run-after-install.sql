@@ -178,7 +178,7 @@ CREATE FUNCTION speakciviSetGroupContact(gid INT, cid INT, gst VARCHAR(8)) RETUR
 DROP FUNCTION IF EXISTS speakciviEnglishGroups#
 CREATE FUNCTION speakciviEnglishGroups(id_en INT, id_uk INT, id_int INT) RETURNS INT
   BEGIN
-    DECLARE id_country_uk, cid, i INT;
+    DECLARE id_country_uk, cid, i, r INT;
     DECLARE done0 INT DEFAULT FALSE;
     DECLARE cur1_uk CURSOR FOR
       SELECT u.id
@@ -244,16 +244,7 @@ CREATE FUNCTION speakciviEnglishGroups(id_en INT, id_uk INT, id_int INT) RETURNS
       END IF;
       BEGIN
         SET i = i + 1;
-        IF (SELECT id FROM civicrm_group_contact WHERE contact_id = cid AND group_id = id_uk) THEN
-          UPDATE civicrm_group_contact
-          SET status = 'Added'
-          WHERE contact_id = cid AND group_id = id_uk;
-        ELSE
-          INSERT INTO civicrm_group_contact (group_id, contact_id, status)
-          VALUES(id_uk, cid, 'Added');
-        END IF;
-        INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
-        VALUES (cid, id_uk, NOW(), 'Admin', 'Added');
+        SELECT speakciviSetGroupContact(id_uk, cid, 'Added') INTO r;
       END;
     END LOOP loop_new_uk;
 
@@ -269,16 +260,7 @@ CREATE FUNCTION speakciviEnglishGroups(id_en INT, id_uk INT, id_int INT) RETURNS
       END IF;
       BEGIN
         SET i = i + 1;
-        IF (SELECT id FROM civicrm_group_contact WHERE contact_id = cid AND group_id = id_int) THEN
-          UPDATE civicrm_group_contact
-          SET status = 'Added'
-          WHERE contact_id = cid AND group_id = id_int;
-        ELSE
-          INSERT INTO civicrm_group_contact (group_id, contact_id, status)
-          VALUES(id_int, cid, 'Added');
-        END IF;
-        INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
-        VALUES (cid, id_int, NOW(), 'Admin', 'Added');
+        SELECT speakciviSetGroupContact(id_int, cid, 'Added') INTO r;
       END;
     END LOOP loop_new_int;
 
