@@ -155,6 +155,25 @@ CREATE FUNCTION speakciviRemoveLanguageGroup(groupId INT, languageGroupNameSuffi
     RETURN results;
   END#
 
+
+--
+DROP FUNCTION IF EXISTS speakciviSetGroupContact#
+CREATE FUNCTION speakciviSetGroupContact(gid INT, cid INT, gst VARCHAR(8)) RETURNS INT
+  BEGIN
+    IF (SELECT id FROM civicrm_group_contact WHERE group_id = gid AND contact_id = cid) THEN
+      UPDATE civicrm_group_contact
+      SET status = gst
+      WHERE group_id = gid AND contact_id = cid;
+    ELSE
+      INSERT INTO civicrm_group_contact (group_id, contact_id, status)
+      VALUES(gid, cid, gst);
+    END IF;
+    INSERT INTO civicrm_subscription_history (group_id, contact_id, date, method, status)
+    VALUES (gid, cid, NOW(), 'Admin', gst);
+    RETURN 1;
+  END#
+
+
 -- Each english language contact should be in UK or INT subgroup
 DROP FUNCTION IF EXISTS speakciviEnglishGroups#
 CREATE FUNCTION speakciviEnglishGroups(id_en INT, id_uk INT, id_int INT) RETURNS INT
