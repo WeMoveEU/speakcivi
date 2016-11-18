@@ -73,7 +73,7 @@ function filterSmall(d) {
   return d > 1500;
 }
 function filterPetitions(d) {
-  return d > 0;
+  return !d;
 }
 
 var ndx  = crossfilter(data.values)
