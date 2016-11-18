@@ -3,6 +3,13 @@
 <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 
 <div class="row">
+  <div class="col-md-1">Show:</div>
+  <div class="col-md-2"><input type="checkbox" name="small" id="filter_small" /> Small mailings</div>
+  <div class="col-md-2"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
+</div>
+<hr>
+
+<div class="row">
 <div id="campaign" class="col-md-2"><h3>Campaign</h3><div class="graph"></div></div>
 <div id="sender" class="col-md-2"><h3>Crew</h3><div class="graph"></div></div>
 <div id="open" class="col-md-2"><h3>% Open</h3><div class="graph"></div><div class="avg"></div></div>
@@ -62,9 +69,38 @@ data.values.forEach(function(d){
 });
 
 
+function filterSmall(d) {
+  return d > 1500;
+}
+function filterPetitions(d) {
+  return d > 0;
+}
 
 var ndx  = crossfilter(data.values)
   , all = ndx.groupAll();
+var sizeDim = ndx.dimension(function(d) { return d.recipients; });
+var signDim = ndx.dimension(function(d) { return d.sign; });
+
+sizeDim.filter(filterSmall);
+jQuery(function($) {
+  $('#filter_small').on('change', function() {
+    if (this.checked) {
+      sizeDim.filterAll();
+    } else {
+      sizeDim.filter(filterSmall);
+    }
+    dc.redrawAll();
+  });
+
+  $('#filter_petitions').on('change', function() {
+    if (this.checked) {
+      signDim.filterAll();
+    } else {
+      signDim.filter(filterPetitions);
+    }
+    dc.redrawAll();
+  });
+});
 
 var totalCount = dc.dataCount("h1 .data_count")
       .dimension(ndx)
