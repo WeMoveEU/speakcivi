@@ -428,22 +428,4 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     );
     civicrm_api3('EntityTag', 'create', $params);
   }
-
-
-  /**
-   * Set parameter NO BULK EMAILS (User Opt Out)
-   *
-   * @param int $contactId
-   * @param int $isOptOut
-   *
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function setIsOptOut($contactId, $isOptOut) {
-    $params = array(
-      'sequential' => 1,
-      'id' => $contactId,
-      'is_opt_out' => $isOptOut,
-    );
-    civicrm_api3('Contact', 'create', $params);
-  }
 }

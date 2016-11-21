@@ -7,7 +7,9 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setActivityStatusIds();
     $this->setValues();
 
-    $this->setIsOptOut($this->contactId, 0);
+    $contactParams = array(
+      'is_opt_out' => 0,
+    );
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $activityStatus = 'optin'; // default status: Completed new member
@@ -26,7 +28,10 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
       $language = substr($locale, 0, 2);
       $this->setLanguageGroup($this->contactId, $language);
       $this->setLanguageTag($this->contactId, $language);
+      $contactParams['preferred_language'] = $locale;
     }
+
+    CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);

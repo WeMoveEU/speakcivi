@@ -103,10 +103,7 @@ class CRM_Speakcivi_Logic_Contact {
    * @throws \CiviCRM_API3_Exception
    */
   public static function setSourceFields($contactId, $fields) {
-    $params = array(
-      'sequential' => 1,
-      'id' => $contactId,
-    );
+    $params = array();
     $fields = (array)$fields;
     if (array_key_exists('source', $fields) && $fields['source']) {
       $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_source')] = $fields['source'];
@@ -117,6 +114,22 @@ class CRM_Speakcivi_Logic_Contact {
     if (array_key_exists('campaign', $fields) && $fields['campaign']) {
       $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_campaign')] = $fields['campaign'];
     }
+    self::set($contactId, $params);
+  }
+
+
+  /**
+   * Set contact params
+   *
+   * @param int $contactId
+   * @param array $contactParams
+   */
+  public static function set($contactId, $contactParams) {
+    $params = array(
+      'sequential' => 1,
+      'id' => $contactId,
+    );
+    $params = array_merge($params, $contactParams);
     if (count($params) > 2) {
       civicrm_api3('Contact', 'create', $params);
     }
