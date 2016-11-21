@@ -26,9 +26,11 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
       $locale = $campaign->getLanguage();
       $language = substr($locale, 0, 2);
-      $this->setLanguageGroup($this->contactId, $language);
+      $rlg = $this->setLanguageGroup($this->contactId, $language);
       $this->setLanguageTag($this->contactId, $language);
-      $contactParams['preferred_language'] = $locale;
+      if ($rlg == 1) {
+        $contactParams['preferred_language'] = $locale;
+      }
     }
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);

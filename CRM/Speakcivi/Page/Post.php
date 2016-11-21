@@ -235,6 +235,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @param int $contactId
    * @param string $language Language in format en, fr, de, pl etc.
+   * @return int 1: set given language group, 2: set default language group, 0: no changes
    */
   public function setLanguageGroup($contactId, $language) {
     if ($language) {
@@ -245,11 +246,14 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
         if ($languageGroupId) {
           $this->setGroupStatus($contactId, $languageGroupId);
           $this->deleteLanguageGroup($contactId, $defaultLanguageGroupId);
+          return 1;
         } else {
           $this->setGroupStatus($contactId, $defaultLanguageGroupId);
+          return 2;
         }
       }
     }
+    return 0;
   }
 
 
