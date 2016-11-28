@@ -65,7 +65,9 @@ var prettyDate = function (dateString){
   var min = ('0' + date.getMinutes()).slice(-2);
   return d+'/'+m+'/'+y +' ' +date.getHours() + ':'+min;
 }
-
+function percent(d, attr, precision) {
+  return "<span title='"+d[attr]+" contacts' >"+ (100*d[attr]/d.recipients).toFixed(precision) +"%</span>";
+}
 
 function lookupTable(data,key,value) {
   var t= {}
@@ -292,25 +294,25 @@ function drawTable(dom) {
               return d.recipients;
 	    },
 	    function (d) {
-              return "<span title='"+d.open+" contacts' >"+Math.round (100*d.open/d.recipients)+"%</span>";
+              return percent(d, 'open', 0);
 	    },
 	    function (d) {
-              return "<span title='"+d.click+" contacts' >"+Math.round (100*d.click/d.recipients)+"%</span>";
+              return percent(d, 'click', 0);
 	    },
 	    function (d) {
-              return "<span title='"+d.sign+" contacts' >"+Math.round (100*d.sign/d.recipients)+"%</span>";
+              return percent(d, 'sign', 0);
 	    },
 	    function (d) {
-              return "<span title='"+d.share+" contacts' >"+Math.round (100*d.share/d.recipients)+"%</span>";
+              return percent(d, 'share', 0);
 	    },
 	    function (d) {
-              return "<span title='"+d.viral_sign+" contacts' >"+Math.round (100*d.viral_sign/d.recipients)+"%</span>";
+              return percent(d, 'viral_sign', 2);
 	    },
 	    function (d) {
-              return "<span title='"+d.viral_share+" contacts' >"+Math.round (100*d.viral_share/d.recipients)+"%</span>";
+              return percent(d, 'viral_share', 2);
 	    },
 	    function (d) {
-              return "<span>"+ (d.new_member||0) +"</span>";
+              return percent(d, 'new_member', 2);
 	    },
 	    function (d) {
               return "<span>"+ (d.nb_donations||0) + (d.recur ? " recurring" : " one-off") + "</span>";
