@@ -1,6 +1,6 @@
 {"query":"
 SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, campaign_id,
-  camp.name as campaign, camp.external_identifier, campaign_type_id,
+  camp.name as campaign, camp.external_identifier, campaign_type_id, language_4 as lang,
   createdContact.first_name AS owner,
   r.value AS recipients,
   o.value AS open,
@@ -9,9 +9,14 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   shares.value AS share,
   (coalesce(new_vsigns.value, 0) + coalesce(known_vsigns.value, 0) + coalesce(optout_vsigns.value, 0) + coalesce(pending_vsigns.value, 0)) AS viral_sign,
   vshares.value AS viral_share,
-  (coalesce(new_signs.value, 0) + coalesce(new_vsigns.value, 0)) AS new_member
+  (coalesce(new_signs.value, 0) + coalesce(new_vsigns.value, 0)) AS new_member,
+  d.recur,
+  d.nb_donations,
+  d.total_amount,
+  d.currency
 FROM civicrm_mailing as m
 LEFT JOIN civicrm_campaign as camp ON m.campaign_id = camp.id
+LEFT JOIN civicrm_value_speakout_integration_2 camp2 ON camp2.entity_id=camp.id
 LEFT JOIN civicrm_contact createdContact ON ( m.created_id = createdContact.id )
 LEFT JOIN data_mailing_counter r ON r.mailing_id=m.id AND r.counter='recipients' AND r.timebox=0
 LEFT JOIN data_mailing_counter o ON o.mailing_id=m.id AND o.counter='opens' AND o.timebox=144000
@@ -26,5 +31,16 @@ LEFT JOIN data_mailing_counter known_vsigns ON known_vsigns.mailing_id=m.id AND 
 LEFT JOIN data_mailing_counter optout_vsigns ON optout_vsigns.mailing_id=m.id AND optout_vsigns.counter='optout_viral_signs' AND optout_vsigns.timebox=144000
 LEFT JOIN data_mailing_counter pending_vsigns ON pending_vsigns.mailing_id=m.id AND pending_vsigns.counter='pending_viral_signs' AND pending_vsigns.timebox=144000
 LEFT JOIN data_mailing_counter vshares ON vshares.mailing_id=m.id AND vshares.counter='viral_shares' AND vshares.timebox=144000
+LEFT JOIN (
+  SELECT 
+    IF (contribution_recur_id is NULL, false, true) AS recur, 
+    SUM(total_amount) AS total_amount, 
+    currency,
+    count(*) AS nb_donations, 
+    SUBSTRING(utm_source_30, 10) as mailing_id
+  FROM civicrm_contribution c JOIN civicrm_value_utm_5 utm ON c.id=entity_id
+  WHERE utm_medium_31='email' AND utm_source_30 LIKE 'civimail-%'
+  GROUP BY utm_source_30
+) d ON d.mailing_id=m.id
 WHERE is_completed = true;
 ","params":{"1":{"name":"campaign_id","type":"Integer"}}}

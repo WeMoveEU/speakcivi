@@ -1,4 +1,10 @@
 {crmTitle string="<span class='data_count'><span class='filter-count'></span> Mailings out of <span class='total-count'></span></span>"}
+{literal}
+<style>
+#campaign .dc-chart g.row text {fill:grey;}
+#lang .pie-slice {fill:white;}
+</style>
+{/literal}
 
 <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 
@@ -6,12 +12,13 @@
   <div class="col-md-1">Show:</div>
   <div class="col-md-2"><input type="checkbox" name="small" id="filter_small" /> Small mailings</div>
   <div class="col-md-2"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
+  <div class="col-md-2"><input type="checkbox" name="fundraisers" id="filter_fundraisers" checked /> Fundraisers</div>
 </div>
 <hr>
 
 <div class="row">
 <div id="campaign" class="col-md-2"><h3>Campaign</h3><div class="graph"></div></div>
-<div id="sender" class="col-md-2"><h3>Crew</h3><div class="graph"></div></div>
+<div id="lang" class="col-md-2"><h3>Language</h3><div class="graph"></div></div>
 <div id="open" class="col-md-2"><h3>% Open</h3><div class="graph"></div><div class="avg"></div></div>
 <div id="click" class="col-md-2"><h3>% Click</h3><div class="graph"></div><div class="avg"></div></div>
 <div id="date" class="col-md-4"><h3>Date sent</h3><div class="graph"></div></div>
@@ -33,6 +40,8 @@
 <th>Viral Signs</th>
 <th>Viral Shares</th>
 <th>New members</th>
+<th># Donations</th>
+<th>Total amount</th>
 </tr></thead>
 </table>
 </div>
@@ -75,11 +84,35 @@ function filterSmall(d) {
 function filterPetitions(d) {
   return !d;
 }
+function filterFundraisers(d) {
+  return !d;
+}
+
+function reduceAdd(p, v) {
+  ++p.count;
+  p.sign += +v.sign;
+  p.recipients+= +v.recipients;
+  p.sign_new += +v.sign_new;
+  return p;
+}
+
+function reduceRemove(p, v) {
+  --p.count;
+  p.sign -= +v.sign;
+  p.recipients-= +v.recipients;
+  p.sign_new -= +v.sign_new;
+  return p;
+}
+
+function reduceInitial() {
+  return {count: 0, sign: 0,sign_new:0,recipients:0};
+}
 
 var ndx  = crossfilter(data.values)
   , all = ndx.groupAll();
 var sizeDim = ndx.dimension(function(d) { return d.recipients; });
 var signDim = ndx.dimension(function(d) { return d.sign; });
+var giveDim = ndx.dimension(function(d) { return d.nb_donations; });
 
 sizeDim.filter(filterSmall);
 jQuery(function($) {
@@ -97,6 +130,15 @@ jQuery(function($) {
       signDim.filterAll();
     } else {
       signDim.filter(filterPetitions);
+    }
+    dc.redrawAll();
+  });
+
+  $('#filter_fundraisers').on('change', function() {
+    if (this.checked) {
+      giveDim.filterAll();
+    } else {
+      giveDim.filter(filterFundraisers);
     }
     dc.redrawAll();
   });
@@ -120,19 +162,25 @@ function drawCampaign (dom) {
   return graph;
 }
 
-function drawSender (dom) {
-  var dim = ndx.dimension(function(d){return d.owner});
-  var group = dim.group().reduceSum(function(d){return 1;});
+function drawLang (dom) {
+  //var dim = ndx.dimension(function(d){return d.lang.substring(3)||"?"});
+  var dim = ndx.dimension(function(d){return d.lang});
+//  var group = dim.group().reduceSum(function(d){return 1;});
+  var group = dim.group().reduce(reduceAdd,reduceRemove,reduceInitial);
   var graph  = dc.pieChart(dom)
     .innerRadius(10).radius(50)
     .width(100)
     .height(100)
+    .label (function (d) {return d.key.substring(3)||"?"})
+    .valueAccessor( function(d) { return d.value.count })
+    .title (function (d) {return d.key + ":\nmailings:" + d.value.count + "\nrecipients:" + d.value.recipients + "\nsignatures:" + d.value.sign + "\nnew:"+d.value.sign_new;})
     .dimension(dim)
     .colors(d3.scale.category10())
     .group(group);
 
   return graph;
 }
+
 function drawType (dom) {
   var dim = ndx.dimension(function(d){return activityType[d.activity_type_id]});
   var group = dim.group().reduceSum(function(d){return 1;});
@@ -264,6 +312,12 @@ function drawTable(dom) {
 	    function (d) {
               return "<span>"+ (d.new_member||0) +"</span>";
 	    },
+	    function (d) {
+              return "<span>"+ (d.nb_donations||0) + (d.recur ? " recurring" : " one-off") + "</span>";
+	    },
+	    function (d) {
+              return "<span>"+ (d.total_amount||0) + " " + d.currency + "</span>";
+	    },
 
 	]
     );
@@ -278,7 +332,7 @@ drawTable("#table");
 //drawType("#type .graph");
 drawDate("#date .graph");
 //drawStatus("#status .graph");
-drawSender("#sender .graph");
+drawLang("#lang .graph");
 drawCampaign("#campaign .graph");
 
 dc.renderAll();
