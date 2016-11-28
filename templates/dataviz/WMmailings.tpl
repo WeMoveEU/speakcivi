@@ -3,16 +3,28 @@
 <style>
 #campaign .dc-chart g.row text {fill:grey;}
 #lang .pie-slice {fill:white;}
+.filter {
+  display: inline-block;
+  margin-right: 2em;
+}
 </style>
 {/literal}
 
 <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 
 <div class="row">
-  <div class="col-md-1">Show:</div>
-  <div class="col-md-2"><input type="checkbox" name="small" id="filter_small" /> Small mailings</div>
-  <div class="col-md-2"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
-  <div class="col-md-2"><input type="checkbox" name="fundraisers" id="filter_fundraisers" checked /> Fundraisers</div>
+  <div class="filter">Show:</div>
+  <div class="filter"><input type="checkbox" name="small" id="filter_small" /> Small mailings</div>
+  <div class="filter"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
+  <div class="filter"><input type="checkbox" name="fundraisers" id="filter_fundraisers" checked /> Fundraisers</div>
+  <div class="filter">Elapsed time:
+    <input type="radio" name="timebox" value="120" /> 2h
+    <input type="radio" name="timebox" value="300" /> 5h
+    <input type="radio" name="timebox" value="720" /> 12h
+    <input type="radio" name="timebox" value="1440" /> 1d
+    <input type="radio" name="timebox" value="2880" /> 2d
+    <input type="radio" name="timebox" value="144000" checked /> 100d
+  </div>
 </div>
 <hr>
 
@@ -31,8 +43,8 @@
 <th>Date</th>
 <th>Name</th>
 <th>Campaign</th>
-<th>Creator</th>
 <th>Recipients</th>
+<th>Elapsed</th>
 <th>Open</th>
 <th>Clicks</th>
 <th>Signs</th>
@@ -89,6 +101,11 @@ function filterPetitions(d) {
 function filterFundraisers(d) {
   return !d;
 }
+function filterTimebox(box) {
+  return function (d) {
+    return d == box;
+  };
+}
 
 function reduceAdd(p, v) {
   ++p.count;
@@ -115,8 +132,10 @@ var ndx  = crossfilter(data.values)
 var sizeDim = ndx.dimension(function(d) { return d.recipients; });
 var signDim = ndx.dimension(function(d) { return d.sign; });
 var giveDim = ndx.dimension(function(d) { return d.nb_donations; });
+var timeDim = ndx.dimension(function(d) { return d.timebox; });
 
 sizeDim.filter(filterSmall);
+timeDim.filterExact(144000);
 jQuery(function($) {
   $('#filter_small').on('change', function() {
     if (this.checked) {
@@ -142,6 +161,10 @@ jQuery(function($) {
     } else {
       giveDim.filter(filterFundraisers);
     }
+    dc.redrawAll();
+  });
+  $('input[name=timebox]').on('click', function() {
+    timeDim.filterExact(parseInt(this.value));
     dc.redrawAll();
   });
 });
@@ -288,10 +311,10 @@ function drawTable(dom) {
 		return "<a href='/civicrm/campaign/add?reset=1&action=update&id="+d.campaign_id+"' target='_blank'>"+d.campaign+"</a>";
 	    },
 	    function (d) {
-              return d.owner;
+              return d.recipients;
 	    },
 	    function (d) {
-              return d.recipients;
+              return d.timebox < 1440 ? (d.timebox/60)+'h' : (d.timebox/1440)+'d';
 	    },
 	    function (d) {
               return percent(d, 'open', 0);
