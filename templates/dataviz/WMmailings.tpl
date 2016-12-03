@@ -17,6 +17,7 @@
   <div class="filter"><input type="checkbox" name="small" id="filter_small" /> Small mailings</div>
   <div class="filter"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
   <div class="filter"><input type="checkbox" name="fundraisers" id="filter_fundraisers" checked /> Fundraisers</div>
+  <div class="filter"><input type="checkbox" name="surveys" id="filter_survey" checked /> Surveys</div>
   <div class="filter">Elapsed time:
     <input type="radio" name="timebox" value="120" /> 2h
     <input type="radio" name="timebox" value="300" /> 5h
@@ -28,12 +29,25 @@
 </div>
 <hr>
 
+
 <div class="row">
-<div id="campaign" class="col-md-2"><h3>Campaign</h3><div class="graph"></div></div>
-<div id="lang" class="col-md-2"><h3>Language</h3><div class="graph"></div></div>
-<div id="open" class="col-md-2"><h3>% Open</h3><div class="graph"></div><div class="avg"></div></div>
-<div id="click" class="col-md-2"><h3>% Click</h3><div class="graph"></div><div class="avg"></div></div>
-<div id="date" class="col-md-4"><h3>Date sent</h3><div class="graph"></div></div>
+	<div class="col-md-3">
+		<div id="overview">
+			<ul class="list-group">
+				<li class="list-group-item"><span class="badge nb_mailing"></span>Mailings</li>
+				<li class="list-group-item"><span class="badge nb_recipient"></span>Recipients</li>
+				<li class="list-group-item"><span class="badge nb_open"></span>Open</li>
+				<li class="list-group-item"><span class="badge nb_click"></span>click</li>
+				<li class="list-group-item"><span class="badge nb_signature"></span>Signatures</li>
+				<li class="list-group-item"><span class="badge nb_share"></span>Shares</li>
+				<li class="list-group-item"><span class="badge nb_new_member"></span>New members</li>
+				<li class="list-group-item"><span class="badge nb_donation">?</span>Donations</li>
+			</ul>
+		</div>
+	</div>
+<div id="campaign" class="col-md-2"><div class="panel panel-default"><div class="panel-heading">Campaign</div><div class="panel-body"> <div class="graph"></div></div></div></div>
+<div id="lang" class="col-md-2"><div class="panel panel-default"><div class="panel-heading">Language</div><div class="panel-body"> <div class="graph"></div></div></div></div>
+<div id="date" class="col-md-4"><div class="panel panel-default"><div class="panel-heading">Date sent</div><div class="panel-body"> <div class="graph"></div></div></div></div>
 </div>
 
 <div class="row">
@@ -63,8 +77,12 @@
 
 <script>
 var data = {crmSQL json="WMmailings"};
+var campaigns= {crmSQL file="Campaigns"};
+
 var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 var currentDate = new Date();
+var graphs = [];
+var color = d3.scale.linear().range(["red", "orange","green"]).domain([0,1,1.5]).interpolate(d3.interpolateHcl).clamp(true);
 
 
 {literal}
@@ -78,6 +96,7 @@ var prettyDate = function (dateString){
   return d+'/'+m+'/'+y +' ' +date.getHours() + ':'+min;
 }
 function percent(d, attr, precision) {
+  if (d[attr] ==0) return " ";
   return "<span title='"+d[attr]+" contacts' >"+ (100*d[attr]/d.recipients).toFixed(precision) +"%</span>";
 }
 
@@ -86,6 +105,14 @@ function lookupTable(data,key,value) {
   data.forEach(function(d){t[d[key]]=d[value]});
   return t;
 }
+
+parentCampaign={};
+
+campaigns.values.forEach(function(d){
+  if (d.id==d.parent_id)
+    parentCampaign[d.id]=d.name.slice(0,-3);
+});
+
 
 data.values.forEach(function(d){
   d.date = dateFormat.parse(d.date);
@@ -137,6 +164,7 @@ var timeDim = ndx.dimension(function(d) { return d.timebox; });
 sizeDim.filter(filterSmall);
 timeDim.filterExact(144000);
 jQuery(function($) {
+	$(".crm-container").removeClass("crm-container");
   $('#filter_small').on('change', function() {
     if (this.checked) {
       sizeDim.filterAll();
@@ -173,7 +201,153 @@ var totalCount = dc.dataCount("h1 .data_count")
       .dimension(ndx)
       .group(all);
 
-function drawCampaign (dom) {
+function drawNumbers (graphs){
+  var average = function(d) {
+      return d.qty ? d.total / d.qty : 0;
+  };
+
+  var formatPercent =d3.format(".2%");
+  var percentRecipient=function (value) {
+   return formatPercent (value / graphs.nb_recipient.value());
+  }
+
+  var group = ndx.groupAll().reduce(
+		function (p, v) {
+        p.mailing++;
+				p.new_member += +v.new_member;
+				p.optout += +v.optout;
+				p.pending += +v.pending;
+				p.share+= +v.share;
+				p.signature += +v.sign;
+        p.recipient += +v.recipients;
+        p.open += +v.open;
+        p.click += +v.click;
+        p.amount += +v.total_amount;
+				return p;
+		},
+		function (p, v) {
+        p.mailing--;
+				p.optout -= +v.optout;
+				p.new_member -= +v.new_member;
+				p.pending -= +v.pending;
+				p.share -= +v.share;
+				p.signature -= +v.sign;
+        p.recipient -= +v.recipients;
+        p.open -= +v.open;
+        p.click -= +v.click;
+        p.amount -= +v.total_amount;
+				return p;
+		},
+		function () { return {mailing:0,donate:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
+  );
+  
+	function renderLetDisplay(chart,factor, ref) {
+		 ref = ref || graphs.nb_recipient.value() || 1;
+     var c=1;
+     if (factor) {
+       var avg_value={open:30,click:10,signature:7,share:1,new_member:0.5};
+       c=(chart.value()/ref*100)/avg_value[factor];
+console.log(factor+" "+ chart.value() + "/" + ref+"->" +  c);
+     }
+		 d3.selectAll(chart.anchor()).style("background-color", color(c))
+		 .attr("title", d3.format("")(chart.value()));
+	}
+	graphs.nb_mailing=dc.numberDisplay(".nb_mailing") 
+	.valueAccessor(function(d){ return d.mailing})
+	.html({some:"%number",none:"no mailing"})
+	.group(group);
+
+	graphs.nb_signature=dc.numberDisplay(".nb_signature") 
+	.valueAccessor(function(d){ return d.signature})
+	.html({some:"%number",none:"no signature"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'signature')})
+	.group(group);
+
+	graphs.nb_new_member=dc.numberDisplay(".nb_new_member") 
+	.valueAccessor(function(d){ return d.new_member})
+	.html({some:"%number",none:"nobody joined"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'new_member')})
+	.group(group);
+
+	graphs.nb_pending = dc.numberDisplay(".nb_pending") 
+	.valueAccessor(function(d){ return d.pending})
+	.html({some:"%number",none:"no signature pending"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'pending')})
+	.group(group);
+
+	graphs.nb_recipient = graphs.nb_recipient= dc.numberDisplay(".nb_recipient") 
+	.valueAccessor(function(d){ return d.recipient})
+	.html({some:"%number",none:"nobody mailed"})
+	.group(group)
+	.renderlet(function(c) {
+			if (ndx.groupAll().value() == ndx.size())
+				d3.selectAll(".resetall").style("display","none");
+			else
+				d3.selectAll(".resetall").style("display","block");
+	})
+	;
+	dc.numberDisplay(".nb_share") 
+	.valueAccessor(function(d){ return d.share})
+	.html({some:"%number",none:"nobody shared"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'share')})
+	.group(group);
+
+	dc.numberDisplay(".nb_open") 
+	.valueAccessor(function(d){ return d.open})
+	.html({some:"%number",none:"nobody opened"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'open')})
+	.group(group);
+
+	dc.numberDisplay(".nb_click") 
+	.valueAccessor(function(d){ return d.click})
+	.html({some:"%number",none:"nobody clicked"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'click')})
+	.group(group);
+
+	dc.numberDisplay(".nb_leave") 
+	.valueAccessor(function(d){ return d.leave})
+	.html({some:"%number",none:"nobody left"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'leave')})
+	.group(group);
+
+};
+
+	function drawCampaign (dom) {
+	  var dim = ndx.dimension(
+       function(d){
+         if (d.parent_campaign_id)
+           return parentCampaign[d.parent_campaign_id];
+         return d.campaign || "?"}
+       );
+	  var group = dim.group()
+	//  .reduce(reduceAdd,reduceRemove,reduceInitial);
+	.reduceSum(function(d){return 1;});
+	  var graph  = dc.rowChart(dom)
+	    .width(200)
+	    .height(235)
+	    .gap(0)
+	    .rowsCap(15)
+	    .ordering(function(d) { return -d.value })
+	//    .ordering(function(d) { return -d.value.count })
+	//    .valueAccessor( function(d) { return d.value.count })
+	//    .label (function (d) {return d.key;})
+	//    .title (function (d) {return d.key + ":" + d.value.count + "\nsignatures:" + d.value.sign + "\nnew:"+d.value.sign_new;})
+	    .dimension(dim)
+	    .elasticX(true)
+.labelOffsetY(10)
+.fixedBarHeight(14)
+.labelOffsetX(2)
+    .colorCalculator(function(d){return 'lightblue';})
+	    .group(group);
+
+    graph.xAxis().ticks(4);
+    graph.margins().left = 5;
+    graph.margins().top = 0;
+    graph.margins().bottom = 0;
+	  return graph;
+	}
+
+function drawNOCampaign (dom) {
   var dim = ndx.dimension(function(d){return d.campaign});
   var group = dim.group().reduceSum(function(d){return 1;});
   var graph  = dc.pieChart(dom)
@@ -225,8 +399,9 @@ function drawDate (dom) {
   //var group = dim.group().reduceSum(function(d){return 1;});
   var group = dim.group().reduceSum(function(d){return d.recipients;});
   var graph=dc.lineChart(dom)
-   .margins({top: 10, right: 10, bottom: 20, left:50})
-    .height(100)
+   .margins({top: 10, right: 20, bottom: 20, left:50})
+    .height(250)
+    .width(350)
     .dimension(dim)
     .renderArea(true)
     .group(group)
@@ -236,7 +411,7 @@ function drawDate (dom) {
     .elasticY(true)
     .xUnits(d3.time.days);
 
-   graph.yAxis().ticks(3);
+   graph.yAxis().ticks(3).tickFormat(d3.format(".2s"));
    graph.xAxis().ticks(5);
   return graph;
 }
@@ -308,7 +483,7 @@ function drawTable(dom) {
              return "<a title='"+d.subject+"' href='/civicrm/dataviz/mailing/"+d.id+"' >"+d.name+"</span>";
 	    },
 	    function (d) {
-		return "<a href='/civicrm/campaign/add?reset=1&action=update&id="+d.campaign_id+"' target='_blank'>"+d.campaign+"</a>";
+		return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' target='_blank'>"+d.campaign+"</a>";
 	    },
 	    function (d) {
               return d.recipients;
@@ -351,14 +526,15 @@ function drawTable(dom) {
 }
 
  
-drawPercent("#open", function(d){return d.open});
-drawPercent("#click", function(d){return d.click});
+//drawPercent("#open", function(d){return d.open});
+//drawPercent("#click", function(d){return d.click});
 drawTable("#table");
 //drawType("#type .graph");
-drawDate("#date .graph");
+drawNumbers(graphs);
+graphs.date = drawDate("#date .graph");
 //drawStatus("#status .graph");
-drawLang("#lang .graph");
-drawCampaign("#campaign .graph");
+graphs.lang = drawLang("#lang .graph");
+graphs.campaign = drawCampaign("#campaign .graph");
 
 dc.renderAll();
 
