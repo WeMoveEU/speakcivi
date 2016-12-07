@@ -12,9 +12,13 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   (coalesce(new_vsigns.value, 0) + coalesce(known_vsigns.value, 0) + coalesce(optout_vsigns.value, 0) + coalesce(pending_vsigns.value, 0)) AS viral_sign,
   vshares.value AS viral_share,
   (coalesce(new_signs.value, 0) + coalesce(new_vsigns.value, 0)) AS new_member,
+  dr_count.value AS nb_recur,
+  do_count.value AS nb_oneoff,
+  dr_amount.value AS amount_recur,
+  do_amount.value AS amount_oneoff,
   IF(dr_amount.value IS NULL, false, true) as recur,
-  IF(dr_count.value IS NULL, do_count.value, dr_count.value) AS nb_donations,
-  IF(dr_amount.value IS NULL, do_amount.value, dr_amount.value) AS total_amount,
+  (do_amount.value+ dr_amount.value) AS total_amount,
+  (do_count.value+ dr_count.value) AS nb_donations,
   d.currency
 FROM civicrm_mailing as m
 LEFT JOIN civicrm_campaign as camp ON m.campaign_id = camp.id

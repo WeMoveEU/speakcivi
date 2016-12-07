@@ -159,7 +159,7 @@ var ndx  = crossfilter(data.values)
   , all = ndx.groupAll();
 var sizeDim = ndx.dimension(function(d) { return d.recipients; });
 var signDim = ndx.dimension(function(d) { return d.sign; });
-var giveDim = ndx.dimension(function(d) { return d.nb_donations; });
+var giveDim = ndx.dimension(function(d) { return +d.nb_oneoff + +d.nb_recur; });
 var timeDim = ndx.dimension(function(d) { return d.timebox; });
 
 sizeDim.filter(filterSmall);
@@ -223,8 +223,8 @@ function drawNumbers (graphs){
         p.recipient += +v.recipients;
         p.open += +v.open;
         p.click += +v.click;
-        p.amount += +v.total_amount;
-        p.donation += +v.nb_donations;
+        p.amount += +v.amount_recur + +v.amount_oneoff;
+        p.donation += +v.nb_recur + +v.nb_oneoff;
 				return p;
 		},
 		function (p, v) {
@@ -237,8 +237,8 @@ function drawNumbers (graphs){
         p.recipient -= +v.recipients;
         p.open -= +v.open;
         p.click -= +v.click;
-        p.amount -= +v.total_amount;
-        p.donation -= +v.nb_donations;
+        p.amount -= +v.amount_recur + +v.amount_oneoff;
+        p.donation -= +v.nb_recur + +v.nb_oneoff;
 				return p;
 		},
 		function () { return {mailing:0,donation:0,amount:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
@@ -539,12 +539,12 @@ function drawTable(dom) {
               return percent(d, 'new_member', 2);
 	    },
 	    function (d) {
-              if (!d.nb_donations) return "";
-              return "<span>"+ (d.nb_donations||0) + (d.recur ? " recurring" : " one-off") + "</span>";
+              if (!d.nb_oneoff && !d.nb_recur) return "";
+              return "<span title='recurring donations'>"+ d.nb_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> ' + d.nb_oneoff + "</span>";
 	    },
 	    function (d) {
-              if (!d.total_amount) return "";
-              return "<span>"+ (d.total_amount||0) + " " + d.currency + "</span>";
+              if (!d.nb_oneoff && !d.nb_recur) return "";
+              return "<span title='recurring donations'>"+ d.amount_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> ' + d.amount_oneoff + ""+ (d.currency=="EUR" ? "€" : "£");
 	    },
 
 	]
