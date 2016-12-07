@@ -6,6 +6,7 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   o.timebox,
   o.value AS open,
   c.value AS click,
+  u.value AS unsub,
   (coalesce(new_signs.value, 0) + coalesce(known_signs.value, 0) + coalesce(optout_signs.value, 0) + coalesce(pending_signs.value, 0)) AS sign,
   shares.value AS share,
   (coalesce(new_vsigns.value, 0) + coalesce(known_vsigns.value, 0) + coalesce(optout_vsigns.value, 0) + coalesce(pending_vsigns.value, 0)) AS viral_sign,
@@ -22,6 +23,7 @@ LEFT JOIN civicrm_contact createdContact ON ( m.created_id = createdContact.id )
 LEFT JOIN data_mailing_counter r ON r.mailing_id=m.id AND r.counter='recipients' AND r.timebox=0
 LEFT JOIN data_mailing_counter o ON o.mailing_id=m.id AND o.counter='opens'
 LEFT JOIN data_mailing_counter c ON c.mailing_id=m.id AND c.counter='clicks' AND c.timebox=o.timebox
+LEFT JOIN data_mailing_counter u ON u.mailing_id=m.id AND u.counter='unsubs' AND u.timebox=o.timebox
 LEFT JOIN data_mailing_counter new_signs ON new_signs.mailing_id=m.id AND new_signs.counter='new_direct_signs' AND new_signs.timebox=o.timebox
 LEFT JOIN data_mailing_counter known_signs ON known_signs.mailing_id=m.id AND known_signs.counter='known_direct_signs' AND known_signs.timebox=o.timebox
 LEFT JOIN data_mailing_counter optout_signs ON optout_signs.mailing_id=m.id AND optout_signs.counter='optout_direct_signs' AND optout_signs.timebox=o.timebox

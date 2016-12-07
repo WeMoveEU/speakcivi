@@ -61,6 +61,7 @@
 <th>Elapsed</th>
 <th>Open</th>
 <th>Clicks</th>
+<th>Unsubs</th>
 <th>Signs</th>
 <th>Shares</th>
 <th>Viral Signs</th>
@@ -518,6 +519,9 @@ function drawTable(dom) {
 	    },
 	    function (d) {
               return percent(d, 'click', 1);
+	    },
+	    function (d) {
+              return percent(d, 'unsub', 2);
 	    },
 	    function (d) {
               return percent(d, 'sign', 0);
