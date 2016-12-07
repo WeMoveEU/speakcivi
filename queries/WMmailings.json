@@ -1,6 +1,6 @@
 {"query":"
 SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, campaign_id, camp.parent_id as parent_campaign_id,
-  camp.name as campaign, camp.external_identifier, campaign_type_id, language_4 as lang,
+  camp.title as campaign, camp.external_identifier, campaign_type_id, language_4 as lang,
   createdContact.first_name AS owner,
   r.value AS recipients,
   o.timebox,
@@ -20,7 +20,7 @@ LEFT JOIN civicrm_campaign as camp ON m.campaign_id = camp.id
 LEFT JOIN civicrm_value_speakout_integration_2 camp2 ON camp2.entity_id=camp.id
 LEFT JOIN civicrm_contact createdContact ON ( m.created_id = createdContact.id )
 LEFT JOIN data_mailing_counter r ON r.mailing_id=m.id AND r.counter='recipients' AND r.timebox=0
-LEFT JOIN data_mailing_counter o ON o.mailing_id=m.id AND o.counter='opens' 
+LEFT JOIN data_mailing_counter o ON o.mailing_id=m.id AND o.counter='opens'
 LEFT JOIN data_mailing_counter c ON c.mailing_id=m.id AND c.counter='clicks' AND c.timebox=o.timebox
 LEFT JOIN data_mailing_counter new_signs ON new_signs.mailing_id=m.id AND new_signs.counter='new_direct_signs' AND new_signs.timebox=o.timebox
 LEFT JOIN data_mailing_counter known_signs ON known_signs.mailing_id=m.id AND known_signs.counter='known_direct_signs' AND known_signs.timebox=o.timebox

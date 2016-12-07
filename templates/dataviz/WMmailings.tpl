@@ -1,4 +1,4 @@
-{crmTitle string="<span class='data_count'><span class='filter-count'></span> Mailings out of <span class='total-count'></span></span>"}
+{crmTitle string="Mailings"}
 {literal}
 <style>
 #campaign .dc-chart g.row text {fill:grey;}
@@ -38,10 +38,10 @@
 				<li class="list-group-item"><span class="badge nb_recipient"></span>Recipients</li>
 				<li class="list-group-item"><span class="badge nb_open"></span>Open</li>
 				<li class="list-group-item"><span class="badge nb_click"></span>click</li>
-				<li class="list-group-item"><span class="badge nb_signature"></span>Signatures</li>
+				<li class="list-group-item"><span class="badge badge_signature"></span><span class="nb_signature"></span></li>
 				<li class="list-group-item"><span class="badge nb_share"></span>Shares</li>
-				<li class="list-group-item"><span class="badge nb_new_member"></span>New members</li>
-				<li class="list-group-item"><span class="badge nb_donation">?</span>Donations</li>
+				<li class="list-group-item"><span class="badge badge_new_member"></span><span class="nb_new_member"></span></li>
+				<li class="list-group-item"><span class="badge amount"></span><span class='nb_donation'><span</li>
 			</ul>
 		</div>
 	</div>
@@ -223,6 +223,7 @@ function drawNumbers (graphs){
         p.open += +v.open;
         p.click += +v.click;
         p.amount += +v.total_amount;
+        p.donation += +v.nb_donations;
 				return p;
 		},
 		function (p, v) {
@@ -236,9 +237,10 @@ function drawNumbers (graphs){
         p.open -= +v.open;
         p.click -= +v.click;
         p.amount -= +v.total_amount;
+        p.donation -= +v.nb_donations;
 				return p;
 		},
-		function () { return {mailing:0,donate:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
+		function () { return {mailing:0,donation:0,amount:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
   );
   
 	function renderLetDisplay(chart,factor, ref) {
@@ -247,7 +249,6 @@ function drawNumbers (graphs){
      if (factor) {
        var avg_value={open:30,click:10,signature:7,share:1,new_member:0.5};
        c=(chart.value()/ref*100)/avg_value[factor];
-console.log(factor+" "+ chart.value() + "/" + ref+"->" +  c);
      }
 		 d3.selectAll(chart.anchor()).style("background-color", color(c))
 		 .attr("title", d3.format("")(chart.value()));
@@ -259,14 +260,24 @@ console.log(factor+" "+ chart.value() + "/" + ref+"->" +  c);
 
 	graphs.nb_signature=dc.numberDisplay(".nb_signature") 
 	.valueAccessor(function(d){ return d.signature})
-	.html({some:"%number",none:"no signature"})
+	.html({some:"%number signatures",none:"No signatures"})
+	.group(group);
+
+	graphs.nb_signature=dc.numberDisplay(".badge_signature") 
+	.valueAccessor(function(d){ return d.signature})
+	.html({some:"%number",none:""})
   .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'signature')})
+	.group(group);
+
+	graphs.badge_nb_new_member=dc.numberDisplay(".badge_new_member") 
+	.valueAccessor(function(d){ return d.new_member})
+	.html({some:"%number",none:"nobody joined"})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'new_member')})
 	.group(group);
 
 	graphs.nb_new_member=dc.numberDisplay(".nb_new_member") 
 	.valueAccessor(function(d){ return d.new_member})
-	.html({some:"%number",none:"nobody joined"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'new_member')})
+	.html({some:"%number new members",none:"No growth"})
 	.group(group);
 
 	graphs.nb_pending = dc.numberDisplay(".nb_pending") 
@@ -310,6 +321,17 @@ console.log(factor+" "+ chart.value() + "/" + ref+"->" +  c);
   .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'leave')})
 	.group(group);
 
+	graphs.amount = dc.numberDisplay(".amount") 
+	.valueAccessor(function(d){ return d.amount})
+	.html({some:"%number",none:"no donation"})
+  .formatNumber(d3.format("2d"))
+	.group(group);
+
+	graphs.nb_donation = dc.numberDisplay(".nb_donation") 
+	.valueAccessor(function(d){ return d.donation})
+	.html({some:"%number donations",none:"Ain't no money"})
+  .formatNumber(d3.format("3d"))
+	.group(group);
 };
 
 	function drawCampaign (dom) {
@@ -479,8 +501,7 @@ function drawTable(dom) {
 		return prettyDate(d.date);
 	    },
 	    function (d) {
-             //return "<a title='"+d.subject+"' href='/civicrm/mailing/report?mid="+d.id+"' target='_blank'>"+d.name+"</span>";
-             return "<a title='"+d.subject+"' href='/civicrm/dataviz/mailing/"+d.id+"' >"+d.name+"</span>";
+             return "<a title='"+d.subject+"' href='/civicrm/mailing/report?mid="+d.id+"' target='_blank'>"+d.name+"</a>";
 	    },
 	    function (d) {
 		return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' target='_blank'>"+d.campaign+"</a>";
@@ -492,10 +513,11 @@ function drawTable(dom) {
               return d.timebox < 1440 ? (d.timebox/60)+'h' : (d.timebox/1440)+'d';
 	    },
 	    function (d) {
+             return "<a title='"+d.subject+"' href='/civicrm/dataviz/mailing/"+d.id+"' >"+percent(d,'open',0)+"</a>";
               return percent(d, 'open', 0);
 	    },
 	    function (d) {
-              return percent(d, 'click', 0);
+              return percent(d, 'click', 1);
 	    },
 	    function (d) {
               return percent(d, 'sign', 0);
@@ -513,9 +535,11 @@ function drawTable(dom) {
               return percent(d, 'new_member', 2);
 	    },
 	    function (d) {
+              if (!d.nb_donations) return "";
               return "<span>"+ (d.nb_donations||0) + (d.recur ? " recurring" : " one-off") + "</span>";
 	    },
 	    function (d) {
+              if (!d.total_amount) return "";
               return "<span>"+ (d.total_amount||0) + " " + d.currency + "</span>";
 	    },
 
