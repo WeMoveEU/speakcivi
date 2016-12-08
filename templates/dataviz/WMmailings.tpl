@@ -36,12 +36,13 @@
 			<ul class="list-group">
 				<li class="list-group-item"><span class="badge nb_mailing"></span>Mailings</li>
 				<li class="list-group-item"><span class="badge nb_recipient"></span>Recipients</li>
+				<li class="list-group-item"><span class="badge badge_unsub"></span><span class="nb_unsub"></span></li>
 				<li class="list-group-item"><span class="badge nb_open"></span>Open</li>
 				<li class="list-group-item"><span class="badge nb_click"></span>click</li>
-				<li class="list-group-item"><span class="badge badge_signature"></span><span class="nb_signature"></span></li>
 				<li class="list-group-item"><span class="badge nb_share"></span>Shares</li>
+				<li class="list-group-item"><span class="badge badge_signature"></span><span class="nb_signature"></span></li>
 				<li class="list-group-item"><span class="badge badge_new_member"></span><span class="nb_new_member"></span></li>
-				<li class="list-group-item"><span class="badge amount"></span><span class='nb_donation'><span</li>
+				<li class="list-group-item"><span class="badge amount"><span class='amount_recur'></span><span class='amount_oneoff'></span></span><span class='nb_recur'></span><span class='nb_oneoff'></span> donations</li>
 			</ul>
 		</div>
 	</div>
@@ -208,9 +209,8 @@ function drawNumbers (graphs){
   };
 
   var formatPercent =d3.format(".2%");
-  var percentRecipient=function (value) {
-   return formatPercent (value / graphs.nb_recipient.value());
-  }
+  var percentRecipient=function (value) {return formatPercent (value / graphs.nb_recipient.value());}
+  var percentSignature=function (value) {return formatPercent (value / graphs.nb_signature.value());}
 
   var group = ndx.groupAll().reduce(
 		function (p, v) {
@@ -222,9 +222,14 @@ function drawNumbers (graphs){
 				p.signature += +v.sign;
         p.recipient += +v.recipients;
         p.open += +v.open;
+        p.unsub += +v.unsub;
         p.click += +v.click;
         p.amount += +v.amount_recur + +v.amount_oneoff;
         p.donation += +v.nb_recur + +v.nb_oneoff;
+        p.amount_recur += +v.amount_recur;
+        p.amount_oneoff += +v.amount_oneoff;
+        p.nb_recur += +v.nb_recur;
+        p.nb_oneoff += +v.nb_oneoff;
 				return p;
 		},
 		function (p, v) {
@@ -236,24 +241,30 @@ function drawNumbers (graphs){
 				p.signature -= +v.sign;
         p.recipient -= +v.recipients;
         p.open -= +v.open;
+        p.unsub -= +v.unsub;
         p.click -= +v.click;
         p.amount -= +v.amount_recur + +v.amount_oneoff;
         p.donation -= +v.nb_recur + +v.nb_oneoff;
+        p.amount_recur -= +v.amount_recur;
+        p.amount_oneoff -= +v.amount_oneoff;
+        p.nb_recur -= +v.nb_recur;
+        p.nb_oneoff -= +v.nb_oneoff;
 				return p;
 		},
-		function () { return {mailing:0,donation:0,amount:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
+		function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,donation:0,amount:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
   );
   
 	function renderLetDisplay(chart,factor, ref) {
 		 ref = ref || graphs.nb_recipient.value() || 1;
      var c=1;
      if (factor) {
-       var avg_value={open:30,click:10,signature:7,share:1,new_member:0.5};
+       var avg_value={open:30,click:10,signature:7,share:1,new_member:6,unsub:0.25};
        c=(chart.value()/ref*100)/avg_value[factor];
      }
 		 d3.selectAll(chart.anchor()).style("background-color", color(c))
 		 .attr("title", d3.format("")(chart.value()));
 	}
+
 	graphs.nb_mailing=dc.numberDisplay(".nb_mailing") 
 	.valueAccessor(function(d){ return d.mailing})
 	.html({some:"%number",none:"no mailing"})
@@ -264,16 +275,27 @@ function drawNumbers (graphs){
 	.html({some:"%number signatures",none:"No signatures"})
 	.group(group);
 
-	graphs.nb_signature=dc.numberDisplay(".badge_signature") 
+	dc.numberDisplay(".badge_signature") 
 	.valueAccessor(function(d){ return d.signature})
 	.html({some:"%number",none:""})
   .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'signature')})
 	.group(group);
 
+	graphs.nb_unsub=dc.numberDisplay(".nb_unsub") 
+	.valueAccessor(function(d){ return d.unsub})
+	.html({some:"%number unsubscriptions",none:"No unsubscriptions"})
+	.group(group);
+
+	dc.numberDisplay(".badge_unsub") 
+	.valueAccessor(function(d){ return d.unsub})
+	.html({some:"%number",none:""})
+  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'unsub')})
+	.group(group);
+
 	graphs.badge_nb_new_member=dc.numberDisplay(".badge_new_member") 
 	.valueAccessor(function(d){ return d.new_member})
 	.html({some:"%number",none:"nobody joined"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'new_member')})
+  .formatNumber(percentSignature).renderlet(function(chart) {renderLetDisplay(chart,'new_member',graphs.nb_signature.value())})
 	.group(group);
 
 	graphs.nb_new_member=dc.numberDisplay(".nb_new_member") 
@@ -322,15 +344,27 @@ function drawNumbers (graphs){
   .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'leave')})
 	.group(group);
 
-	graphs.amount = dc.numberDisplay(".amount") 
-	.valueAccessor(function(d){ return d.amount})
-	.html({some:"%number",none:"no donation"})
+	graphs.amount_oneoff = dc.numberDisplay(".amount_oneoff") 
+	.valueAccessor(function(d){ return d.amount_oneoff})
+	.html({some:"<span title='one off'>%number<span aria-hidden='true' class='glyphicon glyphicon-gift'></span></span>",none:""})
   .formatNumber(d3.format("2d"))
 	.group(group);
 
-	graphs.nb_donation = dc.numberDisplay(".nb_donation") 
-	.valueAccessor(function(d){ return d.donation})
-	.html({some:"%number donations",none:"Ain't no money"})
+	graphs.amount_recur = dc.numberDisplay(".amount_recur") 
+	.valueAccessor(function(d){ return d.amount_recur})
+	.html({some:'%number<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span> ',none:""})
+  .formatNumber(d3.format("2d"))
+	.group(group);
+
+	graphs.nb_oneoff = dc.numberDisplay(".nb_oneoff") 
+	.valueAccessor(function(d){ return d.nb_oneoff})
+	.html({some:"<span title='One off donations'>%number<span aria-hidden='true' class='glyphicon glyphicon-gift'></span> </span>",none:""})
+  .formatNumber(d3.format("3d"))
+	.group(group);
+
+	graphs.nb_recur = dc.numberDisplay(".nb_recur") 
+	.valueAccessor(function(d){ return d.nb_recur})
+	.html({some:'%number<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span> ',none:""})
   .formatNumber(d3.format("3d"))
 	.group(group);
 };
@@ -347,9 +381,9 @@ function drawNumbers (graphs){
 	.reduceSum(function(d){return 1;});
 	  var graph  = dc.rowChart(dom)
 	    .width(200)
-	    .height(235)
+	    .height(275)
 	    .gap(0)
-	    .rowsCap(15)
+	    .rowsCap(18)
 	    .ordering(function(d) { return -d.value })
 	//    .ordering(function(d) { return -d.value.count })
 	//    .valueAccessor( function(d) { return d.value.count })
@@ -569,6 +603,7 @@ dc.renderAll();
 </script>
 
 <style>
+.glyphicon-repeat,.glyphicon-gift {font-size:0.7em;}
 .clear {clear:both;}
 
 </style>
