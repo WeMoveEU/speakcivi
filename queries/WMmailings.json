@@ -19,7 +19,8 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   IF(dr_amount.value IS NULL, false, true) as recur,
   (do_amount.value+ dr_amount.value) AS total_amount,
   (do_count.value+ dr_count.value) AS nb_donations,
-  d.currency
+  d.currency,
+  is_completed
 FROM civicrm_mailing as m
 LEFT JOIN civicrm_campaign as camp ON m.campaign_id = camp.id
 LEFT JOIN civicrm_value_speakout_integration_2 camp2 ON camp2.entity_id=camp.id
@@ -47,8 +48,8 @@ LEFT JOIN (
     currency,
     SUBSTRING(utm_source_30, 10) as mailing_id
   FROM civicrm_contribution c JOIN civicrm_value_utm_5 utm ON c.id=entity_id
-  WHERE utm_medium_31='email' AND utm_source_30 LIKE 'civimail-%'
+  WHERE utm_medium_31 in ('email','speakout') AND utm_source_30 LIKE 'civimail-%'
   GROUP BY utm_source_30
 ) d ON d.mailing_id=m.id
-WHERE is_completed = true;
+WHERE scheduled_date is not null;
 ","params":{"1":{"name":"campaign_id","type":"Integer"}}}

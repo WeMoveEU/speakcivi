@@ -59,14 +59,11 @@
 <th>Name</th>
 <th>Campaign</th>
 <th>Recipients</th>
-<th>Elapsed</th>
 <th>Open</th>
 <th>Clicks</th>
 <th>Unsubs</th>
 <th>Signs</th>
 <th>Shares</th>
-<th>Viral Signs</th>
-<th>Viral Shares</th>
 <th>New members</th>
 <th># Donations</th>
 <th>Total amount</th>
@@ -140,7 +137,7 @@ function reduceAdd(p, v) {
   ++p.count;
   p.sign += +v.sign;
   p.recipients+= +v.recipients;
-  p.sign_new += +v.sign_new;
+  p.sign_new += +v.new_member;
   return p;
 }
 
@@ -148,7 +145,7 @@ function reduceRemove(p, v) {
   --p.count;
   p.sign -= +v.sign;
   p.recipients-= +v.recipients;
-  p.sign_new -= +v.sign_new;
+  p.sign_new -= +v.new_member;
   return p;
 }
 
@@ -224,8 +221,6 @@ function drawNumbers (graphs){
         p.open += +v.open;
         p.unsub += +v.unsub;
         p.click += +v.click;
-        p.amount += +v.amount_recur + +v.amount_oneoff;
-        p.donation += +v.nb_recur + +v.nb_oneoff;
         p.amount_recur += +v.amount_recur;
         p.amount_oneoff += +v.amount_oneoff;
         p.nb_recur += +v.nb_recur;
@@ -243,15 +238,13 @@ function drawNumbers (graphs){
         p.open -= +v.open;
         p.unsub -= +v.unsub;
         p.click -= +v.click;
-        p.amount -= +v.amount_recur + +v.amount_oneoff;
-        p.donation -= +v.nb_recur + +v.nb_oneoff;
         p.amount_recur -= +v.amount_recur;
         p.amount_oneoff -= +v.amount_oneoff;
         p.nb_recur -= +v.nb_recur;
         p.nb_oneoff -= +v.nb_oneoff;
 				return p;
 		},
-		function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,donation:0,amount:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
+		function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
   );
   
 	function renderLetDisplay(chart,factor, ref) {
@@ -542,11 +535,11 @@ function drawTable(dom) {
 		return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' target='_blank'>"+d.campaign+"</a>";
 	    },
 	    function (d) {
+        if (!d.is_completed)
+          return "<i title='not all sent, mailing in progress'>"+d.recipients+'</i>';
               return d.recipients;
 	    },
-	    function (d) {
-              return d.timebox < 1440 ? (d.timebox/60)+'h' : (d.timebox/1440)+'d';
-	    },
+//	    function (d) {return d.timebox < 1440 ? (d.timebox/60)+'h' : (d.timebox/1440)+'d';},
 	    function (d) {
              return "<a title='"+d.subject+"' href='/civicrm/dataviz/mailing/"+d.id+"' >"+percent(d,'open',0)+"</a>";
               return percent(d, 'open', 0);
@@ -563,22 +556,28 @@ function drawTable(dom) {
 	    function (d) {
               return percent(d, 'share', 0);
 	    },
-	    function (d) {
-              return percent(d, 'viral_sign', 2);
-	    },
-	    function (d) {
-              return percent(d, 'viral_share', 2);
-	    },
+//	    function (d) {return percent(d, 'viral_sign', 2);},
+//	    function (d) {return percent(d, 'viral_share', 2);},
 	    function (d) {
               return percent(d, 'new_member', 2);
 	    },
 	    function (d) {
-              if (!d.nb_oneoff && !d.nb_recur) return "";
-              return "<span title='recurring donations'>"+ d.nb_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> ' + d.nb_oneoff + "</span>";
+          if (!d.nb_oneoff && !d.nb_recur) return "";
+          var tx="";
+          if (d.nb_recur) 
+            tx +="<span title='recurring donations'>"+ d.nb_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> '; 
+          if (d.nb_oneoff) 
+            tx += "<span title='one off'>"+d.nb_oneoff+"<span aria-hidden='true' class='glyphicon glyphicon-gift'></span></span>";
+          return tx;
 	    },
 	    function (d) {
-              if (!d.nb_oneoff && !d.nb_recur) return "";
-              return "<span title='recurring donations'>"+ d.amount_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> ' + d.amount_oneoff + ""+ (d.currency=="EUR" ? "€" : "£");
+        if (!d.nb_oneoff && !d.nb_recur) return "";
+          var tx="";
+          if (d.amount_recur) 
+            tx +="<span title='recurring donations'>"+ d.amount_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> '; 
+          if (d.amount_oneoff) 
+            tx += "<span title='one off'>"+d.amount_oneoff+"<span aria-hidden='true' class='glyphicon glyphicon-gift'></span></span>";
+          return tx + (d.currency=="EUR" ? "&euro;" : "£");
 	    },
 
 	]
