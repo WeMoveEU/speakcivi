@@ -158,7 +158,10 @@ var ndx  = crossfilter(data.values)
 var sizeDim = ndx.dimension(function(d) { return d.recipients; });
 var signDim = ndx.dimension(function(d) { return d.sign; });
 var giveDim = ndx.dimension(function(d) { return +d.nb_oneoff + +d.nb_recur; });
-var timeDim = ndx.dimension(function(d) { return d.timebox; });
+var timeDim = ndx.dimension(function(d) { 
+  if(!d.timebox) return 144000; 
+  return d.timebox; 
+});
 
 sizeDim.filter(filterSmall);
 timeDim.filterExact(144000);
@@ -519,7 +522,7 @@ function drawTable(dom) {
   var dim = ndx.dimension (function(d) {return d.id});
   var graph = dc.dataTable(dom)
     .dimension(dim)
-    .size(2000)
+    .size(3000)
     .group(function(d){ return ""; })
     .sortBy(function(d){ return d.date; })
     .order(d3.descending)
@@ -589,7 +592,7 @@ function drawTable(dom) {
  
 //drawPercent("#open", function(d){return d.open});
 //drawPercent("#click", function(d){return d.click});
-drawTable("#table");
+graphs.table= drawTable("#table");
 //drawType("#type .graph");
 drawNumbers(graphs);
 graphs.date = drawDate("#date .graph");
