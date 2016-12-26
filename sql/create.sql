@@ -32,6 +32,7 @@ CREATE TABLE data_mailing_counter
     counter VARCHAR(32),
     timebox INT UNSIGNED,
     value INT UNSIGNED,
+    last_updated DATETIME NOT NULL,
     PRIMARY KEY (mailing_id, counter, timebox),
     FOREIGN KEY (mailing_id) REFERENCES civicrm_mailing (id));
 

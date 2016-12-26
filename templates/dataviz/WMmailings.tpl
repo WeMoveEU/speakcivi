@@ -529,7 +529,7 @@ function drawTable(dom) {
     .columns(
 	[
 	    function (d) {
-		return prettyDate(d.date);
+		return "<span title='Last updated: " + prettyDate(d.last_updated) + "'>" + prettyDate(d.date) + "</span>";
 	    },
 	    function (d) {
              return "<a title='"+d.subject+"' href='/civicrm/mailing/report?mid="+d.id+"' target='_blank'>"+d.name+"</a>";

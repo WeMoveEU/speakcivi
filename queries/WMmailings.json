@@ -20,7 +20,8 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   (do_amount.value+ dr_amount.value) AS total_amount,
   (do_count.value+ dr_count.value) AS nb_donations,
   d.currency,
-  is_completed
+  is_completed,
+  r.last_updated
 FROM civicrm_mailing as m
 LEFT JOIN civicrm_campaign as camp ON m.campaign_id = camp.id
 LEFT JOIN civicrm_value_speakout_integration_2 camp2 ON camp2.entity_id=camp.id
