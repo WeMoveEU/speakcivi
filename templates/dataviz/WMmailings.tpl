@@ -14,10 +14,10 @@
 
 <div class="row">
   <div class="filter">Show:</div>
-  <div class="filter"><input type="checkbox" name="small" id="filter_small" /> Small mailings</div>
+  <div class="filter"><input type="checkbox" name="small" id="filter_reminders" /> Reminders</div>
   <div class="filter"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
   <div class="filter"><input type="checkbox" name="fundraisers" id="filter_fundraisers" checked /> Fundraisers</div>
-  <div class="filter"><input type="checkbox" name="surveys" id="filter_survey" checked /> Surveys</div>
+  <div class="filter"><input type="checkbox" name="surveys" id="filter_surveys" checked /> Surveys</div>
   <div class="filter">Elapsed time:
     <input type="radio" name="timebox" value="120" /> 2h
     <input type="radio" name="timebox" value="300" /> 5h
@@ -118,8 +118,8 @@ data.values.forEach(function(d){
 });
 
 
-function filterSmall(d) {
-  return d > 1500;
+function filterReminders(d) {
+  return d.indexOf('-Reminder-') === -1;
 }
 function filterPetitions(d) {
   return !d;
@@ -155,7 +155,7 @@ function reduceInitial() {
 
 var ndx  = crossfilter(data.values)
   , all = ndx.groupAll();
-var sizeDim = ndx.dimension(function(d) { return d.recipients; });
+var nameDim = ndx.dimension(function(d) { return d.name; });
 var signDim = ndx.dimension(function(d) { return d.sign; });
 var giveDim = ndx.dimension(function(d) { return +d.nb_oneoff + +d.nb_recur; });
 var timeDim = ndx.dimension(function(d) { 
@@ -163,15 +163,16 @@ var timeDim = ndx.dimension(function(d) {
   return d.timebox; 
 });
 
-sizeDim.filter(filterSmall);
+nameDim.filter(filterReminders);
 timeDim.filterExact(144000);
 jQuery(function($) {
-	$(".crm-container").removeClass("crm-container");
-  $('#filter_small').on('change', function() {
+  $(".crm-container").removeClass("crm-container");
+
+  $('#filter_reminders').on('change', function() {
     if (this.checked) {
-      sizeDim.filterAll();
+      nameDim.filterAll();
     } else {
-      sizeDim.filter(filterSmall);
+      nameDim.filter(filterReminders);
     }
     dc.redrawAll();
   });
