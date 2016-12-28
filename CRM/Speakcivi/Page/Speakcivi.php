@@ -150,8 +150,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           'iso_code' => $this->country,
         );
         $result = civicrm_api3('Country', 'get', $params);
-        CRM_Core_Error::debug_var('$params setCountry', $params);
-        CRM_Core_Error::debug_var('$result setContry', $result);
         $this->countryId = (int)$result['values'][0]['id'];
       }
     }
@@ -204,7 +202,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
       $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, $share_utm_source);
     }
-    CRM_Core_Error::debug_var('$contact petition', $contact);
 
   }
 
@@ -311,14 +308,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       ),
       'return' => 'id,email,first_name,last_name',
     );
-    CRM_Core_Error::debug_var('$contact params createContact', $contact);
 
     $contacIds = CRM_Speakcivi_Logic_Contact::getContactByEmail($h->emails[0]->email);
-    CRM_Core_Error::debug_var('$contacIds', $contacIds);
     if (is_array($contacIds) && count($contacIds) > 0) {
       $contact['id'] = array('IN' => array_keys($contacIds));
       $result = civicrm_api3('Contact', 'get', $contact);
-      CRM_Core_Error::debug_var('$result get contact', $result);
       if ($result['count'] == 1) {
         $contact = $this->prepareParamsContact($param, $contact, $result, $result['values'][0]['id']);
       } elseif ($result['count'] > 1) {
@@ -335,8 +329,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->newContact = true;
       $contact = $this->prepareParamsContact($param, $contact);
     }
-//unset($contact['email']);
-    CRM_Core_Error::debug_var('$contact przed create', $contact);
     return civicrm_api3('Contact', 'create', $contact);
   }
 
