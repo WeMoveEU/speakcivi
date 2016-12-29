@@ -34,7 +34,7 @@
 	<div class="col-md-3">
 		<div id="overview">
 			<ul class="list-group">
-				<li class="list-group-item"><span class="badge nb_mailing"></span>Mailings</li>
+				<li class="list-group-item"><span class="badge nb_mailing"></span><button id="download"><span class="glyphicon glyphicon-download"></span>Mailings</button></li>
 				<li class="list-group-item"><span class="badge nb_recipient"></span>Recipients</li>
 				<li class="list-group-item"><span class="badge badge_unsub"></span><span class="nb_unsub"></span></li>
 				<li class="list-group-item"><span class="badge nb_open"></span>Open</li>
@@ -46,7 +46,10 @@
 			</ul>
 		</div>
 	</div>
-<div id="campaign" class="col-md-2"><div class="panel panel-default"><div class="panel-heading">Campaign</div><div class="panel-body"> <div class="graph"></div></div></div></div>
+<div id="campaign" class="col-md-2"><div class="panel panel-default">
+  <div class="panel-heading" title="click to select campaigns">Campaign
+</div>
+<div class="panel-body"> <div class="graph"></div></div></div></div>
 <div id="lang" class="col-md-2"><div class="panel panel-default"><div class="panel-heading">Language</div><div class="panel-body"> <div class="graph"></div></div></div></div>
 <div id="date" class="col-md-4"><div class="panel panel-default"><div class="panel-heading">Date sent</div><div class="panel-body"> <div class="graph"></div></div></div></div>
 </div>
@@ -56,7 +59,8 @@
 
 <thead><tr>
 <th>Date</th>
-<th>Name</th>
+<th><input id="input-filter" placeholder="Name" title="search on mailing or campaign name"/>
+</th>
 <th>Campaign</th>
 <th>Recipients</th>
 <th>Open</th>
@@ -103,6 +107,13 @@ function lookupTable(data,key,value) {
   var t= {}
   data.forEach(function(d){t[d[key]]=d[value]});
   return t;
+}
+
+function downloadButton (dom,dim) {
+  CRM.$(dom).click(function() {
+    var blob = new Blob([d3.csv.format(dim.top(Infinity))],{type: "text/csv;charset=utf-8"});
+    saveAs(blob, 'data.csv');
+  });
 }
 
 parentCampaign={};
@@ -366,6 +377,31 @@ function drawNumbers (graphs){
 	.group(group);
 };
 
+function drawTextSearch (dom) {
+
+  var dim = ndx.dimension(function(d) { return d.name.toString().toLowerCase() +" "+ d.campaign.toString().toLowerCase()});
+
+  CRM.$(dom).keyup (function () {
+    var s = CRM.$(this ).val().toLowerCase();
+    CRM.$(".resetall").attr("disabled",false);
+    throttle();
+//        dc.redrawAll();
+
+		var throttleTimer;
+		function throttle() {
+			window.clearTimeout(throttleTimer);
+			throttleTimer = window.setTimeout(function() {
+      dim.filterAll();
+      dim.filterFunction(function (d) { return d.indexOf (s) !== -1;} );
+				dc.redrawAll();
+		  }, 250);
+		}
+  });
+
+  return dim;
+
+}
+
 	function drawCampaign (dom) {
 	  var dim = ndx.dimension(
        function(d){
@@ -523,7 +559,7 @@ function drawTable(dom) {
   var dim = ndx.dimension (function(d) {return d.id});
   var graph = dc.dataTable(dom)
     .dimension(dim)
-    .size(3000)
+    .size(1000)
     .group(function(d){ return ""; })
     .sortBy(function(d){ return d.date; })
     .order(d3.descending)
@@ -594,12 +630,14 @@ function drawTable(dom) {
 //drawPercent("#open", function(d){return d.open});
 //drawPercent("#click", function(d){return d.click});
 graphs.table= drawTable("#table");
+downloadButton ("#download", graphs.table.dimension());
 //drawType("#type .graph");
 drawNumbers(graphs);
 graphs.date = drawDate("#date .graph");
 //drawStatus("#status .graph");
 graphs.lang = drawLang("#lang .graph");
 graphs.campaign = drawCampaign("#campaign .graph");
+graphs.search = drawTextSearch('#input-filter');
 
 dc.renderAll();
 
