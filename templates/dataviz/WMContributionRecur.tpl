@@ -1,0 +1,307 @@
+<script>
+var data={crmSQL file="WMContributionRecur"};
+{literal}
+
+var graphs = {};
+var ndx = crossfilter(data.values);
+
+var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%s");
+var day = d3.time.format("%Y-%m-%d");
+var time = d3.time.format("%H:%M");
+
+data.values.forEach(function(d){
+//  var dd= d.date;
+  //d.date = dateFormat.parse(dd);
+  if (d.currency== "EUR") d.currency = "&euro;";
+  if (d.currency== "GBP") d.currency = "£";
+  d.date = new Date (d.date);
+  d.day= day(d.date); 
+});
+
+(function ($) {
+jQuery(function($) {
+	if(data.is_error){
+		 CRM.alert(data.error);
+	}
+
+	$(".crm-container").removeClass("crm-container");
+  $("h1.page-header,.breadcrumb,#page-header").hide();
+
+
+	graphs.table = drawTable('#contribution');
+  graphs.search = drawTextSearch('#input-filter');
+	graphs.status= drawStatus('#status graph');
+	graphs.campaign= drawCampaign('#campaign');
+	graphs.country = drawCountry('#country');
+	graphs.month = drawMonth('#date graph');
+	graphs.amount = drawDate('#amount graph');
+	dc.renderAll();
+
+});
+
+function drawStatus (dom) {
+  var dim = ndx.dimension(function(d){return d.status;});
+  var group = dim.group().reduceSum(function(d){return 1;});
+  var graph  = dc.pieChart(dom)
+    .innerRadius(10).radius(50)
+    .width(100)
+    .height(100)
+    .dimension(dim)
+    .colors(d3.scale.category10())
+    .group(group);
+
+  graph.filter("Pending");
+  graph.filter("In Progress");
+  return graph;
+}
+
+function drawTextSearch (dom) {
+
+  var dim = ndx.dimension(function(d) { return d.camp.toString().toLowerCase()  || "?"});
+
+  $(dom).keyup (function () {
+    var s = $(this ).val().toLowerCase();
+    $(".resetall").attr("disabled",false);
+    throttle();
+//        dc.redrawAll();
+
+		var throttleTimer;
+		function throttle() {
+			window.clearTimeout(throttleTimer);
+			throttleTimer = window.setTimeout(function() {
+      dim.filterAll();
+      dim.filterFunction(function (d) { return d.indexOf (s) !== -1;} );
+console.log("searching for " +s);
+				dc.redrawAll();
+		  }, 250);
+		}
+  });
+
+  return dim;
+
+}
+
+	function drawCountry (dom) {
+	  var dim = ndx.dimension(
+       function(d){
+         return d.country || "?";
+    });
+
+	  var group = dim.group().reduceSum(function(d){return 1;});
+
+	  var graph  = dc.rowChart(dom)
+	    .width(200)
+	    .height(275)
+	    .gap(0)
+	    .rowsCap(18)
+	    .ordering(function(d) { return -d.value })
+	    .dimension(dim)
+	    .elasticX(true)
+.labelOffsetY(10)
+.fixedBarHeight(14)
+.labelOffsetX(2)
+    .colorCalculator(function(d){return 'lightblue';})
+	    .group(group);
+
+    graph.xAxis().ticks(4);
+    graph.margins().left = 5;
+    graph.margins().top = 0;
+    graph.margins().bottom = 0;
+	  return graph;
+};
+
+	function drawCampaign (dom) {
+	  var dim = ndx.dimension(
+       function(d){
+         return d.camp || "?";
+    });
+
+	  var group = dim.group().reduceSum(function(d){return 1;});
+
+	  var graph  = dc.rowChart(dom)
+	    .width(200)
+	    .height(275)
+	    .gap(0)
+	    .rowsCap(18)
+	    .ordering(function(d) { return -d.value })
+	    .dimension(dim)
+	    .elasticX(true)
+.labelOffsetY(10)
+.fixedBarHeight(14)
+.labelOffsetX(2)
+    .colorCalculator(function(d){return 'lightblue';})
+	    .group(group);
+
+    graph.xAxis().ticks(4);
+    graph.margins().left = 5;
+    graph.margins().top = 0;
+    graph.margins().bottom = 0;
+	  return graph;
+};
+
+function drawMonth (dom) {
+  var dim = ndx.dimension(function (d) {return d3.time.month(d.date);}); 
+  var group = dim.group().reduceSum(function(d) {return 1;});
+  var range= [ dim.bottom(1)[0].date, dim.top(1)[0].date];
+  var graph = dc.barChart(dom)
+      .width(250)
+			.height(100)
+			.margins({top: 0, right: 50, bottom: 20, left:40})
+			.dimension(dim)
+			.group(group)
+      .brushOn(true)
+			.centerBar(true)
+			.gap(1)
+			.x(d3.time.scale().domain(range))
+			.round(d3.time.month.round)
+			.xUnits(d3.time.months);
+
+    graph.xAxis().ticks(4);
+    graph.yAxis().ticks(4);
+
+  return graph;
+}
+
+function drawDate (dom) {
+  var dim = ndx.dimension(function (d) {   return d.date;  }); 
+  var group = dim.group().reduceSum(function(d) {return d.amount;});
+  var range= [ dim.bottom(1)[0].date, dim.top(1)[0].date];
+
+
+
+  var graph= dc.lineChart(dom)
+	.width(200).height(180)
+	.dimension(dim)
+    .group(group)
+    .renderArea(true)
+
+	.x(d3.time.scale().domain(range))
+    //.valueAccessor(function(d) { return d.value.min; }) 
+//    .elasticX(true)
+    .elasticY(true)
+    .mouseZoomable(true)
+    .rangeChart(graphs.month)
+    //.brushOn(true)
+    .margins({ top: 10, left: 50, right: 10, bottom: 50 });
+    
+  graph.xAxis().ticks(3);
+
+  d3.select('#date_select').on('change', function(){ 
+	  var nd = new Date(), now = new Date();
+    var delta = this.value;
+    if (delta = "today") delta = d3.time.day;
+
+    nd.setDate(nd.getDate() - +this.value);
+    dim.filterAll();
+    dim.filterRange([nd, now]);
+    //graph.replaceFilter(dc.RangedFilter(nd, now));
+    graph.rescale();
+    graph.redrawGroup();
+//    dc.redrawAll();    
+  });
+  return graph;
+//    .renderlet(function (chart) {chart.selectAll("g.x text").attr('dx', '-30').attr('dy', '-7').attr('transform', "rotate(-90)");});
+}
+
+
+function drawTable(dom) {
+  var dim = ndx.dimension(function(d) {return d.id;});
+
+  var graph=dc.dataTable(dom)
+    .dimension(dim)
+    .group(function(d) {
+        return "<b>"+day(d.date)+"</b>";//d.name;
+    })
+    .sortBy(function (d) { return d.date })
+    .order(d3.descending)
+    .size(200)
+    .columns([
+              function(d){return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+"</a>"},
+              function(d){
+                return d.amount +" " +d.currency + "/"+d.frequency},
+              function(d){return d.processor},
+              function(d){return d.country},
+              function(d){return d.status},
+              function(d){return d.camp},
+              function(d){return d.source},
+              function(d){return d.medium},
+             ])
+    ;
+  return graph;
+}
+
+})(jQuery);
+{/literal}</script>
+
+<div class="row">
+	<div class="col-md-3">
+		<div id="overview">
+			<ul class="list-group">
+				<li class="list-group-item"><span class="badge nb_donation">?</span>Donations</li>
+				<li class="list-group-item"><span class="badge amount_donation">?</span>Total</li>
+				<li class="list-group-item" title="how long have the donors been members?"><span class="badge known_since">?</span>Known since</li>
+			</ul>
+      <div id="status"><graph/></div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="panel panel-default" id="date">
+			<div class="panel-heading" title="when was the recurring donation made?">Date
+<select id="date_select">
+  <option value="Infinity">All</option>
+  <option value='90'>90 days</option>
+  <option value='30'>30 days</option>
+  <option value='7'>7 days</option>
+  <option value='2'>2 days</option>
+  <option value='1'>1 day</option>
+</select>
+</div>
+			<div class="panel-body"> <graph />
+        <div id="amount"><graph /></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="panel panel-default" id="country">
+			<div class="panel-heading" title="Country donation">Country</div>
+			<div class="panel-body"><graph />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="panel panel-default" id="campaign">
+			<div class="panel-heading" title="New members, based on the utm_source parameter"><input id="input-filter" placeholder="Campaign"/></div>
+			<div class="panel-body"><graph />
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="row">
+<div class="col-md-12">
+<table id="contribution" class="table">
+<thead>
+<tr>
+<th>date</th>
+<th>amount</th>
+<th>processor</th>
+<th>country</th>
+<th>status</th>
+<th>campaign</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+
+</div>
+
+
+{literal}
+<style>
+.row .dc-chart .pie-slice {fill:white;}
+.row .dc-chart g.row text {fill:black;}
+</style>
+{/literal}
