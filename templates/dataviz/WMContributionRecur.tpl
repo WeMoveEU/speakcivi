@@ -31,6 +31,7 @@ jQuery(function($) {
 	graphs.table = drawTable('#contribution');
   graphs.search = drawTextSearch('#input-filter');
 	graphs.status= drawStatus('#status graph');
+	graphs.processor= drawProcessor('#processor graph');
 	graphs.campaign= drawCampaign('#campaign');
 	graphs.country = drawCountry('#country');
 	graphs.month = drawMonth('#date graph');
@@ -38,6 +39,19 @@ jQuery(function($) {
 	dc.renderAll();
 
 });
+
+function drawProcessor (dom) {
+  var dim = ndx.dimension(function(d){return d.processor;});
+  var group = dim.group().reduceSum(function(d){return 1;});
+  var graph  = dc.pieChart(dom)
+    .innerRadius(10).radius(50)
+    .width(100)
+    .height(100)
+    .dimension(dim)
+    .colors(d3.scale.category10())
+    .group(group);
+  return graph;
+}
 
 function drawStatus (dom) {
   var dim = ndx.dimension(function(d){return d.status;});
@@ -188,10 +202,19 @@ function drawDate (dom) {
 
   d3.select('#date_select').on('change', function(){ 
 	  var nd = new Date(), now = new Date();
-    var delta = this.value;
-    if (delta = "today") delta = d3.time.day;
-
-    nd.setDate(nd.getDate() - +this.value);
+    switch (this.value) {
+			case "today":
+        nd = d3.time.day(now);
+				break;
+			case "week":
+        nd = d3.time.monday(now);
+				break;
+			case "month":
+        nd = d3.time.month(now);
+				break;
+			default:
+        nd.setDate(nd.getDate() - +this.value);
+		}
     dim.filterAll();
     dim.filterRange([nd, now]);
     //graph.replaceFilter(dc.RangedFilter(nd, now));
@@ -241,7 +264,9 @@ function drawTable(dom) {
 				<li class="list-group-item"><span class="badge amount_donation">?</span>Total</li>
 				<li class="list-group-item" title="how long have the donors been members?"><span class="badge known_since">?</span>Known since</li>
 			</ul>
-      <div id="status"><graph/></div>
+      <span id="status"><graph/></span>
+      <span id="processor"><graph/></span>
+
 		</div>
 	</div>
 	<div class="col-md-3">
@@ -249,11 +274,12 @@ function drawTable(dom) {
 			<div class="panel-heading" title="when was the recurring donation made?">Date
 <select id="date_select">
   <option value="Infinity">All</option>
-  <option value='90'>90 days</option>
-  <option value='30'>30 days</option>
-  <option value='7'>7 days</option>
-  <option value='2'>2 days</option>
-  <option value='1'>1 day</option>
+  <option value="today">Today</option>
+  <option value='1'>last 24 hours</option>
+  <option value="week">This week</option>
+  <option value="month">This month</option>
+  <option value='30'>last 30 days</option>
+  <option value='90'>last 90 days</option>
 </select>
 </div>
 			<div class="panel-body"> <graph />

@@ -51,7 +51,18 @@
 </div>
 <div class="panel-body"> <div class="graph"></div></div></div></div>
 <div id="lang" class="col-md-2"><div class="panel panel-default"><div class="panel-heading">Language</div><div class="panel-body"> <div class="graph"></div></div></div></div>
-<div id="date" class="col-md-4"><div class="panel panel-default"><div class="panel-heading">Date sent</div><div class="panel-body"> <div class="graph"></div></div></div></div>
+<div id="date" class="col-md-4"><div class="panel panel-default"><div class="panel-heading">Date sent
+<select id="date_select">
+  <option value="Infinity">All</option>
+  <option value="today">Today</option>
+  <option value='1'>last 24 hours</option>
+  <option value="week">This week</option>
+  <option value="month">This month</option>
+  <option value='30'>last 30 days</option>
+  <option value='90'>last 90 days</option>
+</select>
+
+</div><div class="panel-body"> <div class="graph"></div></div></div></div>
 </div>
 
 <div class="row">
@@ -503,6 +514,30 @@ function drawDate (dom) {
 
    graph.yAxis().ticks(3).tickFormat(d3.format(".2s"));
    graph.xAxis().ticks(5);
+
+  d3.select('#date_select').on('change', function(){ 
+	  var nd = new Date(), now = new Date();
+    switch (this.value) {
+			case "today":
+        nd = d3.time.day(now);
+				break;
+			case "week":
+        nd = d3.time.monday(now);
+				break;
+			case "month":
+        nd = d3.time.month(now);
+				break;
+			default:
+        nd.setDate(nd.getDate() - +this.value);
+		}
+    dim.filterAll();
+    dim.filterRange([nd, now]);
+    //graph.replaceFilter(dc.RangedFilter(nd, now));
+    graph.rescale();
+    graph.redrawGroup();
+//    dc.redrawAll();    
+
+  });
   return graph;
 }
 
