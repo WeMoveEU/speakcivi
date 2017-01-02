@@ -15,7 +15,11 @@ data.values.forEach(function(d){
   if (d.currency== "EUR") d.currency = "&euro;";
   if (d.currency== "GBP") d.currency = "£";
   d.date = new Date (d.date);
+  if (d.cancel_date)
+    d.cancel_date = new Date (d.cancel_date);
   d.day= day(d.date); 
+  if (d.status == "Pending" && +d.nb > 0) 
+    d.status = "Running";
 });
 
 (function ($) {
@@ -28,6 +32,7 @@ jQuery(function($) {
   $("h1.page-header,.breadcrumb,#page-header").hide();
 
 
+	drawNumbers(graphs);
 	graphs.table = drawTable('#contribution');
   graphs.search = drawTextSearch('#input-filter');
 	graphs.status= drawStatus('#status graph');
@@ -39,6 +44,66 @@ jQuery(function($) {
 	dc.renderAll();
 
 });
+
+function drawNumbers (graphs){
+
+  var formatPercent =d3.format(".2%");
+  var format = d3.format (".3s");
+ 
+	var dim = ndx.dimension(function(d) { return true; });
+
+	var reducer = reductio();
+
+	reducer.value("nb").count(true).sum("nb").avg(true);
+	reducer.value("amount").count(true).sum("amount").avg(true);
+	reducer.value("total_amount").sum("total_amount");
+
+	var group=dim.group();
+	reducer(group);
+
+	graphs.nb_mailing=dc.numberDisplay(".nb_recurring") 
+	.valueAccessor(function(d){ return d.value.nb.count})
+	.html({some:"%number",none:"no recurring"})
+  .formatNumber(format)
+	.group(group);
+	
+  graphs.nb_mailing=dc.numberDisplay(".amount_recurring") 
+	.valueAccessor(function(d){ return d.value.amount.sum})
+  .formatNumber(format)
+	.html({some:"%number",none:"no recurring"})
+	.group(group);
+  
+  graphs.nb_mailing=dc.numberDisplay(".amount_recurring_avg") 
+	.valueAccessor(function(d){ return d.value.amount.avg})
+  .formatNumber(format)
+	.html({some:"%number",none:"no recurring"})
+	.group(group);
+
+  graphs.nb_mailing=dc.numberDisplay(".nb_donation") 
+	.valueAccessor(function(d){ return d.value.nb.sum})
+	.html({some:"%number"}).formatNumber(format).group(group);
+
+  graphs.nb_mailing=dc.numberDisplay(".nb_donation_avg") 
+	.valueAccessor(function(d){ return d.value.nb.avg})
+	.html({some:"%number",none:"no donations"})
+  .formatNumber(format).group(group);
+
+  graphs.nb_mailing=dc.numberDisplay(".total_donation") 
+	.valueAccessor(function(d){ return d.value.total_amount.sum})
+	.html({some:"%number",none:"no donations"})
+  .formatNumber(format)
+	.group(group);
+
+  graphs.nb_mailing=dc.numberDisplay(".total_donation_avg") 
+	.valueAccessor(function(d){ return d.value.total_amount.sum/d.value.nb.count})
+	.html({some:"%number",none:"no donations"})
+  .formatNumber(format)
+	.group(group);
+
+  graphs.reducer=group;
+}
+
+
 
 function drawProcessor (dom) {
   var dim = ndx.dimension(function(d){return d.processor;});
@@ -66,6 +131,7 @@ function drawStatus (dom) {
 
   graph.filter("Pending");
   graph.filter("In Progress");
+  graph.filter("Running");
   return graph;
 }
 
@@ -73,23 +139,23 @@ function drawTextSearch (dom) {
 
   var dim = ndx.dimension(function(d) { return d.camp.toString().toLowerCase()  || "?"});
 
-  $(dom).keyup (function () {
-    var s = $(this ).val().toLowerCase();
-    $(".resetall").attr("disabled",false);
-    throttle();
-//        dc.redrawAll();
+	function debounce(fn, delay) {
+		var timer = null;
+		return function () {
+			var context = this, args = arguments;
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				fn.apply(context, args);
+			}, delay);
+		};
+	}
 
-		var throttleTimer;
-		function throttle() {
-			window.clearTimeout(throttleTimer);
-			throttleTimer = window.setTimeout(function() {
-      dim.filterAll();
-      dim.filterFunction(function (d) { return d.indexOf (s) !== -1;} );
-console.log("searching for " +s);
-				dc.redrawAll();
-		  }, 250);
-		}
-  });
+  d3.select(dom).on("keyup",debounce (function () {
+    var s= d3.select(this).property("value").toLowerCase();
+    dim.filterAll();
+    dim.filterFunction(function (d) { return d.indexOf (s) !== -1;} );
+	  dc.redrawAll();
+  },250));
 
   return dim;
 
@@ -239,9 +305,20 @@ function drawTable(dom) {
     .order(d3.descending)
     .size(200)
     .columns([
-              function(d){return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+"</a>"},
               function(d){
-                return d.amount +" " +d.currency + "/"+d.frequency},
+                var c = "";
+                if (d.cancel_date) {
+                  var delta = Math.floor(( d.cancel_date - d.date ) / 86400000);  
+                  if (delta == 0) delta ="";
+                  c = " <span class='glyphicon glyphicon-log-out' title='Cancelled donation on "+day(d.cancel_date)+"'></span> "+delta+" ";
+                }
+                return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+c+"</a>"},
+              function (d) {
+                return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id, selectedChild:'contribute'})+"'>"+d.first_name+"</a>";
+
+              },
+              function(d){
+                return "<a title='received "+d.total_amount+d.currency+" in "+d.nb +" donations'href='"+CRM.url('civicrm/contact/view/contributionrecur',{cid: d. contact_id,id:d.id}) +"'>"+ d.amount +" " +d.currency + "/"+d.frequency+"</a>";},
               function(d){return d.processor},
               function(d){return d.country},
               function(d){return d.status},
@@ -260,9 +337,11 @@ function drawTable(dom) {
 	<div class="col-md-3">
 		<div id="overview">
 			<ul class="list-group">
-				<li class="list-group-item"><span class="badge nb_donation">?</span>Donations</li>
-				<li class="list-group-item"><span class="badge amount_donation">?</span>Total</li>
-				<li class="list-group-item" title="how long have the donors been members?"><span class="badge known_since">?</span>Known since</li>
+				<li class="list-group-item"><span class="badge nb_recurring"></span>Nb recurring</li>
+				<li class="list-group-item"><span class="badge amount_recurring_avg" title='average amount'></span><span class="amount_recurring"></span> recurring amount</li>
+				<li class="list-group-item" title="number of donations generated by the recurring"><span class="badge nb_donation_avg"></span> <span class="nb_donation"></span> donations received</li>
+				<li class="list-group-item" title="total amount of donations generated by the recurring"><span title='average' class="badge total_donation_avg"></span>Total received <span class="total_donation"></span></li>
+				<li class="list-group-item" title="how long have the donors been members?"><span class="badge known_since"></span>Known since</li>
 			</ul>
       <span id="status"><graph/></span>
       <span id="processor"><graph/></span>
@@ -310,6 +389,7 @@ function drawTable(dom) {
 <thead>
 <tr>
 <th>date</th>
+<th>donor</th>
 <th>amount</th>
 <th>processor</th>
 <th>country</th>
