@@ -342,3 +342,27 @@ SpeakCivi searches contact by primary email.
     * add next if there aren't any similar address
 * Send confirmation mail
   * If `NO BULK EMAIL` is set up to `TRUE` content of mail also contains `#CONFIRMATION_BLOCK`
+
+
+## Read events from an AMQP broker
+
+To increase the reliability and decrease the processing time, you can push the speakout activities to an AMQP broker and dispatch them to this extension.
+
+### Set up
+
+ - Make sure you have [composer](https://getcomposer.org/) installed, or download it to the `amqp` directory of this extension.
+ - Make sure the file `tools/path.inc` contains the path to your drupal site (without trailing slash)
+ - Update you CiviCRM settings with the following constants, depending on your AMQP server:
+   + MAILJET_AMQP_HOST
+   + MAILJET_AMQP_PORT
+   + MAILJET_AMQP_USER
+   + MAILJET_AMQP_PASSWORD
+   + MAILJET_AMQP_VHOST
+ - From the amqp directory, run `php composer.phar install` (adapt if you have a global composer)
+
+### Run
+
+Manually:
+From the `amqp` directory: `php consumer.php -q name_of_queue` (as the same user as CiviCRM)
+The script does not ensure that the queue exists before reading from it.
+The script consumes messages only when the load on the server is lower than SC_MAX_LOAD.
