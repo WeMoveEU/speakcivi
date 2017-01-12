@@ -43,8 +43,13 @@ $callback = function($msg) {
   try {
     $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
     $json_msg = json_decode($msg->body);
-    $msg_handler->runParam($json_msg);
-    $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+    if ($json_msg) {
+      $msg_handler->runParam($json_msg);
+      $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+    } else {
+      CRM_Core_Error::debug_var("SPEAKCIVI AMQP", "Could not decode " . $msg->body, true, true);
+      $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag']);
+    }
   } catch (Exception $ex) {
     $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag']);
     CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $ex, true, true);
