@@ -430,6 +430,9 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       'entity_id' => $contactId,
       'tag_id' => $tagId,
     );
-    civicrm_api3('EntityTag', 'create', $params);
+    $result = civicrm_api3('EntityTag', 'get', $params);
+    if ($result['count'] == 0) {
+      civicrm_api3('EntityTag', 'create', $params);
+    }
   }
 }
