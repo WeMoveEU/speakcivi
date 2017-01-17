@@ -3,6 +3,7 @@
 session_start();
 $settingsFile = trim(implode('', file('../tools/path.inc'))).'/civicrm.settings.php';
 define('CIVICRM_SETTINGS_PATH', $settingsFile);
+define('CIVICRM_CLEANURL', 1);
 $error = @include_once( $settingsFile );
 if ( $error == false ) {
   echo "Could not load the settings file at: {$settingsFile}\n";
@@ -15,6 +16,8 @@ require_once $civicrm_root . '/CRM/Core/ClassLoader.php';
 CRM_Core_ClassLoader::singleton()->register();
 require_once 'CRM/Core/Config.php';
 $civicrm_config = CRM_Core_Config::singleton();
+//Load CMS with user id 1
+CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, FALSE);
 
 require_once __DIR__ . '/vendor/autoload.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -41,9 +44,9 @@ function connect() {
 $callback = function($msg) {
   global $msg_since_check;
   try {
-    $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
     $json_msg = json_decode($msg->body);
     if ($json_msg) {
+      $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
       $msg_handler->runParam($json_msg);
       $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
     } else {
@@ -52,7 +55,7 @@ $callback = function($msg) {
     }
   } catch (Exception $ex) {
     $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag']);
-    CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $ex, true, true);
+    CRM_Core_Error::debug_var("SPEAKCIVI AMQP", CRM_Core_Error::formatTextException($ex), true, true);
   } finally {
     $msg_since_check++;
   }
@@ -89,7 +92,7 @@ while (true) {
       debug('Reconnecting...');
       $connection = connect();
       $channel = $connection->channel();
-      $channel->basic_qos(null, MJ_LOAD_CHECK_FREQ, null);
+      $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
     }
     debug('Starting subscription...');
     $cb_name = $channel->basic_consume($queue_name, '', false, false, false, false, $callback);
