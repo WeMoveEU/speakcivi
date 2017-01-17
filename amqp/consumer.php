@@ -16,6 +16,8 @@ require_once $civicrm_root . '/CRM/Core/ClassLoader.php';
 CRM_Core_ClassLoader::singleton()->register();
 require_once 'CRM/Core/Config.php';
 $civicrm_config = CRM_Core_Config::singleton();
+//Load CMS with user id 1
+CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, FALSE);
 
 require_once __DIR__ . '/vendor/autoload.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
