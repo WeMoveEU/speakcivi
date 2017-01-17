@@ -41,9 +41,9 @@ function connect() {
 $callback = function($msg) {
   global $msg_since_check;
   try {
-    $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
     $json_msg = json_decode($msg->body);
     if ($json_msg) {
+      $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
       $msg_handler->runParam($json_msg);
       $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
     } else {
@@ -52,7 +52,7 @@ $callback = function($msg) {
     }
   } catch (Exception $ex) {
     $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag']);
-    CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $ex, true, true);
+    CRM_Core_Error::debug_var("SPEAKCIVI AMQP", CRM_Core_Error::formatTextException($ex), true, true);
   } finally {
     $msg_since_check++;
   }
@@ -89,7 +89,7 @@ while (true) {
       debug('Reconnecting...');
       $connection = connect();
       $channel = $connection->channel();
-      $channel->basic_qos(null, MJ_LOAD_CHECK_FREQ, null);
+      $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
     }
     debug('Starting subscription...');
     $cb_name = $channel->basic_consume($queue_name, '', false, false, false, false, $callback);
