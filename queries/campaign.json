@@ -1,10 +1,2 @@
-{"query":"
-SELECT COUNT(*) as count, source, gender_id, DATE_FORMAT(a.activity_date_time, '%Y%m%d%H%i') as date from civicrm_contact as c
-  JOIN civicrm_activity_contact ac ON c.id = ac.contact_id
-  JOIN civicrm_activity a ON a.id = ac.activity_id
-  JOIN civicrm_campaign camp on a.campaign_id=camp.id AND camp.external_identifier = %1
-where c.is_deleted=0 
-  AND  a.activity_type_id IN (32) 
-  AND c.created_date is not null
-group by DATE_FORMAT(a.activity_date_time, '%Y%m%d%H%i'),gender_id, source;"
+{"query":"SELECT COUNT(*) as count, source, gender_id, DATE_FORMAT(a.activity_date_time, '%Y%m%d%H%i') as date from civicrm_contact as c  JOIN civicrm_activity_contact ac ON c.id = ac.contact_id  JOIN civicrm_activity a ON a.id = ac.activity_id  JOIN civicrm_campaign camp on a.campaign_id=camp.id AND camp.external_identifier = %1 where c.is_deleted=0   AND  a.activity_type_id IN (32)   AND c.created_date is not null group by DATE_FORMAT(a.activity_date_time, '%Y%m%d%H%i'),gender_id, source;"
  ,"params":{"1":{"name":"speakout_id","type":"Integer"}}}
