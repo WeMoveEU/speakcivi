@@ -35,11 +35,11 @@ foreach ($sheet as $id => $line) {
     'campaign_id' => $row[3],
     'confirmation_block' => (boolean)$row[4],
   );
-  if ($row[5]) {
+  if (key_exists(5, $row) && $row[5]) {
     $params['share_utm_source'] = $row[5];
   }
   $result = civicrm_api3("Speakcivi", "sendconfirm", $params);
-  $output = date('Y-m-d H:i:s') . ";" . $row[0] . ";" . $result['is_error'] . ";" . $result['version'] . ";" . $result['count'] . ";" . $result['values'] . "\n";
+  $output = '"' . date('Y-m-d H:i:s') . "\";\"" . $row[0] . "\";" . $result['is_error'] . ";" . $result['version'] . ";" . $result['count'] . ";" . $result['values'] . "\n";
   fwrite($fp, $output);
   usleep(100000);
 }
