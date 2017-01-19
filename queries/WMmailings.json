@@ -1,5 +1,4 @@
-{"query":"
-SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, campaign_id, camp.parent_id as parent_campaign_id,
+{"query":"SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, campaign_id, camp.parent_id as parent_campaign_id,
   camp.title as campaign, camp.external_identifier, campaign_type_id, language_4 as lang,
   createdContact.first_name AS owner,
   r.value AS recipients,
@@ -53,4 +52,6 @@ LEFT JOIN (
   GROUP BY utm_source_30
 ) d ON d.mailing_id=m.id
 WHERE scheduled_date is not null;
-","params":{"1":{"name":"campaign_id","type":"Integer"}}}
+",
+"params":
+{"1":{"name":"campaign_id","type":"Integer"}}}

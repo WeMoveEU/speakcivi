@@ -90,7 +90,7 @@
 </div>
 
 <script>
-var data = {crmSQL json="WMmailings"};
+var data = {crmSQL file="WMmailings"};
 var campaigns= {crmSQL file="Campaigns"};
 
 var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
@@ -611,7 +611,7 @@ function drawTable(dom) {
 	    },
 	    function (d) {
         if (!d.is_completed)
-          return "<i title='not all sent, mailing in progress'>"+d.recipients+'</i>';
+          return "<span class='glyphicon glyphicon-refresh spin' title='not all sent, mailing in progress'></span>";
               return d.recipients;
 	    },
 //	    function (d) {return d.timebox < 1440 ? (d.timebox/60)+'h' : (d.timebox/1440)+'d';},
@@ -679,6 +679,15 @@ dc.renderAll();
 </script>
 
 <style>
+.spin{
+     -webkit-transform-origin: 50% 58%;
+     transform-origin:50% 58%;
+     -ms-transform-origin:50% 58%; /* IE 9 */
+     -webkit-animation: spin 2s infinite linear;
+     -moz-animation: spin 2s infinite linear;
+     -o-animation: spin 2s infinite linear;
+     animation: spin 2s infinite linear;
+}
 .glyphicon-repeat,.glyphicon-gift {font-size:0.7em;}
 .clear {clear:both;}
 
