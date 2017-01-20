@@ -3,6 +3,7 @@
 session_start();
 $settingsFile = trim(implode('', file('path.inc'))).'/civicrm.settings.php';
 define('CIVICRM_SETTINGS_PATH', $settingsFile);
+define('CIVICRM_CLEANURL', 1);
 $error = @include_once( $settingsFile );
 if ( $error == false ) {
   echo "Could not load the settings file at: {$settingsFile}\n";
