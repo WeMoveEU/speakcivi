@@ -22,7 +22,7 @@
   </item>
   <item>
     <path>civicrm/speakcivi/nmconfirm</path>
-    <page_callback>CRM_Speakcivi_Page_NoMemberConfirm</page_callback>
+    <page_callback>CRM_Speakcivi_Page_NoMember_Confirm</page_callback>
     <title>Your signature is confirmed</title>
     <access_callback>1</access_callback>
     <is_public>true</is_public>
@@ -37,6 +37,13 @@
   <item>
     <path>civicrm/speakcivi/optout</path>
     <page_callback>CRM_Speakcivi_Page_Optout</page_callback>
+    <title>Your signature is confirmed</title>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
+  </item>
+  <item>
+    <path>civicrm/speakcivi/nmoptout</path>
+    <page_callback>CRM_Speakcivi_Page_NoMember_Optout</page_callback>
     <title>Your signature is confirmed</title>
     <access_callback>1</access_callback>
     <is_public>true</is_public>
