@@ -37,14 +37,14 @@ foreach ($sheet as $id => $line) {
     'toEmail' => $row[0],
     'contact_id' => $row[1],
     'activity_id' => $row[2],
-    'campaign_id' => $row[3],
+    'campaign_id' => (int)$row[3],
     'confirmation_block' => $confirmationBlock,
   );
   if (key_exists(5, $row) && $row[5]) {
     $params['share_utm_source'] = $row[5];
   }
   $result = civicrm_api3("Speakcivi", "sendconfirm", $params);
-  $output = '"' . date('Y-m-d H:i:s') . "\";\"" . $row[0] . "\";" . $result['is_error'] . ";" . $result['version'] . ";" . $result['count'] . ";" . $result['values'] . "\n";
+  $output = '"' . date('Y-m-d H:i:s') . "\";\"" . $row[0] . "\";\"" . $row[1] . "\";\"" . $row[2] . "\";\"" . $row[3] . "\";" . $result['is_error'] . ";" . $result['version'] . ";" . $result['count'] . ";" . $result['values'] . "\n";
   fwrite($fp, $output);
   usleep(50000);
 }
