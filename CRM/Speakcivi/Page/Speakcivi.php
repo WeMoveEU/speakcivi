@@ -10,6 +10,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $noMemberGroupId = 0;
 
+  public $noMemberCampaignType = 0;
+
   public $defaultCampaignTypeId = 0;
 
   public $locale = '';
@@ -125,6 +127,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->optIn = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'opt_in');
     $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->noMemberGroupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_group_id');
+    $this->noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
     $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
     $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
     $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
@@ -159,6 +162,15 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $result = civicrm_api3('Country', 'get', $params);
         $this->countryId = (int)$result['values'][0]['id'];
       }
+    }
+  }
+
+
+  public function choosePetition($param, $campaignType) {
+    if ($campaignType == $this->noMemberCampaignType) {
+      $this->petitionNoMember($param);
+    } else {
+      $this->petition($param);
     }
   }
 
