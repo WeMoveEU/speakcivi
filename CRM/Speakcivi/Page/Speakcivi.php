@@ -220,7 +220,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function petitionNoMember($param) {
     // todo don't add to groupId, add to NoMember group
-    $contact = $this->createContact($param);
+    $contact = $this->createContact($param, $this->noMemberGroupId);
 
     $optInForActivityStatus = $this->optIn;
     // todo change group to NoMember setting
@@ -332,17 +332,17 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     );
     return civicrm_api3('Contribution', 'create', $params);
   }
-    
+
 
   /**
    * Create or update contact
    *
-   * @param $param
+   * @param array $param
+   * @param int $groupId
    *
    * @return array
-   * @throws CiviCRM_API3_Exception
    */
-  public function createContact($param) {
+  public function createContact($param, $groupId) {
     $h = $param->cons_hash;
     $contact = array(
       'sequential' => 1,
@@ -353,7 +353,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         'contact_id' => '$value.id',
       ),
       $this->apiGroupContactGet => array(
-        'group_id' => $this->groupId,
+        'group_id' => $groupId,
         'contact_id' => '$value.id',
         'status' => 'Added',
       ),
