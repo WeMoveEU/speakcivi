@@ -365,7 +365,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['id'] = array('IN' => array_keys($contacIds));
       $result = civicrm_api3('Contact', 'get', $contact);
       if ($result['count'] == 1) {
-        $contact = $this->prepareParamsContact($param, $contact, $result, $result['values'][0]['id']);
+        $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $result['values'][0]['id']);
       } elseif ($result['count'] > 1) {
         $lastname = $this->cleanLastname($h->lastname);
         $newContact = $contact;
@@ -374,11 +374,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $similarity = $this->glueSimilarity($newContact, $result['values']);
         unset($newContact);
         $contactIdBest = $this->chooseBestContact($similarity);
-        $contact = $this->prepareParamsContact($param, $contact, $result, $contactIdBest);
+        $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $contactIdBest);
       }
     } else {
       $this->newContact = true;
-      $contact = $this->prepareParamsContact($param, $contact);
+      $contact = $this->prepareParamsContact($param, $contact, $groupId);
     }
     return civicrm_api3('Contact', 'create', $contact);
   }
@@ -443,12 +443,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    *
    * @param array $param
    * @param array $contact
+   * @param int $groupId
    * @param array $result
    * @param int $basedOnContactId
    *
    * @return mixed
    */
-  function prepareParamsContact($param, $contact, $result = array(), $basedOnContactId = 0) {
+  function prepareParamsContact($param, $contact, $groupId, $result = array(), $basedOnContactId = 0) {
     $h = $param->cons_hash;
 
     unset($contact['return']);
@@ -479,7 +480,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->prepareParamsAddress($contact, $existingContact);
       if (!$this->optIn && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
         $contact[$this->apiGroupContactCreate] = array(
-          'group_id' => $this->groupId,
+          'group_id' => $groupId,
           'contact_id' => '$value.id',
           'status' => 'Added',
         );
@@ -504,7 +505,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->prepareParamsAddressDefault($contact);
       if (!$this->optIn) {
         $contact[$this->apiGroupContactCreate] = array(
-          'group_id' => $this->groupId,
+          'group_id' => $groupId,
           'contact_id' => '$value.id',
           'status' => 'Added',
         );
