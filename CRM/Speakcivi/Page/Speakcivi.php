@@ -91,6 +91,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->petition($param);
         break;
 
+      case 'petition_no_member':
+        $this->petitionNoMember($param);
+        break;
+
       case 'share':
         $this->addActivity($param, 'share');
         break;
@@ -203,6 +207,50 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, $share_utm_source);
     }
 
+  }
+
+
+  /**
+   * Create a petition in Civi: contact and activity but don't add for our members (no groups, no tags)
+   *
+   * @param $param
+   */
+  public function petitionNoMember($param) {
+    // todo don't add to groupId, add to NoMember group
+    $contact = $this->createContact($param);
+
+    $optInForActivityStatus = $this->optIn;
+    // todo change group to NoMember setting
+    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['values'][0]['is_opt_out'])) {
+      $this->confirmationBlock = false;
+      $optInForActivityStatus = 0;
+    }
+
+    $optInMapActivityStatus = array(
+      0 => 'Completed',
+      1 => 'Scheduled', // default
+    );
+    if ($this->addJoinActivity && !$this->optIn) {
+      $optInMapActivityStatus[0] = 'optin';
+    }
+    $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
+    $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
+    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
+    if ($this->newContact) {
+      CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
+      CRM_Speakcivi_Logic_Contact::setSourceFields($contact['id'], @$param->source);
+    }
+
+    $h = $param->cons_hash;
+    if ($this->optIn == 1) {
+      // todo change urls for confirm & optout
+      // todo add new page confirm
+      // todo add new page optout
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
+    } else {
+      $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, $share_utm_source);
+    }
   }
 
 
@@ -707,6 +755,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @throws CiviCRM_API3_Exception
    */
   public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $share_utm_source = '') {
+    // todo add param for NoMember
     $params = array(
       'sequential' => 1,
       'toEmail' => $email,
