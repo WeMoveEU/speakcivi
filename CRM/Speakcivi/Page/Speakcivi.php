@@ -194,7 +194,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $h = $param->cons_hash;
     if ($this->optIn == 1) {
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
     } else {
       $language = substr($this->locale, 0, 2);
       $pagePost = new CRM_Speakcivi_Page_Post();
@@ -207,7 +207,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
       }
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, $share_utm_source);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
     }
 
   }
@@ -247,10 +247,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       // todo change urls for confirm & optout
       // todo add new page confirm
       // todo add new page optout
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
     } else {
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, $share_utm_source);
+      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
     }
   }
 
@@ -751,13 +751,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $activityId
    * @param $campaignId
    * @param $confirmationBlock
+   * @param $noMember
    * @param $share_utm_source
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $share_utm_source = '') {
-    // todo add param for NoMember
+  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = '') {
     $params = array(
       'sequential' => 1,
       'toEmail' => $email,
@@ -765,6 +765,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'activity_id' => $activityId,
       'campaign_id' => $campaignId,
       'confirmation_block' => $confirmationBlock,
+      'no_member' => $noMember,
     );
     if ($share_utm_source) {
       $params['share_utm_source'] = $share_utm_source;

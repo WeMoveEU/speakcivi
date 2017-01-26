@@ -40,7 +40,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
 
     $email = CRM_Speakcivi_Logic_Contact::getEmail($this->contactId);
     $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-    $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, 'new_member');
+    $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, false, 'new_member');
 
     $country = $this->getCountry($this->campaignId);
     $url = "{$country}/post_confirm";
