@@ -219,12 +219,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $param
    */
   public function petitionNoMember($param) {
-    // todo don't add to groupId, add to NoMember group
     $contact = $this->createContact($param, $this->noMemberGroupId);
 
     $optInForActivityStatus = $this->optIn;
-    // todo change group to NoMember setting
-    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['values'][0]['is_opt_out'])) {
+    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->noMemberGroupId, $contact['values'][0]['is_opt_out'])) {
       $this->confirmationBlock = false;
       $optInForActivityStatus = 0;
     }
