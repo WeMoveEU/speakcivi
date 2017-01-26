@@ -244,9 +244,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $h = $param->cons_hash;
     if ($this->optIn == 1) {
-      // todo change urls for confirm & optout
-      // todo add new page confirm
-      // todo add new page optout
       $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
     } else {
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
