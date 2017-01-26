@@ -69,7 +69,7 @@ echo $param->cons_hash->lastname."\n";
 echo '$gender: '. $gender."\n";
 $lastname = $speakcivi->cleanLastname($param->cons_hash->lastname);
 echo 'lastname: '.$lastname."\n\n";
-$result = $speakcivi->createContact($param);
+$result = $speakcivi->createContact($param, $speakcivi->groupId);
 print_r($result);
 
 $genderId = $speakcivi->getGenderId($param->cons_hash->lastname);

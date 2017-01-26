@@ -169,7 +169,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $param
    */
   public function petition($param) {
-    $contact = $this->createContact($param);
+    $contact = $this->createContact($param, $this->groupId);
 
     $optInForActivityStatus = $this->optIn;
     if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['values'][0]['is_opt_out'])) {
@@ -265,7 +265,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param string $status Status name of activity
    */
   public function addActivity($param, $type, $status = 'Completed') {
-    $contact = $this->createContact($param);
+    $contact = $this->createContact($param, $this->groupId);
     $activity = $this->createActivity($param, $contact['id'], $type, $status);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     CRM_Speakcivi_Logic_Activity::setShareFields($activity['id'], @$param->metadata->tracking_codes);
@@ -291,7 +291,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function donate($param) {
     if ($param->metadata->status == "success") {
-      $contact = $this->createContact($param);
+      $contact = $this->createContact($param, $this->groupId);
       $contribution = $this->createContribution($param, $contact["id"]);
       if ($this->newContact) {
         CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $contribution['values'][0]['receive_date']);
