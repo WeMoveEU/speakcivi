@@ -62,11 +62,16 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $hash = sha1(CIVICRM_SITE_KEY.$contactId);
   $utm_content = 'version_'.($contactId % 2);
   $utm_campaign = $campaignObj->getUtmCampaign();
-  // todo change url for NoMember
-  $url_confirm_and_keep = CRM_Utils_System::url('civicrm/speakcivi/confirm',
+  if ($noMember) {
+    $baseConfirmUrl = 'civicrm/speakcivi/nmconfirm';
+    $baseOptoutUrl = 'civicrm/speakcivi/nmoptout';
+  } else {
+    $baseConfirmUrl = 'civicrm/speakcivi/confirm';
+    $baseOptoutUrl = 'civicrm/speakcivi/optout';
+  }
+  $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl,
     "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", true);
-  // todo change url for NoMember
-  $url_confirm_and_not_receive = CRM_Utils_System::url('civicrm/speakcivi/optout',
+  $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl,
     "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", true);
 
   $template = CRM_Core_Smarty::singleton();
