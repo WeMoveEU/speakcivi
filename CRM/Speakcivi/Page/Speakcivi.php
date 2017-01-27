@@ -92,11 +92,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     switch ($param->action_type) {
       case 'petition':
-        $this->petition($param);
-        break;
-
-      case 'petition_no_member':
-        $this->petitionNoMember($param);
+        $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
         break;
 
       case 'share':
@@ -166,7 +162,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   }
 
 
-  public function choosePetition($param, $campaignType) {
+  /**
+   * Choose petition mode (standard or NoMember).
+   *
+   * @param object $param
+   * @param int $campaignType
+   */
+  public function choosePetitionMode($param, $campaignType) {
     if ($campaignType == $this->noMemberCampaignType) {
       $this->petitionNoMember($param);
     } else {
