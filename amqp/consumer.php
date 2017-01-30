@@ -32,13 +32,26 @@ const SC_LOAD_CHECK_FREQ = 100;
 const SC_COOLING_PERIOD = 20;
 
 $msg_since_check = 0;
-$arguments = getopt('q:');
+$arguments = getopt('q:e:');
 $queue_name = $arguments['q'];
+$error_queue = $arguments['e'];
 
 function connect() {
   return new AMQPStreamConnection(
     CIVICRM_AMQP_HOST, CIVICRM_AMQP_PORT,
     CIVICRM_AMQP_USER, CIVICRM_AMQP_PASSWORD, CIVICRM_AMQP_VHOST);
+}
+
+function handleError($msg, $error) {
+  global $error_queue;
+  CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $error, true, true);
+  $channel = $msg->delivery_info['channel'];
+  if ($error_queue != NULL) {
+    $channel->basic_publish($msg, '', $error_queue);
+    $channel->basic_ack($msg->delivery_info['delivery_tag']);
+  } else {
+    $channel->basic_nack($msg->delivery_info['delivery_tag']);
+  }
 }
 
 $callback = function($msg) {
@@ -50,12 +63,10 @@ $callback = function($msg) {
       $msg_handler->runParam($json_msg);
       $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
     } else {
-      CRM_Core_Error::debug_var("SPEAKCIVI AMQP", "Could not decode " . $msg->body, true, true);
-      $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag']);
+      handleError($msg, "Could not decode " . $msg->body);
     }
   } catch (Exception $ex) {
-    $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag']);
-    CRM_Core_Error::debug_var("SPEAKCIVI AMQP", CRM_Core_Error::formatTextException($ex), true, true);
+    handleError($msg, CRM_Core_Error::formatTextException($ex));
   } finally {
     $msg_since_check++;
   }
