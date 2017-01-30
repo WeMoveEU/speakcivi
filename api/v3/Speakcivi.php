@@ -22,7 +22,11 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $contactId = $params['contact_id'];
   $campaignId = $params['campaign_id'];
   $activityId = $params['activity_id'];
-  $noMember = (bool)$params['no_member'];
+  if (array_key_exists('no_member', $params)) {
+    $noMember = (bool)$params['no_member'];
+  } else {
+    $noMember = false;
+  }
 
   $campaignObj = new CRM_Speakcivi_Logic_Campaign($campaignId);
   $campaign = $campaignObj->getCampaign($campaignId, TRUE);
