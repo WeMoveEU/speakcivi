@@ -92,27 +92,30 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     switch ($param->action_type) {
       case 'petition':
-        $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
+        $result = $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
         break;
 
       case 'share':
-        $this->addActivity($param, 'share');
+        $result = $this->addActivity($param, 'share');
         break;
 
       case 'tweet':
-        $this->addActivity($param, 'Tweet');
+        $result = $this->addActivity($param, 'Tweet');
         break;
 
       case 'speakout':
-        $this->addActivity($param, 'Email');
+        $result = $this->addActivity($param, 'Email');
         break;
 
       case 'donate':
-        $this->donate($param);
+        $result = $this->donate($param);
         break;
 
       default:
+        $result = 0;
     }
+
+    return $result;
   }
 
 
@@ -167,12 +170,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    *
    * @param object $param
    * @param int $campaignType
+   *
+   * @return int 1 ok, 0 failed
    */
   public function choosePetitionMode($param, $campaignType) {
     if ($campaignType == $this->noMemberCampaignType) {
-      $this->petitionNoMember($param);
+      return $this->petitionNoMember($param);
     } else {
-      $this->petition($param);
+      return $this->petition($param);
     }
   }
 
@@ -181,6 +186,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * Create a petition in Civi: contact and activity
    *
    * @param $param
+   *
+   * @return int 1 ok, 0 failed
    */
   public function petition($param) {
     $contact = $this->createContact($param, $this->groupId);
@@ -208,7 +215,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $h = $param->cons_hash;
     if ($this->optIn == 1) {
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
+      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
     } else {
       $language = substr($this->locale, 0, 2);
       $pagePost = new CRM_Speakcivi_Page_Post();
@@ -221,9 +228,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
       }
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
+      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
     }
-
+    if ($sendResult['values'] == 1) {
+      return 1;
+    }
+    return 0;
   }
 
 
@@ -231,6 +241,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * Create a petition in Civi: contact and activity but don't add for our members (no groups, no tags)
    *
    * @param $param
+   *
+   * @return int 1 ok, 0 failed
    */
   public function petitionNoMember($param) {
     $contact = $this->createContact($param, $this->noMemberGroupId);
@@ -258,11 +270,15 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $h = $param->cons_hash;
     if ($this->optIn == 1) {
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
+      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
     } else {
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
-      $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
+      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
     }
+    if ($sendResult['values'] == 1) {
+      return 1;
+    }
+    return 0;
   }
 
 
@@ -272,12 +288,18 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param array $param Params from speakout
    * @param string $type Type name of activity
    * @param string $status Status name of activity
+   *
+   * @return int 1 ok, 0 failed
    */
   public function addActivity($param, $type, $status = 'Completed') {
     $contact = $this->createContact($param, $this->groupId);
     $activity = $this->createActivity($param, $contact['id'], $type, $status);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     CRM_Speakcivi_Logic_Activity::setShareFields($activity['id'], @$param->metadata->tracking_codes);
+    if ($activity['is_error'] == 0) {
+      return 1;
+    }
+    return 0;
   }
 
 
@@ -296,7 +318,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    *
    * @param $param
    *
-   * @return bool
+   * @return int 1 ok, 0 failed
    */
   public function donate($param) {
     if ($param->metadata->status == "success") {
@@ -305,9 +327,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($this->newContact) {
         CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $contribution['values'][0]['receive_date']);
       }
-      return true;
+      return 1;
     } else {
-      return false;
+      return 0;
     }
   }
 
