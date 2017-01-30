@@ -52,6 +52,8 @@ function handleError($msg, $error) {
   } else {
     $channel->basic_nack($msg->delivery_info['delivery_tag']);
   }
+  //In some cases (e.g. a lost connection), dying and respawning can solve the problem
+  die(1);
 }
 
 $callback = function($msg) {
