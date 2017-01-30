@@ -25,12 +25,17 @@ $log = 'sendconfirm.log';
 $fp = fopen($log, 'a+');
 foreach ($sheet as $id => $line) {
 
-  // $email, $contactId, $activityId, $campaignId, $confirmationBlock, $share_utm_source = ''
+  // $email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = ''
   $row = str_getcsv($line, ",", '"');
   if ($row[4] == 'TRUE') {
     $confirmationBlock = true;
   } else {
     $confirmationBlock = false;
+  }
+  if ($row[5] == 'TRUE') {
+    $noMember = true;
+  } else {
+    $noMember = false;
   }
   $params = array(
     'sequential' => 1,
@@ -39,9 +44,10 @@ foreach ($sheet as $id => $line) {
     'activity_id' => $row[2],
     'campaign_id' => (int)$row[3],
     'confirmation_block' => $confirmationBlock,
+    'no_member' => $noMember,
   );
-  if (key_exists(5, $row) && $row[5]) {
-    $params['share_utm_source'] = $row[5];
+  if (key_exists(6, $row) && $row[6]) {
+    $params['share_utm_source'] = $row[6];
   }
   $result = civicrm_api3("Speakcivi", "sendconfirm", $params);
   $output = '"' . date('Y-m-d H:i:s') . "\";\"" . $row[0] . "\";\"" . $row[1] . "\";\"" . $row[2] . "\";\"" . $row[3] . "\";" . $result['is_error'] . ";" . $result['version'] . ";" . $result['count'] . ";" . $result['values'] . "\n";
