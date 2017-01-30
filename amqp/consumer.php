@@ -60,8 +60,11 @@ $callback = function($msg) {
     $json_msg = json_decode($msg->body);
     if ($json_msg) {
       $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
-      $msg_handler->runParam($json_msg);
-      $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+      if ($msg_handler->runParam($json_msg)) {
+	$msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+      } else {
+	handleError($msg, "runParams returned error code");
+      }
     } else {
       handleError($msg, "Could not decode " . $msg->body);
     }
