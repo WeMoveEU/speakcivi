@@ -14,6 +14,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $thresholdVeryOldActivity = 0;
 
+  public $useAsVeryOldActivity = false;
+
   public $defaultCampaignTypeId = 0;
 
   public $locale = '';
@@ -68,6 +70,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     CRM_Speakcivi_Tools_Hooks::setParams($param);
     $this->setDefaults();
     $this->setCountry($param);
+    $this->setVeryOldActivity($param);
+    CRM_Core_Error::debug_var('$this->useAsVeryOldActivity', $this->useAsVeryOldActivity, false, true);
 
     $notSendConfirmationToThoseCountries = array(
       'FR',
@@ -135,6 +139,21 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
     $this->genderMaleValue = CRM_Core_OptionGroup::getValue('gender', 'Male', 'name', 'String', 'value');
     $this->genderUnspecifiedValue = CRM_Core_OptionGroup::getValue('gender', 'unspecified', 'name', 'String', 'value');
+  }
+
+
+  /**
+   *
+   * @param $param
+   */
+  function setVeryOldActivity($param) {
+    if ($this->thresholdVeryOldActivity > 0) {
+      $cd = new DateTime(substr($param->create_dt, 0, 10));
+      $cd->modify('+' . $this->thresholdVeryOldActivity . ' days');
+      if ($cd->format('Y-m-d') < date('Y-m-d')) {
+        $this->useAsVeryOldActivity = true;
+      }
+    }
   }
 
 
