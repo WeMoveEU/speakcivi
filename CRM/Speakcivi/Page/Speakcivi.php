@@ -12,6 +12,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $noMemberCampaignType = 0;
 
+  public $thresholdVeryOldActivity = 0;
+
   public $defaultCampaignTypeId = 0;
 
   public $locale = '';
@@ -127,6 +129,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->noMemberGroupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_group_id');
     $this->noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
+    $this->thresholdVeryOldActivity = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'threshold_very_old_activity');
     $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
     $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
     $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
