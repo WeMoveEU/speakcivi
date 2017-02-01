@@ -71,7 +71,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->setDefaults();
     $this->setCountry($param);
     $this->setVeryOldActivity($param);
-    CRM_Core_Error::debug_var('$this->useAsVeryOldActivity', $this->useAsVeryOldActivity, false, true);
 
     $notSendConfirmationToThoseCountries = array(
       'FR',
@@ -291,7 +290,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $h = $param->cons_hash;
-    if ($this->optIn == 1) {
+    if ($this->optIn == 1 && !$this->useAsVeryOldActivity) {
       $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
     } else {
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
