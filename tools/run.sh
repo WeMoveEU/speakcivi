@@ -66,6 +66,6 @@ if [ "$DROP" = "y" ] ; then
   mysql $DB -u $USR -p$PSW -e "DELETE c FROM civicrm_contact c
 JOIN civicrm_activity_contact ac ON ac.contact_id = c.id
 JOIN civicrm_activity a ON a.id = ac.activity_id
-WHERE activity_type_id = 32 AND a.subject = '${TEST_HASH}'"
+WHERE activity_type_id = 32 AND a.subject = '${TEST_HASH2}'"
   echo -e "\n"
 fi
