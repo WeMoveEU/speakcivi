@@ -97,7 +97,7 @@ curl $ENDPOINT -d "{
 }"
 
 QUERY="SELECT
-  ac.contact_id, ac.activity_id, a.activity_date_time adt, a.subject, a.campid, s.source_27 ass, s.media_28 asm, s.campaign_26 `asc`,
+  ac.contact_id, ac.activity_id, a.activity_date_time adt, a.subject, a.campaign_id campid, s.source_27 ass, s.media_28 asm, s.campaign_26 as `asc`,
   sp.utm_source_37 utms, sp.utm_medium_38 utmm, sp.utm_campaign_39 utmc, sp.utm_content_40 utmca
 FROM civicrm_activity a
   JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
@@ -109,10 +109,33 @@ mysql $DB -u $USR -p$PSW -e "$QUERY"
 echo -e "\n"
 
 
+echo "5. Sign petition as new member from UK at ${TEST_DATETIME}"
+TEST_HASH5=$(date +%s)
+curl $ENDPOINT -d "{
+\"action_type\":\"petition\",
+\"action_technical_type\":\"act.wemove.eu:petition\",
+\"create_dt\":\"${TEST_DATETIME}\",
+\"action_name\":\"${TEST_HASH5}\",
+\"external_id\":\"49\",
+\"cons_hash\":{\"firstname\":\"Test-EN\",\"lastname\":\"Testowski-EN\",\"emails\":[{\"email\":\"testowski-en@wemove.eu\"}],\"addresses\":[{\"zip\":\"[uk] 1111\"}]},
+\"comment\":\"comment from bash script, new user\",
+\"source\":{\"source\":\"source-script\",\"medium\":\"medium-script\",\"campaign\":\"campaign-script\"},
+\"metadata\":{\"tracking_codes\":{\"source\":\"source-tracking\",\"medium\":\"medium-tracking\",\"campaign\":\"campaign-tracking\",\"content\":\"content-tracking\"}}
+}"
+
+QUERY="SELECT ac.contact_id, ac.activity_id, a.activity_date_time, a.subject, a.campaign_id, s.source_27, s.media_28, s.campaign_26
+FROM civicrm_activity a
+  JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+  JOIN civicrm_value_action_source_4 s ON s.entity_id = a.id
+WHERE activity_type_id = 32 AND subject = '${TEST_HASH5}'"
+
+mysql $DB -u $USR -p$PSW -e "$QUERY"
+echo -e "\n"
+
+
 # delete
 read -p "delete testing data? (y/n): " DROP
 if [ "$DROP" = "y" ] ; then
-  echo "deleting data..."
   echo "delete activity for current member..."
   mysql $DB -u $USR -p$PSW -e "DELETE FROM civicrm_activity WHERE activity_type_id = 32 AND subject = '${TEST_HASH}'"
   echo "delete new contact..."
@@ -124,4 +147,9 @@ WHERE activity_type_id = 32 AND a.subject = '${TEST_HASH2}'"
   mysql $DB -u $USR -p$PSW -e "DELETE FROM civicrm_activity WHERE activity_type_id = 32 AND subject = '${TEST_HASH3}'"
   echo "delete share activity for current member..."
   mysql $DB -u $USR -p$PSW -e "DELETE FROM civicrm_activity WHERE activity_type_id = 54 AND subject = '${TEST_HASH4}'"
+  echo "delete new contact from UK..."
+  mysql $DB -u $USR -p$PSW -e "DELETE c FROM civicrm_contact c
+JOIN civicrm_activity_contact ac ON ac.contact_id = c.id
+JOIN civicrm_activity a ON a.id = ac.activity_id
+WHERE activity_type_id = 32 AND a.subject = '${TEST_HASH5}'"
 fi
