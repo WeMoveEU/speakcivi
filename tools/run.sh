@@ -97,7 +97,7 @@ curl $ENDPOINT -d "{
 }"
 
 QUERY="SELECT
-  ac.contact_id, ac.activity_id, a.activity_date_time adt, a.subject, a.campaign_id campid, s.source_27 ass, s.media_28 asm, s.campaign_26 as `asc`,
+  ac.contact_id, ac.activity_id, a.activity_date_time adt, a.subject, a.campaign_id campid, s.source_27 ass, s.media_28 asm, s.campaign_26 asca,
   sp.utm_source_37 utms, sp.utm_medium_38 utmm, sp.utm_campaign_39 utmc, sp.utm_content_40 utmca
 FROM civicrm_activity a
   JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
