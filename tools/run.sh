@@ -9,6 +9,7 @@ TEST_HASH=$(date +%s)
 
 read -s -p "db password: " PSW
 
+echo ""
 echo "1. Sign petition, current member at ${TEST_DATETIME}"
 curl $ENDPOINT -d "{
 \"action_type\":\"petition\",
@@ -81,6 +82,33 @@ mysql $DB -u $USR -p$PSW -e "$QUERY"
 echo -e "\n"
 
 
+echo "4. Share petition, current member at ${TEST_DATETIME}"
+TEST_HASH4=$(date +%s)
+curl $ENDPOINT -d "{
+\"action_type\":\"share\",
+\"action_technical_type\":\"you.wemove.eu:petition\",
+\"create_dt\":\"${TEST_DATETIME}\",
+\"action_name\":\"${TEST_HASH4}\",
+\"external_id\":\"10007\",
+\"cons_hash\":{\"firstname\":\"Tomasz\",\"lastname\":\"Pietrzkowski\",\"emails\":[{\"email\":\"scardinius@chords.pl\"}],\"addresses\":[{\"zip\":\"[pl] 01-111\"}]},
+\"comment\":\"comment from bash script\",
+\"source\":{\"source\":\"source-script\",\"medium\":\"medium-script\",\"campaign\":\"campaign-script\"},
+\"metadata\":{\"tracking_codes\":{\"source\":\"source-tracking\",\"medium\":\"medium-tracking\",\"campaign\":\"campaign-tracking\",\"content\":\"content-tracking\"}}
+}"
+
+QUERY="SELECT
+  ac.contact_id, ac.activity_id, a.activity_date_time adt, a.subject, a.campid, s.source_27 ass, s.media_28 asm, s.campaign_26 `asc`,
+  sp.utm_source_37 utms, sp.utm_medium_38 utmm, sp.utm_campaign_39 utmc, sp.utm_content_40 utmca
+FROM civicrm_activity a
+  JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+  JOIN civicrm_value_action_source_4 s ON s.entity_id = a.id
+  JOIN civicrm_value_share_params_6 sp ON sp.entity_id = a.id
+WHERE activity_type_id = 54 AND subject = '${TEST_HASH4}'"
+
+mysql $DB -u $USR -p$PSW -e "$QUERY"
+echo -e "\n"
+
+
 # delete
 read -p "delete testing data? (y/n): " DROP
 if [ "$DROP" = "y" ] ; then
@@ -94,4 +122,6 @@ JOIN civicrm_activity a ON a.id = ac.activity_id
 WHERE activity_type_id = 32 AND a.subject = '${TEST_HASH2}'"
   echo "delete old activity for current member..."
   mysql $DB -u $USR -p$PSW -e "DELETE FROM civicrm_activity WHERE activity_type_id = 32 AND subject = '${TEST_HASH3}'"
+  echo "delete share activity for current member..."
+  mysql $DB -u $USR -p$PSW -e "DELETE FROM civicrm_activity WHERE activity_type_id = 54 AND subject = '${TEST_HASH4}'"
 fi
