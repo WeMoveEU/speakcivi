@@ -484,8 +484,8 @@ return array(
     'help_text' => 'Activity type ID used for marking contacts who are removed from group.',
   ),
   'threshold_very_old_activity' => array(
-    'group_name' => 'SEPA Direct Debit Preferences',
-    'group' => 'org.project60',
+    'group_name' => 'Speakcivi API Preferences',
+    'group' => 'speakcivi',
     'name' => 'threshold_very_old_activity',
     'type' => 'Integer',
     'quick_form_type' => 'Element',
