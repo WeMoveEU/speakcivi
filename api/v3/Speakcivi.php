@@ -47,8 +47,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
       $message = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
       $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageNew, $message);
     } else {
-      $message = CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale);
-      $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageCurrent, $message);
+      // don't send any sharing email
+      return civicrm_api3_create_success(2, $params);
     }
   }
 
