@@ -12,6 +12,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $noMemberCampaignType = 0;
 
+  public $thresholdVeryOldActivity = 0;
+
+  public $useAsVeryOldActivity = false;
+
   public $defaultCampaignTypeId = 0;
 
   public $locale = '';
@@ -66,6 +70,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     CRM_Speakcivi_Tools_Hooks::setParams($param);
     $this->setDefaults();
     $this->setCountry($param);
+    $this->setVeryOldActivity($param);
 
     $notSendConfirmationToThoseCountries = array(
       'FR',
@@ -127,11 +132,27 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $this->noMemberGroupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_group_id');
     $this->noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
+    $this->thresholdVeryOldActivity = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'threshold_very_old_activity');
     $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
     $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
     $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
     $this->genderMaleValue = CRM_Core_OptionGroup::getValue('gender', 'Male', 'name', 'String', 'value');
     $this->genderUnspecifiedValue = CRM_Core_OptionGroup::getValue('gender', 'unspecified', 'name', 'String', 'value');
+  }
+
+
+  /**
+   *
+   * @param $param
+   */
+  function setVeryOldActivity($param) {
+    if ($this->thresholdVeryOldActivity > 0) {
+      $cd = new DateTime(substr($param->create_dt, 0, 10));
+      $cd->modify('+' . $this->thresholdVeryOldActivity . ' days');
+      if ($cd->format('Y-m-d') < date('Y-m-d')) {
+        $this->useAsVeryOldActivity = true;
+      }
+    }
   }
 
 
@@ -269,7 +290,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $h = $param->cons_hash;
-    if ($this->optIn == 1) {
+    if ($this->optIn == 1 && !$this->useAsVeryOldActivity) {
       $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
     } else {
       $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
