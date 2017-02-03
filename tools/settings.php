@@ -113,3 +113,6 @@ var_dump($result);
 
 $result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
 var_dump($result);
+
+$result = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'threshold_very_old_activity');
+var_dump($result);
