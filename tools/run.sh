@@ -40,8 +40,8 @@ curl $ENDPOINT -d "{
 \"action_technical_type\":\"you.wemove.eu:petition\",
 \"create_dt\":\"${TEST_DATETIME}\",
 \"action_name\":\"${TEST_HASH2}\",
-\"external_id\":\"10007\",
-\"cons_hash\":{\"firstname\":\"Test\",\"lastname\":\"Testowski\",\"emails\":[{\"email\":\"testowski@wemove.eu\"}],\"addresses\":[{\"zip\":\"[pl] 01-111\"}]},
+\"external_id\":\"10015\",
+\"cons_hash\":{\"firstname\":\"Test\",\"lastname\":\"Testowski\",\"emails\":[{\"email\":\"tomasz.wemove+hash2@gmail.com\"}],\"addresses\":[{\"zip\":\"[pl] 01-111\"}]},
 \"comment\":\"comment from bash script, new user\",
 \"source\":{\"source\":\"source-script\",\"medium\":\"medium-script\",\"campaign\":\"campaign-script\"},
 \"metadata\":{\"tracking_codes\":{\"source\":\"source-tracking\",\"medium\":\"medium-tracking\",\"campaign\":\"campaign-tracking\",\"content\":\"content-tracking\"}}
@@ -58,14 +58,14 @@ echo -e "\n"
 
 
 OLDDATE="$(date +%Y-%m-%d\ %H:%M:%S -d '10 days ago')"
-echo "3. Sign petition, current member at ${OLDDATE}"
+echo "3. Sign old petition for current member at ${OLDDATE}"
 TEST_HASH3=$(date +%s)
 curl $ENDPOINT -d "{
 \"action_type\":\"petition\",
 \"action_technical_type\":\"you.wemove.eu:petition\",
 \"create_dt\":\"${OLDDATE}\",
 \"action_name\":\"${TEST_HASH3}\",
-\"external_id\":\"10007\",
+\"external_id\":\"23\",
 \"cons_hash\":{\"firstname\":\"Tomasz\",\"lastname\":\"Pietrzkowski\",\"emails\":[{\"email\":\"scardinius@chords.pl\"}],\"addresses\":[{\"zip\":\"[pl] 01-111\"}]},
 \"comment\":\"comment from bash script\",
 \"source\":{\"source\":\"source-script\",\"medium\":\"medium-script\",\"campaign\":\"campaign-script\"},
@@ -117,7 +117,7 @@ curl $ENDPOINT -d "{
 \"create_dt\":\"${TEST_DATETIME}\",
 \"action_name\":\"${TEST_HASH5}\",
 \"external_id\":\"49\",
-\"cons_hash\":{\"firstname\":\"Test-EN\",\"lastname\":\"Testowski-EN\",\"emails\":[{\"email\":\"testowski-en@wemove.eu\"}],\"addresses\":[{\"zip\":\"[uk] 1111\"}]},
+\"cons_hash\":{\"firstname\":\"Test-EN\",\"lastname\":\"Testowski-EN\",\"emails\":[{\"email\":\"tomasz.wemove+hash5@gmail.com\"}],\"addresses\":[{\"zip\":\"[uk] 1111\"}]},
 \"comment\":\"comment from bash script, new user\",
 \"source\":{\"source\":\"source-script\",\"medium\":\"medium-script\",\"campaign\":\"campaign-script\"},
 \"metadata\":{\"tracking_codes\":{\"source\":\"source-tracking\",\"medium\":\"medium-tracking\",\"campaign\":\"campaign-tracking\",\"content\":\"content-tracking\"}}
