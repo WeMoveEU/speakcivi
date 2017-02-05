@@ -52,7 +52,7 @@ function handleError($msg, $error) {
     $channel->basic_publish($msg, '', $error_queue);
     $channel->basic_ack($msg->delivery_info['delivery_tag']);
   } else {
-    $channel->basic_nack($msg->delivery_info['delivery_tag']);
+    $channel->basic_nack($msg->delivery_info['delivery_tag'], false, true);
   }
   //In some cases (e.g. a lost connection), dying and respawning can solve the problem
   die(1);
