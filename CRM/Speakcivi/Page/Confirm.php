@@ -22,9 +22,11 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
       $activityStatus = 'Completed'; // Completed existing member
     }
 
+    $redirect = '';
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
       $locale = $campaign->getLanguage();
+      $redirect = $campaign->getRedirectConfirm();
       $language = substr($locale, 0, 2);
       $rlg = $this->setLanguageGroup($this->contactId, $language);
       $this->setLanguageTag($this->contactId, $language);
@@ -41,6 +43,10 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $email = CRM_Speakcivi_Logic_Contact::getEmail($this->contactId);
     $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
     $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, false, 'new_member');
+
+    if ($redirect) {
+      CRM_Utils_System::redirect($redirect);
+    }
 
     $country = $this->getCountry($this->campaignId);
     $url = "{$country}/post_confirm";

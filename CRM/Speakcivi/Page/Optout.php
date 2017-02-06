@@ -21,9 +21,11 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
       }
     }
 
+    $redirect = '';
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
       $locale = $campaign->getLanguage();
+      $redirect = $campaign->getRedirectOptout();
       $language = substr($locale, 0, 2);
       $this->setLanguageTag($this->contactId, $language);
     }
@@ -32,6 +34,10 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
+
+    if ($redirect) {
+      CRM_Utils_System::redirect($redirect);
+    }
 
     $country = $this->getCountry($this->campaignId);
     $url = "{$country}/post_optout";
