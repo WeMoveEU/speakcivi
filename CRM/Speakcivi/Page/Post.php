@@ -57,7 +57,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       if ($language != '') {
         $tab = explode('_', $language);
         if (strlen($tab[0]) == 2) {
-          $country = '/'.$tab[0];
+          $country = $tab[0];
         }
       }
     }
@@ -434,5 +434,16 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     if ($result['count'] == 0) {
       civicrm_api3('EntityTag', 'create', $params);
     }
+  }
+
+
+  public function determineRedirectUrl($page, $country, $redirect) {
+    if ($redirect) {
+      return str_replace('{$language}', $country, $redirect);
+    }
+    if ($country) {
+      return "/{$country}/{$page}";
+    }
+    return "/{$page}";
   }
 }

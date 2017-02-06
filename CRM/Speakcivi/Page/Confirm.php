@@ -45,11 +45,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, false, 'new_member');
 
     $country = $this->getCountry($this->campaignId);
-    if ($redirect) {
-      $redirect = str_replace('{$language}', $country, $redirect);
-      CRM_Utils_System::redirect($redirect);
-    }
-    $url = "{$country}/post_confirm";
+    $url = $this->determineRedirectUrl('post_confirm', $country, $redirect);
     CRM_Utils_System::redirect($url);
   }
 }

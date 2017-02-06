@@ -23,14 +23,12 @@ class CRM_Speakcivi_Page_NoMember_Optout extends CRM_Speakcivi_Page_Post {
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
 
     $country = $this->getCountry($this->campaignId);
+    $redirect = '';
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
-      if ($redirect = $campaign->getRedirectOptout()) {
-        $redirect = str_replace('{$language}', $country, $redirect);
-        CRM_Utils_System::redirect($redirect);
-      }
+      $redirect = $campaign->getRedirectOptout();
     }
-    $url = "{$country}/post_optout";
+    $url = $this->determineRedirectUrl('post_optout', $country, $redirect);
     CRM_Utils_System::redirect($url);
   }
 }

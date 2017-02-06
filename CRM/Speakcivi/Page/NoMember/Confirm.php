@@ -28,14 +28,12 @@ class CRM_Speakcivi_Page_NoMember_Confirm extends CRM_Speakcivi_Page_Post {
     $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, true, 'new_member');
 
     $country = $this->getCountry($this->campaignId);
+    $redirect = '';
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
-      if ($redirect = $campaign->getRedirectConfirm()) {
-        $redirect = str_replace('{$language}', $country, $redirect);
-        CRM_Utils_System::redirect($redirect);
-      }
+      $redirect = $campaign->getRedirectConfirm();
     }
-    $url = "{$country}/post_confirm";
+    $url = $this->determineRedirectUrl('post_confirm', $country, $redirect);
     CRM_Utils_System::redirect($url);
   }
 }
