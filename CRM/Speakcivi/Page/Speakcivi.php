@@ -788,10 +788,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
       }
     }
-    // fixme move this fix to utils and fix other text fields
-    // those unicode chars invoke bugs
     if (key_exists('details', $params)) {
-      $params['details'] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $params['details']);
+      $params['details'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($params['details']);
     }
     return CRM_Speakcivi_Logic_Activity::setActivity($params);
   }
