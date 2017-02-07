@@ -565,6 +565,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
     }
     $contact = $this->removeNullAddress($contact);
+    $contact = $this->cleanAddress($contact);
     return $contact;
   }
 
@@ -669,6 +670,21 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
     if (count($contact[$this->apiAddressCreate]) == 0) {
       unset($contact[$this->apiAddressCreate]);
+    }
+    return $contact;
+  }
+
+
+  /**
+   * Clean address from unicode chars
+   *
+   * @param $contact
+   *
+   * @return array
+   */
+  function cleanAddress($contact) {
+    if (array_key_exists('postal_code', $contact[$this->apiAddressCreate])) {
+      $contact[$this->apiAddressCreate]['postal_code'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($contact[$this->apiAddressCreate]['postal_code']);
     }
     return $contact;
   }
