@@ -68,6 +68,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public function runParam($param) {
     CRM_Speakcivi_Tools_Hooks::setParams($param);
+    CRM_Speakcivi_Tools_Helper::trimVariables($param);
     $this->setDefaults();
     $this->setCountry($param);
     $this->setVeryOldActivity($param);
