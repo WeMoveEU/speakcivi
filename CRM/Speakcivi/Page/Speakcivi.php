@@ -414,8 +414,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $contacIds = CRM_Speakcivi_Logic_Contact::getContactByEmail($h->emails[0]->email);
     if (is_array($contacIds) && count($contacIds) > 0) {
-      $contact['id'] = array('IN' => array_keys($contacIds));
-      $result = civicrm_api3('Contact', 'get', $contact);
+      $contactParam = $contact;
+      $contactParam['id'] = array('IN' => array_keys($contacIds));
+      unset($contactParam['email']); // getting by email (pseudoconstant) sometimes doesn't work
+      $result = civicrm_api3('Contact', 'get', $contactParam);
       if ($result['count'] == 1) {
         $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $result['values'][0]['id']);
       } elseif ($result['count'] > 1) {
