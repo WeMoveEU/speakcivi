@@ -795,22 +795,33 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
       'status_id' => $activityStatusId,
+      'details' => $this->determineDetails($param),
     );
+    return CRM_Speakcivi_Logic_Activity::setActivity($params);
+  }
+
+
+  /**
+   * Determine comment.
+   *
+   * @param $param
+   *
+   * @return mixed
+   */
+  private function determineDetails($param) {
+    $details = '';
     if (property_exists($param, 'comment') && $param->comment != '') {
-      $params['details'] = trim($param->comment);
+      $details = trim($param->comment);
     }
     if (property_exists($param, 'metadata')) {
       if (property_exists($param->metadata, 'sign_comment') && $param->metadata->sign_comment != '') {
-        $params['details'] = trim($param->metadata->sign_comment);
+        $details = trim($param->metadata->sign_comment);
       }
       if (property_exists($param->metadata, 'mail_to_subject') && property_exists($param->metadata, 'mail_to_body')) {
-        $params['details'] = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
+        $details = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
       }
     }
-    if (key_exists('details', $params)) {
-      $params['details'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($params['details']);
-    }
-    return CRM_Speakcivi_Logic_Activity::setActivity($params);
+    return CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($details);
   }
 
 
