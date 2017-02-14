@@ -686,7 +686,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return array
    */
   function cleanAddress($contact) {
-    if (array_key_exists('postal_code', $contact[$this->apiAddressCreate])) {
+    if (array_key_exists($this->apiAddressCreate, $contact) && array_key_exists('postal_code', $contact[$this->apiAddressCreate])) {
       $contact[$this->apiAddressCreate]['postal_code'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($contact[$this->apiAddressCreate]['postal_code']);
     }
     return $contact;
