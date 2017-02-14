@@ -29,7 +29,7 @@ function debug($msg) {
 }
 
 const SC_LOAD_INDEX = 1; // index of the avg [1m,5m,15m]
-const SC_MAX_LOAD = 2;
+const SC_MAX_LOAD = 3;
 const SC_LOAD_CHECK_FREQ = 100;
 const SC_COOLING_PERIOD = 20;
 
