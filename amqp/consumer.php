@@ -64,10 +64,18 @@ $callback = function($msg) {
     $json_msg = json_decode($msg->body);
     if ($json_msg) {
       $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
-      if ($msg_handler->runParam($json_msg)) {
-        $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-      } else {
-        handleError($msg, "runParams returned error code");
+      try {
+        if ($msg_handler->runParam($json_msg)) {
+          $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        } else {
+          handleError($msg, "runParams returned error code");
+        }
+      } catch (CiviCRM_API3_Exception $ex) {
+        CRM_Core_Error::debug_var('CiviCRM_API3_Exception $ex', $ex->getExtraParams());
+        handleError($msg, "CiviCRM_API3_Exception occured");
+      } catch (Exception $ex) {
+        CRM_Core_Error::debug_var('Exception $ex', $ex->getMessage());
+        handleError($msg, "Exception occured");
       }
     } else {
       handleError($msg, "Could not decode " . $msg->body);
