@@ -14,7 +14,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $thresholdVeryOldActivity = 0;
 
-  public $useAsVeryOldActivity = false;
+  public $useAsCurrentActivity = true;
 
   public $defaultCampaignTypeId = 0;
 
@@ -151,7 +151,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $cd = new DateTime(substr($param->create_dt, 0, 10));
       $cd->modify('+' . $this->thresholdVeryOldActivity . ' days');
       if ($cd->format('Y-m-d') < date('Y-m-d')) {
-        $this->useAsVeryOldActivity = true;
+        $this->useAsCurrentActivity = false;
       }
     }
   }
@@ -236,7 +236,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $h = $param->cons_hash;
-    if (!$this->useAsVeryOldActivity) {
+    if ($this->useAsCurrentActivity) {
       if ($this->optIn == 1) {
         $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
       } else {
@@ -295,7 +295,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $h = $param->cons_hash;
-    if (!$this->useAsVeryOldActivity) {
+    if ($this->useAsCurrentActivity) {
       if ($this->optIn == 1) {
         $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
       } else {
