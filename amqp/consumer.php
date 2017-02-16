@@ -89,6 +89,7 @@ $callback = function($msg) {
 
 $connection = connect();
 $channel = $connection->channel();
+$channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
 debug('Waiting for messages. To exit press CTRL+C...');
 while (true) {
   while (count($channel->callbacks)) {
