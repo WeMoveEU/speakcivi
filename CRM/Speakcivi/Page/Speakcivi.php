@@ -236,26 +236,30 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $h = $param->cons_hash;
-    if ($this->optIn == 1) {
-      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
+    if (!$this->useAsVeryOldActivity) {
+      if ($this->optIn == 1) {
+        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
+      } else {
+        $language = substr($this->locale, 0, 2);
+        $pagePost = new CRM_Speakcivi_Page_Post();
+        $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
+        $pagePost->setLanguageTag($contact['id'], $language);
+        if ($this->addJoinActivity) {
+          CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
+        }
+        if ($contact['values'][0]['preferred_language'] != $this->locale && $rlg == 1) {
+          CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
+        }
+        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
+        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
+      }
+      if ($sendResult['values'] == 1) {
+        return 1;
+      }
+      return 0;
     } else {
-      $language = substr($this->locale, 0, 2);
-      $pagePost = new CRM_Speakcivi_Page_Post();
-      $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
-      $pagePost->setLanguageTag($contact['id'], $language);
-      if ($this->addJoinActivity) {
-        CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
-      }
-      if ($contact['values'][0]['preferred_language'] != $this->locale && $rlg == 1) {
-        CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
-      }
-      $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
-      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
-    }
-    if ($sendResult['values'] == 1) {
       return 1;
     }
-    return 0;
   }
 
 
@@ -291,16 +295,20 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
 
     $h = $param->cons_hash;
-    if ($this->optIn == 1 && !$this->useAsVeryOldActivity) {
-      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
+    if (!$this->useAsVeryOldActivity) {
+      if ($this->optIn == 1) {
+        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
+      } else {
+        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
+        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
+      }
+      if ($sendResult['values'] == 1) {
+        return 1;
+      }
+      return 0;
     } else {
-      $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
-      $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
-    }
-    if ($sendResult['values'] == 1) {
       return 1;
     }
-    return 0;
   }
 
 
