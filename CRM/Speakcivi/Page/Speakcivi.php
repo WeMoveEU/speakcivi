@@ -314,7 +314,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int 1 ok, 0 failed
    */
   public function addActivity($param, $type, $status = 'Completed') {
-    $contact = $this->createContact($param, $this->groupId);
+    $groupId = $this->determineGroupId();
+    $contact = $this->createContact($param, $groupId);
     $activity = $this->createActivity($param, $contact['id'], $type, $status);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     CRM_Speakcivi_Logic_Activity::setShareFields($activity['id'], @$param->metadata->tracking_codes);
@@ -344,7 +345,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function donate($param) {
     if ($param->metadata->status == "success") {
-      $contact = $this->createContact($param, $this->groupId);
+      $groupId = $this->determineGroupId();
+      $contact = $this->createContact($param, $groupId);
       $contribution = $this->createContribution($param, $contact["id"]);
       if ($this->newContact) {
         CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $contribution['values'][0]['receive_date']);
@@ -384,6 +386,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
     );
     return civicrm_api3('Contribution', 'create', $params);
+  }
+
+
+  /**
+   * Determine members group id based on campaign type.
+   *
+   * @return int
+   */
+  private function determineGroupId() {
+    if ($this->campaign['campaign_type_id'] == $this->noMemberCampaignType) {
+      return $this->noMemberGroupId;
+    }
+    return $this->groupId;
   }
 
 
