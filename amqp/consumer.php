@@ -23,6 +23,8 @@ CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, FALSE);
 
 require_once __DIR__ . '/vendor/autoload.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 
 function debug($msg) {
   echo time(), ': ', $msg, "\n";
@@ -31,12 +33,14 @@ function debug($msg) {
 const SC_LOAD_INDEX = 1; // index of the avg [1m,5m,15m]
 const SC_MAX_LOAD = 3;
 const SC_LOAD_CHECK_FREQ = 100;
-const SC_COOLING_PERIOD = 20;
+const SC_COOLING_PERIOD = 20; // seconds
+const SC_RETRY_DELAY = 60000; // milliseconds
 
 $msg_since_check = 0;
-$arguments = getopt('q:e:');
+$arguments = getopt('q:e:r:');
 $queue_name = $arguments['q'];
 $error_queue = $arguments['e'];
+$retry_exchange = $arguments['r'];
 
 function connect() {
   return new AMQPStreamConnection(
@@ -44,16 +48,29 @@ function connect() {
     CIVICRM_AMQP_USER, CIVICRM_AMQP_PASSWORD, CIVICRM_AMQP_VHOST);
 }
 
-function handleError($msg, $error) {
-  global $error_queue;
+/**
+ * If $retry is trueish, nack the message without re-queue and send it to the retry exchange.
+ * Otherwise if an error queue is defined, send it to that queue through the direct exchange.
+ * Otherwise nack and re-deliver the message to the originating queue.
+ */
+function handleError($msg, $error, $retry=false) {
+  global $error_queue, $retry_exchange;
   CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $error, true, true);
   $channel = $msg->delivery_info['channel'];
-  if ($error_queue != NULL) {
+
+  if ($retry && $retry_exchange != NULL) {
+    $channel->basic_nack($msg->delivery_info['delivery_tag']);
+    $new_msg = new AMQPMessage($msg->body);
+    $headers = new AMQPTable(array('x-delay' => SC_RETRY_DELAY));
+    $new_msg->set('application_headers', $headers);
+    $channel->basic_publish($new_msg, $retry_exchange, $msg->delivery_info['routing_key']);
+  } else if ($error_queue != NULL) {
+    $channel->basic_nack($msg->delivery_info['delivery_tag']);
     $channel->basic_publish($msg, '', $error_queue);
-    $channel->basic_ack($msg->delivery_info['delivery_tag']);
   } else {
     $channel->basic_nack($msg->delivery_info['delivery_tag'], false, true);
   }
+  
   //In some cases (e.g. a lost connection), dying and respawning can solve the problem
   die(1);
 }
@@ -71,11 +88,11 @@ $callback = function($msg) {
           handleError($msg, "runParams returned error code");
         }
       } catch (CiviCRM_API3_Exception $ex) {
-        CRM_Core_Error::debug_var('CiviCRM_API3_Exception $ex', $ex->getExtraParams());
-        handleError($msg, "CiviCRM_API3_Exception occured");
+        $extraInfo = $ex->getExtraParams();
+        $retry = strpos($extraInfo['debug_information'], "try restarting transaction");
+        handleError($msg, CRM_Core_Error::formatTextException($ex), $retry);
       } catch (Exception $ex) {
-        CRM_Core_Error::debug_var('Exception $ex', $ex->getMessage());
-        handleError($msg, "Exception occured");
+        handleError($msg, CRM_Core_Error::formatTextException($ex));
       }
     } else {
       handleError($msg, "Could not decode " . $msg->body);
