@@ -30,6 +30,16 @@ function debug($msg) {
   echo time(), ': ', $msg, "\n";
 }
 
+set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context) {
+  if (0 === error_reporting()) { return false; }
+  switch ($err_severity) {
+    case E_USER_ERROR:
+      debug("Uncaught E_USER_ERROR: forcing exception");
+      throw new Exception($err_msg);
+  }
+  return false;
+});
+
 const SC_LOAD_INDEX = 1; // index of the avg [1m,5m,15m]
 const SC_MAX_LOAD = 3;
 const SC_LOAD_CHECK_FREQ = 100;
