@@ -363,6 +363,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
       return 1;
     } else {
+      CRM_Core_Error::debug_var("SPEAKCIVI", "Ignoring failed donation from " . $param->cons_hash->emails[0]->email);
       return 0;
     }
   }
@@ -386,9 +387,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'contribution_campaign_id' => $this->campaignId,
       'financial_type_id' => $financialTypeId,
       'receive_date' => $param->create_dt,
-      'total_amount' => $param->metadata->amount / 100,
-      'fee_amount' => $param->metadata->amount_charged / 100,
-      'net_amount' => ($param->metadata->amount - $param->metadata->amount_charged) / 100,
+      'total_amount' => $param->metadata->amount,
+      'fee_amount' => $param->metadata->amount_charged,
+      'net_amount' => ($param->metadata->amount - $param->metadata->amount_charged),
       'trxn_id' => $param->metadata->transaction_id,
       'contribution_status' => 'Completed',
       'currency' => $param->metadata->currency,
