@@ -18,6 +18,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $defaultCampaignTypeId = 0;
 
+  public $distributedCampaignTypeId = 6;
+
   public $locale = '';
 
   public $countryLangMapping = array();
@@ -378,14 +380,20 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return array
    */
   public function createContribution($param, $contactId) {
-    $financialTypeId = 1; // How to fetch it by name? No documentation mentions this, so it remains hardcoded, yey!
-    $this->bark("Campaign: " . $this->campaignId);
+    //TODO make these ids configurable
+    $financialTypeId = 1; 
+    if ($this->campaign['campaign_type_id'] == $this->distributedCampaignTypeId) {
+      $financialTypeId = 9;  //crowdfunding
+    }
+    $paymentInstrumentId = "Credit Card"; 
+    $this->bark("Donation for campaign: " . $this->campaignId);
     $params = array(
       'sequential' => 1,
       'source_contact_id' => $contactId,
       'contact_id' => $contactId,
       'contribution_campaign_id' => $this->campaignId,
       'financial_type_id' => $financialTypeId,
+      'payment_instrument_id' => $paymentInstrumentId,
       'receive_date' => $param->create_dt,
       'total_amount' => $param->metadata->amount,
       'fee_amount' => $param->metadata->amount_charged,
