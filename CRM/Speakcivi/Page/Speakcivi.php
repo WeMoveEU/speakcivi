@@ -408,6 +408,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 	'receipt_update' => 1,
       ),
     );
+    CRM_Speakcivi_Logic_Contribution::setSourceFields($params, @$param->source);
     return civicrm_api3('Contribution', 'create', $params);
   }
 
