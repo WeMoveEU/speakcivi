@@ -403,6 +403,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'currency' => $param->metadata->currency,
       'subject' => $param->action_name,
       'location' => $param->action_technical_type,
+      'api.Contribution.sendconfirmation' => array(
+        'receipt_from_email' => $this->campaignObj->getSenderMail(),
+	'receipt_update' => 1,
+      ),
     );
     return civicrm_api3('Contribution', 'create', $params);
   }
