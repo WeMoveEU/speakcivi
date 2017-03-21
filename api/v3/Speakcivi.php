@@ -251,6 +251,8 @@ function civicrm_api3_speakcivi_remind($params) {
   }
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
+  $noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
+
   $adminId = 1;
 
   $query = "SELECT acp.activity_id, ap.campaign_id, acp.contact_id
@@ -278,11 +280,14 @@ function civicrm_api3_speakcivi_remind($params) {
   $message = array();
   $subject = array();
   $utmCampaign = array();
+  $campaignType = array();
   $locale = array();
   $language = array();
   $email = array();
   foreach ($campaigns as $cid) {
     $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
+    $campaign = $campaignObj->getCampaign($cid, TRUE);
+    $campaignType[$cid] = $campaign['campaign_type_id'];
     $message[$cid] = $campaignObj->getMessageNew();
     $subject[$cid] = substr(removeSmartyIfClause(convertTokens($campaignObj->getSubjectNew())), 0, 128);
     $utmCampaign[$cid] = $campaignObj->getUtmCampaign();
@@ -295,9 +300,16 @@ function civicrm_api3_speakcivi_remind($params) {
   $messageHtml = array();
   $messageText = array();
   foreach ($message as $cid => $msg) {
-    $url_confirm_and_keep = CRM_Utils_System::url('civicrm/speakcivi/confirm', null, true).
+    if ($campaignType[$cid] == $noMemberCampaignType) {
+      $baseConfirmUrl = 'civicrm/speakcivi/nmconfirm';
+      $baseOptoutUrl = 'civicrm/speakcivi/nmoptout';
+    } else {
+      $baseConfirmUrl = 'civicrm/speakcivi/confirm';
+      $baseOptoutUrl = 'civicrm/speakcivi/optout';
+    }
+    $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl, null, true).
       "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
-    $url_confirm_and_not_receive = CRM_Utils_System::url('civicrm/speakcivi/optout', null, true).
+    $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl, null, true).
       "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
     $locales = getLocale($locale[$cid]);
     $confirmationBlockHtml = implode('', file(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl'));
