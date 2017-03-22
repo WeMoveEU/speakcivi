@@ -312,7 +312,8 @@ function drawTable(dom) {
                   if (delta == 0) delta ="";
                   c = " <span class='glyphicon glyphicon-log-out' title='Cancelled donation on "+day(d.cancel_date)+"'></span> "+delta+" ";
                 }
-                return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+c+"</a>"},
+                return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+c+"</a>"
+	      },
               function (d) {
                 return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id, selectedChild:'contribute'})+"'>"+d.first_name+"</a>";
 
@@ -325,6 +326,8 @@ function drawTable(dom) {
               function(d){return d.camp},
               function(d){return d.source},
               function(d){return d.medium},
+              function(d){return d.ab_test},
+              function(d){return d.ab_variant},
              ])
     ;
   return graph;
@@ -395,6 +398,10 @@ function drawTable(dom) {
 <th>country</th>
 <th>status</th>
 <th>campaign</th>
+<th>source</th>
+<th>medium</th>
+<th>AB test</th>
+<th>AB variant</th>
 </tr>
 </thead>
 <tbody>
