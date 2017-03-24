@@ -58,7 +58,7 @@
 	 <ul class="nav nav-tabs" role="tablist" >
 	<li class="disabled"><a href=""><b>Lang</b></a></li>
 	    <li role="presentation"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li>
-	    <li role="presentation class="active""><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab">Pie</a></li>
+	    <li role="presentation" class="active"><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab">Growth</a></li>
 	  </ul>
 
 	</div><div class="panel-body">
@@ -66,8 +66,8 @@
 
 	  <!-- Tab panes -->
 	  <div class="tab-content">
-	    <div role="tabpanel" class="graph tab-pane active fade in" id="map"></div>
-	    <div role="tabpanel" class="tab-pane pie fade in" id="pie"></div>
+	    <div role="tabpanel" class="graph tab-pane fade in" id="map"></div>
+	    <div role="tabpanel" class="tab-pane active pie fade in" id="pie"></div>
 	  </div>
 	</div></div></div>
 
@@ -146,6 +146,9 @@
 	    draw();
 	    })(CRM.$);
 	    
+      function getMetric(d) {
+        return d.completed_new;
+      };
 	    function draw () {
 	      
 	      //var dateFormat = d3.time.format.utc("%Y-%m-%d");
@@ -424,9 +427,10 @@ function drawDate (dom) {
   return graph;
 }
 
+
       function drawLang (dom) {
         var dim  = ndx.dimension(function(d) {return d.lang;});
-        var group = dim.group().reduceSum(function(d) {return d.total;});
+        var group = dim.group().reduceSum(getMetric);
         var chart = dc.pieChart(dom)
           .width(200)
           .height(200)
@@ -466,6 +470,10 @@ function drawTextSearch (dom,$,val) {
  function drawChannel (dom) {
 	function remove_empty_bins(source_group) {
 	    return {
+		top:function () {
+		    return source_group.all().filter(function(d) {
+			return d.value != 0;
+		    })},
 		all:function () {
 		    return source_group.all().filter(function(d) {
 			return d.value != 0;
@@ -481,8 +489,8 @@ function drawTextSearch (dom,$,val) {
        });
 
        var allGroup = dim.group()
-	.reduceSum(function(d){return d.total;});
-       var group = allGroup;//remove_empty_bins(allGroup);
+         .reduceSum(getMetric);
+       var group = remove_empty_bins(allGroup);
 
 	  var graph  = dc.rowChart(dom)
 	    .width(200)
