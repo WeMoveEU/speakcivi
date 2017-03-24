@@ -1,164 +1,172 @@
-{literal}
-<style>
- #channel g.row text {fill: grey;};
-.countries {stroke:grey;stroke-width:1;}
+	{literal}
+	<style>
+	 #name g.row text {fill: grey;};
+	.countries {stroke:grey;stroke-width:1;}
 
-.panel .panel-heading .nav-tabs {
-            margin:-10px -15px -12px -15px;
-            border-bottom-width:0;
-}
+	.panel .panel-heading .nav-tabs {
+		    margin:-10px -15px -12px -15px;
+		    border-bottom-width:0;
+	}
 
-.panel .panel-heading .nav-tabs li a {
-                    padding:15px;
-                    margin-bottom:1px;
-                    border:solid 0 transparent;
-}
-.panel .panel-heading .nav-tabs li a:hover {
-                    border-color: transparent;
-                    }
+	.panel .panel-heading .nav-tabs li a {
+			    padding:15px;
+			    margin-bottom:1px;
+			    border:solid 0 transparent;
+	}
+	.panel .panel-heading .nav-tabs li a:hover {
+			    border-color: transparent;
+			    }
 
 
-.panel .panel-heading .nav-tabs li.active a,.panel .panel-heading .nav-tabs li.active a:hover {
-                        border:solid 0 transparent;                         
-                    }
-</style>
-<div class="container" role="main">
-<div class="page-header"></div>
-<div class="row">
-<div id="date" class="col-md-12"><div class="panel panel-default"><div class="panel-heading">Date
+	.panel .panel-heading .nav-tabs li.active a,.panel .panel-heading .nav-tabs li.active a:hover {
+				border:solid 0 transparent;                         
+			    }
+	</style>
+	<div class="container" role="main">
+	<div class="page-header"></div>
+	<div class="row">
+	<div id="date" class="col-md-12"><div class="panel panel-default"><div class="panel-heading">Date
 
-<div class="btn-group" id="btn-date"></div>
+	<div class="btn-group" id="btn-date"></div>
 
-</div>
-<div class="panel-body"> <div class="graph"></div></div></div>
-</div>
-</div>
-<div class="row">
-	<div class="col-md-3 col-xs-6">
-		<div id="overview">
-			<ul class="list-group">
-				<li class="list-group-item"><span class="summary_total"></span> total</button></li>
-				<li class="list-group-item list-group-item-success"><span class="badge total_percent"></span><span class="total"></span> signatures</button></li>
-			</ul>
-</div>
 	</div>
-<div id="channel" class="col-md-3 col-xs-6"><div class="panel panel-default">
-  <div class="panel-heading" title="click to select campaigns">
-<th><input id="input-filter" placeholder="Channel" title="search on channel"/>
-</div>
-<div class="panel-body"> <div class="graph"></div></div></div></div>
-<div id="country" class="col-md-6 col-xs-12"><div class="panel panel-default">
-<div class="panel-heading">
+	<div class="panel-body"> <div class="graph"></div></div></div>
+	</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3">
+			<div id="overview">
+				<ul class="list-group">
+					<li class="list-group-item"><span class="summary_total"></span> total</button></li>
+					<li class="list-group-item list-group-item-success"><span class="badge total_percent"></span><span class="total"></span> signatures</button></li>
+					<li class="list-group-item"><span class="new"></span> new</button></li>
+					<li class="list-group-item"><span class="existing"></span> existing</button></li>
+					<li class="list-group-item"><span class="pending"></span> pending</button></li>
+					<li class="list-group-item"><span class="optout"></span> optout</button></li>
+					<li class="list-group-item"><span class="share"></span> share</button></li>
+				</ul>
+	</div>
+		</div>
+	<div id="name" class="col-md-3"><div class="panel panel-default">
+	  <div class="panel-heading" title="click to select campaigns">
+	<th><input id="input-filter" placeholder="Campaign" title="search on name"/>
+	</div>
+	<div class="panel-body"> <div class="graph"></div></div></div></div>
+	<div id="lang" class="col-md-6"><div class="panel panel-default">
+	<div class="panel-heading">
 
- <ul class="nav nav-tabs" role="tablist" >
-<li class="disabled"><a href=""><b>Country</b></a></li>
-    <li role="presentation" class="active"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li>
-    <li role="presentation"><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab">Pie</a></li>
-  </ul>
+	 <ul class="nav nav-tabs" role="tablist" >
+	<li class="disabled"><a href=""><b>Lang</b></a></li>
+	    <li role="presentation"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li>
+	    <li role="presentation class="active""><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab">Pie</a></li>
+	  </ul>
 
-</div><div class="panel-body">
-
-
-  <!-- Tab panes -->
-  <div class="tab-content">
-    <div role="tabpanel" class="graph tab-pane active fade in" id="map"></div>
-    <div role="tabpanel" class="tab-pane pie fade in" id="pie"></div>
-  </div>
-</div></div></div>
-
-</div>
+	</div><div class="panel-body">
 
 
-    <div class="row">
-      <div class="col-md-12">
-<div id="map"></div>
-      <table class="table table-striped hidden" id="table">
-        <thead>
-          <tr>
-            <th>Channel</th>
-            <th>Country</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-      </table>
-      </div>
-    </div>
-  </div>
+	  <!-- Tab panes -->
+	  <div class="tab-content">
+	    <div role="tabpanel" class="graph tab-pane active fade in" id="map"></div>
+	    <div role="tabpanel" class="tab-pane pie fade in" id="pie"></div>
+	  </div>
+	</div></div></div>
 
-    <script>
-"use strict";
-   var $=jQuery;
+	</div>
 
-  function setUrl(){
-   //var country=graphs.country.filters();
-   var country=null; // need to take it from the map
-   var channel=jQuery("#input-filter").val();
-   var url="?";
-   if (country && country.length > 0) url +="country="+country+"&";
-   if (channel) url +="channel="+channel+"&";
-   window.history.pushState(null, country + " " + channel, url);
 
-  };
+	    <div class="row">
+	      <div class="col-md-12">
+	<div id="map"></div>
+	      <table class="table table-striped hidden" id="table">
+		<thead>
+		  <tr>
+		    <th>Channel</th>
+		    <th>Lang</th>
+		    <th>Total</th>
+		  </tr>
+		</thead>
+	      </table>
+	      </div>
+	    </div>
+	  </div>
 
-  function hasFilter() {
-    return jQuery.urlParam("country") || jQuery.urlParam("channel");
-  };
+	    <script>
+	"use strict";
+	   var $=jQuery;
 
-  jQuery.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results==null){
-       return null;
-    }
-    else{
-       return decodeURI(results[1]) || 0;
-    }
-};
-    var graphs = [];
-    var summary= {};
-  var europe=null;
-{/literal}
-  var data = {crmSQL json="Trending" group_id=42};
-{literal}
-/*
-  var q=d3.queue()
-    .defer (function(callback) {
-      d3.json("data/europe50b.json", function(error, json) {
-        europe=json;
-        callback();
-      });
-    })
-    .defer (function(callback) {
-      d3.csv("data/openeci.csv", function(error, csv) {
-        data=csv;
-        callback();
-      });
-    })
-    .await(function (){
-      draw();
-    });
-*/
-    (function($){
-    draw();
-    })(CRM.$);
-    
-    function draw () {
-      
-      //var dateFormat = d3.time.format.utc("%Y-%m-%d");
-      var dateFormat = d3.time.format.utc("%Y%m%d%H");
-      var formatNumber = function (d){ return d3.format(",")(d).replace(",","'")};
-      var formatPercent =d3.format(".2%");
- 
-      data.values.forEach(function(d) {
-        d.total = + d.total;
-        d.date = dateFormat.parse(d.ts.toString());
-      }); 
-      var ndx = crossfilter(data.values);
+	  function setUrl(){
+	   //var lang=graphs.lang.filters();
+	   var lang=null; // need to take it from the map
+	   var name=jQuery("#input-filter").val();
+	   var url="?";
+	   if (lang && lang.length > 0) url +="lang="+lang+"&";
+	   if (name) url +="name="+name+"&";
+	   window.history.pushState(null, lang + " " + name, url);
 
-//      graphs.pie = drawPie("#test");
-      drawNumbers(graphs); //needs to be the first one
-//      graphs.channel = drawChannel("#channel .graph");
-//      graphs.map = drawMap ("#country .graph");
-//      graphs.country = drawCountry("#country .pie");
+	  };
+
+	  function hasFilter() {
+	    return jQuery.urlParam("lang") || jQuery.urlParam("name");
+	  };
+
+	  jQuery.urlParam = function(name){
+	    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+	    if (results==null){
+	       return null;
+	    }
+	    else{
+	       return decodeURI(results[1]) || 0;
+	    }
+	};
+	    var graphs = [];
+	    var summary= {};
+	  var europe=null;
+	{/literal}
+	  var data = {crmSQL json="Trending" group_id=42};
+	{literal}
+	/*
+	  var q=d3.queue()
+	    .defer (function(callback) {
+	      d3.json("data/europe50b.json", function(error, json) {
+		europe=json;
+		callback();
+	      });
+	    })
+	    .defer (function(callback) {
+	      d3.csv("data/openeci.csv", function(error, csv) {
+		data=csv;
+		callback();
+	      });
+	    })
+	    .await(function (){
+	      draw();
+	    });
+	*/
+	    (function($){
+	    draw();
+	    })(CRM.$);
+	    
+	    function draw () {
+	      
+	      //var dateFormat = d3.time.format.utc("%Y-%m-%d");
+	      var dateFormat = d3.time.format.utc("%Y%m%d%H");
+	      var formatNumber = function (d){ return d3.format(",")(d).replace(",","'")};
+	      var formatPercent =d3.format(".2%");
+
+	      $(".crm-container").removeClass("crm-container");
+
+
+	      data.values.forEach(function(d) {
+		d.total = + d.total;
+		d.date = dateFormat.parse(d.ts.toString());
+	      }); 
+	      var ndx = crossfilter(data.values);
+
+	//      graphs.pie = drawPie("#test");
+	      drawNumbers(graphs); //needs to be the first one
+	      graphs.name = drawChannel("#name .graph");
+	//      graphs.map = drawMap ("#lang .graph");
+	      graphs.lang = drawLang("#lang .pie");
       graphs.date = drawDate("#date .graph");
       graphs.btn_date = drawDateButton("#date .btn-group",graphs.date);
 //      graphs.table = drawTable("#table");
@@ -170,10 +178,10 @@
       jQuery (function($) {
         graphs.search = drawTextSearch('#input-filter',jQuery);
         $(".summary_total").text(formatNumber(summary.total));
-        $("#input-filter").val($.urlParam("channel")).keyup();//if channel param, filter
-        if ($.urlParam("country")){
-          $.urlParam("country").split(',').forEach(function(d){
-            graphs.country.filter(d);//if channel param, filter
+        $("#input-filter").val($.urlParam("name")).keyup();//if name param, filter
+        if ($.urlParam("lang")){
+          $.urlParam("lang").split(',').forEach(function(d){
+            graphs.lang.filter(d);//if name param, filter
           });
         }
         if (!hasFilter())
@@ -188,14 +196,24 @@ function drawNumbers (graphs){
   var group = ndx.groupAll().reduce(
     function (p, v) {
 	p.total += +v.total;
+	p.completed_new += +v.completed_new;
+	p.completed_existing_member += +v.completed_existing_member;
+	p.pending+= +v.pending;
+	p.optout+= +v.optout;
+	p.share+= +v.share;
 	return p;
     },
     function (p, v) {
 	p.total -= +v.total;
+	p.completed_new -= +v.completed_new;
+	p.completed_existing_member -= +v.completed_existing_member;
+	p.pending-= +v.pending;
+	p.optout-= +v.optout;
+	p.share-= +v.share;
 	return p;
     },
     function () { return {
-       total:0,
+       total:0,completed_new:0,completed_existing_member:0,pending:0,optout:0,share:0
       };
     });
   
@@ -217,18 +235,38 @@ function drawNumbers (graphs){
        return d.total/summary.total})
     .formatNumber(formatPercent)
     .group(group);
+
+  graphs.new=dc.numberDisplay(".new").group(group)
+    .valueAccessor(function(d){return d.completed_new})
+    .formatNumber(formatNumber);
+
+  graphs.existing=dc.numberDisplay(".existing").group(group)
+    .valueAccessor(function(d){return d.completed_existing_member})
+    .formatNumber(formatNumber);
+
+  graphs.optout=dc.numberDisplay(".optout").group(group)
+    .valueAccessor(function(d){return d.optout})
+    .formatNumber(formatNumber);
+
+  graphs.pending=dc.numberDisplay(".pending").group(group)
+    .valueAccessor(function(d){return d.pending})
+    .formatNumber(formatNumber);
+
+  graphs.share=dc.numberDisplay(".share").group(group)
+    .valueAccessor(function(d){return d.share})
+    .formatNumber(formatNumber);
 }
 
 function drawMap (dom) {
   var width=450;
-  var dim = ndx.dimension(function(d) {return d.country.toUpperCase();});
+  var dim = ndx.dimension(function(d) {return d.lang.toUpperCase();});
   //var group = dim.group().reduceSum(function(d) {return d.total;})
   var group = dim.group().reduce(
     function (p, v) {
       p.total += +v.total;
       if (p.iso == "") {
-        p.iso = v.country;
-        p.threshold =country[country.findIndex(function(c) {return v.country==c.country})].threshold;
+        p.iso = v.lang;
+        p.threshold =lang[lang.findIndex(function(c) {return v.lang==c.lang})].threshold;
       }
       return p;
     },
@@ -322,9 +360,7 @@ function drawDateButton(dom, graph) {
 var data = [
     { key: "today", label: "Today" },
     { key: "yesterday", label: "Yesterday" },
-    { key: "week", label: "This week" },
-    { key: "month", label: "This month" },
-    { key: "Infinity", label: "All" }
+    { key: "Infinity", label: "24h" }
 ];
   d3.select(dom)
     .selectAll("button")
@@ -375,7 +411,7 @@ function drawDate (dom) {
     .dimension(dim)
     .renderArea(true)
     .group(group)
-    .brushOn(false)
+    .brushOn(true)
     .title (function(d) {return dateFormat(d.key)+": "+d.value+" signatures"})
     .x(d3.time.scale.utc().domain([dim.bottom(1)[0].date,dim.top(1)[0].date]))
     .round(d3.time.day.utc.round)
@@ -388,8 +424,8 @@ function drawDate (dom) {
   return graph;
 }
 
-      function drawCountry (dom) {
-        var dim  = ndx.dimension(function(d) {return d.country;});
+      function drawLang (dom) {
+        var dim  = ndx.dimension(function(d) {return d.lang;});
         var group = dim.group().reduceSum(function(d) {return d.total;});
         var chart = dc.pieChart(dom)
           .width(200)
@@ -403,7 +439,7 @@ function drawDate (dom) {
     
 function drawTextSearch (dom,$,val) {
 
-  var dim = ndx.dimension(function(d) { return d.channel});
+  var dim = ndx.dimension(function(d) { return d.name});
 
   var throttleTimer;
 
@@ -427,17 +463,6 @@ function drawTextSearch (dom,$,val) {
 
 }
 
-function filter_bins(source_group, f) {
-    f = f || function(d) {return d.value != 0;};
-
-    return {
-        all:function () {
-            return source_group.all().filter(function(d) {
-                return f(d.value);
-            });
-        }
-    };
-}
  function drawChannel (dom) {
 	function remove_empty_bins(source_group) {
 	    return {
@@ -452,7 +477,7 @@ function filter_bins(source_group, f) {
 
        var dim = ndx.dimension(
          function(d){
-         return d.channel;
+         return d.name;
        });
 
        var allGroup = dim.group()
@@ -475,7 +500,7 @@ function filter_bins(source_group, f) {
 	.fixedBarHeight(14)
 	.labelOffsetX(2)
         .colorCalculator(function(d){return 'lightblue';})
-	.group(filter_bins(group));
+	.group(group);
 
     graph.xAxis().ticks(4);
     graph.margins().left = 5;
@@ -492,10 +517,10 @@ function filter_bins(source_group, f) {
               .group(function (d) { return "<b>"+dateFormat(d.date)+"</b>";})
               .columns([
                   function (d) {
-                      return d.channel;
+                      return d.name;
                   },
                   function (d) {
-                      return d.country;
+                      return d.lang;
                   },
                   function (d) {
                       return d.total;
