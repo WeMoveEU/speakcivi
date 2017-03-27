@@ -57,6 +57,7 @@
   <option value="today">Today</option>
   <option value='1'>last 24 hours</option>
   <option value="week">This week</option>
+  <option value='7'>Last 7 days</option>
   <option value="month">This month</option>
   <option value='30'>last 30 days</option>
   <option value='90'>last 90 days</option>
