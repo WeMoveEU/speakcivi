@@ -137,7 +137,7 @@ function drawStatus (dom) {
 
 function drawTextSearch (dom) {
 
-  var dim = ndx.dimension(function(d) { return d.camp.toString().toLowerCase()  || "?"});
+  var dim = ndx.dimension(function(d) { return d.camp.toString().toLowerCase() + " "+d.source.toLowerCase()+ d.ab_test.toLowerCase()+" "+d.ab_variant.toLowerCase() || "?"});
 
 	function debounce(fn, delay) {
 		var timer = null;
@@ -378,7 +378,7 @@ function drawTable(dom) {
 	</div>
 	<div class="col-md-3">
 		<div class="panel panel-default" id="campaign">
-			<div class="panel-heading" title="New members, based on the utm_source parameter"><input id="input-filter" placeholder="Campaign"/></div>
+			<div class="panel-heading" title="Campaigns or source or ab test"><input id="input-filter" placeholder="Campaign"/></div>
 			<div class="panel-body"><graph />
 			</div>
 		</div>
