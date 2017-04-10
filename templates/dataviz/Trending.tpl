@@ -152,7 +152,7 @@
 	    function draw () {
 	      
 	      //var dateFormat = d3.time.format.utc("%Y-%m-%d");
-	      var dateFormat = d3.time.format.utc("%Y%m%d%H");
+	      var dateFormat = d3.time.format("%Y%m%d%H");
 	      var formatNumber = function (d){ return d3.format(",")(d).replace(",","'")};
 	      var formatPercent =d3.format(".2%");
 
@@ -405,7 +405,7 @@ var data = [
 }
 
 function drawDate (dom) {
-  var dim = ndx.dimension(function(d){return d.date;});//already grouped by day
+  var dim = ndx.dimension(function(d){return d.date;});
   var group = dim.group().reduceSum(function(d){return d.total;});
   var graph=dc.lineChart(dom)
    .margins({top: 0, right: 20, bottom: 20, left:30})
