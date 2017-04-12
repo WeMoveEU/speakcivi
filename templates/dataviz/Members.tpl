@@ -1,86 +1,98 @@
 {crmTitle string="Members overview"}
 
-<div class="dc_contacts" id="dataviz-contacts">
-	<div id="datacount" style="margin-bottom:20px;">
-	    <h2><strong><span class="filter-count"></span></strong> members selected from a total of <strong><span id="total-count"></span></strong> records</h2>
-	</div>
-	<div style="clear:both"></div>
-	<div id="type" style="width:350px;">
-	    <strong>Language</strong>
-	    <a class="reset" href="javascript:langPie.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-	    <div class="clearfix"></div>
-	</div>
-		<div class="source">
-	    <strong>Source of Contact</strong>
-	    <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-	    <div class="clearfix"></div>
-	</div>
-	<div class="clear"></div>
-	<div id="gender" style="width:350px;">
-	    <strong>Gender</strong>
-	    <a class="reset" href="javascript:genderPie.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-	    <div class="clearfix"></div>
-	</div>
-	<div id="dayofweek">
-	    <strong>Day - Contact Created</strong>
-	    <a class="reset" href="javascript:weekRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-	    <div class="clearfix"></div>
-	</div>
-	<div class="clear"></div>
-	<div id="contacts-by-month">
-	    <strong>Date - Contact Created</strong>
-	    <a class="reset" href="javascript:monthLine.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-	    <div class="clearfix"></div>
-	</div>
+<div class="container dc_contacts" id="dataviz-contacts">
+<div class="row">
+  <div class="col-md-12">
+	    <h2 id="datacount"><strong><span class="filter-count"></span></strong> members selected from a total of <strong><span id="total-count"></span></strong> records</h2>
+  </div>
+</div>
+<div class="row">
+  <div id="date" class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">Date</div>
+      <div class="panel-body" id="contacts-by-month">
+      <graph></graph>
+	    <!--a class="reset" href="javascript:monthLine.filterAll();dc.redrawAll();" style="display: none;">reset</a-->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Language</div>
+      <div class="panel-body" id="language">
+        <graph></graph>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Source</div>
+      <div class="panel-body source">
+        <graph></graph>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
-(function(guid){ldelim}
-	'use strict';
+'use strict';
+var data = {crmSQL json="members" group_id=42};
 
-	var data = {crmSQL json="members" group_id=42};
-	var gender = {crmAPI entity="contact" action="getoptions" field="gender_id"};
+var campaigns={crmAPI entity='Campaign' action='get' option_limit=100000};
+var types = {crmAPI entity='Campaign' action='getoptions' sequential=0 field="campaign_type_id"};
+var speakout=[];
+var parent_campaign=[];
+(function(guid,$){ldelim}
 
 	{literal}
 
 		if(!data.is_error){//Check for database error
 			var numberFormat = d3.format(".2f");
-			var genderLabel = {};
-
-			gender.values.forEach(function(d){
-				genderLabel[d.key]=d.value;
-			});
 
 			var dateFormat = d3.time.format("%Y-%m-%d");
 
-			var genderPie=null,langPie=null, sourceRow=null, monthLine=null, weekRow=null;
+			var langPie=null, sourceRow=null, monthLine=null;
 
-			cj(function($) {
+			jQuery(function($) {
+                            $(".crm-container").removeClass("crm-container");
+
 				var totalContacts = 0;
 
+                                campaigns.values.forEach(function(d){
+                                  var id = d.parent_id || d.id;
+                                  if (d.parent_id == d.id || !d.parent_id) {
+                                    parent_campaign[id]=d;
+                                    parent_campaign[id]['name']=parent_campaign[id]['name'].replace("-EN","").replace("_EN","").replace("-en","");
+                                  }
+                                  speakout[+d.external_identifier] = id;
+                                });
 				data.values.forEach(function(d){ 
 					totalContacts+=d.count;
-					d.gender=genderLabel[d.gender_id];
 					d.dd = dateFormat.parse(d.created_date);
-					if(d.source=="")
-						d.source='None';
-					if(d.gender_id=="")
-						d.gender='None';
+                                        if (d.source.startsWith("speakout petition ")) {
+                                          var speakout_id = +d.source.replace ("speakout petition ", "");
+                                          if (speakout[speakout_id]) {
+                                           d.source=parent_campaign[speakout[speakout_id]].name;
+                                            d.campaign_id=speakout[speakout_id];
+                                          } else {
+                                            console.log ("missing campaign for "+speakout_id);
+                                          }
+                                        } else {
+					  //d.source='None';
+                                        }
 				});
 
-				// data.values.forEach(function(d) {
-				// 	console.log(d);
-				// });
-
 				//var min = d3.time.day.offset(d3.min(data.values, function(d) { return d.dd;} ),-2);
-				var min = dateFormat.parse("2015-09-01");
+				var min = dateFormat.parse("2015-11-01");
 				var max = d3.time.day.offset(d3.max(data.values, function(d) { return d.dd;} ), 2);
 
-		                langPie 	= dc.pieChart("#type").innerRadius(10).radius(90);
-				genderPie 	= dc.pieChart('#gender').innerRadius(10).radius(90);
-				sourceRow 	= dc.rowChart(guid + '.source');
-				monthLine 	= dc.lineChart('#contacts-by-month');
-				weekRow 	= dc.rowChart('#dayofweek');
+		                langPie 	= dc.pieChart("#language graph").innerRadius(10).radius(90);
+				monthLine 	= dc.lineChart('#contacts-by-month graph');
 
 				var ndx  = crossfilter(data.values), all = ndx.groupAll();
 
@@ -90,11 +102,7 @@
 
 			    document.getElementById("total-count").innerHTML=totalContacts;
 
-				var gender = ndx.dimension(function(d){if(d.gender!="") return d.gender; else return 3;});
-				var genderGroup = gender.group().reduceSum(function(d){return d.count;});
 
-				var source = ndx.dimension(function(d){ return d.source;});
-				var sourceGroup = source.group().reduceSum(function(d){return d.count;});
 
 				var lang        = ndx.dimension(function(d) {return d.language;});
 				var langGroup   = lang.group().reduceSum(function(d) { return d.count; });
@@ -102,14 +110,6 @@
 				var creationMonth = ndx.dimension(function(d) { return d.dd; });
 				var creationMonthGroup = creationMonth.group().reduceSum(function(d) { return d.count; });
 
-				var creationWeek = ndx.dimension(function (d) { 
-					var day = d.dd.getDay(); 
-					var name=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-					return day+"."+name[day]; 
-				});
-
-				var creationWeekGroup = creationWeek.group().reduceSum(function(d){return d.count;});
-				
 				var _group   = creationMonth.group().reduceSum(function(d) {return d.count;});
 				var group = {
 					all:function () {
@@ -138,51 +138,45 @@
 					   return d.key+': '+d.value+" (" + Math.floor(d.value / all.reduceSum(function(d) {return d.count;}).value() * 100) + "%)";
 					});
 
-				genderPie
-					.width(250)
-					.height(200)
-					.dimension(gender)
-					.colors(d3.scale.category10())
-					.group(genderGroup)
-					.label(function(d) {
-						if (genderPie.hasFilter() && !genderPie.hasFilter(d.key))
-			                return d.key + "(0%)";
-						return d.key+"(" + Math.floor(d.value / all.reduceSum(function(d) {return d.count;}).value() * 100) + "%)";;
-					})
-					.renderlet(function (chart) {			
-					});
 
-				sourceRow
-					.width(300)
-					.height(200)
-					.margins({top: 20, left: 10, right: 10, bottom: 20})
-					.dimension(source)
-					.cap(5)
+var pastel2= ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"];
+drawSource (".source graph");
+
+function drawSource (dom) {
+  var dim = ndx.dimension(function(d){ return d.campaign_id || d.source;});
+  var group = dim.group().reduceSum(function(d){return d.count;});
+  var graph = dc.rowChart(dom)
+	.width(300)
+	.height(400)
+	.margins({top: 20, left: 10, right: 10, bottom: 20})
+	.dimension(dim)
+	.cap(15)
+          .gap(1)
+          .title (function(d) {
+            if (parent_campaign[d.key]) {
+              return parent_campaign[+d.key].description + ": "+d.value;
+            } 
+          })
+          .ordinalColors(pastel2)
+          .colorAccessor(function(d){
+            if (parent_campaign[d.key])
+              return parent_campaign[+d.key].campaign_type_id;
+            return 1;
+             //d.source=parent_campaign[speakout[speakout_id]].name;
+
+          })
           .ordering (function(d) {return d.count;})
-					.colors(d3.scale.category10())
-					.group(sourceGroup)
-					.label(function(d){
-						if (sourceRow.hasFilter() && !sourceRow.hasFilter(d.key))
-			                return d.key + "(0%)";
-						return d.key+"(" + Math.floor(d.value / all.reduceSum(function(d) {return d.count;}).value() * 100) + "%)";
-					})
-					.elasticX(true);
-
-				weekRow
-					.width(300)
-					.height(200)
-					.margins({top: 0, left: 10, right: 10, bottom: 20})
-					.group(creationWeekGroup)
-					.dimension(creationWeek)
-					.ordinalColors(["#d95f02","#1b9e77","#7570b3","#e7298a","#66a61e","#e6ab02","#a6761d"])
-					.label(function (d) {
-						return d.key.split(".")[1];
-					})
-					.title(function (d) {
-						return d.value;
-					})
-					.elasticX(true)
-					.xAxis().ticks(4);
+	  .group(group)
+	  .label(function(d){
+	      if (graph.hasFilter() && !graph.hasFilter(d.key))
+	        return d.key + "(0%)";
+              var k=d.key;
+              if (parent_campaign[d.key])
+                k= parent_campaign[+d.key].custom_11;
+	      return k+"(" + Math.floor(d.value / all.reduceSum(function(d) {return d.count;}).value() * 100) + "%)";
+	    })
+	    .elasticX(true);
+}
 
 				monthLine
 					.width(800)
@@ -201,9 +195,35 @@
 			});
 		}
 		else{
-			cj('.dc_contacts').html('<div style="color:red; font-size:18px;">There is a database error. Please Contact the administrator as soon as possible.</div>');
+			$('.dc_contacts').html('<div style="color:red; font-size:18px;">There is a database error. Please Contact the administrator as soon as possible.</div>');
 		}
 	{/literal}
-{rdelim})("#dataviz-contacts ");
+{rdelim})("#dataviz-contacts ",CRM.$);
 </script>
-<div class="clear"></div>
+{literal}
+        <style>
+         #crm-container g.row text {fill: #222;};
+        .countries {stroke:grey;stroke-width:1;}
+
+        .panel .panel-heading .nav-tabs {
+                    margin:-10px -15px -12px -15px;
+                    border-bottom-width:0;
+        }
+
+        .panel .panel-heading .nav-tabs li a {
+                            padding:15px;
+                            margin-bottom:1px;
+                            border:solid 0 transparent;
+        }
+        .panel .panel-heading .nav-tabs li a:hover {
+                            border-color: transparent;
+                            }
+
+
+        .panel .panel-heading .nav-tabs li.active a,.panel .panel-heading .nav-tabs li.active a:hover {
+                                border:solid 0 transparent;
+                            }
+        </style>
+
+{/literal}
+
