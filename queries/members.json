@@ -1,8 +1,13 @@
-{"query":"SELECT COUNT(*) as count, source, gender_id, preferred_language as language, DATE(created_date) as created_date 
+{"query":"SELECT COUNT(*) as count, source, 
+  preferred_language as language, DATE(created_date) as created_date, iso_code as country
   from civicrm_contact as contact 
-  JOIN civicrm_group_contact gc ON contact.id = gc.contact_id AND gc.group_id = %1 AND gc.status = 'Added' 
-  join civicrm_email email on email.contact_id=contact.id and email.is_primary IS true  and email.on_hold =0 
+JOIN
+(select contact_id from civicrm_group_contact where group_id =%1 and status='Added' UNION select contact_id from civicrm_group_contact_cache where group_id=%1) gc 
+ on contact.id = gc.contact_id 
+
+join civicrm_address a on a.contact_id=contact.id and is_primary=1 left join civicrm_country ctry on a.country_id= ctry.id 
+
   where is_deleted=0 AND is_opt_out=0 AND created_date is not null 
-  group by DATE(created_date), preferred_language , gender_id, source;"
+  group by DATE(created_date), preferred_language , source, iso_code;"
  ,"params":{"1":{"name":"group_id","type":"Integer"}}}
 
