@@ -98,7 +98,7 @@ var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 var currentDate = new Date();
 var graphs = [];
 var color = d3.scale.linear().range(["red", "orange","green"]).domain([0,1,1.5]).interpolate(d3.interpolateHcl).clamp(true);
-
+var colordt = d3.scale.linear().range(["red", "black"]).domain([60, 10]).interpolate(d3.interpolateHcl).clamp(true);
 
 {literal}
 
@@ -139,6 +139,7 @@ campaigns.values.forEach(function(d){
 
 data.values.forEach(function(d){
   d.date = dateFormat.parse(d.date);
+  d.received_median= dateFormat.parse(d.received_median);
 });
 
 CRM.$("h1").html(CRM.$("h1").html() + " last updated :"+ prettyDate(data.values[0].last_updated));
@@ -608,7 +609,17 @@ function drawTable(dom) {
 	[
 	    function (d) {
 		//return "<span title='Last updated: " + prettyDate(d.last_updated) + "'>" + prettyDate(d.date) + "</span>";
-		return "<span title='median delivered : " + prettyDate(d.received_median) + "'>" + prettyDate(d.date) + "</span>";
+		//return "<span title='median delivered : " + prettyDate(d.received_median) + "'>" + prettyDate(d.date) + "</span>";
+                if (!d.received_median)
+  		  return "<span title='delivery median time not generated yet'><i>" + prettyDate(d.date) + "</i></span>";
+                var dt = Math.ceil((d.received_median - d.date) / 60000);
+                if (dt < 0) //bug and received_median = epoch 
+  		  return "<span title='delivery median error'><i>" + prettyDate(d.date) + "</i></span>";
+            
+		return "<span title='median delivered in "+dt+" min. Started at " + prettyDate(d.date) 
+                  +"' style='color:"+colordt(dt)+"' >"
+                  + prettyDate(d.received_median) + "</span>";
+                
 	    },
 	    function (d) {
              return "<a title='"+d.subject+"' href='/civicrm/mailing/report?mid="+d.id+"' target='_blank'>"+d.name+"</a>";
