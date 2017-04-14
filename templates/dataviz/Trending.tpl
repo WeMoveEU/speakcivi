@@ -21,6 +21,10 @@
 	.panel .panel-heading .nav-tabs li.active a,.panel .panel-heading .nav-tabs li.active a:hover {
 				border:solid 0 transparent;                         
 			    }
+
+         #date path.area {fill-opacity:.2;}
+
+         #date .brush rect.extent {fill:lightgrey;}
 	</style>
 	<div class="container" role="main">
 	<div class="page-header"></div>
@@ -122,7 +126,7 @@
 	    var summary= {};
 	  var europe=null;
 	{/literal}
-	  var data = {crmSQL json="Trending" group_id=42};
+	  var data = {crmSQL json="Trending"  days=2};
 	{literal}
 	/*
 	  var q=d3.queue()
@@ -149,15 +153,22 @@
       function getMetric(d) {
         return d.completed_new;
       };
-	    function draw () {
+
+
+    function draw () {
 	      
 	      //var dateFormat = d3.time.format.utc("%Y-%m-%d");
 	      var dateFormat = d3.time.format("%Y%m%d%H");
 	      var formatNumber = function (d){ return d3.format(",")(d).replace(",","'")};
 	      var formatPercent =d3.format(".2%");
-
+var pastel2= ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"];
+var colorType = d3.scale.ordinal().range(pastel2);
 	      $(".crm-container").removeClass("crm-container");
+//var colorWrap = function (name,text) { return '<span style="color:'+colorType(name)+' "}; 
 
+   ['new','total','new','existing','share','pending'].forEach (function(d) {
+     $("."+d).parent().css("color",colorType(d)).css("font-weight","bold");
+   });
 
 	      data.values.forEach(function(d) {
 		d.total = + d.total;
@@ -290,6 +301,8 @@ function drawMap (dom) {
      .domain([0,1])
      .clamp(true);
 
+
+
    var _colors = function (value) {
      if (!value)
        return "#F3F3F3";
@@ -363,7 +376,8 @@ function drawDateButton(dom, graph) {
 var data = [
     { key: "today", label: "Today" },
     { key: "yesterday", label: "Yesterday" },
-    { key: "Infinity", label: "24h" }
+    { key: "1", label: "24h" },
+    { key: "Infinity", label: "All" }
 ];
   d3.select(dom)
     .selectAll("button")
@@ -407,19 +421,40 @@ var data = [
 function drawDate (dom) {
   var dim = ndx.dimension(function(d){return d.date;});
   var group = dim.group().reduceSum(function(d){return d.total;});
-  var graph=dc.lineChart(dom)
+  var groupNew = dim.group().reduceSum(function(d){return d.completed_new;});
+  var groupPending = dim.group().reduceSum(function(d){return d.pending;});
+  var groupExisting = dim.group().reduceSum(function(d){return d.completed_existing_member;});
+  var groupShare = dim.group().reduceSum(function(d){return d.share;});
+  //var graph=dc.lineChart(dom)
+  var graph=dc.compositeChart(dom)
    .margins({top: 0, right: 20, bottom: 20, left:30})
     .height(150)
-    .width(650)
+    .width(1000)
     .dimension(dim)
-    .renderArea(true)
-    .group(group)
     .brushOn(true)
     .title (function(d) {return dateFormat(d.key)+": "+d.value+" signatures"})
     .x(d3.time.scale.utc().domain([dim.bottom(1)[0].date,dim.top(1)[0].date]))
     .round(d3.time.day.utc.round)
     .elasticY(true)
     .xUnits(d3.time.days.utc);
+
+    function line (group,name) {
+      return dc.lineChart(graph)
+       .group(group)
+       .colors(colorType)
+       .colorAccessor(function () { return name})
+       .interpolate('monotone');
+    };
+    graph.compose([
+        line(groupNew,"new")
+          .renderArea(true),
+        line(groupExisting,"existing"),
+        line(groupPending,"pending"),
+        line(groupShare,"share")
+          .dashStyle([3,1,1,1]),
+        line(group,"total")
+          .renderArea(true)
+    ]);
 
    graph.yAxis().ticks(5).tickFormat(d3.format(".2s"));
    graph.xAxis().ticks(7);
