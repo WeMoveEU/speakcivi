@@ -173,7 +173,7 @@ var colorType = d3.scale.ordinal().range(pastel2);
 //var colorWrap = function (name,text) { return '<span style="color:'+colorType(name)+' "}; 
 
    ['new','total','new','existing','share','pending'].forEach (function(d) {
-     $("."+d).parent().css("color",colorType(d)).css("font-weight","bold");
+     $("."+d).closest("li").css("background-color",colorType(d));//.css("font-weight","bold");
    });
 
 	      data.values.forEach(function(d) {

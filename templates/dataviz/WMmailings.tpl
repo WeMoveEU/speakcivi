@@ -139,10 +139,13 @@ campaigns.values.forEach(function(d){
 
 data.values.forEach(function(d){
   d.date = dateFormat.parse(d.date);
-  d.received_median= dateFormat.parse(d.received_median);
+ d.received_median= dateFormat.parse(d.received_median);
 });
 
-CRM.$("h1").html(CRM.$("h1").html() + " last updated :"+ prettyDate(data.values[0].last_updated));
+CRM.$("h1").html(CRM.$("h1").html() + " last updated :"+ prettyDate(data.values[0].last_updated)
++
+ '<a class="btn btn-danger bt-xs pull-right" id="resetall" href="javascript:dc.filterAll();dc.redrawAll();"><span class="glyphicon glyphicon-refresh"></span></a>'
+);
 
 function filterReminders(d) {
   return d.indexOf('-Reminder-') === -1;
