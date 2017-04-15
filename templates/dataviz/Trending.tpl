@@ -1,5 +1,8 @@
+{crmTitle string="Latest activities"}
 	{literal}
 	<style>
+      nopeh1.page-header,.breadcrumb,header p.lead {display:none;}
+ 
 	 #name g.row text {fill: grey;};
 	.countries {stroke:grey;stroke-width:1;}
 
@@ -41,13 +44,16 @@
 		<div class="col-md-3">
 			<div id="overview">
 				<ul class="list-group">
-					<li class="list-group-item"><span class="summary_total"></span> total</button></li>
+					<li class="list-group-item"><span class="summary_total"></span> total
+<a class="btn btn-danger bt-xs pull-right" id="resetall" href="javascript:dc.filterAll();dc.redrawAll();"><span class="glyphicon glyphicon-refresh"></span></a>
+
+</li>
 					<li class="list-group-item list-group-item-success"><span class="badge total_percent"></span><span class="total"></span> signatures</button></li>
-					<li class="list-group-item"><span class="new"></span> new</button></li>
-					<li class="list-group-item"><span class="existing"></span> existing</button></li>
-					<li class="list-group-item"><span class="pending"></span> pending</button></li>
-					<li class="list-group-item"><span class="optout"></span> optout</button></li>
-					<li class="list-group-item"><span class="share"></span> share</button></li>
+					<li class="list-group-item"><span class="badge new_percent"></span><span class="new"></span> new</li>
+					<li class="list-group-item"><span class="badge existing_percent"></span><span class="existing"></span> existing</button></li>
+					<li class="list-group-item"><span class="badge pending_percent"></span><span class="pending"></span> pending</button></li>
+					<li class="list-group-item"><span class="badge optout_percent"></span><span class="optout"></span> optout</button></li>
+					<li class="list-group-item"><span class="badge share_percent"></span><span class="share"></span> share</button></li>
 				</ul>
 	</div>
 		</div>
@@ -230,7 +236,14 @@ function drawNumbers (graphs){
        total:0,completed_new:0,completed_existing_member:0,pending:0,optout:0,share:0
       };
     });
-  
+ 
+
+  var badging = function (attribute,dom){
+    graphs[dom]=dc.numberDisplay("."+dom).group(group)
+      .valueAccessor(function(d){return d[attribute]/d.total})
+      .formatNumber(formatPercent);
+  };
+
   graphs.total=dc.numberDisplay(".total") 
     .valueAccessor(function(d){ 
        summary.filtered=d.total;
@@ -243,7 +256,7 @@ function drawNumbers (graphs){
     .valueAccessor(function(d){
        if (d.total == summary.total){
          $(".summary_total").parent().slideUp();
-         return summary.total/1000000;
+         return 1;
        }
        $(".summary_total").parent().slideDown();
        return d.total/summary.total})
@@ -253,22 +266,28 @@ function drawNumbers (graphs){
   graphs.new=dc.numberDisplay(".new").group(group)
     .valueAccessor(function(d){return d.completed_new})
     .formatNumber(formatNumber);
+  badging ("completed_new","new_percent");
+
 
   graphs.existing=dc.numberDisplay(".existing").group(group)
     .valueAccessor(function(d){return d.completed_existing_member})
     .formatNumber(formatNumber);
+  badging ("completed_existing_member","existing_percent");
 
   graphs.optout=dc.numberDisplay(".optout").group(group)
     .valueAccessor(function(d){return d.optout})
     .formatNumber(formatNumber);
+  badging ("optout","optout_percent");
 
   graphs.pending=dc.numberDisplay(".pending").group(group)
     .valueAccessor(function(d){return d.pending})
     .formatNumber(formatNumber);
+  badging ("pending","pending_percent");
 
   graphs.share=dc.numberDisplay(".share").group(group)
     .valueAccessor(function(d){return d.share})
     .formatNumber(formatNumber);
+  badging ("share","share_percent");
 }
 
 function drawMap (dom) {
@@ -432,6 +451,7 @@ function drawDate (dom) {
     .width(1000)
     .dimension(dim)
     .brushOn(true)
+    .renderHorizontalGridLines(true)
     .title (function(d) {return dateFormat(d.key)+": "+d.value+" signatures"})
     .x(d3.time.scale.utc().domain([dim.bottom(1)[0].date,dim.top(1)[0].date]))
     .round(d3.time.day.utc.round)
