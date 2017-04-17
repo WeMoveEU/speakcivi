@@ -67,7 +67,7 @@
 
 	 <ul class="nav nav-tabs" role="tablist" >
 	<li class="disabled"><a href=""><b>Lang</b></a></li>
-	    <li role="presentation"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li>
+	    <!--li role="presentation"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li-->
 	    <li role="presentation" class="active"><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab">Growth</a></li>
 	  </ul>
 
@@ -450,7 +450,7 @@ function drawDate (dom) {
     .height(150)
     .width(1000)
     .dimension(dim)
-    .brushOn(true)
+    .brushOn(false)
     .renderHorizontalGridLines(true)
     .title (function(d) {return dateFormat(d.key)+": "+d.value+" signatures"})
     .x(d3.time.scale.utc().domain([dim.bottom(1)[0].date,dim.top(1)[0].date]))
@@ -463,17 +463,18 @@ function drawDate (dom) {
        .group(group)
        .colors(colorType)
        .colorAccessor(function () { return name})
+       .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0})
        .interpolate('monotone');
     };
     graph.compose([
+        line(group,"total")
+          .renderArea(true),
         line(groupNew,"new")
           .renderArea(true),
         line(groupExisting,"existing"),
         line(groupPending,"pending"),
         line(groupShare,"share")
           .dashStyle([3,1,1,1]),
-        line(group,"total")
-          .renderArea(true)
     ]);
 
    graph.yAxis().ticks(5).tickFormat(d3.format(".2s"));

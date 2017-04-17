@@ -98,7 +98,7 @@ var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 var currentDate = new Date();
 var graphs = [];
 var color = d3.scale.linear().range(["red", "orange","green"]).domain([0,1,1.5]).interpolate(d3.interpolateHcl).clamp(true);
-var colordt = d3.scale.linear().range(["red", "black"]).domain([60, 10]).interpolate(d3.interpolateHcl).clamp(true);
+var colordt = d3.scale.linear().range(["red", "black","black"]).domain([60, 10,0]).interpolate(d3.interpolateHcl).clamp(true);
 
 {literal}
 
