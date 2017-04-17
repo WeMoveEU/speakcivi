@@ -45,7 +45,7 @@
 			<div id="overview">
 				<ul class="list-group">
 					<li class="list-group-item"><span class="summary_total"></span> total
-<a class="btn btn-danger bt-xs pull-right" id="resetall" href="javascript:dc.filterAll();dc.redrawAll();"><span class="glyphicon glyphicon-refresh"></span></a>
+<a class="btn btn-danger bt-xs pull-right" id="resetall" href="javascript: $('#btn-date .active').removeClass('active');dc.filterAll();dc.redrawAll();"><span class="glyphicon glyphicon-refresh"></span></a>
 
 </li>
 					<li class="list-group-item list-group-item-success"><span class="badge total_percent"></span><span class="total"></span> signatures</button></li>
@@ -395,8 +395,8 @@ function drawDateButton(dom, graph) {
 var data = [
     { key: "today", label: "Today" },
     { key: "yesterday", label: "Yesterday" },
-    { key: "1", label: "24h" },
-    { key: "Infinity", label: "All" }
+    { key: "1", label: "Last 24h" },
+    { key: "Infinity", label: "Last 48h" }
 ];
   d3.select(dom)
     .selectAll("button")
