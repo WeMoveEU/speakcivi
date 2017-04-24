@@ -118,7 +118,7 @@ var europe=null;
 					d.dd = dateFormat.parse(d.created_date);
                                         if (d.source.startsWith("speakout ")) {
                                           var speakout_id = +d.source.replace ("speakout petition ", "").replace ("speakout share ", "");
-                                          if (speakout[speakout_id]) {
+                                          if (speakout[speakout_id] && parent_campaign[speakout[speakout_id]]) {
                                            d.source=parent_campaign[speakout[speakout_id]].name;
                                             d.campaign_id=speakout[speakout_id];
                                           } else {
