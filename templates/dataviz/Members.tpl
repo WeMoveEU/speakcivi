@@ -77,7 +77,7 @@ topo = new URL(topo).pathname; //absolute -> relative url
 
 var data = {crmSQL json="members" group_id=$id};
 
-var campaigns={crmAPI entity='Campaign' action='get' option_limit=100000};
+var campaigns={crmAPI entity='Campaign' action='get' option_limit=100000 return="name,parent_id,external_identifier,title,campaign_type_id,custom_11"};
 var types = {crmAPI entity='Campaign' action='getoptions' sequential=0 field="campaign_type_id"};
 
 {php}
@@ -166,12 +166,17 @@ var _colorType = function(type){return pastel2[type % pastel2.length];};
   //var geojson=topojson.feature(europe,europe.objects.countries);
       graphs.map = drawMap ("#country .graph");
 
-dc.renderAll();
+    jQuery(function($) {
+      
+      window.dispatchEvent(new Event('resize'));
+      dc.renderAll();
+    });
 //      graphs.map.redraw();
 
    });
  
 
+    jQuery(function($) {
 graphs.date = drawDate("#date graph");
 graphs.lang = drawLang("#language graph");
 graphs.type = drawType("#type graph");
@@ -182,6 +187,7 @@ drawNumbers(graphs);
 summary.total = graphs.total.data();
 $(".summary_total").text(formatNumber(summary.total));
  
+    });
 
 
 function drawMap (dom) {
@@ -278,7 +284,7 @@ function drawLang (dom) {
 
 
 		                var langPie 	= dc.pieChart(dom).innerRadius(10).radius(90)
-					.width(250)
+					.width(0)
 					.height(200)
 					.dimension(lang)
 					.colors(d3.scale.category10())
@@ -305,7 +311,7 @@ function drawType (dom) {
 
 
   var graph	= dc.pieChart(dom).innerRadius(10).radius(90)
-					.width(250)
+					.width(0)
 					.height(200)
 					.dimension(dim)
   .colors(_colorType)
@@ -410,7 +416,7 @@ function drawSource (dom) {
   var dim = ndx.dimension(function(d){ return d.campaign_id || d.source;});
   var group = dim.group().reduceSum(function(d){return d.count;});
   var graph = dc.rowChart(dom)
-	.width(250)
+	.width(0)
 	.height(500)
 	.margins({top: 20, left: 10, right: 10, bottom: 20})
 	.dimension(dim)
@@ -465,7 +471,7 @@ function drawDate() {
 					}
 				};
 var graph= dc.lineChart('#contacts-by-month graph')
-					.width(1100)
+					.width(0)
 					.height(222)
            .margins({top: 15, right: 50, bottom: 30, left: 50})
 					.dimension(creationMonth)
@@ -485,7 +491,23 @@ var graph= dc.lineChart('#contacts-by-month graph')
 		else{
 			$('.dc_contacts').html('<div style="color:red; font-size:18px;">There is a database error. Please Contact the administrator as soon as possible.</div>');
 		}
-	{/literal}
+
+d3.select(window).on('resize.updatedc', function() {
+  dc.events.trigger(function() {
+    dc.chartRegistry.list().forEach(function(chart) {
+            var container = chart.root().node();
+            if (!container) return;
+            container=container.parentNode.getBoundingClientRect();
+            chart.width(container.width);
+            chart.rescale && chart.rescale();
+      });
+
+      dc.redrawAll(); 
+  },500);
+});     
+
+
+{/literal}
 {rdelim})("#dataviz-contacts ",CRM.$);
 </script>
 {literal}
