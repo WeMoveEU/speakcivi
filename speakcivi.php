@@ -132,3 +132,9 @@ function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = a
     $values[$cid]['speakcivi.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
   }
 }
+
+function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
+  if ($apiRequest['entity'] == 'MailingEventUnsubscribe' && $apiRequest['action'] == 'create') {
+    $wrappers[] = new CRM_Speakcivi_APIWrapper();
+  }
+}
