@@ -7,8 +7,6 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
   }
 
   public function toApiOutput($apiRequest, $result) {
-    CRM_Core_Error::debug_var('$apiRequest', $apiRequest);
-    CRM_Core_Error::debug_var('$result', $result);
     if ($apiRequest['entity'] == 'MailingEventUnsubscribe' && $apiRequest['action'] == 'create') {
       $this->processUnsubscribe($apiRequest);
     }
@@ -18,7 +16,7 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
   private function processUnsubscribe($apiRequest) {
     $eq = new CRM_Mailing_Event_BAO_Queue();
     $eq->id = $apiRequest['params']['event_queue_id'];
-    if ($eq->find()) {
+    if ($eq->find(TRUE)) {
       if ($this->contactHasMoreJoinsThanLeaves($eq->contact_id)) {
         $this->addLeave($eq->contact_id);
       }
