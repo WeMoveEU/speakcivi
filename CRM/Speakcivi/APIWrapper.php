@@ -17,7 +17,9 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $eq = new CRM_Mailing_Event_BAO_Queue();
     $eq->id = $apiRequest['params']['event_queue_id'];
     if ($eq->find(TRUE)) {
-      if ($this->contactHasMoreJoinsThanLeaves($eq->contact_id)) {
+      if (!$this->contactHasMembersGroup($eq->contact_id) &&
+        $this->contactHasMoreJoinsThanLeaves($eq->contact_id)
+      ) {
         $this->addLeave($eq->contact_id);
       }
     }
@@ -30,6 +32,16 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
               WHERE a.activity_type_id IN (56, 57)
               ORDER BY a.id DESC
               LIMIT 1";
+    $params = array(
+      1 => array($contactId, 'Integer'),
+    );
+    return (boolean)CRM_Core_DAO::singleValueQuery($query, $params);
+  }
+
+  private function contactHasMembersGroup($contactId) {
+    $query = "SELECT count(id)
+              FROM civicrm_group_contact
+              WHERE group_id = 42 AND contact_id = %1 AND status = 'Added'";
     $params = array(
       1 => array($contactId, 'Integer'),
     );
