@@ -20,7 +20,8 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
       if (!$this->contactHasMembersGroup($eq->contact_id) &&
         $this->contactHasMoreJoinsThanLeaves($eq->contact_id)
       ) {
-        $this->addLeave($eq->contact_id);
+        $campaignId = $this->setCampaignId($eq->id);
+        $this->addLeave($eq->contact_id, $campaignId);
       }
     }
   }
@@ -48,14 +49,34 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     return (boolean)CRM_Core_DAO::singleValueQuery($query, $params);
   }
 
-  private function addLeave($contactId) {
-    $data = array(
-      0 => array(
-        'id' => $contactId,
-        'subject' => 'unsubscribe',
-        'activity_date_time' => date('YmdHis'),
-      )
+  private function setCampaignId($eventQueueId) {
+    $campaignId = Civi::cache()->get('speakcivi-campaign-eventqueue-'. $eventQueueId);
+    if (!isset($campaignId)) {
+      $campaignId = $this->findCampaignId($eventQueueId);
+      Civi::cache()->set('speakcivi-campaign-eventqueue-'. $eventQueueId, $campaignId);
+    }
+    return $campaignId;
+  }
+
+  private function findCampaignId($eventQueueId) {
+    $query = "SELECT m.campaign_id
+              FROM civicrm_mailing_event_queue eq
+                JOIN civicrm_mailing_job mj ON mj.id = eq.job_id
+                JOIN civicrm_mailing m ON m.id = mj.mailing_id
+              WHERE eq.id = %1";
+    $queryParams = array(
+      1 => array($eventQueueId, 'Integer'),
     );
-    CRM_Speakcivi_Cleanup_Leave::createActivitiesInBatch($data);
+    return (int)CRM_Core_DAO::singleValueQuery($query, $queryParams);
+  }
+
+  private function addLeave($contactId, $campaignId) {
+    $data = array(
+      'contact_id' => $contactId,
+      'campaign_id' => $campaignId,
+      'subject' => 'unsubscribe',
+      'activity_date_time' => date('YmdHis'),
+    );
+    CRM_Speakcivi_Logic_Activity::leave($data['contact_id'], $data['subject'], $data['campaign_id'], 0, $data['activity_date_time'], 'Added by SpeakCivi API');
   }
 }
