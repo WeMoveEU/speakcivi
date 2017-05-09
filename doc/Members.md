@@ -7,7 +7,7 @@ You can filter them by:
 - their country (based on what they chose)
 
 # date
-The date graph at the top shows when the members of today joined us. ie. if you read 500'000 members in december, it does not mean we had half a million members in december, but that on the members today, 500k were already known in December.
+The date graph at the top shows when the members of today entered the database. ie. if you read 500'000 members in december, it does not mean we had half a million members in december, but that on the members today, 500k were already known in December, even if some of them were not members. 
 
 # Campaign type and campaign
 
