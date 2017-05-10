@@ -69,64 +69,67 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   }
 
   public function runParam($param) {
-    CRM_Speakcivi_Tools_Hooks::setParams($param);
-    CRM_Speakcivi_Tools_Helper::trimVariables($param);
-    $this->setDefaults();
-    $this->setCountry($param);
-    $this->setVeryOldActivity($param);
+    CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use ($param) {
+      CRM_Speakcivi_Tools_Hooks::setParams($param);
+      CRM_Speakcivi_Tools_Helper::trimVariables($param);
+      $this->setDefaults();
+      $this->setCountry($param);
+      $this->setVeryOldActivity($param);
 
-    $notSendConfirmationToThoseCountries = array(
-      'FR',
-      'GB',
-      'IT',
-      'UK',
-      'ES',
-      'BE',
-      'NL',
-      'PL',
-    );
-    if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
-      $this->optIn = 0;
-    }
+      $notSendConfirmationToThoseCountries = array(
+        'FR',
+        'GB',
+        'IT',
+        'UK',
+        'ES',
+        'BE',
+        'NL',
+        'PL',
+      );
+      if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
+        $this->optIn = 0;
+      }
 
-    $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-    $this->campaign = $this->campaignObj->getCampaign($param->external_id);
-    $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign, $param);
-    if ($this->campaignObj->isValidCampaign($this->campaign)) {
-      $this->campaignId = (int)$this->campaign['id'];
-      $this->campaignObj->customFields = $this->campaignObj->getCustomFields($this->campaignId);
-      $this->locale = $this->campaignObj->getLanguage();
-    } else {
-      header('HTTP/1.1 503 Men at work');
-      return;
-    }
+      $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
+      $this->campaign = $this->campaignObj->getCampaign($param->external_id);
+      $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign, $param);
+      if ($this->campaignObj->isValidCampaign($this->campaign)) {
+        $this->campaignId = (int)$this->campaign['id'];
+        $this->campaignObj->customFields = $this->campaignObj->getCustomFields($this->campaignId);
+        $this->locale = $this->campaignObj->getLanguage();
+      } else {
+        $tx->rollback();
+        header('HTTP/1.1 503 Men at work');
+        return;
+      }
 
-    switch ($param->action_type) {
-      case 'petition':
-        $result = $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
-        break;
+      switch ($param->action_type) {
+        case 'petition':
+          $result = $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
+          break;
 
-      case 'share':
-        $result = $this->addActivity($param, 'share');
-        break;
+        case 'share':
+          $result = $this->addActivity($param, 'share');
+          break;
 
-      case 'tweet':
-        $result = $this->addActivity($param, 'Tweet');
-        break;
+        case 'tweet':
+          $result = $this->addActivity($param, 'Tweet');
+          break;
 
-      case 'speakout':
-        $result = $this->addActivity($param, 'Email');
-        break;
+        case 'speakout':
+          $result = $this->addActivity($param, 'Email');
+          break;
 
-      case 'donate':
-        $result = $this->donate($param);
-        break;
+        case 'donate':
+          $result = $this->donate($param);
+          break;
 
-      default:
-        $result = 0;
-    }
+        default:
+          $result = 0;
+      }
 
-    return $result;
+      return $result;
+    });
   }
 
 
