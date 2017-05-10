@@ -16,6 +16,8 @@ class CRM_Speakcivi_Tools_Stat {
 
   public static $isActive = false;
 
+  public static $customSID = '';
+
 
   public static function m($filename = '', $description = '') {
     if (self::isValid($filename, $description)) {
@@ -118,12 +120,18 @@ class CRM_Speakcivi_Tools_Stat {
 
   private static function setData($description) {
     return array(
-      self::COL_SID => CRM_Core_Key::sessionID(),
+      self::COL_SID => self::getSID(),
       self::COL_DESC => $description,
       self::COL_SEC => microtime(true),
     );
   }
 
+  private static function getSID() {
+    if (self::$customSID) {
+      return self::$customSID;
+    }
+    return CRM_Core_Key::sessionID();
+  }
 
   private static function writeCsv($filename, $data) {
     $path = dirname(__FILE__).self::PATH.$filename;
