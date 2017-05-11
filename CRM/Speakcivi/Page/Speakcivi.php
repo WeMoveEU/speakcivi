@@ -69,7 +69,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   }
 
   public function runParam($param) {
-    CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use ($param) {
+    $result = 0;
+    CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use ($param, &$result) {
       CRM_Speakcivi_Tools_Hooks::setParams($param);
       CRM_Speakcivi_Tools_Helper::trimVariables($param);
       $this->setDefaults();
@@ -127,9 +128,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         default:
           $result = 0;
       }
-
-      return $result;
     });
+    return $result;
   }
 
 
