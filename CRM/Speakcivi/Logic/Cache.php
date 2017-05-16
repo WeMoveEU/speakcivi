@@ -13,7 +13,11 @@ class CRM_Speakcivi_Logic_Cache {
         'campaign' => $campaign,
         'customFields' => $customFields,
       );
-      Civi::cache()->set($key, $cacheCampaign);
+      // fixme move limit to settings
+      $limit = 20;
+      if ($campaign['api.Activity.getcount'] >= $limit) {
+        Civi::cache()->set($key, $cacheCampaign);
+      }
     }
     return $cacheCampaign;
   }

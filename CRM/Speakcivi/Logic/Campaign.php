@@ -272,6 +272,9 @@ class CRM_Speakcivi_Logic_Campaign {
       $params = array(
         'sequential' => 1,
         $field => (int)$id,
+        'api.Activity.getcount' => array(
+          'campaign_id' => '$value.id',
+        ),
       );
       $result = civicrm_api3('Campaign', 'get', $params);
       if ($result['count'] == 1) {
