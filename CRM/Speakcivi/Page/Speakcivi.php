@@ -91,12 +91,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->optIn = 0;
       }
 
+      $cacheCampaign = CRM_Speakcivi_Logic_Cache::campaign($param);
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $this->campaign = $this->campaignObj->getCampaign($param->external_id);
-      $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign, $param);
+      $this->campaignObj->customFields = $cacheCampaign['customFields'];
+      $this->campaign = $cacheCampaign['campaign'];
       if ($this->campaignObj->isValidCampaign($this->campaign)) {
         $this->campaignId = (int)$this->campaign['id'];
-        $this->campaignObj->customFields = $this->campaignObj->getCustomFields($this->campaignId);
         $this->locale = $this->campaignObj->getLanguage();
       } else {
         $tx->rollback();
@@ -409,7 +409,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'api.Contribution.sendconfirmation' => array(
         'receipt_from_email' => $this->campaignObj->getSenderMail(),
-	'receipt_update' => 1,
+        'receipt_update' => 1,
       ),
     );
     CRM_Speakcivi_Logic_Contribution::setSourceFields($params, @$param->source);
