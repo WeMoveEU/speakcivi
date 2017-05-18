@@ -38,8 +38,6 @@ class CRM_Speakcivi_Logic_Campaign {
 
   public $urlSpeakout = '';
 
-  public $customFields = array();
-
   public $countryLangMapping = array();
 
   /**
@@ -62,38 +60,7 @@ class CRM_Speakcivi_Logic_Campaign {
     $this->fieldRedirectOptout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_redirect_optout');
     if ($campaignId > 0) {
       $this->campaign = $this->getCampaign($campaignId, TRUE);
-      $this->customFields = $this->setCustomFields($this->campaign);
     }
-  }
-
-
-  /**
-   * Set custom fields based on campaign.
-   *
-   * @param array $campaign
-   *
-   * @return array
-   */
-  public function setCustomFields($campaign) {
-    $fields = array(
-      $this->fieldTemplateId,
-      $this->fieldLanguage,
-      $this->fieldSenderMail,
-      $this->fieldUrlCampaign,
-      $this->fieldUtmCampaign,
-      $this->fieldTwitterShareText,
-      $this->fieldSubjectNew,
-      $this->fieldSubjectCurrent,
-      $this->fieldMessageNew,
-      $this->fieldMessageCurrent,
-      $this->fieldRedirectConfirm,
-      $this->fieldRedirectOptout,
-    );
-    $result = array();
-    foreach ($fields as $fld) {
-      $result[$fld] = CRM_Utils_Array::value($fld, $campaign);
-    }
-    return $result;
   }
 
 

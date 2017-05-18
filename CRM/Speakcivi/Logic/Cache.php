@@ -11,10 +11,8 @@ class CRM_Speakcivi_Logic_Cache {
       $campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
       $campaignObj->campaign = $campaignObj->setCampaign($param->external_id, $campaignObj->campaign, $param);
-      $customFields = $campaignObj->setCustomFields($campaignObj->campaign);
       $cacheCampaign = array(
         'campaign' => $campaignObj->campaign,
-        'customFields' => $customFields,
         'timestamp' => date(self::$dateFormat),
       );
       // fixme move limit to settings
