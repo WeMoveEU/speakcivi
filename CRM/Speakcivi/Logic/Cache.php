@@ -9,17 +9,17 @@ class CRM_Speakcivi_Logic_Cache {
     $cacheCampaign = Civi::cache()->get($key);
     if (!isset($cacheCampaign) || self::isOld($cacheCampaign['timestamp'])) {
       $campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $campaign = $campaignObj->getCampaign($param->external_id);
-      $campaign = $campaignObj->setCampaign($param->external_id, $campaign, $param);
-      $customFields = $campaignObj->setCustomFields($campaign);
+      $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
+      $campaignObj->campaign = $campaignObj->setCampaign($param->external_id, $campaignObj->campaign, $param);
+      $customFields = $campaignObj->setCustomFields($campaignObj->campaign);
       $cacheCampaign = array(
-        'campaign' => $campaign,
+        'campaign' => $campaignObj->campaign,
         'customFields' => $customFields,
         'timestamp' => date(self::$dateFormat),
       );
       // fixme move limit to settings
       $limit = 20;
-      if ($campaign['api.Activity.getcount'] >= $limit) {
+      if ($campaignObj->campaign['api.Activity.getcount'] >= $limit) {
         Civi::cache()->set($key, $cacheCampaign);
       }
     }
