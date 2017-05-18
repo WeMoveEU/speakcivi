@@ -2,6 +2,8 @@
 
 class CRM_Speakcivi_Logic_Campaign {
 
+  public $campaign = array();
+
   public $defaultLanguage = '';
 
   public $defaultCampaignTypeId = 0;
@@ -40,6 +42,11 @@ class CRM_Speakcivi_Logic_Campaign {
 
   public $countryLangMapping = array();
 
+  /**
+   * CRM_Speakcivi_Logic_Campaign constructor.
+   *
+   * @param int $campaignId Campaign id from CiviCRM, not external identifier
+   */
   function __construct($campaignId = 0) {
     $this->fieldTemplateId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_template_id');
     $this->fieldLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_language');
@@ -54,46 +61,8 @@ class CRM_Speakcivi_Logic_Campaign {
     $this->fieldRedirectConfirm = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_redirect_confirm');
     $this->fieldRedirectOptout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_redirect_optout');
     if ($campaignId > 0) {
-      $this->customFields = $this->getCustomFields($campaignId);
-    }
-  }
-
-
-  /**
-   * Get custom fields for campaign Id.
-   * Warning! Switch on permission "CiviCRM: access all custom data" for "ANONYMOUS USER"
-   *
-   * @param $campaignId
-   *
-   * @return array
-   * @throws CiviCRM_API3_Exception
-   */
-  public function getCustomFields($campaignId) {
-    // todo remove this method
-    $fields = array(
-      $this->fieldTemplateId,
-      $this->fieldLanguage,
-      $this->fieldSenderMail,
-      $this->fieldUrlCampaign,
-      $this->fieldUtmCampaign,
-      $this->fieldTwitterShareText,
-      $this->fieldSubjectNew,
-      $this->fieldSubjectCurrent,
-      $this->fieldMessageNew,
-      $this->fieldMessageCurrent,
-      $this->fieldRedirectConfirm,
-      $this->fieldRedirectOptout,
-    );
-    $params = array(
-      'sequential' => 1,
-      'return' => implode(",", $fields),
-      'id' => $campaignId,
-    );
-    $result = civicrm_api3('Campaign', 'get', $params);
-    if ($result['count'] == 1) {
-      return $result['values'][0];
-    } else {
-      return array();
+      $this->campaign = $this->getCampaign($campaignId, TRUE);
+      $this->customFields = $this->setCustomFields($this->campaign);
     }
   }
 
