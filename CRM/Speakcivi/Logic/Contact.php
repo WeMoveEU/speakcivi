@@ -134,4 +134,43 @@ class CRM_Speakcivi_Logic_Contact {
       civicrm_api3('Contact', 'create', $params);
     }
   }
+
+
+  /**
+   * Set all needed objects for new contact like groups, tag and join activity.
+   *
+   * @param int $contactId
+   * @param int $contributionId
+   */
+  public static function setMembers($contactId, $contributionId = 0) {
+    $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+    $params = array(
+      'sequential' => 1,
+      'id' => $contactId,
+      'return' => 'preferred_language',
+      'api.GroupContact.get' => array(
+        'sequential' => 1,
+        'group_id' => $groupId,
+        'contact_id' => '$value.id',
+        'status' => 'Added',
+      ),
+    );
+    $result = civicrm_api3('Contact', 'get', $params);
+    if ($result['values'][0]['api.GroupContact.get']['count'] == 0) {
+      $language = substr($result['values'][0]['preferred_language'], 0, 2);
+      $page = new CRM_Speakcivi_Page_Post();
+      $page->setGroupContactAdded($contactId, $groupId);
+      $page->setLanguageGroup($contactId, $language);
+      $page->setLanguageTag($contactId, $language);
+      $campaignId = 0;
+      if ($contributionId) {
+        $result = civicrm_api3('Contribution', 'get', array(
+          'sequential' => 1,
+          'id' => $contributionId,
+        ));
+        $campaignId = @(int)$result['values'][0]['contribution_campaign_id'];
+      }
+      CRM_Speakcivi_Logic_Activity::join($contactId, 'donation_page', $campaignId, 0);
+    }
+  }
 }

@@ -142,32 +142,6 @@ function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
 function speakcivi_civicrm_postProcess($formName, &$form) {
   /** Trello #264 Add the right language for new people coming in through donation pages */
   if ($formName == 'CRM_Contribute_Form_Contribution_Confirm') {
-    $contactId = $form->_contactID;
-    $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-    $params = array(
-      'sequential' => 1,
-      'id' => $contactId,
-      'return' => 'preferred_language',
-      'api.GroupContact.get' => array(
-        'sequential' => 1,
-        'group_id' => $groupId,
-        'contact_id' => '$value.id',
-        'status' => 'Added',
-      ),
-    );
-    $result = civicrm_api3('Contact', 'get', $params);
-    if ($result['values'][0]['api.GroupContact.get']['count'] == 0) {
-      $language = substr($result['values'][0]['preferred_language'], 0, 2);
-      $page = new CRM_Speakcivi_Page_Post();
-      $page->setGroupContactAdded($contactId, $groupId);
-      $page->setLanguageGroup($contactId, $language);
-      $page->setLanguageTag($contactId, $language);
-      $result = civicrm_api3('Contribution', 'get', array(
-        'sequential' => 1,
-        'id' => $form->_contributionID,
-      ));
-      $campaignId = @(int)$result['values'][0]['contribution_campaign_id'];
-      CRM_Speakcivi_Logic_Activity::join($contactId, 'donation_page', $campaignId, 0);
-    }
+    CRM_Speakcivi_Logic_Contact::setMembers($form->_contactID, $form->_contributionID);
   }
 }
