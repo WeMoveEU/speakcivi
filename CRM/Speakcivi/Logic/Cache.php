@@ -6,26 +6,6 @@ class CRM_Speakcivi_Logic_Cache {
 
   private static $dateFormat = 'YmdHis';
 
-  public static function campaign($param) {
-    $key = 'speakcivi-cachecampaign-' . $param->external_id;
-    $cacheCampaign = Civi::cache()->get($key);
-    if (!isset($cacheCampaign) || self::isOld($cacheCampaign['timestamp'])) {
-      $campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
-      $campaignObj->campaign = $campaignObj->setCampaign($param->external_id, $campaignObj->campaign, $param);
-      $cacheCampaign = array(
-        'campaign' => $campaignObj->campaign,
-        'timestamp' => date(self::$dateFormat),
-      );
-      // fixme move limit to settings
-      $limit = 20;
-      if ($campaignObj->campaign['api.Activity.getcount'] >= $limit) {
-        Civi::cache()->set($key, $cacheCampaign);
-      }
-    }
-    return $cacheCampaign;
-  }
-
 
   /**
    * Get array cache for given object.
