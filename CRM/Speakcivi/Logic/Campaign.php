@@ -69,6 +69,7 @@ class CRM_Speakcivi_Logic_Campaign {
    * @throws CiviCRM_API3_Exception
    */
   public function getCustomFields($campaignId) {
+    // todo remove this method
     $fields = array(
       $this->fieldTemplateId,
       $this->fieldLanguage,
@@ -94,6 +95,36 @@ class CRM_Speakcivi_Logic_Campaign {
     } else {
       return array();
     }
+  }
+
+
+  /**
+   * Set custom fields based on campaign.
+   *
+   * @param array $campaign
+   *
+   * @return array
+   */
+  public function setCustomFields($campaign) {
+    $fields = array(
+      $this->fieldTemplateId,
+      $this->fieldLanguage,
+      $this->fieldSenderMail,
+      $this->fieldUrlCampaign,
+      $this->fieldUtmCampaign,
+      $this->fieldTwitterShareText,
+      $this->fieldSubjectNew,
+      $this->fieldSubjectCurrent,
+      $this->fieldMessageNew,
+      $this->fieldMessageCurrent,
+      $this->fieldRedirectConfirm,
+      $this->fieldRedirectOptout,
+    );
+    $result = array();
+    foreach ($fields as $fld) {
+      $result[$fld] = $campaign[$fld];
+    }
+    return $result;
   }
 
 

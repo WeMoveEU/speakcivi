@@ -11,7 +11,7 @@ class CRM_Speakcivi_Logic_Cache {
       $campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $campaign = $campaignObj->getCampaign($param->external_id);
       $campaign = $campaignObj->setCampaign($param->external_id, $campaign, $param);
-      $customFields = $campaignObj->getCustomFields($campaign['id']);
+      $customFields = $campaignObj->setCustomFields($campaign);
       $cacheCampaign = array(
         'campaign' => $campaign,
         'customFields' => $customFields,
