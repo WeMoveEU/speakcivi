@@ -140,9 +140,9 @@ class CRM_Speakcivi_Logic_Contact {
    * Set all needed objects for new contact like groups, tag and join activity.
    *
    * @param int $contactId
-   * @param int $contributionId
+   * @param int $campaignId
    */
-  public static function setMembers($contactId, $contributionId = 0) {
+  public static function setMembers($contactId, $campaignId = 0) {
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $params = array(
       'sequential' => 1,
@@ -162,14 +162,6 @@ class CRM_Speakcivi_Logic_Contact {
       $page->setGroupContactAdded($contactId, $groupId);
       $page->setLanguageGroup($contactId, $language);
       $page->setLanguageTag($contactId, $language);
-      $campaignId = 0;
-      if ($contributionId) {
-        $result = civicrm_api3('Contribution', 'get', array(
-          'sequential' => 1,
-          'id' => $contributionId,
-        ));
-        $campaignId = @(int)$result['values'][0]['contribution_campaign_id'];
-      }
       CRM_Speakcivi_Logic_Activity::join($contactId, 'donation_page', $campaignId, 0);
     }
   }
