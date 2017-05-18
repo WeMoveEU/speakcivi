@@ -122,7 +122,7 @@ class CRM_Speakcivi_Logic_Campaign {
     );
     $result = array();
     foreach ($fields as $fld) {
-      $result[$fld] = $campaign[$fld];
+      $result[$fld] = CRM_Utils_Array::value($fld, $campaign);
     }
     return $result;
   }
