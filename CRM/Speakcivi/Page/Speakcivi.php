@@ -93,8 +93,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
       $cacheCampaign = CRM_Speakcivi_Logic_Cache::campaign($param);
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $this->campaignObj->customFields = $cacheCampaign['customFields'];
-      $this->campaign = $cacheCampaign['campaign'];
+      $this->campaignObj->campaign = $cacheCampaign['campaign'];
       if ($this->campaignObj->isValidCampaign($this->campaign)) {
         $this->campaignId = (int)$this->campaign['id'];
         $this->locale = $this->campaignObj->getLanguage();

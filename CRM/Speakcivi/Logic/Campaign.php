@@ -103,8 +103,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getTemplateId() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldTemplateId, $this->customFields)) {
-      return (int)$this->customFields[$this->fieldTemplateId];
+    if (is_array($this->campaign) && array_key_exists($this->fieldTemplateId, $this->campaign)) {
+      return (int)$this->campaign[$this->fieldTemplateId];
     }
     return 0;
   }
@@ -116,8 +116,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return string
    */
   public function getLanguage() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldLanguage, $this->customFields)) {
-      return $this->customFields[$this->fieldLanguage];
+    if (is_array($this->campaign) && array_key_exists($this->fieldLanguage, $this->campaign)) {
+      return $this->campaign[$this->fieldLanguage];
     }
     return '';
   }
@@ -129,8 +129,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getSenderMail() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldSenderMail, $this->customFields)) {
-      return $this->customFields[$this->fieldSenderMail];
+    if (is_array($this->campaign) && array_key_exists($this->fieldSenderMail, $this->campaign)) {
+      return $this->campaign[$this->fieldSenderMail];
     }
     return '';
   }
@@ -142,8 +142,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getUrlCampaign() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldUrlCampaign, $this->customFields)) {
-      return $this->customFields[$this->fieldUrlCampaign];
+    if (is_array($this->campaign) && array_key_exists($this->fieldUrlCampaign, $this->campaign)) {
+      return $this->campaign[$this->fieldUrlCampaign];
     }
     return '';
   }
@@ -155,8 +155,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getUtmCampaign() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldUtmCampaign, $this->customFields)) {
-      return $this->customFields[$this->fieldUtmCampaign];
+    if (is_array($this->campaign) && array_key_exists($this->fieldUtmCampaign, $this->campaign)) {
+      return $this->campaign[$this->fieldUtmCampaign];
     }
     return '';
   }
@@ -168,8 +168,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getTwitterShareText() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldTwitterShareText, $this->customFields)) {
-      return $this->customFields[$this->fieldTwitterShareText];
+    if (is_array($this->campaign) && array_key_exists($this->fieldTwitterShareText, $this->campaign)) {
+      return $this->campaign[$this->fieldTwitterShareText];
     }
     return '';
   }
@@ -181,8 +181,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getSubjectNew() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldSubjectNew, $this->customFields)) {
-      return $this->customFields[$this->fieldSubjectNew];
+    if (is_array($this->campaign) && array_key_exists($this->fieldSubjectNew, $this->campaign)) {
+      return $this->campaign[$this->fieldSubjectNew];
     }
     return '';
   }
@@ -194,8 +194,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getSubjectCurrent() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldSubjectCurrent, $this->customFields)) {
-      return $this->customFields[$this->fieldSubjectCurrent];
+    if (is_array($this->campaign) && array_key_exists($this->fieldSubjectCurrent, $this->campaign)) {
+      return $this->campaign[$this->fieldSubjectCurrent];
     }
     return '';
   }
@@ -207,8 +207,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getMessageNew() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldMessageNew, $this->customFields)) {
-      return $this->customFields[$this->fieldMessageNew];
+    if (is_array($this->campaign) && array_key_exists($this->fieldMessageNew, $this->campaign)) {
+      return $this->campaign[$this->fieldMessageNew];
     }
     return '';
   }
@@ -220,8 +220,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getMessageCurrent() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldMessageCurrent, $this->customFields)) {
-      return $this->customFields[$this->fieldMessageCurrent];
+    if (is_array($this->campaign) && array_key_exists($this->fieldMessageCurrent, $this->campaign)) {
+      return $this->campaign[$this->fieldMessageCurrent];
     }
     return '';
   }
@@ -233,8 +233,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getRedirectConfirm() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldRedirectConfirm, $this->customFields)) {
-      return $this->customFields[$this->fieldRedirectConfirm];
+    if (is_array($this->campaign) && array_key_exists($this->fieldRedirectConfirm, $this->campaign)) {
+      return $this->campaign[$this->fieldRedirectConfirm];
     }
     return '';
   }
@@ -246,8 +246,8 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getRedirectOptout() {
-    if (is_array($this->customFields) && array_key_exists($this->fieldRedirectOptout, $this->customFields)) {
-      return $this->customFields[$this->fieldRedirectOptout];
+    if (is_array($this->campaign) && array_key_exists($this->fieldRedirectOptout, $this->campaign)) {
+      return $this->campaign[$this->fieldRedirectOptout];
     }
     return '';
   }
