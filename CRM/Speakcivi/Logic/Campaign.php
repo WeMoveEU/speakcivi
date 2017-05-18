@@ -59,7 +59,7 @@ class CRM_Speakcivi_Logic_Campaign {
     $this->fieldRedirectConfirm = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_redirect_confirm');
     $this->fieldRedirectOptout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_redirect_optout');
     if ($campaignId > 0) {
-      $this->campaign = $this->getCampaign($campaignId, TRUE);
+      $this->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByLocalId($campaignId);
     }
   }
 
