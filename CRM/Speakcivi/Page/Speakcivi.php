@@ -32,11 +32,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $campaignObj;
 
-  public $campaign = array();
-
   public $campaignId = 0;
-
-  public $customFields = array();
 
   public $newContact = false;
 
@@ -93,8 +89,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
-      if ($this->campaignObj->isValidCampaign($this->campaign)) {
-        $this->campaignId = (int)$this->campaign['id'];
+      if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
+        $this->campaignId = (int)$this->campaignObj->campaign['id'];
         $this->locale = $this->campaignObj->getLanguage();
       } else {
         $tx->rollback();
@@ -104,7 +100,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
       switch ($param->action_type) {
         case 'petition':
-          $result = $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
+          $result = $this->choosePetitionMode($param, $this->campaignObj->campaign['campaign_type_id']);
           break;
 
         case 'share':
@@ -384,7 +380,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function createContribution($param, $contactId) {
     //TODO make these ids configurable
     $financialTypeId = 1; 
-    if ($this->campaign['campaign_type_id'] == $this->distributedCampaignTypeId) {
+    if ($this->campaignObj->campaign['campaign_type_id'] == $this->distributedCampaignTypeId) {
       $financialTypeId = 9;  //crowdfunding
     }
     $paymentInstrumentId = "Credit Card"; 
@@ -421,7 +417,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int
    */
   private function determineGroupId() {
-    if ($this->campaign['campaign_type_id'] == $this->noMemberCampaignType) {
+    if ($this->campaignObj->campaign['campaign_type_id'] == $this->noMemberCampaignType) {
       return $this->noMemberGroupId;
     }
     return $this->groupId;
