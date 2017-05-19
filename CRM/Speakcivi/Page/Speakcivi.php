@@ -178,6 +178,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       if ($this->country) {
+        $this->country = ($this->country == 'UK' ? 'GB' : $this->country);
         $params = array(
           'sequential' => 1,
           'iso_code' => $this->country,
