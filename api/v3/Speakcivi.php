@@ -29,7 +29,6 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   }
 
   $campaignObj = new CRM_Speakcivi_Logic_Campaign($campaignId);
-  $campaign = $campaignObj->getCampaign($campaignId, TRUE);
   $locale = $campaignObj->getLanguage();
   $params['from'] = $campaignObj->getSenderMail();
   $params['format'] = null;
@@ -286,8 +285,7 @@ function civicrm_api3_speakcivi_remind($params) {
   $email = array();
   foreach ($campaigns as $cid) {
     $campaignObj = new CRM_Speakcivi_Logic_Campaign($cid);
-    $campaign = $campaignObj->getCampaign($cid, TRUE);
-    $campaignType[$cid] = $campaign['campaign_type_id'];
+    $campaignType[$cid] = $campaignObj->campaign['campaign_type_id'];
     $message[$cid] = $campaignObj->getMessageNew();
     $subject[$cid] = substr(removeSmartyIfClause(convertTokens($campaignObj->getSubjectNew())), 0, 128);
     $utmCampaign[$cid] = $campaignObj->getUtmCampaign();

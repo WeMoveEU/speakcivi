@@ -32,11 +32,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $campaignObj;
 
-  public $campaign = array();
-
   public $campaignId = 0;
-
-  public $customFields = array();
 
   public $newContact = false;
 
@@ -92,11 +88,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
 
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $this->campaign = $this->campaignObj->getCampaign($param->external_id);
-      $this->campaign = $this->campaignObj->setCampaign($param->external_id, $this->campaign, $param);
-      if ($this->campaignObj->isValidCampaign($this->campaign)) {
-        $this->campaignId = (int)$this->campaign['id'];
-        $this->campaignObj->customFields = $this->campaignObj->getCustomFields($this->campaignId);
+      $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
+      if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
+        $this->campaignId = (int)$this->campaignObj->campaign['id'];
         $this->locale = $this->campaignObj->getLanguage();
       } else {
         $tx->rollback();
@@ -106,7 +100,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
       switch ($param->action_type) {
         case 'petition':
-          $result = $this->choosePetitionMode($param, $this->campaign['campaign_type_id']);
+          $result = $this->choosePetitionMode($param, $this->campaignObj->campaign['campaign_type_id']);
           break;
 
         case 'share':
@@ -184,6 +178,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       if ($this->country) {
+        $this->country = ($this->country == 'UK' ? 'GB' : $this->country);
         $params = array(
           'sequential' => 1,
           'iso_code' => $this->country,
@@ -386,7 +381,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function createContribution($param, $contactId) {
     //TODO make these ids configurable
     $financialTypeId = 1; 
-    if ($this->campaign['campaign_type_id'] == $this->distributedCampaignTypeId) {
+    if ($this->campaignObj->campaign['campaign_type_id'] == $this->distributedCampaignTypeId) {
       $financialTypeId = 9;  //crowdfunding
     }
     $paymentInstrumentId = "Credit Card"; 
@@ -409,7 +404,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'location' => $param->action_technical_type,
       'api.Contribution.sendconfirmation' => array(
         'receipt_from_email' => $this->campaignObj->getSenderMail(),
-	'receipt_update' => 1,
+        'receipt_update' => 1,
       ),
     );
     CRM_Speakcivi_Logic_Contribution::setSourceFields($params, @$param->source);
@@ -423,7 +418,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int
    */
   private function determineGroupId() {
-    if ($this->campaign['campaign_type_id'] == $this->noMemberCampaignType) {
+    if ($this->campaignObj->campaign['campaign_type_id'] == $this->noMemberCampaignType) {
       return $this->noMemberGroupId;
     }
     return $this->groupId;
