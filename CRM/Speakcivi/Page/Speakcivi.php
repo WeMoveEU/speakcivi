@@ -637,34 +637,30 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
     } elseif ($existingContact[$this->apiAddressGet]['count'] > 1) {
       // from speakout we have only (postal_code) or (postal_code and country)
-      $theSame = false;
       foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
         $adr = $this->getAddressValues($v);
         if (
           array_key_exists('country_id', $adr) && $this->countryId == $adr['country_id'] &&
           array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
         ) {
-          $contact[$this->apiAddressCreate]['id'] = $v['id'];
-          $theSame = true;
-          break;
+          // return without any modification, needed address already exists
+          return $contact;
         }
       }
       $postal = false;
-      if (!$theSame) {
-        foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
-          $adr = $this->getAddressValues($v);
-          if (
-            !array_key_exists('country_id', $adr) &&
-            array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
-          ) {
-            $contact[$this->apiAddressCreate]['id'] = $v['id'];
-            $contact[$this->apiAddressCreate]['country'] = $this->country;
-            $postal = true;
-            break;
-          }
+      foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
+        $adr = $this->getAddressValues($v);
+        if (
+          !array_key_exists('country_id', $adr) &&
+          array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
+        ) {
+          $contact[$this->apiAddressCreate]['id'] = $v['id'];
+          $contact[$this->apiAddressCreate]['country'] = $this->country;
+          $postal = true;
+          break;
         }
       }
-      if (!$theSame && !$postal) {
+      if (!$postal) {
         foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
           $adr = $this->getAddressValues($v);
           if (
