@@ -628,9 +628,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function prepareParamsAddress($contact, $existingContact) {
     if ($existingContact[$this->apiAddressGet]['count'] == 1) {
       // if we have a one address, we update it by new values (?)
-      $contact[$this->apiAddressCreate]['id'] = $existingContact[$this->apiAddressGet]['id'];
-      $contact[$this->apiAddressCreate]['postal_code'] = $this->postalCode;
-      $contact[$this->apiAddressCreate]['country'] = $this->country;
+      if (($existingContact[$this->apiAddressGet]['values'][0]['postal_code'] != $this->postalCode) ||
+        ($existingContact[$this->apiAddressGet]['values'][0]['country_id'] != $this->countryId)
+      ) {
+        $contact[$this->apiAddressCreate]['id'] = $existingContact[$this->apiAddressGet]['id'];
+        $contact[$this->apiAddressCreate]['postal_code'] = $this->postalCode;
+        $contact[$this->apiAddressCreate]['country_id'] = $this->countryId;
+      }
     } elseif ($existingContact[$this->apiAddressGet]['count'] > 1) {
       // from speakout we have only (postal_code) or (postal_code and country)
       $theSame = false;
@@ -706,17 +710,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return array
    */
   function removeNullAddress($contact) {
-    if (array_key_exists('postal_code', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['postal_code'] == '') {
-      unset($contact[$this->apiAddressCreate]['postal_code']);
-    }
-    if (array_key_exists('country', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country'] == '') {
-      unset($contact[$this->apiAddressCreate]['country']);
-    }
-    if (array_key_exists('id', $contact[$this->apiAddressCreate]) && count($contact[$this->apiAddressCreate]) == 1) {
-      unset($contact[$this->apiAddressCreate]['id']);
-    }
-    if (count($contact[$this->apiAddressCreate]) == 0) {
-      unset($contact[$this->apiAddressCreate]);
+    if (array_key_exists($this->apiAddressCreate, $contact)) {
+      if (array_key_exists('postal_code', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['postal_code'] == '') {
+        unset($contact[$this->apiAddressCreate]['postal_code']);
+      }
+      if (array_key_exists('country', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country'] == '') {
+        unset($contact[$this->apiAddressCreate]['country']);
+      }
+      if (array_key_exists('id', $contact[$this->apiAddressCreate]) && count($contact[$this->apiAddressCreate]) == 1) {
+        unset($contact[$this->apiAddressCreate]['id']);
+      }
+      if (count($contact[$this->apiAddressCreate]) == 0) {
+        unset($contact[$this->apiAddressCreate]);
+      }
     }
     return $contact;
   }
