@@ -218,7 +218,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $contact = $this->createContact($param, $this->groupId);
 
     $optInForActivityStatus = $this->optIn;
-    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['values'][0]['is_opt_out'])) {
+    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['is_opt_out'])) {
       $this->confirmationBlock = false;
       $optInForActivityStatus = 0;
     }
@@ -250,7 +250,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         if ($this->addJoinActivity) {
           CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
         }
-        if ($contact['values'][0]['preferred_language'] != $this->locale && $rlg == 1) {
+        if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
           CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
         }
         $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
@@ -277,7 +277,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $contact = $this->createContact($param, $this->noMemberGroupId);
 
     $optInForActivityStatus = $this->optIn;
-    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->noMemberGroupId, $contact['values'][0]['is_opt_out'])) {
+    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->noMemberGroupId, $contact['is_opt_out'])) {
       $this->confirmationBlock = false;
       $optInForActivityStatus = 0;
     }
@@ -436,7 +436,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function createContact($param, $groupId) {
     $h = $param->cons_hash;
     $contact = array(
-      'sequential' => 1,
       'contact_type' => 'Individual',
       'email' => $h->emails[0]->email,
       $this->apiAddressGet => array(
@@ -448,7 +447,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         'contact_id' => '$value.id',
         'status' => 'Added',
       ),
-      'return' => 'id,email,first_name,last_name',
+      'return' => 'id,email,first_name,last_name,preferred_language,is_opt_out',
     );
 
     $contacIds = CRM_Speakcivi_Logic_Contact::getContactByEmail($h->emails[0]->email);
@@ -458,7 +457,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       unset($contactParam['email']); // getting by email (pseudoconstant) sometimes doesn't work
       $result = civicrm_api3('Contact', 'get', $contactParam);
       if ($result['count'] == 1) {
-        $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $result['values'][0]['id']);
+        $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $result['id']);
+        if (!CRM_Speakcivi_Logic_Contact::needUpdate($contact)) {
+          return $result['values'][$result['id']];
+        }
       } elseif ($result['count'] > 1) {
         $lastname = $this->cleanLastname($h->lastname);
         $newContact = $contact;
@@ -468,12 +470,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         unset($newContact);
         $contactIdBest = $this->chooseBestContact($similarity);
         $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $contactIdBest);
+        if (!CRM_Speakcivi_Logic_Contact::needUpdate($contact)) {
+          return $result['values'][$contactIdBest];
+        }
       }
     } else {
       $this->newContact = true;
       $contact = $this->prepareParamsContact($param, $contact, $groupId);
     }
-    return civicrm_api3('Contact', 'create', $contact);
+    $result = civicrm_api3('Contact', 'create', $contact);
+    return $result['values'][$result['id']];
   }
 
 
@@ -622,39 +628,39 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function prepareParamsAddress($contact, $existingContact) {
     if ($existingContact[$this->apiAddressGet]['count'] == 1) {
       // if we have a one address, we update it by new values (?)
-      $contact[$this->apiAddressCreate]['id'] = $existingContact[$this->apiAddressGet]['id'];
-      $contact[$this->apiAddressCreate]['postal_code'] = $this->postalCode;
-      $contact[$this->apiAddressCreate]['country'] = $this->country;
+      if (($existingContact[$this->apiAddressGet]['values'][0]['postal_code'] != $this->postalCode) ||
+        ($existingContact[$this->apiAddressGet]['values'][0]['country_id'] != $this->countryId)
+      ) {
+        $contact[$this->apiAddressCreate]['id'] = $existingContact[$this->apiAddressGet]['id'];
+        $contact[$this->apiAddressCreate]['postal_code'] = $this->postalCode;
+        $contact[$this->apiAddressCreate]['country_id'] = $this->countryId;
+      }
     } elseif ($existingContact[$this->apiAddressGet]['count'] > 1) {
       // from speakout we have only (postal_code) or (postal_code and country)
-      $theSame = false;
       foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
         $adr = $this->getAddressValues($v);
         if (
           array_key_exists('country_id', $adr) && $this->countryId == $adr['country_id'] &&
           array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
         ) {
-          $contact[$this->apiAddressCreate]['id'] = $v['id'];
-          $theSame = true;
-          break;
+          // return without any modification, needed address already exists
+          return $contact;
         }
       }
       $postal = false;
-      if (!$theSame) {
-        foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
-          $adr = $this->getAddressValues($v);
-          if (
-            !array_key_exists('country_id', $adr) &&
-            array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
-          ) {
-            $contact[$this->apiAddressCreate]['id'] = $v['id'];
-            $contact[$this->apiAddressCreate]['country'] = $this->country;
-            $postal = true;
-            break;
-          }
+      foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
+        $adr = $this->getAddressValues($v);
+        if (
+          !array_key_exists('country_id', $adr) &&
+          array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
+        ) {
+          $contact[$this->apiAddressCreate]['id'] = $v['id'];
+          $contact[$this->apiAddressCreate]['country'] = $this->country;
+          $postal = true;
+          break;
         }
       }
-      if (!$theSame && !$postal) {
+      if (!$postal) {
         foreach ($existingContact[$this->apiAddressGet]['values'] as $k => $v) {
           $adr = $this->getAddressValues($v);
           if (
@@ -700,17 +706,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return array
    */
   function removeNullAddress($contact) {
-    if (array_key_exists('postal_code', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['postal_code'] == '') {
-      unset($contact[$this->apiAddressCreate]['postal_code']);
-    }
-    if (array_key_exists('country', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country'] == '') {
-      unset($contact[$this->apiAddressCreate]['country']);
-    }
-    if (array_key_exists('id', $contact[$this->apiAddressCreate]) && count($contact[$this->apiAddressCreate]) == 1) {
-      unset($contact[$this->apiAddressCreate]['id']);
-    }
-    if (count($contact[$this->apiAddressCreate]) == 0) {
-      unset($contact[$this->apiAddressCreate]);
+    if (array_key_exists($this->apiAddressCreate, $contact)) {
+      if (array_key_exists('postal_code', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['postal_code'] == '') {
+        unset($contact[$this->apiAddressCreate]['postal_code']);
+      }
+      if (array_key_exists('country', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country'] == '') {
+        unset($contact[$this->apiAddressCreate]['country']);
+      }
+      if (array_key_exists('id', $contact[$this->apiAddressCreate]) && count($contact[$this->apiAddressCreate]) == 1) {
+        unset($contact[$this->apiAddressCreate]['id']);
+      }
+      if (count($contact[$this->apiAddressCreate]) == 0) {
+        unset($contact[$this->apiAddressCreate]);
+      }
     }
     return $contact;
   }

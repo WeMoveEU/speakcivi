@@ -165,4 +165,20 @@ class CRM_Speakcivi_Logic_Contact {
       CRM_Speakcivi_Logic_Activity::join($contactId, 'donation_page', $campaignId, 0);
     }
   }
+
+
+  /**
+   * Check if updating of contact if it's necessary.
+   *
+   * @param array $params Array of params for API contact
+   *
+   * @return bool
+   */
+  public static function needUpdate($params) {
+    unset($params['sequential']);
+    unset($params['contact_type']);
+    unset($params['email']);
+    unset($params['id']);
+    return (bool)count($params);
+  }
 }
