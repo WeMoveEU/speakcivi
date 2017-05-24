@@ -13,13 +13,12 @@ class CRM_Speakcivi_Logic_Cache_Country extends CRM_Speakcivi_Logic_Cache {
    */
   public static function getCountryId($iso_code) {
     if ($cache = self::get(self::TYPE_COUNTRY, 0)) {
-      echo "get\n";
-      return $cache[self::TYPE_COUNTRY][$iso_code];
+      return CRM_Utils_Array::value($iso_code, $cache[self::TYPE_COUNTRY], 0);
     }
-    echo "set\n";
     $params = array(
       'sequential' => 1,
       'return' => 'id,iso_code',
+      'options' => array('limit' => 0),
     );
     $result = civicrm_api3('Country', 'get', $params);
     $countries = array();
