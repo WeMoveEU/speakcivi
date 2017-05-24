@@ -429,6 +429,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return array
    */
   public function createContact($param, $groupId) {
+    if (CRM_Speakcivi_Logic_Contact::isAnonymous($param)) {
+      return CRM_Speakcivi_Logic_Contact::getAnonymous();
+    }
     $h = $param->cons_hash;
     $contact = array(
       'contact_type' => 'Individual',

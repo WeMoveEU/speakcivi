@@ -181,4 +181,32 @@ class CRM_Speakcivi_Logic_Contact {
     unset($params['id']);
     return (bool)count($params);
   }
+
+
+  /**
+   * Check if contact is anonymous (without email).
+   *
+   * @param $param
+   *
+   * @return bool
+   */
+  public static function isAnonymous($param) {
+    return !($param->cons_hash->emails[0]->email);
+  }
+
+
+  /**
+   * Get anonymous contact.
+   *
+   * @return array
+   */
+  public static function getAnonymous() {
+    $anonymousId = Civi::settings()->get('anonymous_id');
+    $params = array(
+      'sequential' => 1,
+      'id' => $anonymousId,
+    );
+    $result = civicrm_api3('Contact', 'get', $params);
+    return $result['values'][0];
+  }
 }
