@@ -24,7 +24,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $countryLangMapping = array();
 
-  public $country = '';
+  public $countryIsoCode = '';
 
   public $countryId = 0;
 
@@ -83,7 +83,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         'NL',
         'PL',
       );
-      if (in_array($this->country, $notSendConfirmationToThoseCountries)) {
+      if (in_array($this->countryIsoCode, $notSendConfirmationToThoseCountries)) {
         $this->optIn = 0;
       }
 
@@ -170,21 +170,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($zip != '') {
         $re = "/\\[([a-zA-Z]{2})\\](.*)/";
         if (preg_match($re, $zip, $matches)) {
-          $this->country = strtoupper($matches[1]);
+          $this->countryIsoCode = strtoupper($matches[1]);
           $this->postalCode = substr(trim($matches[2]), 0, 12);
         } else {
           $this->postalCode = substr(trim($zip), 0, 12);
-          $this->country = strtoupper(@$param->cons_hash->addresses[0]->country);
+          $this->countryIsoCode = strtoupper(@$param->cons_hash->addresses[0]->country);
         }
       }
-      if ($this->country) {
-        $this->country = ($this->country == 'UK' ? 'GB' : $this->country);
-        $params = array(
-          'sequential' => 1,
-          'iso_code' => $this->country,
-        );
-        $result = civicrm_api3('Country', 'get', $params);
-        $this->countryId = (int)$result['values'][0]['id'];
+      if ($this->countryIsoCode) {
+        $this->countryIsoCode = ($this->countryIsoCode == 'UK' ? 'GB' : $this->countryIsoCode);
+        $this->countryId = CRM_Speakcivi_Logic_Cache_Country::getCountryId($this->countryIsoCode);
       }
     }
   }
@@ -253,7 +248,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
           CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
         }
-        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
+        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
         $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
       }
       if ($sendResult['values'] == 1) {
@@ -302,7 +297,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($this->optIn == 1) {
         $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
       } else {
-        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->country)).'_member';
+        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
         $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
       }
       if ($sendResult['values'] == 1) {
@@ -655,7 +650,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           array_key_exists('postal_code', $adr) && $this->postalCode == $adr['postal_code']
         ) {
           $contact[$this->apiAddressCreate]['id'] = $v['id'];
-          $contact[$this->apiAddressCreate]['country'] = $this->country;
+          $contact[$this->apiAddressCreate]['country'] = $this->countryIsoCode;
           $postal = true;
           break;
         }
@@ -693,7 +688,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function prepareParamsAddressDefault($contact) {
     $contact[$this->apiAddressCreate]['location_type_id'] = 1;
     $contact[$this->apiAddressCreate]['postal_code'] = $this->postalCode;
-    $contact[$this->apiAddressCreate]['country'] = $this->country;
+    $contact[$this->apiAddressCreate]['country'] = $this->countryIsoCode;
     return $contact;
   }
 
