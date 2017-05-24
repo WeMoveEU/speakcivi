@@ -179,12 +179,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
       if ($this->country) {
         $this->country = ($this->country == 'UK' ? 'GB' : $this->country);
-        $params = array(
-          'sequential' => 1,
-          'iso_code' => $this->country,
-        );
-        $result = civicrm_api3('Country', 'get', $params);
-        $this->countryId = (int)$result['values'][0]['id'];
+        $this->countryId = CRM_Speakcivi_Logic_Cache_Country::getCountryId($this->country);
       }
     }
   }
