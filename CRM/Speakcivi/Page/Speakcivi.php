@@ -47,6 +47,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /** @var bool Determine whether confirmation block with links have to be included in content of confirmation email. */
   public $confirmationBlock = true;
 
+  private $isAnonymous = false;
+
   private $apiAddressGet = 'api.Address.get';
 
   private $apiAddressCreate = 'api.Address.create';
@@ -236,7 +238,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
       if ($this->optIn == 1) {
-        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
+        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
       } else {
         $language = substr($this->locale, 0, 2);
         $pagePost = new CRM_Speakcivi_Page_Post();
@@ -249,7 +251,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
         }
         $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
-        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
+        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
       }
       if ($sendResult['values'] == 1) {
         return 1;
@@ -295,10 +297,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
       if ($this->optIn == 1) {
-        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
+        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
       } else {
         $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
-        $sendResult = $this->sendConfirm($h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
+        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
       }
       if ($sendResult['values'] == 1) {
         return 1;
@@ -429,6 +431,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return array
    */
   public function createContact($param, $groupId) {
+    if ($this->isAnonymous = CRM_Speakcivi_Logic_Contact::isAnonymous($param)) {
+      return CRM_Speakcivi_Logic_Contact::getAnonymous();
+    }
     $h = $param->cons_hash;
     $contact = array(
       'contact_type' => 'Individual',
@@ -865,6 +870,28 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     return CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($details);
   }
 
+
+  /**
+   * Send email to nonanonymous contact.
+   *
+   * @param $isAnonymous
+   * @param $email
+   * @param $contactId
+   * @param $activityId
+   * @param $campaignId
+   * @param $confirmationBlock
+   * @param $noMember
+   * @param string $share_utm_source
+   *
+   * @return array
+   */
+  public function sendEmail($isAnonymous, $email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = '') {
+    if ($isAnonymous) {
+      return array('values' => 1);
+    } else {
+      return $this->sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source);
+    }
+  }
 
   /**
    * Send confirmation mail to contact
