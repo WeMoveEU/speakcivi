@@ -464,8 +464,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       } elseif ($result['count'] > 1) {
         $lastname = $this->cleanLastname($h->lastname);
         $newContact = $contact;
-        $newContact['first_name'] = $h->firstname;
-        $newContact['last_name'] = $lastname;
+        $newContact['first_name'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($h->firstname);
+        $newContact['last_name'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($lastname);
         $similarity = $this->glueSimilarity($newContact, $result['values']);
         unset($newContact);
         $contactIdBest = $this->chooseBestContact($similarity);
