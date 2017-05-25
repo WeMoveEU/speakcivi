@@ -78,6 +78,7 @@ class CRM_Speakcivi_Logic_Activity {
     $getParams = $params;
     unset($getParams['status_id']);
     unset($getParams['source_contact_id']);
+    unset($getParams['campaign_id']);
     $getParams['api.ActivityContact.get'] = array(
       'activity_id' => '$value.id',
       'contact_id' => $contactId,
