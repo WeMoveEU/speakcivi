@@ -713,6 +713,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if (array_key_exists('country', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country'] == '') {
         unset($contact[$this->apiAddressCreate]['country']);
       }
+      if (array_key_exists('country_id', $contact[$this->apiAddressCreate]) && $contact[$this->apiAddressCreate]['country_id'] == 0) {
+        unset($contact[$this->apiAddressCreate]['country_id']);
+      }
       if (array_key_exists('id', $contact[$this->apiAddressCreate]) && count($contact[$this->apiAddressCreate]) == 1) {
         unset($contact[$this->apiAddressCreate]['id']);
       }
