@@ -29,8 +29,47 @@ class CRM_Speakcivi_Tools_Helper {
           self::trimVariables($v);
         }
       } elseif (is_string($value)) {
-        $param->$key = trim($value);
+        $param->$key = self::clean($value, $key);
       }
     }
+  }
+
+
+  /**
+   * Clean out string from redundant spaces and trim to valid length.
+   *
+   * @param string $value
+   * @param string $type
+   *
+   * @return string
+   */
+  private static function clean($value, $type = '') {
+    $value = self::cleanSpaces($value);
+    switch ($type) {
+      case 'phone':
+        $value = mb_substr($value, 0, 32);
+        break;
+      case 'firstname':
+      case 'lastname':
+      case 'zip':
+        $value = mb_substr($value, 0, 64);
+        break;
+      case 'email':
+        $value = mb_substr($value, 0, 254);
+        break;
+    }
+    return $value;
+  }
+
+
+  /**
+   * Reduce redundant spaces.
+   *
+   * @param string $value
+   *
+   * @return string
+   */
+  private static function cleanSpaces($value) {
+    return preg_replace('/\s+/', ' ', trim($value));
   }
 }
