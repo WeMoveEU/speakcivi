@@ -101,6 +101,14 @@ $callback = function($msg) {
         $extraInfo = $ex->getExtraParams();
         $retry = strpos($extraInfo['debug_information'], "try restarting transaction");
         handleError($msg, CRM_Core_Error::formatTextException($ex), $retry);
+      } catch (CRM_Speakcivi_Exception $ex) {
+        if ($ex->getErrorCode() == 1) {
+          CRM_Core_Error::debug_log_message('SPEAKCIVI AMQP ' . $ex->getMessage());
+          CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $json_msg, true, true);
+          $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        } else {
+          handleError($msg, CRM_Core_Error::formatTextException($ex));
+        }
       } catch (Exception $ex) {
         handleError($msg, CRM_Core_Error::formatTextException($ex));
       }

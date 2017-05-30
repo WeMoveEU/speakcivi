@@ -417,6 +417,7 @@ class CRM_Speakcivi_Logic_Campaign {
    * @param string $url
    *
    * @return mixed
+   * @throws \CRM_Speakcivi_Exception
    */
   public function getContent($url){
     $ch = curl_init();
@@ -424,7 +425,14 @@ class CRM_Speakcivi_Logic_Campaign {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     $data = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    return $data;
+    if ($code == 200) {
+      return $data;
+    } elseif ($code = 404) {
+      throw new CRM_Speakcivi_Exception('Speakout campaign doesnt exist', 1);
+    } else {
+      throw new CRM_Speakcivi_Exception('Speakout campaign is unavailable', 2);
+    }
   }
 }
