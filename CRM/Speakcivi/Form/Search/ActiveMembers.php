@@ -57,7 +57,6 @@ class CRM_Speakcivi_Form_Search_ActiveMembers extends CRM_Contact_Form_Search_Cu
     $columns = array(
       ts('Contact Id') => 'contact_id',
       ts('Name') => 'sort_name',
-      ts('Activities') => 'count_activities',
     );
     return $columns;
   }
@@ -85,8 +84,7 @@ class CRM_Speakcivi_Form_Search_ActiveMembers extends CRM_Contact_Form_Search_Cu
   function select() {
     return "
       gc.contact_id as contact_id  ,
-      contact_a.sort_name as sort_name,
-      count(contact_a.id) as count_activities
+      contact_a.sort_name as sort_name
     ";
   }
 
@@ -137,15 +135,5 @@ class CRM_Speakcivi_Form_Search_ActiveMembers extends CRM_Contact_Form_Search_Cu
    */
   function templateFile() {
     return 'CRM/Contact/Form/Search/Custom.tpl';
-  }
-
-  /**
-   * Modify the content of each row
-   *
-   * @param array $row modifiable SQL result row
-   * @return void
-   */
-  function alterRow(&$row) {
-    $row['sort_name'] .= ' ( altered )';
   }
 }
