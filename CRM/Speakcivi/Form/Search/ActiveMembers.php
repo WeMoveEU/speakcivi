@@ -83,7 +83,7 @@ class CRM_Speakcivi_Form_Search_ActiveMembers extends CRM_Contact_Form_Search_Cu
    */
   function select() {
     return "
-      gc.contact_id as contact_id  ,
+      DISTINCTROW gc.contact_id as contact_id,
       contact_a.sort_name as sort_name
     ";
   }
