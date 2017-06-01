@@ -464,8 +464,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       } elseif ($result['count'] > 1) {
         $lastname = $this->cleanLastname($h->lastname);
         $newContact = $contact;
-        $newContact['first_name'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($h->firstname);
-        $newContact['last_name'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($lastname);
+        $newContact['first_name'] = $h->firstname;
+        $newContact['last_name'] = $lastname;
         $similarity = $this->glueSimilarity($newContact, $result['values']);
         unset($newContact);
         $contactIdBest = $this->chooseBestContact($similarity);
@@ -612,7 +612,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
     }
     $contact = $this->removeNullAddress($contact);
-    $contact = $this->cleanAddress($contact);
     return $contact;
   }
 
@@ -722,21 +721,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if (count($contact[$this->apiAddressCreate]) == 0) {
         unset($contact[$this->apiAddressCreate]);
       }
-    }
-    return $contact;
-  }
-
-
-  /**
-   * Clean address from unicode chars
-   *
-   * @param $contact
-   *
-   * @return array
-   */
-  function cleanAddress($contact) {
-    if (array_key_exists($this->apiAddressCreate, $contact) && array_key_exists('postal_code', $contact[$this->apiAddressCreate])) {
-      $contact[$this->apiAddressCreate]['postal_code'] = CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($contact[$this->apiAddressCreate]['postal_code']);
     }
     return $contact;
   }
@@ -870,7 +854,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $details = trim($param->metadata->mail_to_subject) . "\n\n" . trim($param->metadata->mail_to_body);
       }
     }
-    return CRM_Speakcivi_Tools_Helper::cleanUnicodeChars($details);
+    return $details;
   }
 
 

@@ -33,7 +33,6 @@ class CRM_Speakcivi_Tools_Helper {
     // Match Dingbats
     $regexDingbats = '/[\x{2700}-\x{27BF}]/u';
     $clean_text = preg_replace($regexDingbats, '', $clean_text);
-
     return $clean_text;
   }
 
@@ -67,6 +66,7 @@ class CRM_Speakcivi_Tools_Helper {
    * @return string
    */
   private static function clean($value, $type = '') {
+    $value = self::cleanUnicodeChars($value);
     $value = self::cleanSpaces($value);
     switch ($type) {
       case 'phone':
