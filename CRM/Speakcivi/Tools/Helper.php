@@ -3,8 +3,11 @@
 class CRM_Speakcivi_Tools_Helper {
 
   /**
-   * Clean out string from unicode special chars.
-   * Those unicode chars invoke bugs during insert/update on db table.
+   * Clean out string from unicode special chars not supported by MySQL 5.7.
+   * "No support for supplementary characters (BMP characters only)."
+   *
+   * @link https://dev.mysql.com/doc/refman/5.7/en/charset-unicode-utf8.html Description of utf8 in MySQL documentation
+   * @link http://www.fileformat.info/info/unicode/block/index.htm List of blocks for checking
    *
    * @param string $string
    *
@@ -12,10 +15,8 @@ class CRM_Speakcivi_Tools_Helper {
    */
   public static function cleanUnicodeChars($string) {
     $forbiddenRegex = '/['
-      . '\x00-\x1F\x80-\xFF'
-      . '\x{1F600}-\x{1F64F}'  // Match Emoticons
-      . '\x{1F300}-\x{1F5FF}'  // Match Miscellaneous Symbols and Pictographs
-      . '\x{1F680}-\x{1F6FF}'  // Match Transport And Map Symbols
+      . '\x{10000}-\x{1F9FF}'  // The second level (U+10000 to U+1FFFF) is the Supplementary Multilingual Plane (Plane 1, SMP)
+      . '\x{20000}-\x{2FFFF}'  // The second level (U+20000 to U+2FFFF) is the Supplementary Ideographic Plane (Plane 2, SIP)
       . '\x{2600}-\x{26FF}'  // Match Miscellaneous Symbols
       . '\x{2700}-\x{27BF}'  // Match Dingbats
       . ']/u';
