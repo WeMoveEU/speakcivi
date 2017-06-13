@@ -331,8 +331,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   public function findActivitiesIds($activityId, $campaignId, $contactId) {
     $aids = array();
     if (!$activityId && $campaignId) {
-      $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', 'Petition', 'name', 'String', 'value');
-      $activityStatusId = CRM_Core_OptionGroup::getValue('activity_status', 'Scheduled', 'name', 'String', 'value');
+      $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Petition');
+      $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', 'Scheduled');
       $query = "SELECT a.id
                 FROM civicrm_activity a JOIN civicrm_activity_contact ac ON a.id = ac.activity_id
                 WHERE ac.contact_id = %1 AND activity_type_id = %2 AND a.status_id = %3 AND a.campaign_id = %4";
