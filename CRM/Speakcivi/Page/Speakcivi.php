@@ -173,9 +173,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $re = "/\\[([a-zA-Z]{2})\\](.*)/";
         if (preg_match($re, $zip, $matches)) {
           $this->countryIsoCode = strtoupper($matches[1]);
-          $this->postalCode = substr(trim($matches[2]), 0, 12);
+          $this->postalCode = mb_substr(trim($matches[2]), 0, 12);
         } else {
-          $this->postalCode = substr(trim($zip), 0, 12);
+          $this->postalCode = mb_substr(trim($zip), 0, 12);
           $this->countryIsoCode = strtoupper(@$param->cons_hash->addresses[0]->country);
         }
       }
