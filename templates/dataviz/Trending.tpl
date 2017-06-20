@@ -1,6 +1,9 @@
 {crmTitle string="Latest activities"}
 	{literal}
 	<style>
+    .widget-content .container {width:auto;}
+    .widget-content .col-md-3 {width:50%;}
+
       nopeh1.page-header,.breadcrumb,header p.lead {display:none;}
  
 	 #name g.row text {fill: grey;};
@@ -41,15 +44,15 @@
 	</div>
 	</div>
 	<div class="row">
-		<div class="col-md-3">
+		<div class="col-md-3 col-sm-6 col-xs-12">
 			<div id="overview">
 				<ul class="list-group">
 					<li class="list-group-item"><span class="summary_total"></span> total
 <a class="btn btn-danger bt-xs pull-right" id="resetall" href="javascript: $('#btn-date .active').removeClass('active');dc.filterAll();dc.redrawAll();"><span class="glyphicon glyphicon-refresh"></span></a>
 
 </li>
-					<li class="list-group-item list-group-item-success"><span class="badge total_percent"></span><span class="total"></span> signatures</button></li>
-					<li class="list-group-item"><span class="badge new_percent"></span><span class="new"></span> new</li>
+					<li class="list-group-item list-group-item-success"><span class="hidden badge total_percent"></span><span class="total"></span> signatures</button></li>
+					<li class="list-group-item"><span class="badge new_percent"></span><span class="new"></span> completed new</li>
 					<li class="list-group-item"><span class="badge existing_percent"></span><span class="existing"></span> existing</button></li>
 					<li class="list-group-item"><span class="badge pending_percent"></span><span class="pending"></span> pending</button></li>
 					<li class="list-group-item"><span class="badge optout_percent"></span><span class="optout"></span> optout</button></li>
@@ -57,18 +60,18 @@
 				</ul>
 	</div>
 		</div>
-	<div id="name" class="col-md-3"><div class="panel panel-default">
+	<div id="name" class="col-md-3 col-sm-6 col-xs-12"><div class="panel panel-default">
 	  <div class="panel-heading" title="click to select campaigns">
 	<th><input id="input-filter" placeholder="Campaign" title="search on name"/>
 	</div>
 	<div class="panel-body"> <div class="graph"></div></div></div></div>
-	<div id="lang" class="col-md-6"><div class="panel panel-default">
+	<div id="lang" class="col-md-6 col-sm-6"><div class="panel panel-default">
 	<div class="panel-heading">
 
 	 <ul class="nav nav-tabs" role="tablist" >
-	<li class="disabled"><a href=""><b>Lang</b></a></li>
+	<li class="disabled hidden"><a href=""><b>Lang</b></a></li>
 	    <!--li role="presentation"><a href="#map" aria-controls="map" role="tab" data-toggle="tab">Map</a></li-->
-	    <li role="presentation" class="active"><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab">Growth</a></li>
+	    <li role="presentation" class="active"><a href="#pie" aria-controls="pie" role="tab" data-toggle="tab" title="new members by prefered language">Growth by language</a></li>
 	  </ul>
 
 	</div><div class="panel-body">
@@ -448,7 +451,7 @@ function drawDate (dom) {
   var graph=dc.compositeChart(dom)
    .margins({top: 0, right: 20, bottom: 20, left:30})
     .height(150)
-    .width(1000)
+    .width(0)
     .dimension(dim)
     .brushOn(false)
     .renderHorizontalGridLines(true)
@@ -488,8 +491,8 @@ function drawDate (dom) {
         var dim  = ndx.dimension(function(d) {return d.lang;});
         var group = dim.group().reduceSum(getMetric);
         var chart = dc.pieChart(dom)
-          .width(200)
-          .height(200)
+          .width(0)
+          .height(0)
           .innerRadius(10)
           .dimension(dim)
           .group(group);
@@ -549,8 +552,8 @@ function drawTextSearch (dom,$,val) {
        var group = remove_empty_bins(allGroup);
 
 	  var graph  = dc.rowChart(dom)
-	    .width(200)
-	    .height(275)
+	    .width(0)
+	    .height(0)
 	    .gap(0)
 	    .rowsCap(18)
 	    .ordering(function(d) { return -d.value })
@@ -601,7 +604,16 @@ function drawTextSearch (dom,$,val) {
     };
 
 
-
+d3.select(window).on('resize.updatedc', function() {
+  dc.events.trigger(function() {
+    dc.chartRegistry.list().forEach(function(chart) {
+            var container = chart.root().node().parentNode.getBoundingClientRect();
+            chart.width(container.width);
+            chart.rescale && chart.rescale();
+      });
+    dc.redrawAll(); 
+  },500);
+});     
 
 
 

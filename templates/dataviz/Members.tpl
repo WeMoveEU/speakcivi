@@ -77,7 +77,7 @@ topo = new URL(topo).pathname; //absolute -> relative url
 
 var data = {crmSQL json="members" group_id=$id};
 
-var campaigns={crmAPI entity='Campaign' action='get' option_limit=100000 return="name,parent_id,external_identifier,title,campaign_type_id,custom_11"};
+var campaigns={crmAPI entity='Campaign' action='get' option_limit=100000 return="name,parent_id,external_identifier,title,campaign_type_id,custom_11,description"};
 var types = {crmAPI entity='Campaign' action='getoptions' sequential=0 field="campaign_type_id"};
 
 {php}
