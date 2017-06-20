@@ -40,11 +40,11 @@ class CRM_Speakcivi_Logic_Cache_Campaign extends CRM_Speakcivi_Logic_Cache {
     $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
     if (!$campaignObj->isValidCampaign($campaignObj->campaign)) {
       $campaignObj->campaign = $campaignObj->setCampaign($param->external_id, $campaignObj->campaign, $param);
-      $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
+      $campaignObj->campaign = $campaignObj->getCampaign($param->external_id, false, false);
     }
     // fixme move limit to settings
     $limit = 20;
-    if ($campaignObj->campaign['api.Activity.getcount'] >= $limit) {
+    if (CRM_Utils_Array::value('api.Activity.getcount', $campaignObj->campaign, 0) >= $limit) {
       self::set(self::TYPE_CAMPAIGN_EXTERNAL, $param->external_id, $campaignObj->campaign);
     }
     return $campaignObj->campaign;

@@ -138,11 +138,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $this->noMemberGroupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_group_id');
     $this->noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
     $this->thresholdVeryOldActivity = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'threshold_very_old_activity');
-    $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
+    $this->defaultCampaignTypeId = CRM_Core_PseudoConstant::getKey('CRM_Campaign_BAO_Campaign', 'campaign_type_id', 'Petitions');
     $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
-    $this->genderFemaleValue = CRM_Core_OptionGroup::getValue('gender', 'Female', 'name', 'String', 'value');
-    $this->genderMaleValue = CRM_Core_OptionGroup::getValue('gender', 'Male', 'name', 'String', 'value');
-    $this->genderUnspecifiedValue = CRM_Core_OptionGroup::getValue('gender', 'unspecified', 'name', 'String', 'value');
+    $this->genderFemaleValue = CRM_Core_PseudoConstant::getKey('CRM_Contact_BAO_Contact', 'gender_id', 'Female');
+    $this->genderMaleValue = CRM_Core_PseudoConstant::getKey('CRM_Contact_BAO_Contact', 'gender_id', 'Male');
+    $this->genderUnspecifiedValue = CRM_Core_PseudoConstant::getKey('CRM_Contact_BAO_Contact', 'gender_id', 'unspecified');
   }
 
 
@@ -173,9 +173,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $re = "/\\[([a-zA-Z]{2})\\](.*)/";
         if (preg_match($re, $zip, $matches)) {
           $this->countryIsoCode = strtoupper($matches[1]);
-          $this->postalCode = substr(trim($matches[2]), 0, 12);
+          $this->postalCode = mb_substr(trim($matches[2]), 0, 12);
         } else {
-          $this->postalCode = substr(trim($zip), 0, 12);
+          $this->postalCode = mb_substr(trim($zip), 0, 12);
           $this->countryIsoCode = strtoupper(@$param->cons_hash->addresses[0]->country);
         }
       }
@@ -816,8 +816,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @throws CiviCRM_API3_Exception
    */
   public function createActivity($param, $contactId, $activityType = 'Petition', $activityStatus = 'Scheduled') {
-    $activityTypeId = CRM_Core_OptionGroup::getValue('activity_type', $activityType, 'name', 'String', 'value');
-    $activityStatusId = CRM_Core_OptionGroup::getValue('activity_status', $activityStatus, 'name', 'String', 'value');
+    $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', $activityType);
+    $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $activityStatus);
     $params = array(
       'sequential' => 1,
       'source_contact_id' => $contactId,

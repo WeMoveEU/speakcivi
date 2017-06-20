@@ -225,11 +225,11 @@ class CRM_Speakcivi_Logic_Campaign {
    *
    * @param int $id External identifier (default) or local civicrm_campaign.id
    * @param boolean $useLocalId Use local id or external id (default)
+   * @param bool $countActivities
    *
    * @return array
-   * @throws CiviCRM_API3_Exception
    */
-  public function getCampaign($id, $useLocalId = false) {
+  public function getCampaign($id, $useLocalId = false, $countActivities = true) {
     if ($id > 0) {
       if ($useLocalId) {
         $field = 'id';
@@ -239,10 +239,12 @@ class CRM_Speakcivi_Logic_Campaign {
       $params = array(
         'sequential' => 1,
         $field => (int)$id,
-        'api.Activity.getcount' => array(
-          'campaign_id' => '$value.id',
-        ),
       );
+      if ($countActivities) {
+        $params['api.Activity.getcount'] = array(
+          'campaign_id' => '$value.id',
+        );
+      }
       $result = civicrm_api3('Campaign', 'get', $params);
       if ($result['count'] == 1) {
         return $result['values'][0];
@@ -271,7 +273,7 @@ class CRM_Speakcivi_Logic_Campaign {
           property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
           property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
         ) {
-          $this->defaultCampaignTypeId = CRM_Core_OptionGroup::getValue('campaign_type', 'Petitions', 'name', 'String', 'value');
+          $this->defaultCampaignTypeId = CRM_Core_PseudoConstant::getKey('CRM_Campaign_BAO_Campaign', 'campaign_type_id', 'Petitions');
           $locale = $this->determineLanguage($externalCampaign->internal_name);
           $utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
           $params = array(
