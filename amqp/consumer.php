@@ -85,6 +85,20 @@ function handleError($msg, $error, $retry=false) {
   die(1);
 }
 
+/**
+ * Check whether error is linked with lost connection to smtp server.
+ *
+ * @param $sessionStatus
+ *
+ * @return bool
+ */
+function isConnectionLostError($sessionStatus) {
+  if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus['title'] == 'Mailing Error') {
+    return !!strpos($sessionStatus['text'], 'Connection lost to authentication server');
+  }
+  return false;
+}
+
 $callback = function($msg) {
   global $msg_since_check;
   try {
@@ -95,7 +109,9 @@ $callback = function($msg) {
         if ($msg_handler->runParam($json_msg)) {
           $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         } else {
-          handleError($msg, "runParams returned error code");
+          $session = CRM_Core_Session::singleton();
+          $retry = isConnectionLostError($session->getStatus());
+          handleError($msg, "runParams returned error code", $retry);
         }
       } catch (CiviCRM_API3_Exception $ex) {
         $extraInfo = $ex->getExtraParams();
