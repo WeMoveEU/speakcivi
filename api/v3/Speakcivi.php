@@ -108,6 +108,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $params['text'] = html_entity_decode(convertHtmlToText($messageText));
   $params['groupName'] = 'SpeakCivi Email Sender';
   $params['custom-activity-id'] = $activityId;
+  $params['custom-campaign-id'] = $campaignId;
   try {
     $sent = CRM_Utils_Mail::send($params);
     return civicrm_api3_create_success($sent, $params);
