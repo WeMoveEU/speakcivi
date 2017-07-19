@@ -119,7 +119,7 @@ $callback = function($msg) {
         }
       } catch (CiviCRM_API3_Exception $ex) {
         $extraInfo = $ex->getExtraParams();
-        $retry = strpos($extraInfo['debug_information'], "try restarting transaction");
+        $retry = strpos(CRM_Utils_Array::value('debug_information', $extraInfo), "try restarting transaction");
         handleError($msg, CRM_Core_Error::formatTextException($ex), $retry);
       } catch (CRM_Speakcivi_Exception $ex) {
         if ($ex->getErrorCode() == 1) {
