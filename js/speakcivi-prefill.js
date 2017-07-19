@@ -17,6 +17,29 @@ jQuery(function($) {
      el.val(jso[k]);
     }
   });
+
+  /* set country */
+  var countries = {
+    "fr" : 1076,
+    "de" : 1082,
+    "gr" : 1085,
+    "it" : 1107,
+    "pl" : 1172,
+    "pt" : 1173,
+    "es" : 1198,
+    "gb" : 1226,
+    "uk" : 1226
+  };
+
+  if (jso.country && countries[jso.country]) {
+    var ccc = {
+      1 : "country-1",
+      2 : "country_id-5"
+    };
+    $.each(ccc, function(k, f) {
+      $("#" + f).val(countries[jso.country]).change(function(e){$("#select2-chosen-1").text($("#" + f + " option:selected").text());}).trigger("change");
+    });
+  }
 });
 
 function getCookie(name) {
