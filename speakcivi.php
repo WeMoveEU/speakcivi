@@ -139,6 +139,15 @@ function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
   }
 }
 
+/**
+ * Implements hook_civicrm_preProcess().
+ */
+function speakcivi_civicrm_preProcess($formName, &$form) {
+  if (in_array($formName, array('CRM_Contribute_Form_Contribution_Main'))) {
+    CRM_Core_Resources::singleton()->addScriptFile('eu.wemove.speakcivi', 'js/speakcivi-prefill.js');
+  }
+}
+
 function speakcivi_civicrm_postProcess($formName, &$form) {
   /** Trello #264 Add the right language for new people coming in through donation pages */
   if ($formName == 'CRM_Contribute_Form_Contribution_Confirm') {
