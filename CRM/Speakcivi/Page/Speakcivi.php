@@ -113,6 +113,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $result = $this->addActivity($param, 'Tweet');
           break;
 
+        case 'call':
+          $result = $this->addActivity($param, 'Phone Call');
+          break;
+
         case 'speakout':
           $result = $this->addActivity($param, 'Email');
           break;
