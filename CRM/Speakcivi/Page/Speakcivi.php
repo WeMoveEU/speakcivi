@@ -122,7 +122,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           break;
 
         default:
-          $result = 0;
+          $result = -1;
       }
     });
     return $result;

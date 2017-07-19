@@ -106,7 +106,11 @@ $callback = function($msg) {
     if ($json_msg) {
       $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
       try {
-        if ($msg_handler->runParam($json_msg)) {
+        $result = $msg_handler->runParam($json_msg);
+        if ($result == 1) {
+          $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        } elseif ($result == -1) {
+          CRM_Core_Error::debug_log_message('SPEAKCIVI AMQP unsupported action type');
           $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         } else {
           $session = CRM_Core_Session::singleton();
