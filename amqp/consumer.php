@@ -110,8 +110,7 @@ $callback = function($msg) {
         if ($result == 1) {
           $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         } elseif ($result == -1) {
-          CRM_Core_Error::debug_log_message('SPEAKCIVI AMQP unsupported action type');
-          $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+          handleError($msg, "runParams unsupported action type");
         } else {
           $session = CRM_Core_Session::singleton();
           $retry = isConnectionLostError($session->getStatus());
