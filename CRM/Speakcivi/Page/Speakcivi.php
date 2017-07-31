@@ -114,6 +114,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           break;
 
         case 'call':
+          CRM_Core_Error::debug_var('SPEAKCIVI CALL $param', $param);
           $result = $this->addActivity($param, 'Phone Call');
           break;
 
