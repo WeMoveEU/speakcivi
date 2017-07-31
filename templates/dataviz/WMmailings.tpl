@@ -13,19 +13,21 @@
 <a class="reset" href="javascript:sourceRow.filterAll();dc.redrawAll();" style="display: none;">reset</a>
 
 <div class="row">
-  <div class="filter">Show:</div>
-  <div class="filter"><input type="checkbox" name="small" id="filter_reminders" /> Reminders</div>
-  <div class="filter"><input type="checkbox" name="petitions" id="filter_petitions" checked /> Petitions</div>
-  <div class="filter"><input type="checkbox" name="fundraisers" id="filter_fundraisers" checked /> Fundraisers</div>
-  <div class="filter"><input type="checkbox" name="surveys" id="filter_surveys" checked /> Surveys</div>
-  <div class="filter">Elapsed time:
-    <input type="radio" name="timebox" value="120" /> 2h
-    <input type="radio" name="timebox" value="300" /> 5h
-    <input type="radio" name="timebox" value="720" /> 12h
-    <input type="radio" name="timebox" value="1440" /> 1d
-    <input type="radio" name="timebox" value="2880" /> 2d
-    <input type="radio" name="timebox" value="144000" checked /> 100d
+<div class="btn-toolbar" role="toolbar" aria-label="...">
+  <div class="filter hidden" id="mailing_type">Show:</div>
+<div class="aabtn-group pull-left" aadata-toggle="buttons" id="filter_type">
+  <label class="btn btn-default active">Loading...</label>
+</div>
+  <div class="btn-group pull-right" data-toggle="buttons">
+    <a href="#" role="button" class="btn btn-default label-btn"  aria-disabled="true">Elapsed time</a>
+    <label class="btn btn-primary"><input type="radio" name="timebox" value="120" /> 2h</label>
+    <label class="btn btn-primary"><input type="radio" name="timebox" value="300" /> 5h</label>
+    <label class="btn btn-primary"><input type="radio" name="timebox" value="720" /> 12h</label>
+    <label class="btn btn-primary"><input type="radio" name="timebox" value="1440" /> 1d</label>
+    <label class="btn btn-primary"><input type="radio" name="timebox" value="2880" /> 2d</label>
+    <label class="btn btn-primary active"><input type="radio" name="timebox" value="144000" checked /> 100d</label>
   </div>
+</div>
 </div>
 <hr>
 
@@ -92,6 +94,7 @@
 <script>
 var data = {crmSQL file="WMmailings"};
 var campaigns= {crmSQL file="Campaigns"};
+var $=jQuery;
 
 var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 var currentDate = new Date();
@@ -137,8 +140,21 @@ campaigns.values.forEach(function(d){
 
 
 data.values.forEach(function(d){
+  function type() {
+		if (d.campaign_type_id==8) return "survey";
+		if (d.campaign_type_id==3) return "report back";
+		if (d.campaign_type_id==5) return "fundraiser";
+		if ((+d.nb_oneoff+ +d.nb_recur) >0  && +d.sign == 0) return "fundraiser";
+		if (d.name.toLowerCase().indexOf('-reminder-') !== -1) return "reminder";
+		if (d.sign > 0) return "petition";
+		if (d.name.toLowerCase().indexOf('-report-back-') !== -1) return "report back";
+	  return "unknown";
+  }
+
   d.date = dateFormat.parse(d.date);
- d.received_median= dateFormat.parse(d.received_median);
+  d.received_median= dateFormat.parse(d.received_median);
+  d.total_amount = +d.total_amount;
+  d.type=type();
 });
 
 CRM.$("h1").html(CRM.$("h1").html() + " last updated :"+ prettyDate(data.values[0].last_updated)
@@ -146,15 +162,6 @@ CRM.$("h1").html(CRM.$("h1").html() + " last updated :"+ prettyDate(data.values[
  '<a class="btn btn-danger bt-xs pull-right" id="resetall" href="javascript:dc.filterAll();dc.redrawAll();"><span class="glyphicon glyphicon-refresh"></span></a>'
 );
 
-function filterReminders(d) {
-  return d.indexOf('-Reminder-') === -1;
-}
-function filterPetitions(d) {
-  return !d;
-}
-function filterFundraisers(d) {
-  return !d;
-}
 function filterTimebox(box) {
   return function (d) {
     return d == box;
@@ -188,214 +195,241 @@ var signDim = ndx.dimension(function(d) { return d.sign; });
 var giveDim = ndx.dimension(function(d) { return +d.nb_oneoff + +d.nb_recur; });
 var timeDim = ndx.dimension(function(d) { 
   if(!d.timebox) return 144000; 
-  return d.timebox; 
+return d.timebox; 
 });
 
-nameDim.filter(filterReminders);
 timeDim.filterExact(144000);
 jQuery(function($) {
-  $(".crm-container").removeClass("crm-container");
+$(".crm-container").removeClass("crm-container");
 
-  $('#filter_reminders').on('change', function() {
-    if (this.checked) {
-      nameDim.filterAll();
-    } else {
-      nameDim.filter(filterReminders);
-    }
-    dc.redrawAll();
-  });
-
-  $('#filter_petitions').on('change', function() {
-    if (this.checked) {
-      signDim.filterAll();
-    } else {
-      signDim.filter(filterPetitions);
-    }
-    dc.redrawAll();
-  });
-
-  $('#filter_fundraisers').on('change', function() {
-    if (this.checked) {
-      giveDim.filterAll();
-    } else {
-      giveDim.filter(filterFundraisers);
-    }
-    dc.redrawAll();
-  });
-  $('input[name=timebox]').on('click', function() {
-    timeDim.filterExact(parseInt(this.value));
-    dc.redrawAll();
-  });
+$('input[name=timebox]').on('click', function() {
+	timeDim.filterExact(parseInt(this.value));
+	dc.redrawAll();
+});
 });
 
 var totalCount = dc.dataCount("h1 .data_count")
-      .dimension(ndx)
-      .group(all);
+		.dimension(ndx)
+		.group(all);
 
 function drawNumbers (graphs){
-  var average = function(d) {
-      return d.qty ? d.total / d.qty : 0;
-  };
-
-  var percentRecipient=function (value) {return formatPercent (value / graphs.nb_recipient.value());}
-  var percentSignature=function (value) {return formatPercent (value / graphs.nb_signature.value());}
-
-  var group = ndx.groupAll().reduce(
-		function (p, v) {
-        p.mailing++;
-				p.new_member += +v.new_member;
-				p.optout += +v.optout;
-				p.pending += +v.pending;
-				p.share+= +v.share;
-				p.viral_share+= +v.viral_share;
-				p.signature += +v.sign;
-				p.viral_signature += +v.viral_sign;
-        p.recipient += +v.recipients;
-        p.open += +v.open;
-        p.unsub += +v.unsub;
-        p.click += +v.click;
-        p.amount_recur += +v.amount_recur;
-        p.amount_oneoff += +v.amount_oneoff;
-        p.nb_recur += +v.nb_recur;
-        p.nb_oneoff += +v.nb_oneoff;
-				return p;
-		},
-		function (p, v) {
-        p.mailing--;
-				p.optout -= +v.optout;
-				p.new_member -= +v.new_member;
-				p.pending -= +v.pending;
-				p.share -= +v.share;
-				p.signature -= +v.sign;
-				p.viral_share -= +v.viral_share;
-				p.viral_signature -= +v.viral_sign;
-        p.recipient -= +v.recipients;
-        p.open -= +v.open;
-        p.unsub -= +v.unsub;
-        p.click -= +v.click;
-        p.amount_recur -= +v.amount_recur;
-        p.amount_oneoff -= +v.amount_oneoff;
-        p.nb_recur -= +v.nb_recur;
-        p.nb_oneoff -= +v.nb_oneoff;
-				return p;
-		},
-		function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0,viral_share:0,viral_signature:0}}
-  );
-  
-	function renderLetDisplay(chart,factor, ref) {
-		 ref = ref || graphs.nb_recipient.value() || 1;
-     var c=1;
-     if (factor) {
-       var avg_value={open:30,click:10,signature:7,share:1,new_member:6,unsub:0.25};
-       c=(chart.value()/ref*100)/avg_value[factor];
-     }
-		 d3.selectAll(chart.anchor()).style("background-color", color(c))
-		 .attr("title", d3.format("")(chart.value()));
-	}
-
-	graphs.nb_mailing=dc.numberDisplay(".nb_mailing") 
-	.valueAccessor(function(d){ return d.mailing})
-	.html({some:"%number",none:"no mailing"})
-	.group(group);
-
-	graphs.nb_signature=dc.numberDisplay(".nb_signature") 
-	.valueAccessor(function(d){ return +d.signature + d.viral_signature})
-	.html({some:"<span title='viral and direct'>%number signatures</span>",none:"No signatures"})
-	.group(group);
-
-	dc.numberDisplay(".badge_signature") 
-	.valueAccessor(function(d){ return d.signature})
-	.html({some:"%number",none:""})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'signature')})
-	.group(group);
-
-	graphs.nb_unsub=dc.numberDisplay(".nb_unsub") 
-	.valueAccessor(function(d){ return d.unsub})
-	.html({some:"%number unsubscriptions",none:"No unsubscriptions"})
-	.group(group);
-
-	dc.numberDisplay(".badge_unsub") 
-	.valueAccessor(function(d){ return d.unsub})
-	.html({some:"%number",none:""})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'unsub')})
-	.group(group);
-
-	graphs.badge_nb_new_member=dc.numberDisplay(".badge_new_member") 
-	.valueAccessor(function(d){ return d.new_member})
-	.html({some:"%number",none:"nobody joined"})
-  .formatNumber(percentSignature).renderlet(function(chart) {renderLetDisplay(chart,'new_member',graphs.nb_signature.value())})
-	.group(group);
-
-	graphs.nb_new_member=dc.numberDisplay(".nb_new_member") 
-	.valueAccessor(function(d){ return d.new_member})
-	.html({some:"%number new members",none:"No growth"})
-	.group(group);
-
-	graphs.nb_pending = dc.numberDisplay(".nb_pending") 
-	.valueAccessor(function(d){ return d.pending})
-	.html({some:"%number",none:"no signature pending"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'pending')})
-	.group(group);
-
-	graphs.nb_recipient = graphs.nb_recipient= dc.numberDisplay(".nb_recipient") 
-	.valueAccessor(function(d){ return d.recipient})
-	.html({some:"%number",none:"nobody mailed"})
-	.group(group)
-	.renderlet(function(c) {
-			if (ndx.groupAll().value() == ndx.size())
-				d3.selectAll(".resetall").style("display","none");
-			else
-				d3.selectAll(".resetall").style("display","block");
-	})
-	;
-	dc.numberDisplay(".nb_share") 
-	.valueAccessor(function(d){ return d.share})
-	.html({some:"%number",none:"nobody shared"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'share')})
-	.group(group);
-
-	dc.numberDisplay(".nb_open") 
-	.valueAccessor(function(d){ return d.open})
-	.html({some:"%number",none:"nobody opened"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'open')})
-	.group(group);
-
-	dc.numberDisplay(".nb_click") 
-	.valueAccessor(function(d){ return d.click})
-	.html({some:"%number",none:"nobody clicked"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'click')})
-	.group(group);
-
-	dc.numberDisplay(".nb_leave") 
-	.valueAccessor(function(d){ return d.leave})
-	.html({some:"%number",none:"nobody left"})
-  .formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'leave')})
-	.group(group);
-
-	graphs.amount_oneoff = dc.numberDisplay(".amount_oneoff") 
-	.valueAccessor(function(d){ return d.amount_oneoff})
-	.html({some:"<span title='one off'>%number<span aria-hidden='true' class='glyphicon glyphicon-gift'></span></span>",none:""})
-  .formatNumber(d3.format("2d"))
-	.group(group);
-
-	graphs.amount_recur = dc.numberDisplay(".amount_recur") 
-	.valueAccessor(function(d){ return d.amount_recur})
-	.html({some:'%number<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span> ',none:""})
-  .formatNumber(d3.format("2d"))
-	.group(group);
-
-	graphs.nb_oneoff = dc.numberDisplay(".nb_oneoff") 
-	.valueAccessor(function(d){ return d.nb_oneoff})
-	.html({some:"<span title='One off donations'>%number<span aria-hidden='true' class='glyphicon glyphicon-gift'></span> </span>",none:""})
-  .formatNumber(d3.format("3d"))
-	.group(group);
-
-	graphs.nb_recur = dc.numberDisplay(".nb_recur") 
-	.valueAccessor(function(d){ return d.nb_recur})
-	.html({some:'%number<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span> ',none:""})
-  .formatNumber(d3.format("3d"))
-	.group(group);
+var average = function(d) {
+		return d.qty ? d.total / d.qty : 0;
 };
+
+var percentRecipient=function (value) {return formatPercent (value / graphs.nb_recipient.value());}
+var percentSignature=function (value) {return formatPercent (value / graphs.nb_signature.value());}
+
+var group = ndx.groupAll().reduce(
+	function (p, v) {
+			p.mailing++;
+			p.new_member += +v.new_member;
+			p.optout += +v.optout;
+			p.pending += +v.pending;
+			p.share+= +v.share;
+			p.viral_share+= +v.viral_share;
+			p.signature += +v.sign;
+			p.viral_signature += +v.viral_sign;
+			p.recipient += +v.recipients;
+			p.open += +v.open;
+			p.unsub += +v.unsub;
+			p.click += +v.click;
+			p.amount_recur += +v.amount_recur;
+			p.amount_oneoff += +v.amount_oneoff;
+			p.nb_recur += +v.nb_recur;
+			p.nb_oneoff += +v.nb_oneoff;
+			return p;
+	},
+	function (p, v) {
+			p.mailing--;
+			p.optout -= +v.optout;
+			p.new_member -= +v.new_member;
+			p.pending -= +v.pending;
+			p.share -= +v.share;
+			p.signature -= +v.sign;
+			p.viral_share -= +v.viral_share;
+			p.viral_signature -= +v.viral_sign;
+			p.recipient -= +v.recipients;
+			p.open -= +v.open;
+			p.unsub -= +v.unsub;
+			p.click -= +v.click;
+			p.amount_recur -= +v.amount_recur;
+			p.amount_oneoff -= +v.amount_oneoff;
+			p.nb_recur -= +v.nb_recur;
+			p.nb_oneoff -= +v.nb_oneoff;
+			return p;
+	},
+	function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0,viral_share:0,viral_signature:0}}
+);
+
+function renderLetDisplay(chart,factor, ref) {
+	 ref = ref || graphs.nb_recipient.value() || 1;
+	 var c=1;
+	 if (factor) {
+		 var avg_value={open:30,click:10,signature:7,share:1,new_member:6,unsub:0.25};
+		 c=(chart.value()/ref*100)/avg_value[factor];
+	 }
+	 d3.selectAll(chart.anchor()).style("background-color", color(c))
+	 .attr("title", d3.format("")(chart.value()));
+}
+
+graphs.nb_mailing=dc.numberDisplay(".nb_mailing") 
+.valueAccessor(function(d){ return d.mailing})
+.html({some:"%number",none:"no mailing"})
+.group(group);
+
+graphs.nb_signature=dc.numberDisplay(".nb_signature") 
+.valueAccessor(function(d){ return +d.signature + d.viral_signature})
+.html({some:"<span title='viral and direct'>%number signatures</span>",none:"No signatures"})
+.group(group);
+
+dc.numberDisplay(".badge_signature") 
+.valueAccessor(function(d){ return d.signature})
+.html({some:"%number",none:""})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'signature')})
+.group(group);
+
+graphs.nb_unsub=dc.numberDisplay(".nb_unsub") 
+.valueAccessor(function(d){ return d.unsub})
+.html({some:"%number unsubscriptions",none:"No unsubscriptions"})
+.group(group);
+
+dc.numberDisplay(".badge_unsub") 
+.valueAccessor(function(d){ return d.unsub})
+.html({some:"%number",none:""})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'unsub')})
+.group(group);
+
+graphs.badge_nb_new_member=dc.numberDisplay(".badge_new_member") 
+.valueAccessor(function(d){ return d.new_member})
+.html({some:"%number",none:"nobody joined"})
+.formatNumber(percentSignature).renderlet(function(chart) {renderLetDisplay(chart,'new_member',graphs.nb_signature.value())})
+.group(group);
+
+graphs.nb_new_member=dc.numberDisplay(".nb_new_member") 
+.valueAccessor(function(d){ return d.new_member})
+.html({some:"%number new members",none:"No growth"})
+.group(group);
+
+graphs.nb_pending = dc.numberDisplay(".nb_pending") 
+.valueAccessor(function(d){ return d.pending})
+.html({some:"%number",none:"no signature pending"})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'pending')})
+.group(group);
+
+graphs.nb_recipient = graphs.nb_recipient= dc.numberDisplay(".nb_recipient") 
+.valueAccessor(function(d){ return d.recipient})
+.html({some:"%number",none:"nobody mailed"})
+.group(group)
+.renderlet(function(c) {
+		if (ndx.groupAll().value() == ndx.size())
+			d3.selectAll(".resetall").style("display","none");
+		else
+			d3.selectAll(".resetall").style("display","block");
+})
+;
+dc.numberDisplay(".nb_share") 
+.valueAccessor(function(d){ return d.share})
+.html({some:"%number",none:"nobody shared"})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'share')})
+.group(group);
+
+dc.numberDisplay(".nb_open") 
+.valueAccessor(function(d){ return d.open})
+.html({some:"%number",none:"nobody opened"})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'open')})
+.group(group);
+
+dc.numberDisplay(".nb_click") 
+.valueAccessor(function(d){ return d.click})
+.html({some:"%number",none:"nobody clicked"})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'click')})
+.group(group);
+
+dc.numberDisplay(".nb_leave") 
+.valueAccessor(function(d){ return d.leave})
+.html({some:"%number",none:"nobody left"})
+.formatNumber(percentRecipient).renderlet(function(chart) {renderLetDisplay(chart,'leave')})
+.group(group);
+
+graphs.amount_oneoff = dc.numberDisplay(".amount_oneoff") 
+.valueAccessor(function(d){ return d.amount_oneoff})
+.html({some:"<span title='one off'>%number<span aria-hidden='true' class='glyphicon glyphicon-gift'></span></span>",none:""})
+.formatNumber(d3.format("2d"))
+.group(group);
+
+graphs.amount_recur = dc.numberDisplay(".amount_recur") 
+.valueAccessor(function(d){ return d.amount_recur})
+.html({some:'%number<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span> ',none:""})
+.formatNumber(d3.format("2d"))
+.group(group);
+
+graphs.nb_oneoff = dc.numberDisplay(".nb_oneoff") 
+.valueAccessor(function(d){ return d.nb_oneoff})
+.html({some:"<span title='One off donations'>%number<span aria-hidden='true' class='glyphicon glyphicon-gift'></span> </span>",none:""})
+.formatNumber(d3.format("3d"))
+.group(group);
+
+graphs.nb_recur = dc.numberDisplay(".nb_recur") 
+.valueAccessor(function(d){ return d.nb_recur})
+.html({some:'%number<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span> ',none:""})
+.formatNumber(d3.format("3d"))
+.group(group);
+};
+
+
+function filterType () {
+graphs.type=filterAll();
+
+}
+
+function drawType (dom) {
+
+var dim = ndx.dimension(function(d) {  return d.type;});
+var group = dim.group().reduceSum(function(d){return 1;});
+
+var graph  = dc.pieChart(dom)
+	.innerRadius(10).radius(50)
+	.width(100)
+	.height(100)
+	.dimension(dim)
+	.colors(d3.scale.category20())
+	.group(group);
+
+	var html="";
+	group.top(Infinity).forEach(function(d) {
+    if (d.key != "reminder") {
+      graph.filter(d.key);
+      var active="active";
+    } else {
+      var active="inactive";
+    }
+		html +='<span class="btn btn-default '+active+'" data-name="'+d.key+'">'+d.key+'<span id="badgetype-'+d.key+'" class="badge">'+d.value+'</span></span>';
+  });
+  jQuery("#filter_type").html(html);
+
+  var throttleTimer;
+  jQuery("#filter_type").on("click",".btn",function(e){
+    $(this).toggleClass("active");
+    graph.filterAll();
+    $("#filter_type .btn.active").each(function(){
+      graph.filter($(this).data("name"));
+    });
+    throttle();
+		function throttle() {
+			window.clearTimeout(throttleTimer);
+			throttleTimer = window.setTimeout(function() {dc.redrawAll();}, 250);
+		}
+  });
+
+  graph.on("renderlet.buttons", function(chart) {
+	chart.group().top(Infinity).forEach(function(d) {
+    $("#badgetype-"+d.key).text(d.value);
+    }); 
+  });
+  return graph;
+}
+
 
 function drawTextSearch (dom) {
 
@@ -475,7 +509,6 @@ function drawLang (dom) {
   //var dim = ndx.dimension(function(d){return d.lang.substring(3)||"?"});
 	//  var group = dim.group().reduceSum(function(d){return 1;});
   var dim = ndx.dimension(function(d){
-console.log (d.name.indexOf("UK-EN"));
     if (d.lang== "en_GB" && d.name.indexOf("UK-EN") == -1) 
         return "en_CA"; //international english
     return d.lang});
@@ -497,7 +530,7 @@ console.log (d.name.indexOf("UK-EN"));
   return graph;
 }
 
-function drawType (dom) {
+function drawActivityType (dom) {
   var dim = ndx.dimension(function(d){return activityType[d.activity_type_id]});
   var group = dim.group().reduceSum(function(d){return 1;});
   var graph  = dc.pieChart(dom)
@@ -634,7 +667,7 @@ function drawTable(dom) {
              return "<a title='"+d.subject+"' href='/civicrm/mailing/report?mid="+d.id+"' target='_blank'>"+d.name+"</a>";
 	    },
 	    function (d) {
-		return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' target='_blank'>"+d.campaign+"</a>";
+		return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' title='"+d.type+"' target='_blank'>"+d.campaign+"</a>";
 	    },
 	    function (d) {
         if (!d.is_completed)
@@ -694,7 +727,7 @@ function drawTable(dom) {
 //drawPercent("#click", function(d){return d.click});
 graphs.table= drawTable("#table");
 downloadButton ("#download", graphs.table.dimension());
-//drawType("#type .graph");
+graphs.type=drawType("#mailing_type");
 drawNumbers(graphs);
 graphs.date = drawDate("#date .graph");
 //drawStatus("#status .graph");
