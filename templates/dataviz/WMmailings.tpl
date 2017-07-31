@@ -29,7 +29,6 @@
 </div>
 <hr>
 
-
 <div class="row">
 	<div class="col-md-3">
 		<div id="overview">
@@ -474,14 +473,21 @@ function drawNOCampaign (dom) {
 
 function drawLang (dom) {
   //var dim = ndx.dimension(function(d){return d.lang.substring(3)||"?"});
-  var dim = ndx.dimension(function(d){return d.lang});
+	//  var group = dim.group().reduceSum(function(d){return 1;});
+  var dim = ndx.dimension(function(d){
+console.log (d.name.indexOf("UK-EN"));
+    if (d.lang== "en_GB" && d.name.indexOf("UK-EN") == -1) 
+        return "en_CA"; //international english
+    return d.lang});
 //  var group = dim.group().reduceSum(function(d){return 1;});
   var group = dim.group().reduce(reduceAdd,reduceRemove,reduceInitial);
   var graph  = dc.pieChart(dom)
     .innerRadius(10).radius(50)
     .width(100)
     .height(100)
-    .label (function (d) {return d.key.substring(3)||"?"})
+    .label (function (d) {
+       if (d.key == "en_CA") return "INT";
+       return d.key.substring(3)||"?"})
     .valueAccessor( function(d) { return d.value.count })
     .title (function (d) {return d.key + ":\nmailings:" + d.value.count + "\nrecipients:" + d.value.recipients + "\nsignatures:" + d.value.sign + "\nnew:"+d.value.sign_new;})
     .dimension(dim)
