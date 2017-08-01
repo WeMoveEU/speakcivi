@@ -126,6 +126,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $result = $this->donate($param);
           break;
 
+        case 'poll':
+          CRM_Core_Error::debug_log_message('SPEAKCIVI KNOWN UNSUPPORTED EVENT, DISCARDED: ' . $param->action_type);
+          $result = 1;
+          break;
+
         default:
           $result = -1;
       }
