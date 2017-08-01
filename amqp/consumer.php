@@ -110,7 +110,7 @@ $callback = function($msg) {
         if ($result == 1) {
           $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         } elseif ($result == -1) {
-          handleError($msg, "runParams unsupported action type");
+          handleError($msg, "runParams unsupported action type: " . $json_msg->action_type);
         } else {
           $session = CRM_Core_Session::singleton();
           $retry = isConnectionLostError($session->getStatus());
