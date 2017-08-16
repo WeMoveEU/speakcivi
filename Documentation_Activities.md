@@ -20,10 +20,10 @@ status:=
 - completed
 - completed new member
 (new UK people are also completed new member)
-
+-> new status completed_activated (run by cron, all completed signatures that puts the signatory into the active group"
 
 date:= 
-duration:=
+duration:= if completed_activated, the duration since the last activity
 
 ### 2. Share
 
