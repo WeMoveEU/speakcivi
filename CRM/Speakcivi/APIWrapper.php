@@ -17,11 +17,19 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $eq = new CRM_Mailing_Event_BAO_Queue();
     $eq->id = $apiRequest['params']['event_queue_id'];
     if ($eq->find(TRUE)) {
-      if (!$this->contactHasMembersGroup($eq->contact_id) &&
+      $contactHasMembersGroup = $this->contactHasMembersGroup($eq->contact_id);
+      if (!$contactHasMembersGroup &&
         $this->contactHasMoreJoinsThanLeaves($eq->contact_id)
       ) {
         $campaignId = $this->setCampaignId($eq->id);
         $this->addLeave($eq->contact_id, $campaignId);
+      }
+      if ($contactHasMembersGroup) {
+        $email = new CRM_Core_BAO_Email();
+        $email->id = $eq->email_id;
+        $email->on_hold = 2;
+        $email->hold_date = date('YmdHis');
+        $email->save();
       }
     }
   }
