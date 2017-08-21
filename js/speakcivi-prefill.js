@@ -2,7 +2,7 @@ jQuery(function($) {
 
   /* get cookie */
   var member = decodeURIComponent(getCookie('member'));
-  var jso = JSON.parse(member);
+  var jso = JSON.parse(member || null) || {};
 
   /* map of keys: key from cookies : name from form */
   var fields = {
@@ -13,7 +13,7 @@ jQuery(function($) {
   };
   $.each(fields, function(k, f) {
     var el = $("input[name*="+f+"]");
-    if (!el.val()) {
+    if (!el.val() && k in jso) {
      el.val(jso[k]);
     }
   });
@@ -31,7 +31,7 @@ jQuery(function($) {
     "uk" : 1226
   };
 
-  if (jso.country && countries[jso.country]) {
+  if ("country" in jso && countries[jso.country]) {
     var ccc = {
       1 : "country-1",
       2 : "country_id-5"
@@ -46,4 +46,5 @@ function getCookie(name) {
   var value = "; " + document.cookie;
   var parts = value.split("; " + name + "=");
   if (parts.length == 2) return parts.pop().split(";").shift();
+  return '';
 }
