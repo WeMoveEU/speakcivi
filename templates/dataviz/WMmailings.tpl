@@ -397,8 +397,9 @@ var graph  = dc.pieChart(dom)
 	.group(group);
 
 	var html="";
+   var inactive = ["unknown","reminder","report back","survey"];
 	group.top(Infinity).forEach(function(d) {
-    if (d.key != "reminder") {
+    if (inactive.indexOf(d.key) == -1 ) {
       graph.filter(d.key);
       var active="active";
     } else {

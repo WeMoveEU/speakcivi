@@ -112,7 +112,10 @@
 
 	function drawCampaign (dom) {
 	  var dim = ndx.dimension(function(d){return d.campaign || "?"});
-	  var group = dim.group()
+	  var _group = dim.group();
+          var group = {
+            all:function () {return _group.all().filter(function(d) {return d.value != 0;})}
+          };
 	//  .reduce(reduceAdd,reduceRemove,reduceInitial);
 	.reduceSum(function(d){return 1;});
 	  var graph  = dc.rowChart(dom)

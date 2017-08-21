@@ -12,6 +12,7 @@ if ( $error == false ) {
   exit( );
 }
 
+
 // Load class loader
 global $civicrm_root;
 require_once $civicrm_root . '/CRM/Core/ClassLoader.php';
