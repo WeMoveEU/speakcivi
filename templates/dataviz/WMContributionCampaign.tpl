@@ -1,6 +1,8 @@
 <script>
 var data={crmSQL file="WMContributionCampaign"};
+var campaigns=lookupTable({crmSQL file="Campaigns"}.values,"id"); //all the parent campaigns
 {literal}
+if(data.is_error){alert(data.error);}
 
 var graphs = {};
 var ndx = crossfilter(data.values);
@@ -10,27 +12,32 @@ var day = d3.time.format("%Y-%m-%d");
 
 var avgformat = d3.format (".3s");
 
-data.values.forEach(function(d){
+
+Object.keys(campaigns).forEach(function(d){
+   campaigns[d].name=campaigns[d].name.slice(0, -3);
 //  var dd= d.date;
   //d.date = dateFormat.parse(dd);
 });
 
+function lookupTable(data,key) {
+  var t= {}
+  data.forEach(function(d,i){t[d[key]]=d});
+  return t;
+}
+
 (function ($) {
 jQuery(function($) {
-	if(data.is_error){
-		 CRM.alert(data.error);
-	}
 
 	$(".crm-container").removeClass("crm-container");
   $("h1.page-header,.breadcrumb,#page-header").hide();
 
 	drawNumbers(graphs);
-	graphs.table = drawTable('#contribution');
   graphs.search = drawTextSearch('#input-filter');
 	graphs.status= drawStatus('#status graph');
 	graphs.instrument= drawInstrument('#instrument graph');
 	graphs.source= drawMedium('#source graph');
 	graphs.campaign= drawCampaign('#campaign');
+	graphs.table = drawTable('#contribution');
 //	graphs.country = drawCountry('#country');
 //	graphs.month = drawMonth('#date graph');
 //	graphs.amount = drawDate('#amount graph');
@@ -95,7 +102,7 @@ function drawNumbers (graphs){
 
 
 function drawMedium (dom) {
-  var dim = ndx.dimension(function(d){return d.utm_medium;});
+  var dim = ndx.dimension(function(d){return d.utm_medium || "?";});
   var group = dim.group().reduceSum(function(d){return d.nb;});
   var graph  = dc.pieChart(dom)
     .innerRadius(10).radius(50)
@@ -192,6 +199,14 @@ function drawTextSearch (dom) {
 	function drawCampaign (dom) {
 	  var dim = ndx.dimension(
        function(d){
+         if (d.parent_id) {
+            if (!campaigns[d.parent_id]) {
+              console.log(d.parent_id);
+              console.log(d.camp);
+              campaigns[d.parent_id]={name:d.camp};
+            }
+            return campaigns[d.parent_id].name;
+         }
          return d.camp || "?";
     });
 
@@ -302,9 +317,12 @@ function drawTable(dom) {
   var graph=dc.dataTable(dom)
     .dimension(dim)
     .group(function(d) {
+       if (d.parent_id) {
+         return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_id+"'>"+d.camp+"</a>";
+       }
         return d.camp || "???";//d.name;
     })
-    .sortBy(function (d) { return d.campaign_id })
+    .sortBy(function (d) { return d.campaign_id * 1e9 + d.nb;})
     .order(d3.descending)
     .size(200)
     .columns([
