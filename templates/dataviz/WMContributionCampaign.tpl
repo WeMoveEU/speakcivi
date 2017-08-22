@@ -28,7 +28,8 @@ jQuery(function($) {
 	graphs.table = drawTable('#contribution');
   graphs.search = drawTextSearch('#input-filter');
 	graphs.status= drawStatus('#status graph');
-//	graphs.processor= drawProcessor('#processor graph');
+	graphs.instrument= drawInstrument('#instrument graph');
+	graphs.source= drawMedium('#source graph');
 	graphs.campaign= drawCampaign('#campaign');
 //	graphs.country = drawCountry('#country');
 //	graphs.month = drawMonth('#date graph');
@@ -93,9 +94,22 @@ function drawNumbers (graphs){
 
 
 
-function drawProcessor (dom) {
-  var dim = ndx.dimension(function(d){return d.processor;});
-  var group = dim.group().reduceSum(function(d){return 1;});
+function drawMedium (dom) {
+  var dim = ndx.dimension(function(d){return d.utm_medium;});
+  var group = dim.group().reduceSum(function(d){return d.nb;});
+  var graph  = dc.pieChart(dom)
+    .innerRadius(10).radius(50)
+    .width(100)
+    .height(100)
+    .dimension(dim)
+    .colors(d3.scale.category10())
+    .group(group);
+  return graph;
+}
+
+function drawInstrument (dom) {
+  var dim = ndx.dimension(function(d){return d.instrument;});
+  var group = dim.group().reduceSum(function(d){return d.nb;});
   var graph  = dc.pieChart(dom)
     .innerRadius(10).radius(50)
     .width(100)
@@ -288,7 +302,7 @@ function drawTable(dom) {
   var graph=dc.dataTable(dom)
     .dimension(dim)
     .group(function(d) {
-        return d.camp;//d.name;
+        return d.camp || "???";//d.name;
     })
     .sortBy(function (d) { return d.campaign_id })
     .order(d3.descending)
@@ -300,7 +314,11 @@ function drawTable(dom) {
               function(d){return d.instrument},
               function(d){return d.status},
               function(d){return d.utm_campaign},
-              function(d){return d.mailing || d.utm_source},
+              function(d){
+                if (d.mailing) {
+                  return '<a href="/civicrm/mailing/report?mid='+d.mailing_id+'" title="'+d.utm_source+'" class="tip">'+d.mailing+'</a>';
+                }
+                return d.utm_source},
               function(d){return d.utm_medium}
              ])
     ;
@@ -320,7 +338,7 @@ function drawTable(dom) {
 				<li class="list-group-item"><span class="badge amount_avg_fail" title='average failed amount'></span><span class="amount_fail"></span> amount fails</li>
 			</ul>
       <span id="status"><graph/></span>
-      <span id="processor"><graph/></span>
+      <span id="instrument"><graph/></span>
 
 		</div>
 	</div>
@@ -343,7 +361,12 @@ function drawTable(dom) {
 		</div>
 	</div>
 	<div class="col-md-3">
-		<div class="panel panel-default" id="country">
+		<div class="panel panel-default" id="source">
+			<div class="panel-heading" title="source donation">Source</div>
+			<div class="panel-body"><graph />
+			</div>
+		</div>
+		<div class="panel panel-default" id="language">
 			<div class="panel-heading" title="Language donation">Language</div>
 			<div class="panel-body"><graph />
 			</div>
@@ -351,7 +374,7 @@ function drawTable(dom) {
 	</div>
 	<div class="col-md-3">
 		<div class="panel panel-default" id="campaign">
-			<div class="panel-heading" title="Campaigns or source or ab test"><input id="input-filter" placeholder="Campaign"/></div>
+			<div class="panel-heading" title="Campaigns"><input id="input-filter" placeholder="Campaign"/></div>
 			<div class="panel-body"><graph />
 			</div>
 		</div>
@@ -367,7 +390,7 @@ function drawTable(dom) {
 <th>amount</th>
 <th>nb</th>
 <th>avg</th>
-<th>processor</th>
+<th>instrument</th>
 <th>status</th>
 <th>campaign</th>
 <th>source</th>

@@ -1,4 +1,4 @@
-select m.name mailing, status.name as status, instrument.name as instrument, camp.title as camp, c.* from 
+select m.name mailing, m.id mailing_id, status.name as status, instrument.name as instrument, camp.title as camp, c.* from 
 (select count(*) as nb, sum(total_amount) amount, sum(fee_amount) fee,sum(net_amount) net, payment_instrument_id, contribution_status_id status_id, campaign_id, utm_source_30 as utm_source,utm_medium_31 as utm_medium,utm_campaign_33 as utm_campaign 
 from civicrm_contribution c 
 left join civicrm_value_utm_5 on entity_id=c.id 
