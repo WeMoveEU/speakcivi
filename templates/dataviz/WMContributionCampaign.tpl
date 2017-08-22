@@ -11,6 +11,7 @@ var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%s");
 var day = d3.time.format("%Y-%m-%d");
 
 var avgformat = d3.format (".3s");
+var dpmformat = d3.format (".2f");
 
 
 Object.keys(campaigns).forEach(function(d){
@@ -59,6 +60,12 @@ function drawNumbers (graphs){
         var fail=function(d) {return !success(d);};
 	reducer.value("nb").count(true).filter(success).sum("nb");
 	reducer.value("amount").count(true).filter(success).sum("amount").avg(true);
+	reducer.value("recipients_petition").count(true).filter(function(d){
+          if (d.mailing_id && d.signatures) return success(d);
+        }).sum("recipients").avg(true);
+	reducer.value("recipients_fundraiser").count(true).filter(function(d){
+          if (d.mailing_id) return success(d);
+        }).sum("recipients").avg(true);
 //	reducer.value("amount").count(true).sum("amount").avg(true);
 	reducer.value("nb_fail").count(true).filter(fail).sum("nb");
 	reducer.value("amount_fail").count(true).filter(fail).sum("amount").avg(true);
@@ -96,6 +103,18 @@ function drawNumbers (graphs){
 	.html({some:"%number"})
 	.group(group);
   
+	graphs.nb=dc.numberDisplay(".nb_dpm_fundraiser") 
+	.valueAccessor(function(d){ return 1000*d.value.nb.sum/d.value.recipients_fundraiser.sum})
+	.html({some:"%number",none:"no mailing"})
+  .formatNumber(dpmformat)
+	.group(group);
+	
+	graphs.nb=dc.numberDisplay(".nb_dpm_petition") 
+	.valueAccessor(function(d){ return 1000*d.value.nb.sum/d.value.recipients_petition.sum})
+	.html({some:"%number",none:"no mailing"})
+  .formatNumber(dpmformat)
+	.group(group);
+	
   graphs.reducer=group;
 }
 
@@ -326,8 +345,12 @@ function drawTable(dom) {
     .order(d3.descending)
     .size(200)
     .columns([
+              function(d){
+                if (d.mailing) {
+                  return '<span title="recipients:'+d.recipients+'\n dpm:'+dpmformat(1000*d.nb/d.recipients)+'" class="tip">'+d.nb+'</span>';
+                }
+                return d.nb},
               function(d){return d.amount},
-              function(d){return d.nb},
               function(d){return avgformat(d.amount/d.nb)},
               function(d){return d.instrument},
               function(d){return d.status},
@@ -351,6 +374,8 @@ function drawTable(dom) {
 		<div id="overview">
 			<ul class="list-group">
 				<li class="list-group-item"><span class="badge nb"></span>Nb donations</li>
+				<li class="list-group-item"><span class="badge nb_dpm_fundraiser"></span>...per 1k fundraising mail</li>
+				<li class="list-group-item"><span class="badge nb_dpm_petition"></span>...per 1k petition mail</li>
 				<li class="list-group-item"><span class="badge amount_avg" title='average amount'></span><span class="amount"></span> amount</li>
 				<li class="list-group-item"><span class="badge nb_fail"></span>Nb fails</li>
 				<li class="list-group-item"><span class="badge amount_avg_fail" title='average failed amount'></span><span class="amount_fail"></span> amount fails</li>
@@ -405,8 +430,8 @@ function drawTable(dom) {
 <table id="contribution" class="table">
 <thead>
 <tr>
-<th>amount</th>
-<th>nb</th>
+<th title='number of donations'>nb</th>
+<th title='total amount of donations'>amount</th>
 <th>avg</th>
 <th>instrument</th>
 <th>status</th>
