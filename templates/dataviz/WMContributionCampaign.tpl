@@ -346,6 +346,7 @@ function drawTable(dom) {
     .size(200)
     .columns([
               function(d){
+                if (d.nb == 1) return "<a href='/civicrm/contact/view/contribution?cid=2&id="+d.id+"'>"+d.nb"</a>";
                 if (d.mailing) {
                   return '<span title="recipients:'+d.recipients+'\n dpm:'+dpmformat(1000*d.nb/d.recipients)+'" class="tip">'+d.nb+'</span>';
                 }
