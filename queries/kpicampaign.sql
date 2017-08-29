@@ -1,5 +1,6 @@
 SELECT 
     campaign_id as id,
+    parent_id as parent_id,
     speakout_id,
     speakout_title,
     language,
@@ -34,7 +35,9 @@ FROM
     FROM
         speakeasy_petition_metrics
     GROUP BY campaign_id) AS aggregate
-ORDER BY speakout_id DESC;
+JOIN
+  civicrm_campaign c on c.id=campaign_id
+ORDER BY campaign_id DESC;
 
     
     

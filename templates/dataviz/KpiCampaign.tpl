@@ -139,7 +139,7 @@ function drawTable(dom) {
   var graph = dc.dataTable(dom)
     .dimension(dim)
     .size(2000)
-    .group(function(d){ return ""; })
+    .group(function(d){ return parent_id; })
     .sortBy(function(d){ return d.campaign_id; })
     .order(d3.descending)
     .columns(
