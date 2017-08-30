@@ -13,7 +13,7 @@ data.values.forEach(function(d){
 //  var dd= d.date;
   //d.date = dateFormat.parse(dd);
   if (d.currency== "EUR") d.currency = "&euro;";
-  if (d.currency== "GBP") d.currency = "£";
+  if (d.currency== "GBP") d.currency = "?";
   d.date = new Date (d.date);
   if (d.cancel_date)
     d.cancel_date = new Date (d.cancel_date);

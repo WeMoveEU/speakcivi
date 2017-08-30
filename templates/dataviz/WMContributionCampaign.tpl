@@ -13,6 +13,8 @@ var day = d3.time.format("%Y-%m-%d");
 var avgformat = d3.format (".3s");
 var dpmformat = d3.format (".2f");
 
+data.values.forEach(function(d){
+});
 
 Object.keys(campaigns).forEach(function(d){
    campaigns[d].name=campaigns[d].name.slice(0, -3);
@@ -37,6 +39,7 @@ jQuery(function($) {
 	graphs.status= drawStatus('#status graph');
 	graphs.instrument= drawInstrument('#instrument graph');
 	graphs.source= drawMedium('#source graph');
+	graphs.lang= drawLanguage ('#language graph');
 	graphs.campaign= drawCampaign('#campaign');
 	graphs.table = drawTable('#contribution');
 //	graphs.country = drawCountry('#country');
@@ -60,11 +63,12 @@ function drawNumbers (graphs){
         var fail=function(d) {return !success(d);};
 	reducer.value("nb").count(true).filter(success).sum("nb");
 	reducer.value("amount").count(true).filter(success).sum("amount").avg(true);
+	reducer.value("amount_eur").count(true).filter(success).filter(function(d){return d.currency=="EUR"}).sum("amount").avg(true);
 	reducer.value("recipients_petition").count(true).filter(function(d){
           if (d.mailing_id && d.signatures) return success(d);
         }).sum("recipients").avg(true);
 	reducer.value("recipients_fundraiser").count(true).filter(function(d){
-          if (d.mailing_id) return success(d);
+          if (d.mailing_id && !d.signatures) return success(d);
         }).sum("recipients").avg(true);
 //	reducer.value("amount").count(true).sum("amount").avg(true);
 	reducer.value("nb_fail").count(true).filter(fail).sum("nb");
@@ -104,13 +108,13 @@ function drawNumbers (graphs){
 	.group(group);
   
 	graphs.nb=dc.numberDisplay(".nb_dpm_fundraiser") 
-	.valueAccessor(function(d){ return 1000*d.value.nb.sum/d.value.recipients_fundraiser.sum})
+	.valueAccessor(function(d){ return d.value.recipients_fundraiser.sum ? 1000*d.value.nb.sum/d.value.recipients_fundraiser.sum :0})
 	.html({some:"%number",none:"no mailing"})
   .formatNumber(dpmformat)
 	.group(group);
 	
 	graphs.nb=dc.numberDisplay(".nb_dpm_petition") 
-	.valueAccessor(function(d){ return 1000*d.value.nb.sum/d.value.recipients_petition.sum})
+	.valueAccessor(function(d){ return d.value.recipients_petition.sum ? 1000*d.value.nb.sum/d.value.recipients_petition.sum:0})
 	.html({some:"%number",none:"no mailing"})
   .formatNumber(dpmformat)
 	.group(group);
@@ -119,6 +123,25 @@ function drawNumbers (graphs){
 }
 
 
+
+function drawLanguage (dom) {
+  var dim = ndx.dimension(function(d){
+    if (d.lang== "en_GB" && d.mailing.indexOf("UK-EN") == -1) 
+      return "en_CA"; //international english
+    return  d.lang || "?";});
+  var group = dim.group().reduceSum(function(d){return d.nb;});
+  var graph  = dc.pieChart(dom)
+    .innerRadius(10).radius(50)
+    .width(100)
+    .height(100)
+    .dimension(dim)
+    .colors(d3.scale.category10())
+    .label (function (d) {
+       if (d.key == "en_CA") return "INT";
+       return d.key.substring(3)||"?"})
+    .group(group);
+  return graph;
+}
 
 function drawMedium (dom) {
   var dim = ndx.dimension(function(d){return d.utm_medium || "?";});
@@ -341,17 +364,21 @@ function drawTable(dom) {
        }
         return d.camp || "???";//d.name;
     })
-    .sortBy(function (d) { return d.campaign_id * 1e9 + d.nb;})
+    .sortBy(function (d) { return +d.campaign_id * 1e9 + +d.nb;})
     .order(d3.descending)
     .size(200)
     .columns([
               function(d){
-                if (d.nb == 1) return "<a href='/civicrm/contact/view/contribution?cid=2&id="+d.id+"'>"+d.nb"</a>";
+                if (d.nb == 1) return "<a href='/civicrm/contact/view/contribution?action=view&cid=1&id="+d.id+"'>"+d.nb+"</a>";
                 if (d.mailing) {
                   return '<span title="recipients:'+d.recipients+'\n dpm:'+dpmformat(1000*d.nb/d.recipients)+'" class="tip">'+d.nb+'</span>';
                 }
                 return d.nb},
-              function(d){return d.amount},
+              function(d){
+                var currency=d.currency;
+                if (d.currency== "EUR") currency = "&euro;";
+                if (d.currency== "GBP") currency = "&pound;";
+                return d.amount+currency},
               function(d){return avgformat(d.amount/d.nb)},
               function(d){return d.instrument},
               function(d){return d.status},
@@ -387,7 +414,12 @@ function drawTable(dom) {
 		</div>
 	</div>
 	<div class="col-md-3">
-		<div class="panel panel-default" id="date">
+		<div class="panel panel-default" id="language">
+			<div class="panel-heading" title="Language donation">Language</div>
+			<div class="panel-body"><graph />
+			</div>
+		</div>
+		<div class="panel panel-default hidden" id="date">
 			<div class="panel-heading" title="when was the recurring donation made?">Date
 <select id="date_select">
   <option value="Infinity">All</option>
@@ -407,11 +439,6 @@ function drawTable(dom) {
 	<div class="col-md-3">
 		<div class="panel panel-default" id="source">
 			<div class="panel-heading" title="source donation">Source</div>
-			<div class="panel-body"><graph />
-			</div>
-		</div>
-		<div class="panel panel-default" id="language">
-			<div class="panel-heading" title="Language donation">Language</div>
 			<div class="panel-body"><graph />
 			</div>
 		</div>
