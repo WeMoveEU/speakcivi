@@ -260,10 +260,12 @@ function civicrm_api3_speakcivi_remind($params) {
             FROM civicrm_activity ap
               JOIN civicrm_activity_contact acp ON acp.activity_id = ap.id
               JOIN civicrm_contact c ON c.id = acp.contact_id
+              JOIN civicrm_campaign camp ON camp.id = ap.campaign_id
               LEFT JOIN civicrm_group_contact gc ON gc.contact_id = acp.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
             WHERE ap.activity_type_id = %2 AND ap.status_id = 1 AND ap.activity_date_time <= date_add(current_date, INTERVAL -%3 DAY)
                 AND c.created_date >= date_add(current_date, INTERVAL -%4 DAY)
-                AND c.is_opt_out = 0 AND c.is_deleted = 0 AND c.is_deceased = 0 AND c.do_not_email = 0 AND gc.id IS NULL";
+                AND c.is_opt_out = 0 AND c.is_deleted = 0 AND c.is_deceased = 0 AND c.do_not_email = 0 AND gc.id IS NULL
+                AND camp.is_active = 1";
   $params = array(
     1 => array($groupId, 'Integer'),
     2 => array($activityTypeId, 'Integer'),
