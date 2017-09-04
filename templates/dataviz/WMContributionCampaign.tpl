@@ -49,10 +49,16 @@ jQuery(function($) {
 
 });
 
+
 function drawNumbers (graphs){
 
   var formatPercent =d3.format(".2%");
   var format = d3.format (".3s");
+
+  function renderMailing(chart, mailing) {
+    d3.selectAll(chart.anchor()).attr("title", format(mailing) + " emails sent");
+  }
+
  
 	var dim = ndx.dimension(function(d) { return true; });
 
@@ -64,6 +70,13 @@ function drawNumbers (graphs){
 	reducer.value("nb").count(true).filter(success).sum("nb");
 	reducer.value("amount").count(true).filter(success).sum("amount").avg(true);
 	reducer.value("amount_eur").count(true).filter(success).filter(function(d){return d.currency=="EUR"}).sum("amount").avg(true);
+	reducer.value("donation_petition").count(true).filter(function(d){
+          if (d.mailing_id && d.signatures) return success(d);
+        }).sum("nb");
+	reducer.value("donation_fundraiser").count(true).filter(function(d){
+          if (d.mailing_id && !d.signatures) return success(d);
+        }).sum("nb");
+
 	reducer.value("recipients_petition").count(true).filter(function(d){
           if (d.mailing_id && d.signatures) return success(d);
         }).sum("recipients").avg(true);
@@ -81,6 +94,13 @@ function drawNumbers (graphs){
 	.valueAccessor(function(d){ return d.value.nb.sum})
 	.html({some:"%number",none:"no donations"})
   .formatNumber(format)
+        .on("renderlet",function(chart) {
+            var d= chart.group().all()[0];
+            d3.selectAll(chart.anchor()).attr("data-original-title", 
+              "from fundraisers:" + d.value.donation_fundraiser.sum + 
+              "\nfrom petitions:" + d.value.donation_petition.sum 
+              );
+        })
 	.group(group);
 	
   graphs.total_amount=dc.numberDisplay(".amount") 
@@ -95,29 +115,34 @@ function drawNumbers (graphs){
 	.html({some:"%number",none:"no recurring"})
 	.group(group);
 
-	graphs.nb=dc.numberDisplay(".nb_fail") 
+	graphs.fail=dc.numberDisplay(".nb_fail") 
 	.valueAccessor(function(d){ return d.value.nb_fail.sum})
 	.html({some:"%number",none:"no fails"})
-  .formatNumber(format)
+         .formatNumber(format)
 	.group(group);
 	
   graphs.total_amount=dc.numberDisplay(".amount_fail") 
 	.valueAccessor(function(d){ return d.value.amount_fail.sum})
-  .formatNumber(format)
+        .formatNumber(format)
 	.html({some:"%number"})
 	.group(group);
   
-	graphs.nb=dc.numberDisplay(".nb_dpm_fundraiser") 
-	.valueAccessor(function(d){ return d.value.recipients_fundraiser.sum ? 1000*d.value.nb.sum/d.value.recipients_fundraiser.sum :0})
+	graphs.dpm_fundraiser=dc.numberDisplay(".nb_dpm_fundraiser") 
+	.valueAccessor(function(d){ return d.value.recipients_fundraiser.sum ? 1000*d.value.donation_fundraiser.sum/d.value.recipients_fundraiser.sum :0})
 	.html({some:"%number",none:"no mailing"})
-  .formatNumber(dpmformat)
+        .formatNumber(dpmformat)
+        .on("renderlet",function(chart) {renderMailing(chart,graphs.nb.group().all()[0].value.recipients_fundraiser.sum)})
 	.group(group);
 	
-	graphs.nb=dc.numberDisplay(".nb_dpm_petition") 
-	.valueAccessor(function(d){ return d.value.recipients_petition.sum ? 1000*d.value.nb.sum/d.value.recipients_petition.sum:0})
+	graphs.dpm_petition=dc.numberDisplay(".nb_dpm_petition") 
+	.valueAccessor(function(d){ return d.value.recipients_petition.sum ? 1000*d.value.donation_petition.sum/d.value.recipients_petition.sum:0})
 	.html({some:"%number",none:"no mailing"})
-  .formatNumber(dpmformat)
-	.group(group);
+        .on("renderlet",function(chart) {renderMailing(chart,graphs.nb.group().all()[0].value.recipients_petition.sum)})
+        .formatNumber(dpmformat)
+	.group(group)
+        .on("renderlet.tootltip", function(){
+          jQuery("#overview .badge").tooltip('fixTitle');
+        })
 	
   graphs.reducer=group;
 }
@@ -364,7 +389,7 @@ function drawTable(dom) {
        }
         return d.camp || "???";//d.name;
     })
-    .sortBy(function (d) { return +d.campaign_id * 1e9 + +d.nb;})
+    .sortBy(function (d) { return +d.campaign_id * 1e9 + +d.mailing_id * 1e4 + d.nb;})
     .order(d3.descending)
     .size(200)
     .columns([
