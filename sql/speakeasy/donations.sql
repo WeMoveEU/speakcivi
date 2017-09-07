@@ -1,15 +1,15 @@
 -- Donations count
-INSERT INTO speakeasy_petition_metrics (campaign_id, activity, npeople)
+INSERT INTO speakeasy_petition_metrics (activity, campaign_id, status, npeople)
   SELECT
-    campaign_id, 'donation', count(id) donations_count
+    'donation', campaign_id, currency, count(id) donations_count
   FROM civicrm_contribution
   WHERE contribution_status_id = 1 AND is_test = 0 AND campaign_id IS NOT NULL
-  GROUP BY campaign_id;
+  GROUP BY campaign_id, currency;
 
 -- Donations amount
-INSERT INTO speakeasy_petition_metrics (campaign_id, activity, npeople)
+INSERT INTO speakeasy_petition_metrics (activity, campaign_id, status, npeople)
   SELECT
-    campaign_id, 'donation_amount', sum(total_amount)
+    'donation_amount', campaign_id, currency, sum(total_amount)
   FROM civicrm_contribution
   WHERE contribution_status_id = 1 AND is_test = 0 AND campaign_id IS NOT NULL
-  GROUP BY campaign_id;
+  GROUP BY campaign_id, currency;
