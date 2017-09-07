@@ -1,2 +1,6 @@
-insert into speakeasy_petition_metrics (activity, campaign_id , npeople) select 'unique_recipient', cp.id, count(Distinct contact_id) from civicrm_mailing m join civicrm_mailing_recipients r on r.mailing_id=m.id and m.name not like "%-Reminder-%" join civicrm_campaign cp on cp.id=m.campaign_id group by campaign_id;
-
+INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople) SELECT
+  'unique_recipient', cp.id, count(DISTINCT contact_id)
+FROM civicrm_mailing m
+  JOIN civicrm_mailing_recipients r ON r.mailing_id = m.id AND m.name NOT LIKE '%-Reminder-%'
+  JOIN civicrm_campaign cp ON cp.id = m.campaign_id
+GROUP BY campaign_id;
