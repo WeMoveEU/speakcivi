@@ -1,0 +1,1 @@
+truncate speakeasy_petition_metrics;
