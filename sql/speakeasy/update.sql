@@ -58,8 +58,8 @@ SELECT
 FROM
     (SELECT DISTINCT
         civicrm_campaign.id AS civicrm_camp_id,
-            civicrm_option_value.label AS stand,
-            option_value_status.label AS status,
+            civicrm_option_value.name AS stand,
+            option_value_status.value AS status,
             c.id
     FROM
         civicrm_contact c
@@ -73,7 +73,7 @@ FROM
     JOIN civicrm_option_value AS option_value_status ON option_value_status.option_group_id = option_group_status.id
         AND civicrm_activity.status_id = option_value_status.value
     WHERE
-        civicrm_option_value.label IN ('Petition Signature' , 'share')) AS ca
+        civicrm_option_value.name IN ('Petition' , 'share')) AS ca
 GROUP BY civicrm_camp_id , stand , status;
 
 
@@ -117,7 +117,8 @@ SET
     speakout_id = camp.external_identifier,
     speakout_name = camp.name,
     speakout_title = camp.title,
-    language = speakout_integration.language_4
+    language = speakout_integration.language_4,
+    speakeasy_petition_metrics.parent_id = camp.parent_id
 WHERE
 speakeasy_petition_metrics.campaign_id IS NOT NULL
 ;
