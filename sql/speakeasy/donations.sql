@@ -26,7 +26,7 @@ INSERT INTO speakeasy_petition_metrics (activity, campaign_id, status, npeople)
 -- Recurring donations amount
 INSERT INTO speakeasy_petition_metrics (activity, campaign_id, status, npeople)
   SELECT
-    'recurring_donation', c.campaign_id, c.currency, sum(c.total_amount)
+    'recurring_donation_amount', c.campaign_id, c.currency, sum(c.total_amount)
   FROM civicrm_contribution c
     JOIN civicrm_contribution_recur cr ON cr.id = c.contribution_recur_id AND cr.contribution_status_id IN (1, 2, 5)
   WHERE c.contribution_status_id = 1 AND c.is_test = 0 AND c.campaign_id IS NOT NULL
