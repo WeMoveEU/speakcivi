@@ -8,7 +8,6 @@ UPDATE speakeasy_petition_metrics
 SET
   speakout_id = camp.external_identifier,
   speakout_name = camp.name,
-  speakout_title = camp.title,
   language = speakout_integration.language_4,
   speakeasy_petition_metrics.parent_id = camp.parent_id
 WHERE speakeasy_petition_metrics.campaign_id IS NOT NULL;
