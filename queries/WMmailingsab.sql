@@ -1,11 +1,20 @@
-select id, name, status, 
+select mailing_a.scheduled_date as date,
+TIMESTAMPDIFF(MINUTE,sent_median_a.value,sent_median_b.value) as delta_min_ab,
+
+m.name, m.status, 
 ra.value+ rb.value+ rc.value as recipient, 
 oa.value+ ob.value+ oc.value as open, 
 
 
-
  ra.value as recipient_a, rb.value as recipient_b, rc.value as recipient_c,
- oa.value as open_a, ob.value as open_b, oc.value as open_c 
+ oa.value as open_a, ob.value as open_b, oc.value as open_c,
+ ca.value as click_a, cb.value as click_b, cc.value as click_c,
+
+m.id,
+testing_criteria,
+mailing_a.subject as subject_a,
+mailing_b.subject as subject_b,
+mailing_c.subject as subject_c
 
 from civicrm_mailing_abtest m 
 LEFT JOIN data_mailing_counter ra ON ra.mailing_id=mailing_id_a AND ra.counter='recipients' AND ra.timebox=0 
@@ -16,9 +25,18 @@ LEFT JOIN data_mailing_counter oa ON oa.mailing_id=mailing_id_a AND oa.counter='
 LEFT JOIN data_mailing_counter ob ON ob.mailing_id=mailing_id_b AND ob.counter='opens' AND ob.timebox=144000
 LEFT JOIN data_mailing_counter oc ON oc.mailing_id=mailing_id_c AND oc.counter='opens' AND oc.timebox=144000
 
+LEFT JOIN data_mailing_counter ca ON ca.mailing_id=mailing_id_a AND ca.counter='clicks' AND ca.timebox=144000
+LEFT JOIN data_mailing_counter cb ON cb.mailing_id=mailing_id_b AND cb.counter='clicks' AND cb.timebox=144000
+LEFT JOIN data_mailing_counter cc ON cc.mailing_id=mailing_id_c AND cc.counter='clicks' AND cc.timebox=144000
 
-where status != "Draft" order by id desc limit 10 ;
+LEFT JOIN civicrm_mailing mailing_a ON mailing_a.id=mailing_id_a
+LEFT JOIN civicrm_mailing mailing_b ON mailing_b.id=mailing_id_b
+LEFT JOIN civicrm_mailing mailing_c ON mailing_c.id=mailing_id_c
 
+LEFT JOIN analytics_mailing_counter_datetime sent_median_a ON sent_median_a.mailing_id=mailing_id_a AND sent_median_a.counter='median_original'
+LEFT JOIN analytics_mailing_counter_datetime sent_median_b ON sent_median_b.mailing_id=mailing_id_b AND sent_median_b.counter='median_original'
+
+where status != "Draft";
 /*
 SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, campaign_id, camp.parent_id as parent_campaign_id,
   camp.title as campaign, camp.external_identifier, campaign_type_id, language_4 as lang,
