@@ -53,6 +53,7 @@
 </li>
 					<li class="list-group-item list-group-item-success"><span class="hidden badge total_percent"></span><span class="total"></span> signatures</button></li>
 					<li class="list-group-item"><span class="badge new_percent"></span><span class="new"></span> completed new</li>
+					<li class="list-group-item"><span class="badge activated_percent"></span><span class="activated"></span> </button></li>
 					<li class="list-group-item"><span class="badge existing_percent"></span><span class="existing"></span> existing</button></li>
 					<li class="list-group-item"><span class="badge pending_percent"></span><span class="pending"></span> pending</button></li>
 					<li class="list-group-item"><span class="badge optout_percent"></span><span class="optout"></span> optout</button></li>
@@ -175,7 +176,7 @@ var colorType = d3.scale.ordinal().range(pastel2);
 	      $(".crm-container").removeClass("crm-container");
 //var colorWrap = function (name,text) { return '<span style="color:'+colorType(name)+' "}; 
 
-   ['new','total','new','existing','share','pending'].forEach (function(d) {
+   ['new','total','new','existing','share','pending','activated'].forEach (function(d) {
      $("."+d).closest("li").css("background-color",colorType(d));//.css("font-weight","bold");
    });
 
@@ -220,6 +221,7 @@ function drawNumbers (graphs){
     function (p, v) {
 	p.total += +v.total;
 	p.completed_new += +v.completed_new;
+	p.completed_activated += +v.completed_activated;
 	p.completed_existing_member += +v.completed_existing_member;
 	p.pending+= +v.pending;
 	p.optout+= +v.optout;
@@ -229,6 +231,7 @@ function drawNumbers (graphs){
     function (p, v) {
 	p.total -= +v.total;
 	p.completed_new -= +v.completed_new;
+	p.completed_activated -= +v.completed_activated;
 	p.completed_existing_member -= +v.completed_existing_member;
 	p.pending-= +v.pending;
 	p.optout-= +v.optout;
@@ -236,7 +239,7 @@ function drawNumbers (graphs){
 	return p;
     },
     function () { return {
-       total:0,completed_new:0,completed_existing_member:0,pending:0,optout:0,share:0
+       total:0,completed_new:0,completed_existing_member:0,pending:0,optout:0,share:0,completed_activated:0
       };
     });
  
@@ -276,6 +279,12 @@ function drawNumbers (graphs){
     .valueAccessor(function(d){return d.completed_existing_member})
     .formatNumber(formatNumber);
   badging ("completed_existing_member","existing_percent");
+
+  graphs.existing=dc.numberDisplay(".activated").group(group)
+    .valueAccessor(function(d){return d.completed_activated})
+    .html({some:"%number (re)activated",none:"activations not computed yet"})
+    .formatNumber(formatNumber);
+  badging ("completed_activated","activated_percent");
 
   graphs.optout=dc.numberDisplay(".optout").group(group)
     .valueAccessor(function(d){return d.optout})
@@ -446,6 +455,7 @@ function drawDate (dom) {
   var groupNew = dim.group().reduceSum(function(d){return d.completed_new;});
   var groupPending = dim.group().reduceSum(function(d){return d.pending;});
   var groupExisting = dim.group().reduceSum(function(d){return d.completed_existing_member;});
+  var groupActivated = dim.group().reduceSum(function(d){return d.completed_activated;});
   var groupShare = dim.group().reduceSum(function(d){return d.share;});
   //var graph=dc.lineChart(dom)
   var graph=dc.compositeChart(dom)
@@ -478,6 +488,8 @@ function drawDate (dom) {
         line(groupPending,"pending"),
         line(groupShare,"share")
           .dashStyle([3,1,1,1]),
+        line(groupActivated,"activated")
+          .renderArea(true),
     ]);
 
    graph.yAxis().ticks(5).tickFormat(d3.format(".2s"));
