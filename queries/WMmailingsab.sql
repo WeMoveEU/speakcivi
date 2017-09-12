@@ -1,17 +1,55 @@
 select mailing_a.scheduled_date as date,
 TIMESTAMPDIFF(MINUTE,sent_median_a.value,sent_median_b.value) as delta_min_ab,
 
-m.name, m.status, 
+m.id, m.name, m.status, 
+
 ra.value+ rb.value+ rc.value as recipient, 
 oa.value+ ob.value+ oc.value as open, 
 
+ra.value as recipient_a, rb.value as recipient_b,
+oa.value as open_a, ob.value as open_b,  
+(3.84 < (
+  pow(cast(oa.value as signed)-cast(ob.value as signed), 2) / ob.value 
+  + pow(cast(ob.value as signed)-cast(oa.value as signed), 2) / (cast(rb.value as signed)-cast(ob.value as signed))
+)) as significant_open, -- khi-square > 3.84 <=> p < 0.05
 
- ra.value as recipient_a, rb.value as recipient_b, rc.value as recipient_c,
- oa.value as open_a, ob.value as open_b, oc.value as open_c,
- ca.value as click_a, cb.value as click_b, cc.value as click_c,
+ca.value as click_a, cb.value as click_b, 
+(3.84 < (
+  pow(cast(ca.value as signed)-cast(cb.value as signed), 2) / cb.value 
+  + pow(cast(cb.value as signed)-cast(ca.value as signed), 2) / (cast(rb.value as signed)-cast(cb.value as signed))
+)) as significant_click, -- khi-square > 3.84 <=> p < 0.05
 
-m.id,
 testing_criteria,
+IF(m.status='Final', 
+  IF(mailing_a.subject != mailing_b.subject,
+    IF(mailing_a.subject=mailing_c.subject, 'A', 'B'),
+    'N/C'), -- IF(mailing_a.subject=mailing_c.subject AND mailing_a.body_html=mailing_c.body_html, 'A', 'B')),
+  'N/A') AS winner,
+
+rc.value as recipient_c, oc.value as open_c, cc.value as click_c,
+
+IF(m.status='Final' AND mailing_a.subject != mailing_b.subject,
+	(3.84 < if(mailing_a.subject=mailing_c.subject, ra.value, rb.value) 
+		* (
+			pow(if(mailing_a.subject=mailing_c.subject, oa.value/ra.value, ob.value/rb.value) - oc.value/rc.value, 2)
+			/ (oc.value/rc.value)
+			+ pow(oc.value/rc.value - if(mailing_a.subject=mailing_c.subject, oa.value/ra.value, ob.value/rb.value), 2)
+			/ (1 - oc.value/rc.value)
+		)
+	),
+  'N/A') AS winner_open_significantly_different,
+
+IF(m.status='Final' AND mailing_a.subject != mailing_b.subject,
+	(3.84 < if(mailing_a.subject=mailing_c.subject, ra.value, rb.value) 
+		* (
+			pow(if(mailing_a.subject=mailing_c.subject, ca.value/ra.value, cb.value/rb.value) - cc.value/rc.value, 2)
+			/ (cc.value/rc.value)
+			+ pow(cc.value/rc.value - if(mailing_a.subject=mailing_c.subject, ca.value/ra.value, cb.value/rb.value), 2)
+			/ (1 - cc.value/rc.value)
+		)
+	),
+  'N/A') AS winner_click_significantly_different,
+
 mailing_a.subject as subject_a,
 mailing_b.subject as subject_b,
 mailing_c.subject as subject_c
@@ -36,7 +74,8 @@ LEFT JOIN civicrm_mailing mailing_c ON mailing_c.id=mailing_id_c
 LEFT JOIN analytics_mailing_counter_datetime sent_median_a ON sent_median_a.mailing_id=mailing_id_a AND sent_median_a.counter='median_original'
 LEFT JOIN analytics_mailing_counter_datetime sent_median_b ON sent_median_b.mailing_id=mailing_id_b AND sent_median_b.counter='median_original'
 
-where status != "Draft";
+WHERE status != "Draft" AND ob.value IS NOT NULL AND oa.value IS NOT NULL
+ORDER BY m.id DESC;
 /*
 SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, campaign_id, camp.parent_id as parent_campaign_id,
   camp.title as campaign, camp.external_identifier, campaign_type_id, language_4 as lang,
