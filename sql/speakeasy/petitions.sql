@@ -1,11 +1,11 @@
 INSERT INTO speakeasy_petition_metrics (campaign_id, activity, status, npeople)
   SELECT
     ca.civicrm_camp_id AS civicrm_camp_id,
-    ca.stand AS activity,
+    LOWER(ca.stand) AS activity,
     ca.status AS status,
     COUNT(*) AS npeople
   FROM
-    (SELECT DISTINCT
+    (SELECT
       civicrm_campaign.id AS civicrm_camp_id,
       civicrm_option_value.name AS stand,
       option_value_status.value AS status,
