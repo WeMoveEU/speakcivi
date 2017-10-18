@@ -770,6 +770,8 @@ function chooseFooter($language) {
       return 11;
     case 'PL':
       return 15;
+    case 'RO':
+      return 14;
     default:
       return 14;
   }
