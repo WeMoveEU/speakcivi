@@ -117,6 +117,7 @@ Greek | can speak el
 Italian | can speak it
 Polish | can speak pl
 Portuguese | can speak pt
+Romanian | can speak ro
 Spanish | can speak es
 
 ## message templates
