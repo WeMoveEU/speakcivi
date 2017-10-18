@@ -45,6 +45,7 @@ Greek | GR | el_GR
 Italian | IT | it_IT
 Polish | PL | pl_PL
 Portuguese | PT | pt_PT
+Romanian | RO | ro_RO
 Spanish | ES | es_ES
 
 ## gender

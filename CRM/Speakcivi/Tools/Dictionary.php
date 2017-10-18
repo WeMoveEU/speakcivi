@@ -172,6 +172,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'You are almost done - please confirm your action';
         break;
 
+      case 'ro_RO':
+        return 'You are almost done - please confirm your action';
+        break;
+
       default:
         return 'You are almost done - please confirm your action';
     }
@@ -219,6 +223,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
+        return "You are almost done - now multiply your impact";
+        break;
+
+      case 'ro_RO':
         return "You are almost done - now multiply your impact";
         break;
 
@@ -272,6 +280,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return "Share on Facebook";
         break;
 
+      case 'ro_RO':
+        return "Share on Facebook";
+        break;
+
       default:
         return 'Share on Facebook';
     }
@@ -319,6 +331,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
+        return 'Share on Twitter';
+        break;
+
+      case 'ro_RO':
         return 'Share on Twitter';
         break;
 
