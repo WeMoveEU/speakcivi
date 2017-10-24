@@ -146,8 +146,8 @@ data.values.forEach(function(d){
 		if (d.campaign_type_id==5) return "fundraiser";
 		if ((+d.nb_oneoff+ +d.nb_recur) >0  && +d.sign == 0) return "fundraiser";
 		if (d.name.toLowerCase().indexOf('-reminder-') !== -1) return "reminder";
+		if (d.name.toLowerCase().match(/-report.?back-/)) return "report back";
 		if (d.sign > 0) return "petition";
-		if (d.name.toLowerCase().indexOf('-report-back-') !== -1) return "report back";
 	  return "unknown";
   }
 
