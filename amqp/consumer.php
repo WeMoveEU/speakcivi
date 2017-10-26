@@ -94,8 +94,8 @@ function handleError($msg, $error, $retry=false) {
  * @return bool
  */
 function isConnectionLostError($sessionStatus) {
-  if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus['title'] == 'Mailing Error') {
-    return !!strpos($sessionStatus['text'], 'Connection lost to authentication server');
+  if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus[0]['title'] == 'Mailing Error') {
+    return !!strpos($sessionStatus[0]['text'], 'Connection lost to authentication server');
   }
   return false;
 }
