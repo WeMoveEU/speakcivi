@@ -122,6 +122,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return '"Julia - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
 
+      case 'ro_RO':
+        return '"Doina - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
       default:
         return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
     }
@@ -173,7 +177,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'ro_RO':
-        return 'You are almost done - please confirm your action';
+        return 'Ultimul pas: confirmă acțiunea';
         break;
 
       default:
@@ -227,7 +231,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'ro_RO':
-        return "You are almost done - now multiply your impact";
+        return "Următorul pas: dă de veste!";
         break;
 
       default:
@@ -281,7 +285,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'ro_RO':
-        return "Share on Facebook";
+        return "Distribuie pe Facebook";
         break;
 
       default:
@@ -335,7 +339,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'ro_RO':
-        return 'Share on Twitter';
+        return 'Distribuie pe Twitter';
         break;
 
       default:
