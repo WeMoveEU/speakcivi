@@ -45,6 +45,7 @@ Greek | GR | el_GR
 Italian | IT | it_IT
 Polish | PL | pl_PL
 Portuguese | PT | pt_PT
+Romanian | RO | ro_RO
 Spanish | ES | es_ES
 
 ## gender
@@ -116,6 +117,7 @@ Greek | can speak el
 Italian | can speak it
 Polish | can speak pl
 Portuguese | can speak pt
+Romanian | can speak ro
 Spanish | can speak es
 
 ## message templates

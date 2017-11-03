@@ -621,6 +621,7 @@ return array(
       'IT' => 'it_IT',
       'PL' => 'pl_PL',
       'PT' => 'pt_PT',
+      'RO' => 'ro_RO',
     ),
     'add' => '4.6',
     'is_domain' => 1,
