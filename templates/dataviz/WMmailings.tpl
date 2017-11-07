@@ -100,7 +100,7 @@ var colordt = d3.scale.linear().range(["red", "black","black"]).domain([60, 10,0
 {literal}
 
 timeboxData.values.forEach(function (d) {
-  if (d.label === '100d') {
+  if (d.label === '10d') {
     CRM.$('.btn-group.pull-right').append('<label class="btn btn-primary active"><input type="radio" name="timebox" value="'+d.box+'" checked /> '+d.label+'</label>');
   }
   else {
