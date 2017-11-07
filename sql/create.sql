@@ -40,5 +40,5 @@ CREATE TABLE data_mailing_counter
 -- Time boxes in minutes
 DROP TABLE IF EXISTS data_timeboxes;
 CREATE TABLE data_timeboxes (box INT UNSIGNED, PRIMARY KEY (box));
-INSERT INTO data_timeboxes VALUES (60), (180), (360), (720), (1440), (144000);
+INSERT INTO data_timeboxes VALUES (60), (180), (360), (720), (1440), (14400);
 
