@@ -20,12 +20,6 @@
 </div>
   <div class="btn-group pull-right" data-toggle="buttons">
     <a href="#" role="button" class="btn btn-default label-btn"  aria-disabled="true">Elapsed time</a>
-    <label class="btn btn-primary"><input type="radio" name="timebox" value="120" /> 2h</label>
-    <label class="btn btn-primary"><input type="radio" name="timebox" value="300" /> 5h</label>
-    <label class="btn btn-primary"><input type="radio" name="timebox" value="720" /> 12h</label>
-    <label class="btn btn-primary"><input type="radio" name="timebox" value="1440" /> 1d</label>
-    <label class="btn btn-primary"><input type="radio" name="timebox" value="2880" /> 2d</label>
-    <label class="btn btn-primary active"><input type="radio" name="timebox" value="144000" checked /> 100d</label>
   </div>
 </div>
 </div>
@@ -92,6 +86,7 @@
 </div>
 
 <script>
+var timeboxData = {crmSQL file="Timebox"};
 var data = {crmSQL file="WMmailings"};
 var campaigns= {crmSQL file="Campaigns"};
 var $=jQuery;
@@ -103,6 +98,15 @@ var color = d3.scale.linear().range(["red", "orange","green"]).domain([0,1,1.5])
 var colordt = d3.scale.linear().range(["red", "black","black"]).domain([60, 10,0]).interpolate(d3.interpolateHcl).clamp(true);
 
 {literal}
+
+timeboxData.values.forEach(function (d) {
+  if (d.label === '100d') {
+    CRM.$('.btn-group.pull-right').append('<label class="btn btn-primary active"><input type="radio" name="timebox" value="'+d.box+'" checked /> '+d.label+'</label>');
+  }
+  else {
+    CRM.$('.btn-group.pull-right').append('<label class="btn btn-primary"><input type="radio" name="timebox" value="'+d.box+'" /> '+d.label+'</label>');
+  }
+});
 
 var prettyDate = function (dateString){
   var date = new Date(dateString);
