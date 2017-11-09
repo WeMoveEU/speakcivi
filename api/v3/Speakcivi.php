@@ -1,10 +1,10 @@
 <?php
 
-function civicrm_api3_speakcivi_update_stats ($params) {
+function civicrm_api3_speakcivi_update_stats($params) {
   $config = CRM_Core_Config::singleton();
-  $sql = file_get_contents(dirname( __FILE__ ) .'/../../sql/update.sql', true);
-  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, true);
-  return civicrm_api3_create_success(array("query"=>$sql), $params);
+  $sql = file_get_contents(dirname(__FILE__) . '/../../sql/update.sql', TRUE);
+  CRM_Utils_File::sourceSQLFile($config->dsn, $sql, NULL, TRUE);
+  return civicrm_api3_create_success(array("query" => $sql), $params);
 }
 
 function _civicrm_api3_speakcivi_sendconfirm_spec(&$params) {
@@ -23,20 +23,22 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $campaignId = $params['campaign_id'];
   $activityId = $params['activity_id'];
   if (array_key_exists('no_member', $params)) {
-    $noMember = (bool)$params['no_member'];
-  } else {
-    $noMember = false;
+    $noMember = (bool) $params['no_member'];
+  }
+  else {
+    $noMember = FALSE;
   }
 
   $campaignObj = new CRM_Speakcivi_Logic_Campaign($campaignId);
   $locale = $campaignObj->getLanguage();
   $params['from'] = $campaignObj->getSenderMail();
-  $params['format'] = null;
+  $params['format'] = NULL;
 
   if ($confirmationBlock) {
     $params['subject'] = $campaignObj->getSubjectNew();
     $message = $campaignObj->getMessageNew();
-  } else {
+  }
+  else {
     $params['subject'] = $campaignObj->getSubjectCurrent();
     $message = $campaignObj->getMessageCurrent();
   }
@@ -45,7 +47,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     if ($confirmationBlock) {
       $message = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
       $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageNew, $message);
-    } else {
+    }
+    else {
       // don't send any sharing email
       return civicrm_api3_create_success(2, $params);
     }
@@ -62,20 +65,21 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   }
 
   /* CONFIRMATION_BLOCK */
-  $hash = sha1(CIVICRM_SITE_KEY.$contactId);
-  $utm_content = 'version_'.($contactId % 2);
+  $hash = sha1(CIVICRM_SITE_KEY . $contactId);
+  $utm_content = 'version_' . ($contactId % 2);
   $utm_campaign = $campaignObj->getUtmCampaign();
   if ($noMember) {
     $baseConfirmUrl = 'civicrm/speakcivi/nmconfirm';
     $baseOptoutUrl = 'civicrm/speakcivi/nmoptout';
-  } else {
+  }
+  else {
     $baseConfirmUrl = 'civicrm/speakcivi/confirm';
     $baseOptoutUrl = 'civicrm/speakcivi/optout';
   }
   $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl,
-    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", true);
+    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", TRUE);
   $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl,
-    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", true);
+    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", TRUE);
 
   $template = CRM_Core_Smarty::singleton();
   $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
@@ -92,12 +96,12 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('contact', $contact);
 
   /* FETCHING SMARTY TEMPLATES */
-  $params['subject'] = $template->fetch('string:'.$params['subject']);
+  $params['subject'] = $template->fetch('string:' . $params['subject']);
   $locales = getLocale($locale);
-  $confirmationBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl');
-  $confirmationBlockText = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl');
+  $confirmationBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl');
+  $confirmationBlockText = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl');
   $sharingBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
-  $message = $template->fetch('string:'.$message);
+  $message = $template->fetch('string:' . $message);
 
   $messageHtml = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $message);
   $messageText = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $message);
@@ -112,7 +116,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   try {
     $sent = CRM_Utils_Mail::send($params);
     return civicrm_api3_create_success($sent, $params);
-  } catch (CiviCRM_API3_Exception $exception) {
+  }
+  catch (CiviCRM_API3_Exception $exception) {
     $data = array(
       'params' => $params,
       'exception' => $exception,
@@ -142,7 +147,7 @@ function _civicrm_api3_speakcivi_leave_spec(&$params) {
 
 
 function civicrm_api3_speakcivi_leave($params) {
-  $start = microtime(true);
+  $start = microtime(TRUE);
   $tx = new CRM_Core_Transaction();
   try {
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
@@ -161,11 +166,12 @@ function civicrm_api3_speakcivi_leave($params) {
     }
     $results = array(
       'count' => $count,
-      'time' => microtime(true) - $start,
+      'time' => microtime(TRUE) - $start,
       'ids' => $ids,
     );
     return civicrm_api3_create_success($results, $params);
-  } catch (Exception $ex) {
+  }
+  catch (Exception $ex) {
     $tx->rollback()->commit();
     throw $ex;
   }
@@ -179,7 +185,7 @@ function _civicrm_api3_speakcivi_join_spec(&$params) {
 
 
 function civicrm_api3_speakcivi_join($params) {
-  $start = microtime(true);
+  $start = microtime(TRUE);
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId  = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
   $limit = $params['limit'];
@@ -189,10 +195,10 @@ function civicrm_api3_speakcivi_join($params) {
     2 => array($activityTypeId, 'Integer'),
     3 => array($limit, 'Integer'),
   );
-  $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
+  $count = (int) CRM_Core_DAO::singleValueQuery($query, $query_params);
   $results = array(
     'count' => $count,
-    'time' => microtime(true) - $start,
+    'time' => microtime(TRUE) - $start,
   );
   return civicrm_api3_create_success($results, $params);
 }
@@ -205,7 +211,7 @@ function _civicrm_api3_speakcivi_removelanguagegroup_spec(&$params) {
 
 
 function civicrm_api3_speakcivi_removelanguagegroup($params) {
-  $start = microtime(true);
+  $start = microtime(TRUE);
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
   $limit = $params['limit'];
@@ -217,17 +223,18 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
       2 => array($languageGroupNameSuffix, 'String'),
       3 => array($limit, 'Integer'),
     );
-    $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
+    $count = (int) CRM_Core_DAO::singleValueQuery($query, $query_params);
     $results = array(
       'count' => $count,
-      'time' => microtime(true) - $start,
+      'time' => microtime(TRUE) - $start,
     );
     return civicrm_api3_create_success($results, $params);
-  } else {
+  }
+  else {
     $data = array(
       'groupId' => $groupId,
       'languageGroupNameSuffix' => $languageGroupNameSuffix,
-      'limit' => $limit
+      'limit' => $limit,
     );
     return civicrm_api3_create_error('Not valid params', $data);
   }
@@ -244,7 +251,7 @@ function _civicrm_api3_speakcivi_remind_spec(&$params) {
 
 function civicrm_api3_speakcivi_remind($params) {
   // how old not confirmed petitions
-  $start = microtime(true);
+  $start = microtime(TRUE);
   $days = $params['days'];
   $daysContact = $params['days_contact'];
   if ($daysContact < $days) {
@@ -279,7 +286,7 @@ function civicrm_api3_speakcivi_remind($params) {
     $contacts[$dao->campaign_id][$dao->contact_id] = $dao->contact_id;
     $campaigns[$dao->campaign_id] = $dao->campaign_id;
   }
-  
+
   $message = array();
   $subject = array();
   $utmCampaign = array();
@@ -305,17 +312,18 @@ function civicrm_api3_speakcivi_remind($params) {
     if ($campaignType[$cid] == $noMemberCampaignType) {
       $baseConfirmUrl = 'civicrm/speakcivi/nmconfirm';
       $baseOptoutUrl = 'civicrm/speakcivi/nmoptout';
-    } else {
+    }
+    else {
       $baseConfirmUrl = 'civicrm/speakcivi/confirm';
       $baseOptoutUrl = 'civicrm/speakcivi/optout';
     }
-    $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl, null, true).
-      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
-    $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl, null, true).
-      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=".$utmCampaign[$cid];
+    $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl, NULL, TRUE) .
+      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=" . $utmCampaign[$cid];
+    $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl, NULL, TRUE) .
+      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=" . $utmCampaign[$cid];
     $locales = getLocale($locale[$cid]);
-    $confirmationBlockHtml = implode('', file(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['html'].'.html.tpl'));
-    $confirmationBlockText = implode('', file(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locales['text'].'.text.tpl'));
+    $confirmationBlockHtml = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl'));
+    $confirmationBlockText = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl'));
     $confirmationBlockHtml = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockHtml);
     $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
     $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
@@ -331,12 +339,14 @@ function civicrm_api3_speakcivi_remind($params) {
       if ($mailingId = findNotCompletedMailing($cid)) {
         if ($linkedGroupId = findLinkedGroup($mailingId)) {
           addContactsToGroup($contacts[$cid], $linkedGroupId);
-        } else {
+        }
+        else {
           $includeGroupId = createGroup($cid, $language[$cid]);
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mailingId, $includeGroupId);
         }
-      } else {
+      }
+      else {
         $name = determineMailingName($cid, $language[$cid]);
         $params = array(
           'name' => $name,
@@ -367,7 +377,8 @@ function civicrm_api3_speakcivi_remind($params) {
           cleanGroup($existingGroupId);
           addContactsToGroup($contacts[$cid], $existingGroupId);
           includeGroup($mm->id, $existingGroupId);
-        } else {
+        }
+        else {
           $includeGroupId = createGroup($cid, $language[$cid]);
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mm->id, $includeGroupId);
@@ -391,7 +402,7 @@ function civicrm_api3_speakcivi_remind($params) {
   }
 
   $results = array(
-    'time' => microtime(true) - $start,
+    'time' => microtime(TRUE) - $start,
   );
   return civicrm_api3_create_success($results, $params);
 }
@@ -403,7 +414,7 @@ function _civicrm_api3_speakcivi_englishgroups_spec(&$params) {
 }
 
 function civicrm_api3_speakcivi_englishgroups($params) {
-  $start = microtime(true);
+  $start = microtime(TRUE);
   $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
 
   if ($params['parent_id'] && $params['uk_id'] && $params['int_id']) {
@@ -413,13 +424,14 @@ function civicrm_api3_speakcivi_englishgroups($params) {
       2 => array($params['uk_id'], 'Integer'),
       3 => array($params['int_id'], 'Integer'),
     );
-    $count = (int)CRM_Core_DAO::singleValueQuery($query, $query_params);
+    $count = (int) CRM_Core_DAO::singleValueQuery($query, $query_params);
     $results = array(
       'count' => $count,
-      'time' => microtime(true) - $start,
+      'time' => microtime(TRUE) - $start,
     );
     return civicrm_api3_create_success($results, $params);
-  } else {
+  }
+  else {
     $data = array(
       'languageGroupNameSuffix' => $languageGroupNameSuffix,
     );
@@ -441,7 +453,7 @@ function getLocale($locale) {
     'text' => 'en_GB',
   );
   foreach ($localeTab as $type => $localeType) {
-    if (file_exists(dirname(__FILE__).'/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.'.$locale.'.'.$type.'.tpl')) {
+    if (file_exists(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locale . '.' . $type . '.tpl')) {
       $localeTab[$type] = $locale;
     }
   }
@@ -461,7 +473,7 @@ function convertHtmlToText($html) {
   $re = '/<a href="(.*)">(.*)<\/a>/';
   if (preg_match_all($re, $html, $matches)) {
     foreach ($matches[0] as $id => $tag) {
-      $html = str_replace($tag, $matches[2][$id]."\n".str_replace(' ', '+', $matches[1][$id]), $html);
+      $html = str_replace($tag, $matches[2][$id] . "\n" . str_replace(' ', '+', $matches[1][$id]), $html);
     }
   }
   return $html;
@@ -493,8 +505,8 @@ function prepareCleanUrl($url) {
 function removeDelim($str) {
   $first = strpos($str, '{ldelim}');
   $last = strrpos($str, '{rdelim}');
-  if ($first !== false && $last !== false) {
-    $str = substr_replace($str, '', $first, $last-$first+8);
+  if ($first !== FALSE && $last !== FALSE) {
+    $str = substr_replace($str, '', $first, $last - $first + 8);
     $str = preg_replace('/<script[^>]*>/i', '', $str);
     $str = preg_replace('/<\/script>/i', '', $str);
   }
@@ -567,7 +579,7 @@ function findNotCompletedMailing($campaignId) {
   $params = array(
     1 => array($campaignId, 'Integer'),
   );
-  return (int)CRM_Core_DAO::singleValueQuery($query, $params);
+  return (int) CRM_Core_DAO::singleValueQuery($query, $params);
 }
 
 
@@ -627,7 +639,7 @@ function findLinkedGroup($mailingId) {
   $params = array(
     1 => array($mailingId, 'Integer'),
   );
-  return (int)CRM_Core_DAO::singleValueQuery($query, $params);
+  return (int) CRM_Core_DAO::singleValueQuery($query, $params);
 }
 
 
@@ -644,9 +656,9 @@ function findExistingGroup($campaignId) {
             ORDER BY id
             LIMIT 1";
   $params = array(
-    1 => array('Reminder-__--CAMP-ID-'.$campaignId, 'String'),
+    1 => array('Reminder-__--CAMP-ID-' . $campaignId, 'String'),
   );
-  return (int)CRM_Core_DAO::singleValueQuery($query, $params);
+  return (int) CRM_Core_DAO::singleValueQuery($query, $params);
 }
 
 
@@ -741,13 +753,13 @@ function excludeGroup($mailingId, $groupId) {
 function createGroup($campaignId, $language) {
   $params = array(
     'sequential' => 1,
-    'title' => 'Reminder-'.$language.'--CAMP-ID-'.$campaignId,
+    'title' => 'Reminder-' . $language . '--CAMP-ID-' . $campaignId,
     'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR, // mailing type
     'visibility' => 'User and User Admin Only',
     'source' => 'speakcivi',
   );
   $result = civicrm_api3('Group', 'create', $params);
-  return (int)$result['id'];
+  return (int) $result['id'];
 }
 
 
@@ -760,14 +772,14 @@ function createGroup($campaignId, $language) {
  */
 function determineMailingName($campaignId, $language) {
   $dt = date('Y-m-d');
-  $name = $dt.'-Reminder-'.$language.'--CAMP-ID-'.$campaignId;
+  $name = $dt . '-Reminder-' . $language . '--CAMP-ID-' . $campaignId;
   $query = "SELECT count(id) FROM civicrm_mailing WHERE name LIKE %1";
   $params = array(
-    1 => array($name.'%', 'String'),
+    1 => array($name . '%', 'String'),
   );
-  $count = (int)CRM_Core_DAO::singleValueQuery($query, $params);
+  $count = (int) CRM_Core_DAO::singleValueQuery($query, $params);
   if ($count) {
-    $name .= '_'.$count;
+    $name .= '_' . $count;
   }
   return $name;
 }
@@ -777,16 +789,22 @@ function chooseFooter($language) {
   switch ($language) {
     case 'ES':
       return 13;
+
     case 'DE':
       return 10;
+
     case 'FR':
       return 12;
+
     case 'IT':
       return 11;
+
     case 'PL':
       return 15;
+
     case 'RO':
       return 31;
+
     default:
       return 14;
   }
