@@ -375,6 +375,21 @@ function civicrm_api3_speakcivi_remind($params) {
       }
     }
   }
+
+  // submit reminders, trello #546
+  $query = "SELECT id
+            FROM civicrm_mailing
+            WHERE scheduled_date IS NULL AND name LIKE '%Reminder%CAMP-ID%' AND mailing_type = 'standalone'";
+  $dao = CRM_Core_DAO::executeQuery($query);
+  while ($dao->fetch()) {
+    $submitParams = [
+      'id' => $dao->id,
+      'approval_date' => 'now',
+      'scheduled_date' => 'now',
+    ];
+    civicrm_api3('Mailing', 'submit', $submitParams);
+  }
+
   $results = array(
     'time' => microtime(true) - $start,
   );
