@@ -241,11 +241,31 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
 }
 
 
-function _civicrm_api3_speakcivi_remind_spec(&$params) {
-  $params['days']['api.required'] = 1;
-  $params['days']['api.default'] = 3;
-  $params['days_contact']['api.required'] = 1;
-  $params['days_contact']['api.default'] = 3;
+function _civicrm_api3_speakcivi_remind_spec(&$spec) {
+  $spec['days'] = [
+    'name' => 'days',
+    'title' => 'How old petitions?',
+    'description' => 'How old petitions?',
+    'type' => CRM_Utils_Type::T_INT,
+    'api.required' => 1,
+    'api.default' => 1,
+  ];
+  $spec['days_contact'] = [
+    'name' => 'days_contact',
+    'title' => 'How old contacts?',
+    'description' => 'How old contacts?',
+    'type' => CRM_Utils_Type::T_INT,
+    'api.required' => 1,
+    'api.default' => 4,
+  ];
+  $spec['submit_reminders'] = [
+    'name' => 'submit_reminders',
+    'title' => 'Submit reminders automatically',
+    'description' => 'Submit newly created reminders automatically',
+    'type' => CRM_Utils_Type::T_BOOLEAN,
+    'api.required' => 1,
+    'api.default' => FALSE,
+  ];
 }
 
 
@@ -260,7 +280,7 @@ function civicrm_api3_speakcivi_remind($params) {
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Petition');
   $noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
-  $submitReminders = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'submit_reminders');
+  $submitReminders = (bool) $params['submit_reminders'];
 
   $adminId = 1;
 
