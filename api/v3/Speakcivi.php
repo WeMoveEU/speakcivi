@@ -383,22 +383,9 @@ function civicrm_api3_speakcivi_remind($params) {
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mm->id, $includeGroupId);
         }
+        submitReminder($mm->id);
       }
     }
-  }
-
-  // submit reminders, trello #546
-  $query = "SELECT id
-            FROM civicrm_mailing
-            WHERE scheduled_date IS NULL AND name LIKE '%Reminder%CAMP-ID%' AND mailing_type = 'standalone'";
-  $dao = CRM_Core_DAO::executeQuery($query);
-  while ($dao->fetch()) {
-    $submitParams = [
-      'id' => $dao->id,
-      'approval_date' => 'now',
-      'scheduled_date' => 'now',
-    ];
-    civicrm_api3('Mailing', 'submit', $submitParams);
   }
 
   $results = array(
@@ -784,6 +771,19 @@ function determineMailingName($campaignId, $language) {
   return $name;
 }
 
+/**
+ * Submit reminder, trello #546
+ *
+ * @param $mailingId
+ */
+function submitReminder($mailingId) {
+  $submitParams = [
+    'id' => $mailingId,
+    'approval_date' => 'now',
+    'scheduled_date' => 'now',
+  ];
+  civicrm_api3('Mailing', 'submit', $submitParams);
+}
 
 function chooseFooter($language) {
   switch ($language) {
