@@ -260,6 +260,7 @@ function civicrm_api3_speakcivi_remind($params) {
   $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
   $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Petition');
   $noMemberCampaignType = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'no_member_campaign_type');
+  $submitReminders = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'submit_reminders');
 
   $adminId = 1;
 
@@ -383,7 +384,9 @@ function civicrm_api3_speakcivi_remind($params) {
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mm->id, $includeGroupId);
         }
-        submitReminder($mm->id);
+        if ($submitReminders) {
+          submitReminder($mm->id);
+        }
       }
     }
   }
