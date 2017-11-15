@@ -197,12 +197,14 @@ var ndx  = crossfilter(data.values)
 var nameDim = ndx.dimension(function(d) { return d.name; });
 var signDim = ndx.dimension(function(d) { return d.sign; });
 var giveDim = ndx.dimension(function(d) { return +d.nb_oneoff + +d.nb_recur; });
-var timeDim = ndx.dimension(function(d) { 
-  if(!d.timebox) return 144000; 
-return d.timebox; 
-});
 
-timeDim.filterExact(144000);
+var largestTimebox = timeboxData.values[timeboxData.values.length-1].box;
+var timeDim = ndx.dimension(function(d) { 
+  if(!d.timebox) return largestTimebox; 
+  return d.timebox; 
+});
+timeDim.filterExact(largestTimebox);
+
 jQuery(function($) {
 $(".crm-container").removeClass("crm-container");
 
@@ -679,7 +681,6 @@ function drawTable(dom) {
           return "<span class='glyphicon glyphicon-refresh spin' title='not all sent, mailing in progress'></span>";
               return d.recipients;
 	    },
-//	    function (d) {return d.timebox < 1440 ? (d.timebox/60)+'h' : (d.timebox/1440)+'d';},
 	    function (d) {
              return "<a title='"+d.subject+"' href='/civicrm/dataviz/mailing/"+d.id+"' >"+percent(d,'open',0)+"</a>";
               return percent(d, 'open', 0);
