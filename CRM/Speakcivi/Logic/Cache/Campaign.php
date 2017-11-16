@@ -40,6 +40,7 @@ class CRM_Speakcivi_Logic_Cache_Campaign extends CRM_Speakcivi_Logic_Cache {
     $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
     if (!$campaignObj->isValidCampaign($campaignObj->campaign)) {
       $campaignObj->campaign = $campaignObj->setCampaign($param->external_id, $campaignObj->campaign, $param);
+      CRM_Core_PseudoConstant::flush();
       $campaignObj->campaign = $campaignObj->getCampaign($param->external_id, false, false);
     }
     // fixme move limit to settings
