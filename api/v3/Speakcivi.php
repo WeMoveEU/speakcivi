@@ -804,6 +804,7 @@ function submitReminder($mailingId) {
     'id' => $mailingId,
     'approval_date' => 'now',
     'scheduled_date' => 'now',
+    'scheduled_id' => 1,
   ];
   civicrm_api3('Mailing', 'submit', $submitParams);
 }
