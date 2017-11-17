@@ -10,6 +10,12 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   public $campaignId = 0;
 
+  public $utmSource = '';
+
+  public $utmMedium = '';
+
+  public $utmCampaign = '';
+
   public $activityStatusId = array();
 
 
@@ -34,6 +40,9 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     $this->contactId = CRM_Utils_Request::retrieve('id', 'Positive', $this, true);
     $this->activityId = CRM_Utils_Request::retrieve('aid', 'Positive', $this, false);
     $this->campaignId = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
+    $this->utmSource= CRM_Utils_Request::retrieve('utm_source', 'String', $this, false);
+    $this->utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $this, false);
+    $this->utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $this, false);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
     $hash1 = sha1(CIVICRM_SITE_KEY . $this->contactId);
     if ($hash !== $hash1) {

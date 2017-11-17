@@ -339,9 +339,9 @@ function civicrm_api3_speakcivi_remind($params) {
       $baseOptoutUrl = 'civicrm/speakcivi/optout';
     }
     $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl, NULL, TRUE) .
-      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=" . $utmCampaign[$cid];
+      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=reminder&utm_medium=email&utm_campaign=" . $utmCampaign[$cid];
     $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl, NULL, TRUE) .
-      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=civicrm&utm_medium=email&utm_campaign=" . $utmCampaign[$cid];
+      "?id={contact.contact_id}&cid=$cid&hash={speakcivi.confirmation_hash}&utm_source=reminder&utm_medium=email&utm_campaign=" . $utmCampaign[$cid];
     $locales = getLocale($locale[$cid]);
     $confirmationBlockHtml = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl'));
     $confirmationBlockText = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl'));
