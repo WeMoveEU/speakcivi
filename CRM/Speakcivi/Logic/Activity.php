@@ -37,6 +37,7 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $activity_date_time
    * @param $location
    *
+   * @return array
    * @throws \CiviCRM_API3_Exception
    */
   private static function createActivity($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '') {
@@ -60,7 +61,7 @@ class CRM_Speakcivi_Logic_Activity {
     if ($location) {
       $params['location'] = $location;
     }
-    civicrm_api3('Activity', 'create', $params);
+    return civicrm_api3('Activity', 'create', $params);
   }
 
 
@@ -135,10 +136,13 @@ class CRM_Speakcivi_Logic_Activity {
    * @param $subject
    * @param $campaignId
    * @param $parentActivityId
+   *
+   * @return int
    */
   public static function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
     $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
+    $result = self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
+    return (int) $result['id'];
   }
 
 
