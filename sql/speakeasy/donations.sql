@@ -33,3 +33,13 @@ INSERT INTO speakeasy_petition_metrics (activity, campaign_id, status, npeople)
   WHERE c.contribution_status_id IN (1, 2, 5) AND c.is_test = 0 AND c.campaign_id IS NOT NULL
     AND contribution_recur_id IS NOT NULL
   GROUP BY c.campaign_id, c.currency;
+
+-- Number of new members who are today recurring donors
+INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
+  SELECT 
+    'new_now_recurdonors', a.campaign_id, COUNT(DISTINCT ac.contact_id) 
+  FROM civicrm_activity a 
+  JOIN civicrm_activity_contact ac ON ac.activity_id=a.id 
+  JOIN civicrm_contribution_recur r ON r.contact_id=ac.contact_id 
+  WHERE a.status_id=9 AND r.contribution_status_id IN (2, 5)
+  GROUP BY a.campaign_id;
