@@ -1,6 +1,9 @@
+{crmTitle string="Recurring Donations"}
 <script>
 var data={crmSQL file="WMContributionRecur"};
+var _fundraisers={crmSQL file="Fundraiser"};
 {literal}
+var fundraiser={};
 
 var graphs = {};
 var ndx = crossfilter(data.values);
@@ -8,6 +11,12 @@ var ndx = crossfilter(data.values);
 var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%s");
 var day = d3.time.format("%Y-%m-%d");
 var time = d3.time.format("%H:%M");
+
+_fundraisers.values.forEach(function(d){
+  fundraiser["civimail-"+d.id]=d;
+});
+
+_fundraisers=null;
 
 data.values.forEach(function(d){
 //  var dd= d.date;
@@ -27,6 +36,8 @@ jQuery(function($) {
 	if(data.is_error){
 		 CRM.alert(data.error);
 	}
+
+//https://www.wemove.eu/civicrm/dataviz/WM_contribution_recur?since=2017-12-01
 
 	$(".crm-container").removeClass("crm-container");
   $("h1.page-header,.breadcrumb,#page-header").hide();
@@ -137,7 +148,12 @@ function drawStatus (dom) {
 
 function drawTextSearch (dom) {
 
-  var dim = ndx.dimension(function(d) { return d.camp.toString().toLowerCase() + " "+d.source.toLowerCase()+ d.ab_test.toLowerCase()+" "+d.ab_variant.toLowerCase() || "?"});
+  var dim = ndx.dimension(function(d) { 
+    var t="";
+    var t= d.camp.toString().toLowerCase() + " "+d.source.toLowerCase()+ " "+ d.content.toLowerCase() + d.ab_test.toLowerCase()+" "+d.ab_variant.toLowerCase() || "?";
+    if (fundraiser[d.source]) t += " "+ fundraiser[d.source].name.toLowerCase();
+    return t;
+});
 
 	function debounce(fn, delay) {
 		var timer = null;
@@ -193,6 +209,8 @@ function drawTextSearch (dom) {
 	function drawCampaign (dom) {
 	  var dim = ndx.dimension(
        function(d){
+         if (fundraiser[d.source]) return fundraiser[d.source].name;
+        
          return d.camp || "?";
     });
 
@@ -324,8 +342,11 @@ function drawTable(dom) {
               function(d){return d.country},
               function(d){return d.status},
               function(d){return d.camp},
-              function(d){return d.source},
+              function(d){
+                 if (fundraiser[d.source]) return "<span title='"+fundraiser[d.source].subject+"'>"+fundraiser[d.source].name+"</span>";
+                 return d.source},
               function(d){return d.medium},
+              function(d){return d.content},
               function(d){return d.ab_test},
               function(d){return d.ab_variant},
              ])
