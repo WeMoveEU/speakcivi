@@ -1,8 +1,18 @@
 {crmTitle string="Recurring Donations"}
 <script>
+
 var data={crmSQL file="WMContributionRecur"};
 var _fundraisers={crmSQL file="Fundraiser"};
 {literal}
+  jQuery.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results==null){
+       return null;
+    }
+    else{
+       return decodeURI(results[1]) || 0;
+    }
+};
 var fundraiser={};
 
 var graphs = {};
@@ -263,9 +273,14 @@ function drawMonth (dom) {
 function drawDate (dom) {
   var dim = ndx.dimension(function (d) {   return d.date;  }); 
   var group = dim.group().reduceSum(function(d) {return d.amount;});
-  var range= [ dim.bottom(1)[0].date, dim.top(1)[0].date];
+  var since = dim.bottom(1)[0].date;
 
-
+  if (jQuery.urlParam("since")){
+    since = day.parse(jQuery.urlParam("since"))
+    dim.filterAll();
+    dim.filterRange([since, new Date()]);
+  }
+  var range= [since, dim.top(1)[0].date];
 
   var graph= dc.lineChart(dom)
 	.width(200).height(180)
