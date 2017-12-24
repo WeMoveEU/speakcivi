@@ -58,8 +58,9 @@ jQuery(function($) {
   graphs.search = drawTextSearch('#input-filter');
 	graphs.status= drawStatus('#status graph');
 	graphs.processor= drawProcessor('#processor graph');
-	graphs.campaign= drawCampaign('#campaign');
-	graphs.country = drawCountry('#country');
+	graphs.campaign= drawCampaign('#campaign .panel-body');
+	graphs.country = drawCountry('#country .panel-body');
+	graphs.language = drawLanguage('#language .panel-body');
 	graphs.month = drawMonth('#date graph');
 	graphs.amount = drawDate('#amount graph');
 	dc.renderAll();
@@ -187,6 +188,35 @@ function drawTextSearch (dom) {
 
 }
 
+function drawLanguage(dom) {
+	  var dim = ndx.dimension(
+       function(d){
+         return d.lang.substring(0,2) || "?";
+    });
+
+	  var group = dim.group().reduceSum(function(d){return 1;});
+
+	  var graph  = dc.rowChart(dom)
+	    .width(0)
+	    .height(105)
+	    .gap(0)
+	    .rowsCap(18)
+	    .ordering(function(d) { return -d.value })
+	    .dimension(dim)
+	    .elasticX(true)
+.labelOffsetY(10)
+.fixedBarHeight(14)
+.labelOffsetX(2)
+    .colorCalculator(function(d){return 'lightblue';})
+	    .group(group);
+
+    graph.xAxis().ticks(4);
+    graph.margins().left = 5;
+    graph.margins().top = 0;
+    graph.margins().bottom = 0;
+	  return graph;
+};
+
 	function drawCountry (dom) {
 	  var dim = ndx.dimension(
        function(d){
@@ -196,10 +226,10 @@ function drawTextSearch (dom) {
 	  var group = dim.group().reduceSum(function(d){return 1;});
 
 	  var graph  = dc.rowChart(dom)
-	    .width(200)
-	    .height(275)
+	    .width(0)
+	    .height(150)
 	    .gap(0)
-	    .rowsCap(18)
+	    .rowsCap(8)
 	    .ordering(function(d) { return -d.value })
 	    .dimension(dim)
 	    .elasticX(true)
@@ -271,8 +301,9 @@ function drawMonth (dom) {
 }
 
 function drawDate (dom) {
-  var dim = ndx.dimension(function (d) {   return d.date;  }); 
-  var group = dim.group().reduceSum(function(d) {return d.amount;});
+  var dim = ndx.dimension(function (d) {   return [+d.date, +d.amount, d.lang];  }); 
+  //var group = dim.group().reduceSum(function(d) {return d.amount;});
+  var group = dim.group();
   var since = dim.bottom(1)[0].date;
 
   if (jQuery.urlParam("since")){
@@ -280,18 +311,18 @@ function drawDate (dom) {
     dim.filterAll();
     dim.filterRange([since, new Date()]);
   }
-  var range= [since, dim.top(1)[0].date];
+  //var range= [since, dim.top(1)[0].date];
+  var range= [since, new Date()];
 
-  var graph= dc.lineChart(dom)
-	.width(200).height(180)
+  var graph= dc.scatterPlot(dom) //lineChart(dom)
+	.width(0).height(180)
 	.dimension(dim)
     .group(group)
-    .renderArea(true)
-
 	.x(d3.time.scale().domain(range))
+.y(d3.scale.linear().domain([0., 100.]))
     //.valueAccessor(function(d) { return d.value.min; }) 
 //    .elasticX(true)
-    .elasticY(true)
+//    .elasticY(true)
     .mouseZoomable(true)
     .rangeChart(graphs.month)
     //.brushOn(true)
@@ -406,6 +437,11 @@ function drawTable(dom) {
 		</div>
 	</div>
 	<div class="col-md-3">
+		<div class="panel panel-default" id="language">
+			<div class="panel-heading" title="Languages donation">Language</div>
+			<div class="panel-body"><graph />
+			</div>
+		</div>
 		<div class="panel panel-default" id="country">
 			<div class="panel-heading" title="Country donation">Country</div>
 			<div class="panel-body"><graph />
@@ -450,6 +486,8 @@ function drawTable(dom) {
 
 {literal}
 <style>
+.row div.dc-chart {float:none;}
+
 .row .dc-chart .pie-slice {fill:white;}
 .row .dc-chart g.row text {fill:black;}
 </style>

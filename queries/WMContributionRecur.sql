@@ -17,6 +17,7 @@ select
   SUM(IF(c.contribution_status_id = 1,1,0)) AS nb,
   SUM(IF(c.contribution_status_id = 1,c.total_amount,0)) AS total_amount,
   ctry.iso_code as country,
+  co.preferred_language as lang,
   co.created_date as contact_since,
   ab.ab_testing_42 as ab_test,
   ab.ab_variant_43 as ab_variant
