@@ -34,6 +34,10 @@ data.values.forEach(function(d){
   if (d.currency== "EUR") d.currency = "&euro;";
   if (d.currency== "GBP") d.currency = "?";
   d.date = new Date (d.date);
+  if (d.contact_since) {
+    d.contact_since = new Date (d.contact_since);
+    d.contact_since_days = Math.floor(( d.date - d.contact_since ) / 86400000);  
+  }
   if (d.cancel_date)
     d.cancel_date = new Date (d.cancel_date);
   d.day= day(d.date); 
@@ -257,7 +261,7 @@ function drawLanguage(dom) {
 	  var group = dim.group().reduceSum(function(d){return 1;});
 
 	  var graph  = dc.rowChart(dom)
-	    .width(200)
+	    .width(0)
 	    .height(275)
 	    .gap(0)
 	    .rowsCap(18)
@@ -301,9 +305,10 @@ function drawMonth (dom) {
 }
 
 function drawDate (dom) {
-  var dim = ndx.dimension(function (d) {   return [+d.date, +d.amount, d.lang];  }); 
-  //var group = dim.group().reduceSum(function(d) {return d.amount;});
-  var group = dim.group();
+  //var dim = ndx.dimension(function (d) {   return [+d.date, +d.amount, d.lang];  }); 
+  var dim = ndx.dimension(function (d) {   return d.date;  }); 
+  var group = dim.group().reduceSum(function(d) {return d.amount;});
+  //var group = dim.group();
   var since = dim.bottom(1)[0].date;
 
   if (jQuery.urlParam("since")){
@@ -314,14 +319,14 @@ function drawDate (dom) {
   //var range= [since, dim.top(1)[0].date];
   var range= [since, new Date()];
 
-  var graph= dc.scatterPlot(dom) //lineChart(dom)
+  var graph= dc.lineChart(dom) //scatterPlot(dom) //lineChart(dom)
 	.width(0).height(180)
 	.dimension(dim)
     .group(group)
 	.x(d3.time.scale().domain(range))
-.y(d3.scale.linear().domain([0., 100.]))
+//.y(d3.scale.linear().domain([0., 100.]))
     //.valueAccessor(function(d) { return d.value.min; }) 
-//    .elasticX(true)
+    .elasticX(true)
 //    .elasticY(true)
     .mouseZoomable(true)
     .rangeChart(graphs.month)
@@ -379,7 +384,7 @@ function drawTable(dom) {
                 return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+c+"</a>"
 	      },
               function (d) {
-                return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id, selectedChild:'contribute'})+"'>"+d.first_name+"</a>";
+                return "<a title='contact since "+day(d.contact_since)+" "+d.contact_since_days +" days' href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id, selectedChild:'contribute'})+"'>"+d.first_name+"</a>";
 
               },
               function(d){
