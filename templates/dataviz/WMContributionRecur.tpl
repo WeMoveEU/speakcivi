@@ -23,20 +23,26 @@ var day = d3.time.format("%Y-%m-%d");
 var time = d3.time.format("%H:%M");
 
 _fundraisers.values.forEach(function(d){
+  d.received_median = new Date (d.received_median);
   fundraiser["civimail-"+d.id]=d;
 });
 
 _fundraisers=null;
 
+
 data.values.forEach(function(d){
 //  var dd= d.date;
   //d.date = dateFormat.parse(dd);
   if (d.currency== "EUR") d.currency = "&euro;";
-  if (d.currency== "GBP") d.currency = "?";
+  if (d.currency== "GBP") d.currency = "£";
   d.date = new Date (d.date);
+  if (fundraiser[d.source]) {
+    d.fundraiser=fundraiser[d.source];
+    d.fundraiser_delta = Math.round( (d.date - d.fundraiser.received_median) / 3600000); // in hours 
+  }
   if (d.contact_since) {
     d.contact_since = new Date (d.contact_since);
-    d.contact_since_days = Math.floor(( d.date - d.contact_since ) / 86400000);  
+    d.contact_since_days = Math.round(( d.date - d.contact_since ) / 86400000);  
   }
   if (d.cancel_date)
     d.cancel_date = new Date (d.cancel_date);
@@ -83,6 +89,7 @@ function drawNumbers (graphs){
 	reducer.value("nb").count(true).sum("nb").avg(true);
 	reducer.value("amount").count(true).sum("amount").avg(true);
 	reducer.value("total_amount").sum("total_amount");
+	reducer.value("contact_since").count(true).sum("contact_since_days").avg(true);
 
 	var group=dim.group();
 	reducer(group);
@@ -105,11 +112,11 @@ function drawNumbers (graphs){
 	.html({some:"%number",none:"no recurring"})
 	.group(group);
 
-  graphs.nb_mailing=dc.numberDisplay(".nb_donation") 
+  graphs.nb_donation=dc.numberDisplay(".nb_donation") 
 	.valueAccessor(function(d){ return d.value.nb.sum})
 	.html({some:"%number"}).formatNumber(format).group(group);
 
-  graphs.nb_mailing=dc.numberDisplay(".nb_donation_avg") 
+  graphs.nb_donation_avg=dc.numberDisplay(".nb_donation_avg") 
 	.valueAccessor(function(d){ return d.value.nb.avg})
 	.html({some:"%number",none:"no donations"})
   .formatNumber(format).group(group);
@@ -120,9 +127,16 @@ function drawNumbers (graphs){
   .formatNumber(format)
 	.group(group);
 
-  graphs.nb_mailing=dc.numberDisplay(".total_donation_avg") 
+  graphs.total_donation=dc.numberDisplay(".total_donation_avg") 
 	.valueAccessor(function(d){ return d.value.total_amount.sum/d.value.nb.count})
 	.html({some:"%number",none:"no donations"})
+  .formatNumber(format)
+	.group(group);
+
+  graphs.contact_since=dc.numberDisplay(".contact_since") 
+	//.valueAccessor(function(d){ return d.value.contact_since.sum/d.value.nb.count})
+	.valueAccessor(function(d){ return d.value.contact_since.avg})
+	.html({some:"%number days",none:"no donations"})
   .formatNumber(format)
 	.group(group);
 
@@ -166,7 +180,7 @@ function drawTextSearch (dom) {
   var dim = ndx.dimension(function(d) { 
     var t="";
     var t= d.camp.toString().toLowerCase() + " "+d.source.toLowerCase()+ " "+ d.content.toLowerCase() + d.ab_test.toLowerCase()+" "+d.ab_variant.toLowerCase() || "?";
-    if (fundraiser[d.source]) t += " "+ fundraiser[d.source].name.toLowerCase();
+    if (d.fundraiser) t += " "+ d.fundraiser.name.toLowerCase();
     return t;
 });
 
@@ -253,7 +267,7 @@ function drawLanguage(dom) {
 	function drawCampaign (dom) {
 	  var dim = ndx.dimension(
        function(d){
-         if (fundraiser[d.source]) return fundraiser[d.source].name;
+         if (d.fundraiser) return d.fundraiser.name;
         
          return d.camp || "?";
     });
@@ -365,6 +379,11 @@ function drawDate (dom) {
 function drawTable(dom) {
   var dim = ndx.dimension(function(d) {return d.id;});
 
+color = d3.scale.linear().domain([0,7,365,365*2])
+      .interpolate(d3.interpolateHcl)
+      .range(["lightgreen", 'green', 'purple','black'])
+      .clamp(true);
+
   var graph=dc.dataTable(dom)
     .dimension(dim)
     .group(function(d) {
@@ -377,14 +396,14 @@ function drawTable(dom) {
               function(d){
                 var c = "";
                 if (d.cancel_date) {
-                  var delta = Math.floor(( d.cancel_date - d.date ) / 86400000);  
+                  var delta = Math.round(( d.cancel_date - d.date ) / 86400000);  
                   if (delta == 0) delta ="";
                   c = " <span class='glyphicon glyphicon-log-out' title='Cancelled donation on "+day(d.cancel_date)+"'></span> "+delta+" ";
                 }
                 return "<a href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id})+"'>"+time(d.date)+c+"</a>"
 	      },
               function (d) {
-                return "<a title='contact since "+day(d.contact_since)+" "+d.contact_since_days +" days' href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id, selectedChild:'contribute'})+"'>"+d.first_name+"</a>";
+                return "<a style='color:"+color(d.contact_since_days)+"'title='contact since "+day(d.contact_since)+" "+d.contact_since_days +" days' href='"+CRM.url('civicrm/contact/view',{cid: d. contact_id, selectedChild:'contribute'})+"'>"+d.first_name+"</a>";
 
               },
               function(d){
@@ -394,8 +413,14 @@ function drawTable(dom) {
               function(d){return d.status},
               function(d){return d.camp},
               function(d){
-                 if (fundraiser[d.source]) return "<span title='"+fundraiser[d.source].subject+"'>"+fundraiser[d.source].name+"</span>";
-                 return d.source},
+                if (d.fundraiser_delta) {
+                  if (d.fundraiser_delta < 48) 
+                    var delta = d.fundraiser_delta + " hours";
+                  else 
+                    var delta = Math.round(d.fundraiser_delta/24) + " days";
+                  return "<span title='"+fundraiser[d.source].subject+" after "+delta+"'>"+fundraiser[d.source].name+"</span>";
+                }
+                return d.source},
               function(d){return d.medium},
               function(d){return d.content},
               function(d){return d.ab_test},
@@ -416,7 +441,7 @@ function drawTable(dom) {
 				<li class="list-group-item"><span class="badge amount_recurring_avg" title='average amount'></span><span class="amount_recurring"></span> recurring amount</li>
 				<li class="list-group-item" title="number of donations generated by the recurring"><span class="badge nb_donation_avg"></span> <span class="nb_donation"></span> donations received</li>
 				<li class="list-group-item" title="total amount of donations generated by the recurring"><span title='average' class="badge total_donation_avg"></span>Total received <span class="total_donation"></span></li>
-				<li class="list-group-item" title="how long have the donors been members?"><span class="badge known_since"></span>Known since</li>
+				<li class="list-group-item" title="how long have the donors been members?"><span class="badge contact_since"></span>Member for</li>
 			</ul>
       <span id="status"><graph/></span>
       <span id="processor"><graph/></span>
