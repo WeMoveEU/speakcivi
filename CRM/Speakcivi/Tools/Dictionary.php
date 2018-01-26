@@ -141,7 +141,7 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getSubjectConfirm($locale) {
     switch ($locale) {
       case 'de_DE':
-        return 'Sie sind fast fertig. Bitte bestätigen Sie und helfen mit, die Aktion zu verbreiten.';
+        return 'Sie sind fast fertig. Bitte bestätigen Sie Ihre Unterschrift.';
         break;
 
       case 'fr_FR':
