@@ -10,4 +10,4 @@ SET
   speakout_name = camp.name,
   language = speakout_integration.language_4,
   speakeasy_petition_metrics.parent_id = camp.parent_id
-WHERE speakeasy_petition_metrics.campaign_id IS NOT NULL;
+WHERE speakeasy_petition_metrics.campaign_id IS NOT NULL AND camp.external_identifier REGEXP '^-?[0-9]+$';
