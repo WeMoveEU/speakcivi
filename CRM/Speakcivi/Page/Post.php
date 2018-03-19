@@ -446,12 +446,27 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   }
 
 
-  public function determineRedirectUrl($page, $country, $redirect) {
-    if ($redirect) {
-      return str_replace('{$language}', $country, $redirect);
+  /**
+   * Build the post-confirmation URL
+   * TODO: use a proper token mecanism
+   */
+  public function determineRedirectUrl($page, $country, $redirect, $context = NULL) {
+    if ($context != NULL) {
+      $lang = $context['drupal_language'];
+      $cid = $context['contact_id'];
     }
-    if ($country) {
-      return "/{$country}/{$page}";
+    else {
+      $lang = $country;
+      $cid = NULL;
+    }
+    if ($redirect) {
+      if ($cid) {
+        $redirect = str_replace('{$contact_id}', $cid, $redirect);
+      }
+      return str_replace('{$language}', $lang, $redirect);
+    }
+    if ($lang) {
+      return "/{$lang}/{$page}";
     }
     return "/{$page}";
   }
