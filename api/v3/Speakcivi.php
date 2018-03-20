@@ -241,6 +241,61 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
 }
 
 
+function _civicrm_api3_speakcivi_fixlanguagegroup_spec(&$params) {
+  $params['languages']['api.required'] = 0;
+  $params['languages']['api.default'] = NULL;
+  $params['limit']['api.required'] = 0;
+  $params['limit']['default'] = NULL;
+}
+
+/**
+ * Find contacts with a preferred language that does not match their language group
+ * and move them to the proper group.
+ * This assumes that language groups have their 'source' column set with the 
+ * matching locale.
+ * @param languages: comma-separated list of target languages to limit the search
+ * @param limit: Maximum number of contacts to update
+ */
+function civicrm_api3_speakcivi_fixlanguagegroup($params) { 
+  $lang_filter = '1=1';
+  if ($params['languages']) {
+    $languages = explode(',', $params['languages']);
+    $lang_filter = "gl.source IN ('" . implode("', '", $languages) . "')";
+  }
+  $limit = '';
+  if ($params['limit']) {
+    $limit = 'LIMIT ' . $params['limit'];
+  }
+  $groupSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+
+  $query = "SELECT
+      c.id AS contact_id, 
+      c.preferred_language AS preferred_language, 
+      gl.id AS current_group_id, 
+      expected.id AS expected_group_id
+    FROM civicrm_contact c 
+    JOIN civicrm_group_contact gcl ON gcl.contact_id=c.id AND gcl.status='Added'
+    JOIN civicrm_group gl ON gcl.group_id=gl.id AND gl.name LIKE '%$groupSuffix'
+    JOIN civicrm_group expected ON expected.source=c.preferred_language
+    WHERE gl.source != c.preferred_language AND $lang_filter
+    $limit
+  ";
+
+  $count = 0;
+  $dao = CRM_Core_DAO::executeQuery($query);
+  while ($dao->fetch()) {
+    CRM_Core_Error::debug_log_message("I am going to move contact $dao->contact_id from group $dao->current_group_id to group $dao->expected_group_id");
+    $contactIds = array($dao->contact_id);
+    CRM_Contact_BAO_GroupContact::removeContactsFromGroup($contactIds, $dao->current_group_id,
+      'Spkcivi', 'Removed', 'fixlanguagegroup');
+    CRM_Contact_BAO_GroupContact::addContactsToGroup($contactIds, $dao->expected_group_id,
+      'Spkcivi', 'Added', 'fixlanguagegroup');
+    $count++;
+  }
+  return civicrm_api3_create_success(array('count' => $count), $params);
+}
+
+
 function _civicrm_api3_speakcivi_remind_spec(&$spec) {
   $spec['days'] = [
     'name' => 'days',
