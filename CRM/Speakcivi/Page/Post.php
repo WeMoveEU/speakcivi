@@ -454,14 +454,19 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     if ($context != NULL) {
       $lang = $context['drupal_language'];
       $cid = $context['contact_id'];
+      $checksum = $context['contact_checksum'];
     }
     else {
       $lang = $country;
       $cid = NULL;
+      $checksum = NULL;
     }
     if ($redirect) {
       if ($cid) {
         $redirect = str_replace('{$contact_id}', $cid, $redirect);
+      }
+      if ($checksum) {
+        $redirect = str_replace('{$contact.checksum}', $checksum, $redirect);
       }
       return str_replace('{$language}', $lang, $redirect);
     }
