@@ -284,7 +284,6 @@ function civicrm_api3_speakcivi_fixlanguagegroup($params) {
   $count = 0;
   $dao = CRM_Core_DAO::executeQuery($query);
   while ($dao->fetch()) {
-    CRM_Core_Error::debug_log_message("I am going to move contact $dao->contact_id from group $dao->current_group_id to group $dao->expected_group_id");
     $contactIds = array($dao->contact_id);
     CRM_Contact_BAO_GroupContact::removeContactsFromGroup($contactIds, $dao->current_group_id,
       'Spkcivi', 'Removed', 'fixlanguagegroup');
