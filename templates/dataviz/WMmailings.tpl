@@ -120,6 +120,13 @@ function percent(d, attr, precision) {
   if (d[attr] ==0) return " ";
   return "<span title='"+d[attr]+" contacts' >"+ (100*d[attr]/d.recipients).toFixed(precision) +"%</span>";
 }
+
+
+function per10k (d, attr, precision) {
+  if (d[attr] ==0) return " ";
+  return (10000*d[attr]/d.recipients).toFixed(precision) +" donations/10k recipients";
+}
+
 var formatPercent =d3.format(".2%");
 
 function lookupTable(data,key,value) {
@@ -707,7 +714,7 @@ function drawTable(dom) {
           if (!d.nb_oneoff && !d.nb_recur) return "";
           var tx="";
           if (d.nb_recur) 
-            tx +="<span title='recurring donations'>"+ d.nb_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> '; 
+            tx +="<span title='recurring donations "+ per10k(d, 'nb_recur', 2) +"'>"+ d.nb_recur +'<span aria-hidden="true" class="glyphicon glyphicon-repeat"></span></span> '; 
           if (d.nb_oneoff) 
             tx += "<span title='one off'>"+d.nb_oneoff+"<span aria-hidden='true' class='glyphicon glyphicon-gift'></span></span>";
           return tx;
