@@ -75,20 +75,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setCountry($param);
       $this->setVeryOldActivity($param);
 
-      $notSendConfirmationToThoseCountries = array(
-        'FR',
-        'GB',
-        'IT',
-        'UK',
-        'ES',
-        'BE',
-        'NL',
-        'PL',
-      );
-      if (in_array($this->countryIsoCode, $notSendConfirmationToThoseCountries)) {
-        $this->optIn = 0;
-      }
-
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
       if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
@@ -224,6 +210,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $param
    *
    * @return int 1 ok, 0 failed
+   * @throws \CiviCRM_API3_Exception
    */
   public function petition($param) {
     $contact = $this->createContact($param, $this->groupId);
@@ -278,11 +265,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
 
   /**
-   * Create a petition in Civi: contact and activity but don't add for our members (no groups, no tags)
+   * Create a petition in Civi: contact and activity but don't add for our
+   * members (no groups, no tags)
    *
    * @param $param
    *
    * @return int 1 ok, 0 failed
+   * @throws \CiviCRM_API3_Exception
    */
   public function petitionNoMember($param) {
     $contact = $this->createContact($param, $this->noMemberGroupId);

@@ -74,7 +74,7 @@ class CRM_Speakcivi_Logic_Contact {
    * @param $isOptOut
    *
    * @return bool
-   *
+   * @throws \CiviCRM_API3_Exception
    */
   public static function isContactNeedConfirmation($newContact, $contactId, $groupId, $isOptOut) {
     if ($newContact || $isOptOut) {
