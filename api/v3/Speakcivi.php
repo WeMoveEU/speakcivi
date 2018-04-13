@@ -100,11 +100,14 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $locales = getLocale($locale);
   $confirmationBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl');
   $confirmationBlockText = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl');
+  $privacyBlock = $template->fetch('../templates/CRM/Speakcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl');
   $sharingBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
   $message = $template->fetch('string:' . $message);
 
   $messageHtml = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $message);
   $messageText = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $message);
+  $messageHtml = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageHtml);
+  $messageText = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageText);
   $messageHtml = str_replace("#SHARING_BLOCK", $sharingBlockHtml, $messageHtml);
   $messageText = str_replace("#SHARING_BLOCK", $sharingBlockHtml, $messageText);
 
