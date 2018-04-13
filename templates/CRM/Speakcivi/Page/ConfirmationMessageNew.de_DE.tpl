@@ -1,22 +1,10 @@
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Hallo {$contact.first_name} {$contact.last_name},</p>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;"><strong>wir danken Ihnen herzlich, dass Sie sich für ein besseres Europa einsetzen.</strong> Wir möchten unbedingt bestätigen, dass Sie es selbst sind und sich nicht jemand Fremdes mit Ihrer E-Mail-Adresse beteiligt.</p>
-
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Wir bitten Sie daher um Ihre kurze Bestätigung. Sie erhalten zukünftig auch weitere Informationen:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Unsere Petitionen haben eine Wirkung, weil sie von Menschen wie Ihnen unterstützen werden. Gerne möchten wir Sie auf dem Laufenden halten und Ihnen gelegentlich E-Mails mit Neuigkeiten über diese Kampagne und über unsere anderen Kampagnen und Aktionen zusenden, in denen wir Ihre Unterstützung ebenfalls benötigen könnten. Bitte bestätigen Sie und werden Sie Teil unserer Gemeinschaft:</p>
 
 <div>#CONFIRMATION_BLOCK</div>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Wir würden uns freuen, wenn Sie weiter dabei sind.</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Ich danke Ihnen,<br />
+  Julia und das WeMove.EU-Team</p>
 
-<p style="font-size:14px;"><img src="https://www.wemove.eu/sites/wemove.eu/files/We_thank_you_0.png"></p>
-
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Wir danken Ihnen herzlich!<br />
-  <br />
-  Olga Vuković (Rom)<br />
-  Simona Mursec (Ljubljana)<br />
-  Jörg Rohwedder (Lübeck)<br />
-  Xavier Dutoit (Brüssel)<br />
-  Virginia López Calvo (Madrid)<br />
-  Mika Leandro (Bordeaux)<br />
-  Oliver Moldenhauer (Berlin) (von links nach rechts)<br />
-  und das ganze WeMove.EU Team</p>
+<div>#PRIVACY_BLOCK</div>

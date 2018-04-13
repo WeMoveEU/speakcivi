@@ -1,6 +1,10 @@
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Ciao {$contact.first_name},</p>
 
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Le nostre petizioni funzionano grazie al sostegno di persone vere, proprio come te. Ci piacerebbe poterti tenere al corrente e mandarti, di tanto in tanto, una e-mail di aggiornamento su questa e altre campagne e su altre azioni che potrebbero richiedere il tuo supporto. Ti va di confermare e unirti alla nostra comunità?</p>
+
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Grazie,<br />
-Olga, Mika, Xavier e tutta la squadra di WeMove.EU</p>
+    Julia, e la squadra di WeMove.EU</p>
+
+<div>#PRIVACY_BLOCK</div>
