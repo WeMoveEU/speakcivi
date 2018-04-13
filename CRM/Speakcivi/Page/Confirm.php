@@ -7,10 +7,13 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setActivityStatusIds();
     $this->setValues();
 
+    $country = $this->getCountry($this->campaignId);
+    $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version')
+      . '-' . $country;
     $contactParams = array(
       'is_opt_out' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'CONFIRM',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consentVersion,
     );
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
@@ -52,7 +55,6 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
     $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, false, 'new_member');
 
-    $country = $this->getCountry($this->campaignId);
     $context = array(
       'drupal_language' => $country, 
       'contact_id' => $this->contactId,
