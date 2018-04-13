@@ -123,6 +123,8 @@ class CRM_Speakcivi_Logic_Contact {
    *
    * @param int $contactId
    * @param array $contactParams
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public static function set($contactId, $contactParams) {
     $params = array(

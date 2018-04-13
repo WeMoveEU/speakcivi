@@ -9,6 +9,8 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     $contactParams = array(
       'is_opt_out' => 1,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'OPTOUT',
     );
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');

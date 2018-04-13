@@ -105,6 +105,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    * @param array $aids array of activities ids
    * @param string $status
    * @param string $location
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setActivitiesStatuses($activityId, $aids, $status = 'Completed', $location = '') {
     if (is_array($aids) && count($aids) > 0) {
@@ -145,6 +147,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    * @param $groupId
    *
    * @return int
+   * @throws \CiviCRM_API3_Exception
    */
   public function isGroupContactAdded($contactId, $groupId) {
     return $this->isGroupContact($contactId, $groupId, "Added");
@@ -158,6 +161,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    * @param $groupId
    *
    * @return int
+   * @throws \CiviCRM_API3_Exception
    */
   public function isGroupContactRemoved($contactId, $groupId) {
     return $this->isGroupContact($contactId, $groupId, "Removed");
@@ -189,6 +193,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @param $contactId
    * @param $groupId
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setGroupContactAdded($contactId, $groupId) {
     $this->setGroupContact($contactId, $groupId, "Added");
@@ -200,6 +206,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @param $contactId
    * @param $groupId
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setGroupContactRemoved($contactId, $groupId) {
     $this->setGroupContact($contactId, $groupId, "Removed");
@@ -244,7 +252,10 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @param int $contactId
    * @param string $language Language in format en, fr, de, pl etc.
-   * @return int 1: set given language group, 2: set default language group, 0: no changes
+   *
+   * @return int 1: set given language group, 2: set default language group,
+   *   0: no changes
+   * @throws \CiviCRM_API3_Exception
    */
   public function setLanguageGroup($contactId, $language) {
     if ($language) {
@@ -273,6 +284,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    * @param string $languageGroupNameSuffix
    *
    * @return int
+   * @throws \CiviCRM_API3_Exception
    */
   public function findLanguageGroupId($language, $languageGroupNameSuffix) {
     $result = civicrm_api3('Group', 'get', array(
@@ -365,6 +377,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *
    * @param int $contactId
    * @param string $language Language in format en, fr, de, pl etc.
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setLanguageTag($contactId, $language) {
     if ($language) {
