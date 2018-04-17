@@ -12,6 +12,11 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
   // todo check using of this variable
   private $settings = array();
 
+  function preProcess() {
+    if (!CRM_Core_Permission::check('administer CiviCRM')) {
+      CRM_Utils_System::civiExit();
+    }
+  }
 
   function buildQuickForm() {
     $settings = $this->getFormSettings();
