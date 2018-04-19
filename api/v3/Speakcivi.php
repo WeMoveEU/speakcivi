@@ -402,12 +402,15 @@ function civicrm_api3_speakcivi_remind($params) {
     $locales = getLocale($locale[$cid]);
     $confirmationBlockHtml = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl'));
     $confirmationBlockText = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl'));
+    $privacyBlock  = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl'));
     $confirmationBlockHtml = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockHtml);
     $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
     $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
     $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
     $messageHtml[$cid] = removeSmartyIfClause(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg))));
     $messageText[$cid] = convertHtmlToText(removeSmartyIfClause(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg)))));
+    $messageHtml[$cid] = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageHtml[$cid]);
+    $messageText[$cid] = str_replace("#PRIVACY_BLOCK", convertHtmlToText($privacyBlock), $messageText[$cid]);
   }
 
   foreach ($campaigns as $cid) {
