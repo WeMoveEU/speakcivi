@@ -17,12 +17,12 @@ class CRM_Speakcivi_Page_NoMember_Confirm extends CRM_Speakcivi_Page_Post {
     }
 
     $country = $this->getCountry($this->campaignId);
-    $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version')
-      . '-' . strtoupper($country);
+    $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
     $contactParams = array(
       'is_opt_out' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consentVersion,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($country),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $this->campaignId,
     );
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
