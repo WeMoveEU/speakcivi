@@ -23,6 +23,7 @@ class CRM_Speakcivi_Page_NoMember_Confirm extends CRM_Speakcivi_Page_Post {
       'is_opt_out' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consentVersion,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $this->campaignId,
     );
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
