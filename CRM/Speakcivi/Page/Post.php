@@ -10,6 +10,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   public $campaignId = 0;
 
+  public $language = 'en';
+
   public $utmSource = '';
 
   public $utmMedium = '';
@@ -17,6 +19,16 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   public $utmCampaign = '';
 
   public $activityStatusId = array();
+
+  public $supportedLanguages = [
+    'de' => 'de',
+    'en' => 'en',
+    'es' => 'es',
+    'fr' => 'fr',
+    'gb' => 'en',
+    'it' => 'it',
+    'pl' => 'pl',
+  ];
 
 
   /**
@@ -43,6 +55,10 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     $this->utmSource= CRM_Utils_Request::retrieve('utm_source', 'String', $this, false);
     $this->utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $this, false);
     $this->utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $this, false);
+    $this->language = CRM_Utils_Array::value(
+      CRM_Utils_Request::retrieve('lang', 'String', $this, false),
+      $this->supportedLanguages,
+      $this->language);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
     $hash1 = sha1(CIVICRM_SITE_KEY . $this->contactId);
     if ($hash !== $hash1) {

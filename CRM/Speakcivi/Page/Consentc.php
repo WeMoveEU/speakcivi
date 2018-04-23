@@ -15,13 +15,14 @@ class CRM_Speakcivi_Page_Consentc extends CRM_Speakcivi_Page_Post {
       'is_opt_out' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consentVersion,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($this->language),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $this->utmSource,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $this->utmMedium,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $this->utmCampaign,
     );
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
-    $url = '/';
+    $url = str_replace('en', '', $this->language). '/thank-you-for-your-confirmation';
     CRM_Utils_System::redirect($url);
   }
 
