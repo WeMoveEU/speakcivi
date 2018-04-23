@@ -22,7 +22,8 @@ class CRM_Speakcivi_Page_Consentc extends CRM_Speakcivi_Page_Post {
     );
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
-    $url = str_replace('en', '', $this->language). '/thank-you-for-your-confirmation';
+    $lang = str_replace('en', '', $this->language);
+    $url = $this->determineRedirectUrl('thank-you-for-your-confirmation', $lang, '');
     CRM_Utils_System::redirect($url);
   }
 
