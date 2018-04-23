@@ -56,7 +56,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     $this->utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $this, false);
     $this->utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $this, false);
     $this->language = CRM_Utils_Array::value(
-      CRM_Utils_Request::retrieve('lang', 'String', $this, false),
+      strtolower(CRM_Utils_Request::retrieve('lang', 'String', $this, false)),
       $this->supportedLanguages,
       $this->language);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, true);
