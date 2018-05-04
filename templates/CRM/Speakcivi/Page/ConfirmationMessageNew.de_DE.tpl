@@ -5,6 +5,6 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Ich danke Ihnen,<br />
-  Julia und das WeMove.EU-Team</p>
+  Jörg und das WeMove.EU-Team</p>
 
 <div>#PRIVACY_BLOCK</div>
