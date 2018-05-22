@@ -64,6 +64,35 @@ class CRM_Speakcivi_Logic_Activity {
     return civicrm_api3('Activity', 'create', $params);
   }
 
+  /**
+   * Create new Data Policy Acceptance activity for contact
+   *
+   * @param object $param
+   * @param int $contactId
+   * @param int $campaignId
+   * @param string $activityStatus
+   *
+   * @return array
+   * @throws CiviCRM_API3_Exception
+   */
+  public static function dpa($param, $contactId, $campaignId, $activityStatus = 'Completed') {
+    $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
+    $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $activityStatus);
+    list($consentVersion, $consentLanguage) = explode('-', $param->consents->public_id);
+    $params = [
+      'sequential' => 1,
+      'source_contact_id' => $contactId,
+      'source_record_id' => $param->external_id,
+      'campaign_id' => $campaignId,
+      'activity_type_id' => $activityTypeId,
+      'activity_date_time' => $param->create_dt,
+      'subject' => $consentVersion,
+      'location' => $consentLanguage,
+      'status_id' => $activityStatusId,
+    ];
+    return self::setActivity($params);
+  }
+
 
   /**
    * Set unique activity. Method gets activity by given params and creates only if needed.

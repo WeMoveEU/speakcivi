@@ -47,6 +47,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /** @var bool Determine whether confirmation block with links have to be included in content of confirmation email. */
   public $confirmationBlock = true;
 
+  private $consents;
+
   private $isAnonymous = false;
 
   private $apiAddressGet = 'api.Address.get';
@@ -74,6 +76,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setDefaults();
       $this->setCountry($param);
       $this->setVeryOldActivity($param);
+      $this->consents = $this->prepareConsentFields($param);
 
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
@@ -160,6 +163,31 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
   }
 
+  /**
+   * @param $param
+   *
+   * @return array
+   */
+  function prepareConsentFields($param) {
+    $consents = [];
+    if (property_exists($param, 'consents')) {
+      foreach ($param->consents as $consent) {
+        list($consentVersion, $consentLanguage) = explode('-', $param->consents->public_id);
+        $cd = new DateTime(substr($param->create_dt, 0, 10));
+        $c = new stdClass();
+        $c->is_public = $consent->is_public;
+        $c->version = $consentVersion;
+        $c->language = $consentLanguage;
+        $c->date = $cd->format('Y-m-d');
+        $c->level = $consent->consent_level;
+        $c->method = $consent->consent_method;
+        $c->method_option = $consent->consent_method_option;
+        $consents[] = $c;
+      }
+    }
+    return $consents;
+  }
+
 
   /**
    * Setting up country and postal code from address key
@@ -238,7 +266,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
-      if ($this->optIn == 1) {
+      if (!$this->consents) {
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
       } else {
         $language = substr($this->locale, 0, 2);
@@ -246,10 +274,33 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
         $pagePost->setLanguageTag($contact['id'], $language);
         if ($this->addJoinActivity) {
+          // todo set subject based on consents
           CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
         }
+        $contactCustoms = [];
+        foreach ($this->consents as $consent) {
+          if ($consent->consent_level == 'explicit_opt_in') {
+            CRM_Speakcivi_Logic_Activity::dpa($param, $contact['id'], $this->campaignId, 'Completed');
+            $contactCustoms = [
+              'is_opt_out' => 0,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $consent->date,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
+              // todo
+//              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $this->utmSource,
+//              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $this->utmMedium,
+//              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $this->utmCampaign,
+            ];
+          }
+          if ($consent->consent_level == 'none_given') {
+            CRM_Speakcivi_Logic_Activity::dpa($param, $contact['id'], $this->campaignId, 'Cancelled');
+          }
+        }
         if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
-          CRM_Speakcivi_Logic_Contact::set($contact['id'], array('preferred_language' => $this->locale));
+          $contactCustoms['preferred_language'] = $this->locale;
+        }
+        if ($contactCustoms) {
+          CRM_Speakcivi_Logic_Contact::set($contact['id'], $contactCustoms);
         }
         $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
@@ -323,6 +374,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param string $status Status name of activity
    *
    * @return int 1 ok, 0 failed
+   * @throws \CiviCRM_API3_Exception
    */
   public function addActivity($param, $type, $status = 'Completed') {
     $groupId = $this->determineGroupId();
