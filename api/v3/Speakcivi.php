@@ -523,7 +523,7 @@ function _civicrm_api3_speakcivi_get_consents_required_spec(&$spec) {
     'name' => 'public_ids',
     'title' => 'List of public id',
     'description' => 'List of public id (consent version + consent language)',
-    'type' => CRM_Utils_Type::T_ENUM,
+    'type' => CRM_Utils_Type::T_STRING,
     'api.required' => 1,
     'api.default' => '',
   ];
@@ -552,12 +552,12 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
                   JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
                   JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = 68
                 WHERE e.email = %1 AND e.is_primary = 1
-                  AND CONCAT(a.subject, '-', a.location) IN ('" . implode("','", $params['public_ids']) ."')
+                  AND CONCAT(a.subject, '-', a.location) IN ('" . implode("','", $params['public_ids']['IN']) ."')
                 GROUP BY public_id, a.status_id) t
               GROUP BY public_id) t2
             WHERE max_completed_date > max_cancelled_date";
   $queryParams = [
-    ['1' => [$params['email'], 'String']],
+    1 => [$params['email'], 'String'],
   ];
   $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
   $activePublicId = [];
@@ -565,7 +565,7 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
     $activePublicId[] = $dao->active_public_id;
   }
   $consents = [];
-  foreach ($params['public_ids'] as $publicId) {
+  foreach ($params['public_ids']['IN'] as $publicId) {
     if (!in_array($publicId, $activePublicId)) {
       $consents[] = $publicId;
     }
