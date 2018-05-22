@@ -613,7 +613,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
-      if (!$this->optIn && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
+      if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents) && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
         $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $groupId,
           'contact_id' => '$value.id',
@@ -638,7 +638,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['preferred_language'] = $this->locale;
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
-      if (!$this->optIn) {
+      if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents)) {
         $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $groupId,
           'contact_id' => '$value.id',

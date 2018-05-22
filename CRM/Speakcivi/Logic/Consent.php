@@ -36,4 +36,21 @@ class CRM_Speakcivi_Logic_Consent {
     return $consents;
   }
 
+  /**
+   * Check if at least one consent has explicit_opt_in level.
+   *
+   * @param $consents
+   *
+   * @return bool
+   */
+  public static function isExplicitOptIn($consents) {
+    foreach ($consents as $consent) {
+      if ($consent->level == 'explicit_opt_in') {
+        return TRUE;
+      }
+    }
+    return FALSE;
+
+  }
+
 }
