@@ -7,6 +7,7 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $this->setActivityStatusIds();
     $this->setValues();
 
+    // todo clear consent fields?
     $contactParams = array(
       'is_opt_out' => 1,
     );

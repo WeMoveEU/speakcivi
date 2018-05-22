@@ -271,6 +271,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
             $contactCustoms = [
               'is_opt_out' => 1,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => '',
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => '',
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => '',
             ];
           }
         }
