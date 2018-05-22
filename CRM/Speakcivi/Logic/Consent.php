@@ -26,7 +26,7 @@ class CRM_Speakcivi_Logic_Consent {
         $c->version = $consentVersion;
         $c->language = $consentLanguage;
         $c->date = $cd->format('Y-m-d');
-        $c->createDate = $cd->format('Y-m-d H:i:s');
+        $c->createDate = $param->create_dt;
         $c->level = $consent->consent_level;
         $c->method = $consent->consent_method;
         $c->methodOption = $consent->consent_method_option;
