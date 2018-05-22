@@ -83,7 +83,7 @@ class CRM_Speakcivi_Logic_Activity {
       'source_contact_id' => $contactId,
       'campaign_id' => $campaignId,
       'activity_type_id' => $activityTypeId,
-      'activity_date_time' => $consent->date,
+      'activity_date_time' => $consent->createDate,
       'subject' => $consent->version,
       'location' => $consent->language,
       'status_id' => $activityStatusId,
