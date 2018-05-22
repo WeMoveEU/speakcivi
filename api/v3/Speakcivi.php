@@ -510,6 +510,23 @@ function civicrm_api3_speakcivi_englishgroups($params) {
 }
 
 
+function _civicrm_api3_speakcivi_get_consent_required_spec(&$params) {
+  $params['email']['api.required'] = 1;
+}
+
+function civicrm_api3_speakcivi_get_consent_required($params) {
+  $query = "select e.contact_id, media_23, country_id from civicrm_email e join civicrm_address a on a.contact_id=e.contact_id join civicrm_value_a2_1 utm on utm.entity_id=e.contact_id where email=%1 and e.is_primary=1 and a.is_primary=1";
+  $dao = CRM_Core_DAO::executeQuery($query, array('1' => array($params['email'], 'String')));
+  $known = $dao->fetch();
+  $required = FALSE;
+  if ($known && $dao->media_23 == 'email') {
+    $required = TRUE;
+  }
+  $result = array( 'consent_required' => $required );
+  return civicrm_api3_create_success($result, $params);
+}
+
+
 /**
  * Get locale version for locale from params. Default is a english version.
  *
