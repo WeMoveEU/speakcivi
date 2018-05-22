@@ -67,7 +67,7 @@ class CRM_Speakcivi_Logic_Activity {
   /**
    * Create new Data Policy Acceptance activity for contact
    *
-   * @param object $param
+   * @param \CRM_Speakcivi_Logic_Consent $consent
    * @param int $contactId
    * @param int $campaignId
    * @param string $activityStatus
@@ -75,19 +75,17 @@ class CRM_Speakcivi_Logic_Activity {
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public static function dpa($param, $contactId, $campaignId, $activityStatus = 'Completed') {
+  public static function dpa(CRM_Speakcivi_Logic_Consent $consent, $contactId, $campaignId, $activityStatus = 'Completed') {
     $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
     $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $activityStatus);
-    list($consentVersion, $consentLanguage) = explode('-', $param->consents->public_id);
     $params = [
       'sequential' => 1,
       'source_contact_id' => $contactId,
-      'source_record_id' => $param->external_id,
       'campaign_id' => $campaignId,
       'activity_type_id' => $activityTypeId,
-      'activity_date_time' => $param->create_dt,
-      'subject' => $consentVersion,
-      'location' => $consentLanguage,
+      'activity_date_time' => $consent->date,
+      'subject' => $consent->version,
+      'location' => $consent->language,
       'status_id' => $activityStatusId,
     ];
     return self::setActivity($params);
