@@ -269,6 +269,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           }
           if ($consent->level == 'none_given') {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
+            $contactCustoms = [
+              'is_opt_out' => 1,
+            ];
           }
         }
         if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
