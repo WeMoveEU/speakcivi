@@ -254,7 +254,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
         $contactCustoms = [];
         foreach ($this->consents as $consent) {
-          if ($consent->consent_level == 'explicit_opt_in') {
+          if ($consent->level == 'explicit_opt_in') {
             CRM_Speakcivi_Logic_Activity::dpa($param, $contact['id'], $this->campaignId, 'Completed');
             $contactCustoms = [
               'is_opt_out' => 0,
@@ -267,7 +267,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 //              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $this->utmCampaign,
             ];
           }
-          if ($consent->consent_level == 'none_given') {
+          if ($consent->level == 'none_given') {
             CRM_Speakcivi_Logic_Activity::dpa($param, $contact['id'], $this->campaignId, 'Cancelled');
           }
         }
