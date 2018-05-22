@@ -526,7 +526,7 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
   }
   $consents = [];
   if ($required) {
-    $consents[] = '2.0.0';
+    $consents[] = '2.0.0-en';
   }
   $result = ['consents_required' => $consents];
   return civicrm_api3_create_success($result, $params);
