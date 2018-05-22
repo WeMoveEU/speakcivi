@@ -538,7 +538,10 @@ function _civicrm_api3_speakcivi_get_consents_required_spec(&$spec) {
 }
 
 function civicrm_api3_speakcivi_get_consents_required($params) {
-  // todo use country
+  if (in_array($params['country'], ['DE', 'AU'])) {
+    $result = ['consents_required' => []];
+    return civicrm_api3_create_success($result, $params);
+  }
   $query = "SELECT public_id active_public_id
             FROM
               (SELECT
