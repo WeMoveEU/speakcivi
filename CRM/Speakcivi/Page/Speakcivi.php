@@ -248,11 +248,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $pagePost = new CRM_Speakcivi_Page_Post();
         $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
         $pagePost->setLanguageTag($contact['id'], $language);
-        if ($this->addJoinActivity) {
-          // todo set subject based on consents
-          CRM_Speakcivi_Logic_Activity::join($contact['id'], 'optIn:0', $this->campaignId);
-        }
         $contactCustoms = [];
+        $joinSubject = 'optIn:0';
         foreach ($this->consents as $consent) {
           if ($consent->level == 'explicit_opt_in') {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Completed');
@@ -266,6 +263,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 //              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $this->utmMedium,
 //              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $this->utmCampaign,
             ];
+            $joinSubject = $consent->method;
           }
           if ($consent->level == 'none_given') {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
@@ -282,6 +280,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
         if ($contactCustoms) {
           CRM_Speakcivi_Logic_Contact::set($contact['id'], $contactCustoms);
+        }
+        if ($this->addJoinActivity) {
+          CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
         }
         $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
