@@ -76,7 +76,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setDefaults();
       $this->setCountry($param);
       $this->setVeryOldActivity($param);
-      $this->consents = $this->prepareConsentFields($param);
+      $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
 
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
@@ -161,31 +161,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->useAsCurrentActivity = false;
       }
     }
-  }
-
-  /**
-   * @param $param
-   *
-   * @return array
-   */
-  function prepareConsentFields($param) {
-    $consents = [];
-    if (property_exists($param, 'consents')) {
-      foreach ($param->consents as $consent) {
-        list($consentVersion, $consentLanguage) = explode('-', $param->consents->public_id);
-        $cd = new DateTime(substr($param->create_dt, 0, 10));
-        $c = new stdClass();
-        $c->is_public = $consent->is_public;
-        $c->version = $consentVersion;
-        $c->language = $consentLanguage;
-        $c->date = $cd->format('Y-m-d');
-        $c->level = $consent->consent_level;
-        $c->method = $consent->consent_method;
-        $c->method_option = $consent->consent_method_option;
-        $consents[] = $c;
-      }
-    }
-    return $consents;
   }
 
 
