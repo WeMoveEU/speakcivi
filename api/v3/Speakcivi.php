@@ -510,23 +510,65 @@ function civicrm_api3_speakcivi_englishgroups($params) {
 }
 
 
-function _civicrm_api3_speakcivi_get_consents_required_spec(&$params) {
-  $params['email']['api.required'] = 1;
-  // todo add country and public_id fields
+function _civicrm_api3_speakcivi_get_consents_required_spec(&$spec) {
+  $spec['email'] = [
+    'name' => 'email',
+    'title' => 'Email address of the user',
+    'description' => 'Email address of the user',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['public_ids'] = [
+    'name' => 'public_ids',
+    'title' => 'List of public id',
+    'description' => 'List of public id (consent version + consent language)',
+    'type' => CRM_Utils_Type::T_ENUM,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['country'] = [
+    'name' => 'country',
+    'title' => 'Country code of the user',
+    'description' => 'Country code of the user',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
 }
 
 function civicrm_api3_speakcivi_get_consents_required($params) {
-  // todo prepare final solution
-  $query = "select e.contact_id, media_23, country_id from civicrm_email e join civicrm_address a on a.contact_id=e.contact_id join civicrm_value_a2_1 utm on utm.entity_id=e.contact_id where email=%1 and e.is_primary=1 and a.is_primary=1";
-  $dao = CRM_Core_DAO::executeQuery($query, array('1' => array($params['email'], 'String')));
-  $known = $dao->fetch();
-  $required = FALSE;
-  if ($known && $dao->media_23 == 'email') {
-    $required = TRUE;
+  // todo use country
+  $query = "SELECT public_id active_public_id
+            FROM
+              (SELECT
+                public_id, max(completed_date) max_completed_date, max(cancelled_date) max_cancelled_date
+              FROM
+                (SELECT
+                  CONCAT(a.subject, '-', a.location) public_id,
+                  if(a.status_id = 2, max(a.activity_date_time), NULL) completed_date,
+                  if(a.status_id = 3, max(a.activity_date_time), NULL) cancelled_date
+                FROM civicrm_email e
+                  JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
+                  JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = 68
+                WHERE e.email = %1 AND e.is_primary = 1
+                  AND CONCAT(a.subject, '-', a.location) IN ('" . implode("','", $params['public_ids']) ."')
+                GROUP BY public_id, a.status_id) t
+              GROUP BY public_id) t2
+            WHERE max_completed_date > max_cancelled_date";
+  $queryParams = [
+    ['1' => [$params['email'], 'String']],
+  ];
+  $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
+  $activePublicId = [];
+  while ($dao->fetch()) {
+    $activePublicId[] = $dao->active_public_id;
   }
   $consents = [];
-  if ($required) {
-    $consents[] = '2.0.0-en';
+  foreach ($params['public_ids'] as $publicId) {
+    if (!in_array($publicId, $activePublicId)) {
+      $consents[] = $publicId;
+    }
   }
   $result = ['consents_required' => $consents];
   return civicrm_api3_create_success($result, $params);
