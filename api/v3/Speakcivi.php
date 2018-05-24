@@ -542,37 +542,41 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
     $result = ['consents_required' => []];
     return civicrm_api3_create_success($result, $params);
   }
+  $consentIdsByVersion = [];
+  foreach ($params['consent_ids'] as $c) {
+    $consentIdsByVersion[explode('-', $c)[0]] = $c;
+  }
 
   // The inclusion of consent ids in query is not safe, but let's assume we are protected by API key
-  $query = "SELECT public_id active_public_id
+  $query = "SELECT consent_version active_consent_version
             FROM
               (SELECT
-                public_id, max(completed_date) max_completed_date, max(cancelled_date) max_cancelled_date
+                consent_version, max(completed_date) max_completed_date, max(cancelled_date) max_cancelled_date
               FROM
                 (SELECT
-                  CONCAT(a.subject, '-', a.location) public_id,
+                  a.subject consent_version,
                   if(a.status_id = 2, max(a.activity_date_time), '1970-01-01') completed_date,
                   if(a.status_id = 3, max(a.activity_date_time), '1970-01-01') cancelled_date
                 FROM civicrm_email e
                   JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
                   JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = 68
                 WHERE e.email = %1 AND e.is_primary = 1
-                  AND CONCAT(a.subject, '-', a.location) IN ('" . implode("','", $params['consent_ids']) ."')
-                GROUP BY public_id, a.status_id) t
-              GROUP BY public_id) t2
+                  AND a.subject IN ('" . implode("','", array_keys($consentIdsByVersion)) ."')
+                GROUP BY consent_version, a.status_id) t
+              GROUP BY consent_version) t2
             WHERE max_completed_date > max_cancelled_date";
   $queryParams = [
     1 => [$params['email'], 'String'],
   ];
   $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
-  $activePublicId = [];
+  $activeConsentIds = [];
   while ($dao->fetch()) {
-    $activePublicId[] = $dao->active_public_id;
+    $activeConsentIds[] = $consentIdsByVersion[$dao->active_consent_version];
   }
   $consents = [];
-  foreach ($params['consent_ids'] as $publicId) {
-    if (!in_array($publicId, $activePublicId)) {
-      $consents[] = $publicId;
+  foreach ($params['consent_ids'] as $consentId) {
+    if (!in_array($consentId, $activeConsentIds)) {
+      $consents[] = $consentId;
     }
   }
   $result = ['consents_required' => $consents];
