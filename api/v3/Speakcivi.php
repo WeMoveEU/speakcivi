@@ -551,8 +551,8 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
               FROM
                 (SELECT
                   CONCAT(a.subject, '-', a.location) public_id,
-                  if(a.status_id = 2, max(a.activity_date_time), NULL) completed_date,
-                  if(a.status_id = 3, max(a.activity_date_time), NULL) cancelled_date
+                  if(a.status_id = 2, max(a.activity_date_time), '1970-01-01') completed_date,
+                  if(a.status_id = 3, max(a.activity_date_time), '1970-01-01') cancelled_date
                 FROM civicrm_email e
                   JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
                   JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = 68
@@ -565,12 +565,10 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
     1 => [$params['email'], 'String'],
   ];
   $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
-
   $activePublicId = [];
   while ($dao->fetch()) {
     $activePublicId[] = $dao->active_public_id;
   }
-
   $consents = [];
   foreach ($params['consent_ids'] as $publicId) {
     if (!in_array($publicId, $activePublicId)) {
