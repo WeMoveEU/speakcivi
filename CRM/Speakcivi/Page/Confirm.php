@@ -3,7 +3,12 @@
 require_once 'CRM/Core/Page.php';
 
 class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
-  function run() {
+
+  /**
+   * @return null|void
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function run() {
     $this->setActivityStatusIds();
     $this->setValues();
 
@@ -14,6 +19,9 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consentVersion,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($country),
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $this->utmSource,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $this->utmMedium,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $this->utmCampaign,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $this->campaignId,
     );
 
@@ -30,7 +38,8 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
         CRM_Speakcivi_Logic_Activity::setSourceFields($joinId, $fields);
       }
       $this->setGroupContactAdded($this->contactId, $groupId);
-    } else {
+    }
+    else {
       $activityStatus = 'Completed'; // Completed existing member
     }
 
@@ -49,19 +58,26 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
+    $consent = new CRM_Speakcivi_Logic_Consent();
+    $consent->version = $consentVersion;
+    $consent->language = strtolower($country);
+    $consent->createDate = date('YmdHis');
+    CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);
 
     $email = CRM_Speakcivi_Logic_Contact::getEmail($this->contactId);
     $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-    $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, false, false, 'new_member');
+    $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, FALSE, FALSE, 'new_member');
 
     $context = array(
-      'drupal_language' => $country, 
+      'drupal_language' => $country,
       'contact_id' => $this->contactId,
-      'contact_checksum' => CRM_Contact_BAO_Contact_Utils::generateChecksum($this->contactId)
+      'contact_checksum' => CRM_Contact_BAO_Contact_Utils::generateChecksum($this->contactId),
     );
     $url = $this->determineRedirectUrl('post_confirm', $country, $redirect, $context);
     CRM_Utils_System::redirect($url);
   }
+
 }

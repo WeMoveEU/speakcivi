@@ -3,13 +3,24 @@
 require_once 'CRM/Core/Page.php';
 
 class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
-  function run() {
+
+  /**
+   * @return null|void
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function run() {
     $this->setActivityStatusIds();
     $this->setValues();
 
-    // todo clear consent fields?
     $contactParams = array(
       'is_opt_out' => 1,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => '',
     );
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
@@ -33,6 +44,14 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
+    $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+    $country = $this->getCountry($this->campaignId);
+    $consent = new CRM_Speakcivi_Logic_Consent();
+    $consent->version = $consentVersion;
+    $consent->language = strtolower($country);
+    $consent->createDate = date('YmdHis');
+    CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
+
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
 
@@ -40,4 +59,5 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $url = $this->determineRedirectUrl('post_optout', $country, $redirect);
     CRM_Utils_System::redirect($url);
   }
+
 }
