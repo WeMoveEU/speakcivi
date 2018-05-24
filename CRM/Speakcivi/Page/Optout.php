@@ -44,13 +44,15 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
-    $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-    $country = $this->getCountry($this->campaignId);
+    $consentIds = $this->getConsentIds($this->campaignId);
     $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->version = $consentVersion;
-    $consent->language = strtolower($country);
     $consent->createDate = date('YmdHis');
-    CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
+    foreach ($consentIds as $id) {
+      list($consentVersion, $language) = explode('-', $id);
+      $consent->version = $consentVersion;
+      $consent->language = $language;
+      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
+    }
 
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
