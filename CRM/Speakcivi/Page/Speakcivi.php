@@ -217,21 +217,31 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function petition($param) {
     $contact = $this->createContact($param, $this->groupId);
-
-    $optInForActivityStatus = $this->optIn;
-    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['is_opt_out'])) {
-      $this->confirmationBlock = false;
-      $optInForActivityStatus = 0;
+    $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['is_opt_out']);
+    if (!$this->consents) {
+      if ($isContactNeedConfirmation) {
+        // scheduled + confirmation
+        $activityStatus = 'Scheduled';
+        $this->confirmationBlock = TRUE;
+      }
+      else {
+        // completed + sharing
+        $activityStatus = 'Completed';
+        $this->confirmationBlock = FALSE;
+      }
     }
-
-    $optInMapActivityStatus = array(
-      0 => 'Completed',
-      1 => 'Scheduled', // default
-    );
-    if ($this->addJoinActivity && !$this->optIn) {
-      $optInMapActivityStatus[0] = 'optin';
+    else {
+      if ($isContactNeedConfirmation) {
+        // completed new member + sharing
+        $activityStatus = 'optin';
+        $this->confirmationBlock = FALSE;
+      }
+      else {
+        // completed + sharing
+        $activityStatus = 'Completed';
+        $this->confirmationBlock = FALSE;
+      }
     }
-    $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     if ($this->newContact) {
