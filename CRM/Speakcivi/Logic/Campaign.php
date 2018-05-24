@@ -290,6 +290,10 @@ class CRM_Speakcivi_Logic_Campaign {
           $this->defaultCampaignTypeId = CRM_Core_PseudoConstant::getKey('CRM_Campaign_BAO_Campaign', 'campaign_type_id', 'Petitions');
           $locale = $this->determineLanguage($externalCampaign->internal_name);
           $utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
+          $consentIds = [];
+          foreach ($externalCampaign->consents as $consent => $v) {
+            $consentIds[] = $consent;
+          }
           $params = array(
             'sequential' => 1,
             'name' => $externalCampaign->internal_name,
@@ -305,7 +309,7 @@ class CRM_Speakcivi_Logic_Campaign {
             $this->fieldTwitterShareText => $externalCampaign->twitter_share_text,
             $this->fieldSubjectNew => CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale),
             $this->fieldSubjectCurrent => CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale),
-            $this->fieldConsentIds => 'todo',
+            $this->fieldConsentIds => implode(',', $consentIds),
           );
           $result = civicrm_api3('Campaign', 'create', $params);
           if ($result['count'] == 1) {
