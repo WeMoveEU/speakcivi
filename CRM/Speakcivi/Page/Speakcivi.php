@@ -258,10 +258,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
               CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $consent->date,
               CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
               CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
-              // todo
-//              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $this->utmSource,
-//              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $this->utmMedium,
-//              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $this->utmCampaign,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $consent->utmSource,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $consent->utmMedium,
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $consent->utmCampaign,
             ];
             $joinSubject = $consent->method;
           }
@@ -272,6 +271,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
               CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => '',
               CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => '',
               CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => '',
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => '',
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => '',
+              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => '',
             ];
           }
         }

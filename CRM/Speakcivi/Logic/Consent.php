@@ -9,6 +9,9 @@ class CRM_Speakcivi_Logic_Consent {
   public $level;
   public $method;
   public $methodOption;
+  public $utmSource;
+  public $utmMedium;
+  public $utmCampaign;
 
   /**
    * @param $param
@@ -30,6 +33,9 @@ class CRM_Speakcivi_Logic_Consent {
         $c->level = $consent->consent_level;
         $c->method = $consent->consent_method;
         $c->methodOption = $consent->consent_method_option;
+        $c->utmSource = @$param->source->source;
+        $c->utmMedium = @$param->source->medium;
+        $c->utmCampaign = @$param->source->campaign;
         $consents[] = $c;
       }
     }
