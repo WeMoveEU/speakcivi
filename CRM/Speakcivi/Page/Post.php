@@ -89,6 +89,18 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     return $country;
   }
 
+  /**
+   * Get consent ids from definition of campaign.
+   *
+   * @param int $campaignId
+   *
+   * @return array
+   */
+  public function getConsentIds($campaignId) {
+    $campaign = new CRM_Speakcivi_Logic_Campaign($campaignId);
+    $c = $campaign->getConsentIds();
+    return explode(',', $c);
+  }
 
   /**
    * Set new activity status for Scheduled activity.

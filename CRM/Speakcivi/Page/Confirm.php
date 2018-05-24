@@ -13,7 +13,10 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setValues();
 
     $country = $this->getCountry($this->campaignId);
-    $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+    $consentIds = $this->getConsentIds($this->campaignId);
+    // fixme which consent should be set at contact level?
+    // fixme assumption: first
+    $consentVersion = explode('-', $consentIds[0])[0];
     $contactParams = array(
       'is_opt_out' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
@@ -59,10 +62,13 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
     $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->version = $consentVersion;
-    $consent->language = strtolower($country);
     $consent->createDate = date('YmdHis');
-    CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+    foreach ($consentIds as $id) {
+      list($consentVersion, $language) = explode('-', $id);
+      $consent->version = $consentVersion;
+      $consent->language = $language;
+      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+    }
 
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);
