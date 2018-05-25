@@ -1,6 +1,9 @@
 <?php
 
 class CRM_Speakcivi_Logic_Consent {
+  const STATUS_NOTPROVIDED = 'not_provided';
+  const STATUS_ACCEPTED = 'explicit_opt_in';
+  const STATUS_REJECTED = 'none_given';
   public $publicId;
   public $version;
   public $language;
@@ -57,6 +60,27 @@ class CRM_Speakcivi_Logic_Consent {
     }
     return FALSE;
 
+  }
+
+  /**
+   * Check if at least one consent has explicit_opt_in level.
+   *
+   * @param $consents
+   *
+   * @return bool
+   */
+  public static function setStatus($consents) {
+    if (!$consents) {
+      return self::STATUS_NOTPROVIDED;
+    }
+    // fixme first approach, looking at first consent (should be for us, not for partner)
+    foreach ($consents as $consent) {
+      if ($consent->level == self::STATUS_ACCEPTED) {
+        return self::STATUS_ACCEPTED;
+      }
+    }
+
+    return self::STATUS_REJECTED;
   }
 
 }

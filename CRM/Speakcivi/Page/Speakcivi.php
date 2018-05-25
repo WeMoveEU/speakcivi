@@ -49,6 +49,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   private $consents;
 
+  private $consentStatus;
+
   private $isAnonymous = false;
 
   private $apiAddressGet = 'api.Address.get';
@@ -77,6 +79,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->setCountry($param);
       $this->setVeryOldActivity($param);
       $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
+      $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
 
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
       $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
@@ -218,30 +221,41 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function petition($param) {
     $contact = $this->createContact($param, $this->groupId);
     $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['is_opt_out']);
-    if (!$this->consents) {
-      if ($isContactNeedConfirmation) {
-        // scheduled + confirmation
-        $activityStatus = 'Scheduled';
-        $this->confirmationBlock = TRUE;
-      }
-      else {
-        // completed + sharing
-        $activityStatus = 'Completed';
+    switch ($this->consentStatus) {
+      case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
+        if ($isContactNeedConfirmation) {
+          // completed new member + sharing
+          $activityStatus = 'optin';
+          $this->confirmationBlock = FALSE;
+        }
+        else {
+          // completed + sharing
+          $activityStatus = 'Completed';
+          $this->confirmationBlock = FALSE;
+        }
+        break;
+
+      case CRM_Speakcivi_Logic_Consent::STATUS_REJECTED:
+        // optout + no any email
+        $activityStatus = 'optout';
         $this->confirmationBlock = FALSE;
-      }
+        break;
+
+      // the same as CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED
+      default:
+        if ($isContactNeedConfirmation) {
+          // scheduled + confirmation
+          $activityStatus = 'Scheduled';
+          $this->confirmationBlock = TRUE;
+        }
+        else {
+          // completed + sharing
+          $activityStatus = 'Completed';
+          $this->confirmationBlock = FALSE;
+        }
+        break;
     }
-    else {
-      if ($isContactNeedConfirmation) {
-        // completed new member + sharing
-        $activityStatus = 'optin';
-        $this->confirmationBlock = FALSE;
-      }
-      else {
-        // completed + sharing
-        $activityStatus = 'Completed';
-        $this->confirmationBlock = FALSE;
-      }
-    }
+
     $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     if ($this->newContact) {
@@ -251,9 +265,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
-      if (!$this->consents) {
+      if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED) {
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
-      } else {
+      }
+      else {
         $language = substr($this->locale, 0, 2);
         $pagePost = new CRM_Speakcivi_Page_Post();
         $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
@@ -261,7 +276,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $contactCustoms = [];
         $joinSubject = 'optIn:0';
         foreach ($this->consents as $consent) {
-          if ($consent->level == 'explicit_opt_in') {
+          if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Completed');
             $contactCustoms = [
               'is_opt_out' => 0,
@@ -275,7 +290,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             ];
             $joinSubject = $consent->method;
           }
-          if ($consent->level == 'none_given') {
+          if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
             $contactCustoms = [
               'is_opt_out' => 1,
@@ -298,14 +313,22 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         if ($this->addJoinActivity) {
           CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
         }
-        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
-        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, false, $share_utm_source);
+        if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
+          $share_utm_source = 'new_' . str_replace('gb', 'uk', strtolower($this->countryIsoCode)) . '_member';
+          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, FALSE, $share_utm_source);
+        }
+        else {
+          // workaround for rejected status
+          $sendResult = [];
+          $sendResult['values'] = 1;
+        }
       }
       if ($sendResult['values'] == 1) {
         return 1;
       }
       return 0;
-    } else {
+    }
+    else {
       return 1;
     }
   }
