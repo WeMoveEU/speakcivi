@@ -270,11 +270,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       }
       else {
         $rlg = 0;
+        $language = substr($this->locale, 0, 2);
+        $pagePost = new CRM_Speakcivi_Page_Post();
+        $pagePost->setLanguageTag($contact['id'], $language);
         if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
-          $language = substr($this->locale, 0, 2);
-          $pagePost = new CRM_Speakcivi_Page_Post();
           $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
-          $pagePost->setLanguageTag($contact['id'], $language);
         }
         $contactCustoms = [];
         $joinSubject = 'optIn:0';
