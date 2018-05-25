@@ -269,10 +269,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
       }
       else {
-        $language = substr($this->locale, 0, 2);
-        $pagePost = new CRM_Speakcivi_Page_Post();
-        $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
-        $pagePost->setLanguageTag($contact['id'], $language);
+        $rlg = 0;
+        if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
+          $language = substr($this->locale, 0, 2);
+          $pagePost = new CRM_Speakcivi_Page_Post();
+          $rlg = $pagePost->setLanguageGroup($contact['id'], $language);
+          $pagePost->setLanguageTag($contact['id'], $language);
+        }
         $contactCustoms = [];
         $joinSubject = 'optIn:0';
         foreach ($this->consents as $consent) {
