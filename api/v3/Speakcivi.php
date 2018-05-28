@@ -538,13 +538,10 @@ function _civicrm_api3_speakcivi_get_consents_required_spec(&$spec) {
 }
 
 function civicrm_api3_speakcivi_get_consents_required($params) {
+  $dpaType = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
   if (in_array($params['country'], ['de', 'at'])) {
     $result = ['consents_required' => []];
     return civicrm_api3_create_success($result, $params);
-  }
-  $consentIdsByVersion = [];
-  foreach ($params['consent_ids'] as $c) {
-    $consentIdsByVersion[explode('-', $c)[0]] = $c;
   }
 
   // The inclusion of consent ids in query is not safe, but let's assume we are protected by API key
@@ -559,9 +556,8 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
                   if(a.status_id = 3, max(a.activity_date_time), '1970-01-01') cancelled_date
                 FROM civicrm_email e
                   JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
-                  JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = 68
+                  JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = $dpaType
                 WHERE e.email = %1 AND e.is_primary = 1
-                  AND a.subject IN ('" . implode("','", array_keys($consentIdsByVersion)) ."')
                 GROUP BY consent_version, a.status_id) t
               GROUP BY consent_version) t2
             WHERE max_completed_date > max_cancelled_date";
@@ -569,18 +565,38 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
     1 => [$params['email'], 'String'],
   ];
   $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
-  $activeConsentIds = [];
+  $activeConsentVersions = [];
   while ($dao->fetch()) {
-    $activeConsentIds[] = $consentIdsByVersion[$dao->active_consent_version];
-  }
-  $consents = [];
-  foreach ($params['consent_ids'] as $consentId) {
-    if (!in_array($consentId, $activeConsentIds)) {
-      $consents[] = $consentId;
+    $version = getConsentVersion($dao->active_consent_version);
+    $activeConsentVersions[] = $version;
+    //If this is a partner consent, add the major version in active versions
+    if (strpos($version, '_')) {
+      $activeConsentVersions[] = explode('.', $version)[0];
     }
   }
-  $result = ['consents_required' => $consents];
+
+  $requiredConsents = [];
+  foreach ($params['consent_ids'] as $consentId) {
+    if (!in_array(getConsentVersion($consentId), $activeConsentVersions)) {
+      $requiredConsents[] = $consentId;
+    }
+  }
+  $result = ['consents_required' => $requiredConsents];
   return civicrm_api3_create_success($result, $params);
+}
+
+/**
+ * From a consent id, return the string to compare to previous consent version in order to check its compatibility
+ * If the consent id contains a '_' (partner consent), returns the full version (id stripped of language)
+ * Otherwise return the major version only
+ */
+function getConsentVersion($consentId) {
+  if (strpos($consentId, '_') === FALSE) {
+    $version = explode('.', $consentId)[0];
+  } else {
+    $version = explode('-', $consentId)[0];
+  }
+  return $version;
 }
 
 
