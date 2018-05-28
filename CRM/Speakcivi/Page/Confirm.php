@@ -72,6 +72,9 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
       list($consentVersion, $language) = explode('-', $id);
       $consent->version = $consentVersion;
       $consent->language = $language;
+      $consent->utmSource = $this->utmSource;
+      $consent->utmMedium = $this->utmMedium;
+      $consent->utmCampaign = $this->utmCampaign;
       CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
     }
 

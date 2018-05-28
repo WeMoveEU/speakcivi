@@ -87,6 +87,9 @@ class CRM_Speakcivi_Logic_Activity {
       'subject' => $consent->version,
       'location' => $consent->language,
       'status_id' => $activityStatusId,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_source') => $consent->utmSource,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium') => $consent->utmMedium,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign') => $consent->utmCampaign,
     ];
     return self::setActivity($params);
   }
