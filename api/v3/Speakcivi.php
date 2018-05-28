@@ -538,29 +538,37 @@ function _civicrm_api3_speakcivi_get_consents_required_spec(&$spec) {
 }
 
 function civicrm_api3_speakcivi_get_consents_required($params) {
-  $dpaType = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
   if (in_array($params['country'], ['de', 'at'])) {
     $result = ['consents_required' => []];
     return civicrm_api3_create_success($result, $params);
   }
 
   // The inclusion of consent ids in query is not safe, but let's assume we are protected by API key
-  $query = "SELECT consent_version active_consent_version
-            FROM
-              (SELECT
-                consent_version, max(completed_date) max_completed_date, max(cancelled_date) max_cancelled_date
-              FROM
-                (SELECT
-                  a.subject consent_version,
-                  if(a.status_id = 2, max(a.activity_date_time), '1970-01-01') completed_date,
-                  if(a.status_id = 3, max(a.activity_date_time), '1970-01-01') cancelled_date
-                FROM civicrm_email e
-                  JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
-                  JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = $dpaType
-                WHERE e.email = %1 AND e.is_primary = 1
-                GROUP BY consent_version, a.status_id) t
-              GROUP BY consent_version) t2
-            WHERE max_completed_date > max_cancelled_date";
+  $dpaType = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
+	$consentColumn = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version');
+  $query = "
+      SELECT consent_version active_consent_version
+      FROM
+        (SELECT
+          consent_version, max(completed_date) max_completed_date, max(cancelled_date) max_cancelled_date
+        FROM
+          (SELECT
+            a.subject consent_version,
+            if(a.status_id = 2, max(a.activity_date_time), '1970-01-01') completed_date,
+            if(a.status_id = 3, max(a.activity_date_time), '1970-01-01') cancelled_date
+          FROM civicrm_email e
+            JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
+            JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = $dpaType
+          WHERE e.email = %1 AND e.is_primary = 1
+          GROUP BY consent_version, a.status_id) t
+        GROUP BY consent_version) t2
+      WHERE max_completed_date > max_cancelled_date
+		UNION
+      SELECT consent_version_57
+      FROM civicrm_email e 
+      JOIN civicrm_value_gdpr_temporary_9 g ON g.entity_id=e.contact_id
+      WHERE e.email = %1 AND e.is_primary = 1
+	";
   $queryParams = [
     1 => [$params['email'], 'String'],
   ];
