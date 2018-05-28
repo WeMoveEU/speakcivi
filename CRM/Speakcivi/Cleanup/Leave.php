@@ -97,7 +97,16 @@ class CRM_Speakcivi_Cleanup_Leave {
                 FROM civicrm_contact c
                   JOIN civicrm_group_contact gc ON c.id = gc.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
                   LEFT JOIN civicrm_email e ON c.id = e.contact_id
-                WHERE e.id IS NULL) t
+                WHERE e.id IS NULL
+                UNION
+                SELECT gc.contact_id id, 'no_consent' reason
+                FROM (SELECT contact_id
+                      FROM civicrm_group_contact gc1
+                      WHERE gc1.group_id = %1 AND gc1.status = 'Added') gc
+                  LEFT JOIN civicrm_value_gdpr_temporary_9 gdpr
+                    ON gdpr.entity_id = gc.contact_id
+                WHERE gdpr.consent_version_57 IS NULL
+              ) t
               GROUP BY t.id
               LIMIT %2";
     $params = array(
