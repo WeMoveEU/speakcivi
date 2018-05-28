@@ -16,7 +16,12 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $consentIds = $this->getConsentIds($this->campaignId);
     // fixme which consent should be set at contact level?
     // fixme assumption: first
-    $consentVersion = explode('-', $consentIds[0])[0];
+    if ($consentIds) {
+      $consentVersion = explode('-', $consentIds[0])[0];
+    }
+    else {
+      $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+    }
     $contactParams = array(
       'is_opt_out' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
