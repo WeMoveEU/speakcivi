@@ -105,7 +105,7 @@ class CRM_Speakcivi_Cleanup_Leave {
                       WHERE gc1.group_id = %1 AND gc1.status = 'Added') gc
                   LEFT JOIN civicrm_value_gdpr_temporary_9 gdpr
                     ON gdpr.entity_id = gc.contact_id
-                WHERE gdpr.id IS NULL OR gdpr.consent_version_57 IS NULL
+                WHERE gdpr.consent_version_57 IS NULL
               ) t
               GROUP BY t.id
               LIMIT %2";
