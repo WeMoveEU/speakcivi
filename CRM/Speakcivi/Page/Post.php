@@ -99,7 +99,11 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   public function getConsentIds($campaignId) {
     $campaign = new CRM_Speakcivi_Logic_Campaign($campaignId);
     $c = $campaign->getConsentIds();
-    return explode(',', $c);
+    if ($c) {
+      return explode(',', $c);
+    }
+
+    return [];
   }
 
   /**
