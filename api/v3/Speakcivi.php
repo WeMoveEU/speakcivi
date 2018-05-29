@@ -545,7 +545,6 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
 
   // The inclusion of consent ids in query is not safe, but let's assume we are protected by API key
   $dpaType = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
-	$consentColumn = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version');
   $query = "
       SELECT consent_version active_consent_version
       FROM
@@ -558,7 +557,7 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
             if(a.status_id = 3, max(a.activity_date_time), '1970-01-01') cancelled_date
           FROM civicrm_email e
             JOIN civicrm_activity_contact ac ON ac.contact_id = e.contact_id
-            JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = $dpaType
+            JOIN civicrm_activity a ON a.id = ac.activity_id AND a.activity_type_id = %2
           WHERE e.email = %1 AND e.is_primary = 1
           GROUP BY consent_version, a.status_id) t
         GROUP BY consent_version) t2
@@ -571,6 +570,7 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
 	";
   $queryParams = [
     1 => [$params['email'], 'String'],
+    2 => [$dpaType, 'Integer']
   ];
   $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
   $activeConsentVersions = [];
