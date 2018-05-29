@@ -43,14 +43,25 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     }
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
+    $country = $this->getCountry($this->campaignId);
 
     $consentIds = $this->getConsentIds($this->campaignId);
     $consent = new CRM_Speakcivi_Logic_Consent();
     $consent->createDate = date('YmdHis');
-    foreach ($consentIds as $id) {
-      list($consentVersion, $language) = explode('-', $id);
-      $consent->version = $consentVersion;
-      $consent->language = $language;
+    if ($consentIds) {
+      foreach ($consentIds as $id) {
+        list($consentVersion, $language) = explode('-', $id);
+        $consent->version = $consentVersion;
+        $consent->language = $language;
+        $consent->utmSource = $this->utmSource;
+        $consent->utmMedium = $this->utmMedium;
+        $consent->utmCampaign = $this->utmCampaign;
+        CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
+      }
+    }
+    else {
+      $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+      $consent->language = $country;
       $consent->utmSource = $this->utmSource;
       $consent->utmMedium = $this->utmMedium;
       $consent->utmCampaign = $this->utmCampaign;
@@ -60,7 +71,6 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
 
-    $country = $this->getCountry($this->campaignId);
     $url = $this->determineRedirectUrl('post_optout', $country, $redirect);
     CRM_Utils_System::redirect($url);
   }
