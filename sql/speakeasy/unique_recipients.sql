@@ -1,3 +1,5 @@
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
 INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople) SELECT
   'unique_recipient', cp.id, count(DISTINCT contact_id)
 FROM civicrm_mailing m
