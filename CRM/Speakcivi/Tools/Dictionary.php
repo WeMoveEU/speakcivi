@@ -122,6 +122,10 @@ class CRM_Speakcivi_Tools_Dictionary {
         return '"Julia - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
 
+      case 'pt_PT':
+        return '"Julia - WeMove.EU" &lt;info@wemove.eu&gt;';
+        break;
+
       case 'ro_RO':
         return '"Doina - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
@@ -173,7 +177,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return 'You are almost done - please confirm your action';
+        return 'Está quase no final - por favor, confirme a sua ação';
         break;
 
       case 'ro_RO':
@@ -227,7 +231,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return "You are almost done - now multiply your impact";
+        return "Está quase no final - por favor, multiplique o seu impacto";
         break;
 
       case 'ro_RO':
@@ -281,7 +285,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return "Share on Facebook";
+        return "Partilhar no Facebook";
         break;
 
       case 'ro_RO':
@@ -335,7 +339,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return 'Share on Twitter';
+        return 'Partilhar no Twitter';
         break;
 
       case 'ro_RO':
