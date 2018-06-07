@@ -3,4 +3,6 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Cu mulțumiri,<br />
-  Doina și echipa WeMove.EU</p>
+  Julia și echipa WeMove.EU</p>
+
+<div>#PRIVACY_BLOCK</div>
