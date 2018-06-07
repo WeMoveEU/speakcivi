@@ -271,11 +271,12 @@ function civicrm_api3_speakcivi_fixlanguagegroup($params) {
       c.preferred_language AS preferred_language, 
       gl.id AS current_group_id, 
       expected.id AS expected_group_id
-    FROM civicrm_contact c 
-    JOIN civicrm_group_contact gcl ON gcl.contact_id=c.id AND gcl.status='Added'
-    JOIN civicrm_group gl ON gcl.group_id=gl.id AND gl.name LIKE '%$groupSuffix'
-    JOIN civicrm_group expected ON expected.source=c.preferred_language
-    WHERE gl.source != c.preferred_language AND $lang_filter
+    FROM civicrm_group gl 
+    STRAIGHT_JOIN civicrm_group_contact gcl ON gcl.group_id=gl.id
+    STRAIGHT_JOIN civicrm_contact c 
+               ON gcl.contact_id=c.id AND gcl.status='Added' AND gl.source != c.preferred_language
+    STRAIGHT_JOIN civicrm_group expected ON expected.source=c.preferred_language
+    WHERE $lang_filter
     $limit
   ";
 
