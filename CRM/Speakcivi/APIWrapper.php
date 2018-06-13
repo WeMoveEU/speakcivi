@@ -18,9 +18,7 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $eq->id = $apiRequest['params']['event_queue_id'];
     if ($eq->find(TRUE)) {
       $contactHasMembersGroup = $this->contactHasMembersGroup($eq->contact_id);
-      if (!$contactHasMembersGroup &&
-        $this->contactHasMoreJoinsThanLeaves($eq->contact_id)
-      ) {
+      if (!$contactHasMembersGroup) {
         $campaignId = $this->setCampaignId($eq->id);
         $this->addLeave($eq->contact_id, $campaignId);
       }
@@ -34,19 +32,6 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     }
   }
 
-  private function contactHasMoreJoinsThanLeaves($contactId) {
-    $query = "SELECT IF(a.activity_type_id = 57, 1, 0) test
-              FROM civicrm_activity a
-                JOIN civicrm_activity_contact ac ON ac.activity_id = a.id AND ac.contact_id = %1
-              WHERE a.activity_type_id IN (56, 57)
-              ORDER BY a.id DESC
-              LIMIT 1";
-    $params = array(
-      1 => array($contactId, 'Integer'),
-    );
-    return (boolean)CRM_Core_DAO::singleValueQuery($query, $params);
-  }
-
   private function contactHasMembersGroup($contactId) {
     $query = "SELECT count(id)
               FROM civicrm_group_contact
@@ -54,14 +39,14 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $params = array(
       1 => array($contactId, 'Integer'),
     );
-    return (boolean)CRM_Core_DAO::singleValueQuery($query, $params);
+    return (boolean) CRM_Core_DAO::singleValueQuery($query, $params);
   }
 
   private function setCampaignId($eventQueueId) {
-    $campaignId = Civi::cache()->get('speakcivi-campaign-eventqueue-'. $eventQueueId);
+    $campaignId = Civi::cache()->get('speakcivi-campaign-eventqueue-' . $eventQueueId);
     if (!isset($campaignId)) {
       $campaignId = $this->findCampaignId($eventQueueId);
-      Civi::cache()->set('speakcivi-campaign-eventqueue-'. $eventQueueId, $campaignId);
+      Civi::cache()->set('speakcivi-campaign-eventqueue-' . $eventQueueId, $campaignId);
     }
     return $campaignId;
   }
@@ -75,7 +60,7 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $queryParams = array(
       1 => array($eventQueueId, 'Integer'),
     );
-    return (int)CRM_Core_DAO::singleValueQuery($query, $queryParams);
+    return (int) CRM_Core_DAO::singleValueQuery($query, $queryParams);
   }
 
   private function addLeave($contactId, $campaignId) {
@@ -87,4 +72,5 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     );
     CRM_Speakcivi_Logic_Activity::leave($data['contact_id'], $data['subject'], $data['campaign_id'], 0, $data['activity_date_time'], 'Added by SpeakCivi API');
   }
+
 }

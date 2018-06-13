@@ -147,33 +147,4 @@ class CRM_Speakcivi_Cleanup_Leave {
     }
   }
 
-  /**
-   * Check If contact has more Joins than Leaves
-   *
-   * @param $contactId
-   *
-   * @return bool
-   */
-  public static function hasJoins($contactId) {
-    $query = "SELECT
-                (SELECT count(DISTINCT a.id)
-                FROM civicrm_activity a
-                  JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
-                WHERE a.activity_type_id = %2 AND ac.contact_id = c.id) -
-                    (SELECT count(DISTINCT a.id)
-                    FROM civicrm_activity a
-                      JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
-                    WHERE a.activity_type_id = %3 AND ac.contact_id = c.id) AS cc
-              FROM civicrm_contact c
-              WHERE c.id = %1;";
-    $activityJoinTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $activityLeaveTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
-    $params = array(
-      1 => array($contactId, 'Integer'),
-      2 => array($activityJoinTypeId, 'Integer'),
-      3 => array($activityLeaveTypeId, 'Integer'),
-    );
-    return (bool) CRM_Core_DAO::singleValueQuery($query, $params);
-  }
-
 }
