@@ -202,11 +202,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int 1 ok, 0 failed
    */
   public function choosePetitionMode($param, $campaignType) {
-    if ($campaignType == $this->noMemberCampaignType) {
-      return $this->petitionNoMember($param);
-    } else {
-      return $this->petition($param);
-    }
+    $noMember = ($campaignType == $this->noMemberCampaignType);
+    return $this->petition($param, $noMember);
   }
 
 
@@ -218,9 +215,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int 1 ok, 0 failed
    * @throws \CiviCRM_API3_Exception
    */
-  public function petition($param) {
-    $contact = $this->createContact($param, $this->groupId);
-    $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->groupId, $contact['is_opt_out']);
+  public function petition($param, $noMember) {
+    if ($noMember) {
+      $targetGroupId = $this->noMemberGroupId;
+    } else {
+      $targetGroupId = $this->groupId;
+    }
+
+    $contact = $this->createContact($param, $targetGroupId);
+
+    $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $targetGroupId, $contact['is_opt_out']);
     switch ($this->consentStatus) {
       case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
         if ($isContactNeedConfirmation) {
@@ -266,7 +270,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
       if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED) {
-        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, false);
+        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember);
       }
       else {
         $rlg = 0;
@@ -310,15 +314,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
           $contactCustoms['preferred_language'] = $this->locale;
         }
-        if ($contactCustoms) {
-          CRM_Speakcivi_Logic_Contact::set($contact['id'], $contactCustoms);
+
+        if (!$noMember) {
+          if ($contactCustoms) {
+            CRM_Speakcivi_Logic_Contact::set($contact['id'], $contactCustoms);
+          }
+          if ($this->addJoinActivity) {
+            CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
+          }
         }
-        if ($this->addJoinActivity) {
-          CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
-        }
+
         if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
           $share_utm_source = 'new_' . str_replace('gb', 'uk', strtolower($this->countryIsoCode)) . '_member';
-          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, FALSE, $share_utm_source);
+          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, $share_utm_source);
         }
         else {
           // workaround for rejected status
@@ -326,6 +334,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $sendResult['values'] = 1;
         }
       }
+
       if ($sendResult['values'] == 1) {
         return 1;
       }
@@ -335,58 +344,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       return 1;
     }
   }
-
-
-  /**
-   * Create a petition in Civi: contact and activity but don't add for our
-   * members (no groups, no tags)
-   *
-   * @param $param
-   *
-   * @return int 1 ok, 0 failed
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function petitionNoMember($param) {
-    $contact = $this->createContact($param, $this->noMemberGroupId);
-
-    $optInForActivityStatus = $this->optIn;
-    if (!CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $this->noMemberGroupId, $contact['is_opt_out'])) {
-      $this->confirmationBlock = false;
-      $optInForActivityStatus = 0;
-    }
-
-    $optInMapActivityStatus = array(
-      0 => 'Completed',
-      1 => 'Scheduled', // default
-    );
-    if ($this->addJoinActivity && !$this->optIn) {
-      $optInMapActivityStatus[0] = 'optin';
-    }
-    $activityStatus = $optInMapActivityStatus[$optInForActivityStatus];
-    $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
-    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
-    if ($this->newContact) {
-      CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
-      CRM_Speakcivi_Logic_Contact::setSourceFields($contact['id'], @$param->source);
-    }
-
-    $h = $param->cons_hash;
-    if ($this->useAsCurrentActivity) {
-      if ($this->optIn == 1) {
-        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, true);
-      } else {
-        $share_utm_source = 'new_'.str_replace('gb', 'uk', strtolower($this->countryIsoCode)).'_member';
-        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, false, true, $share_utm_source);
-      }
-      if ($sendResult['values'] == 1) {
-        return 1;
-      }
-      return 0;
-    } else {
-      return 1;
-    }
-  }
-
 
   /**
    * Create a activity
