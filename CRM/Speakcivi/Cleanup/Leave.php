@@ -1,7 +1,7 @@
 <?php
 
 class CRM_Speakcivi_Cleanup_Leave {
-  
+
   /**
    * Get count of membership in group
    *
@@ -18,9 +18,8 @@ class CRM_Speakcivi_Cleanup_Leave {
     $params = array(
       1 => array($groupId, 'Integer'),
     );
-    return (int)CRM_Core_DAO::singleValueQuery($query, $params);
+    return (int) CRM_Core_DAO::singleValueQuery($query, $params);
   }
-
 
   /**
    * Clean up membership in group
@@ -45,7 +44,6 @@ class CRM_Speakcivi_Cleanup_Leave {
     CRM_Core_DAO::executeQuery($query, $params);
   }
 
-
   /**
    * Truncate temporary table
    */
@@ -54,7 +52,6 @@ class CRM_Speakcivi_Cleanup_Leave {
     CRM_Core_DAO::executeQuery($query);
   }
 
-
   /**
    * Load temporary ids for specific group
    *
@@ -62,7 +59,7 @@ class CRM_Speakcivi_Cleanup_Leave {
    * @param int $limit Limit
    */
   public static function loadTemporary($groupId, $limit) {
-    $limit = (int)$limit;
+    $limit = (int) $limit;
     if (!$limit) {
       $limit = 100;
     }
@@ -116,7 +113,6 @@ class CRM_Speakcivi_Cleanup_Leave {
     CRM_Core_DAO::executeQuery($query, $params);
   }
 
-
   /**
    * Count temporary contacts
    *
@@ -124,34 +120,21 @@ class CRM_Speakcivi_Cleanup_Leave {
    */
   public static function countTemporaryContacts() {
     $query = "SELECT count(id) FROM speakcivi_cleanup_leave";
-    return (int)CRM_Core_DAO::singleValueQuery($query);
+    return (int) CRM_Core_DAO::singleValueQuery($query);
   }
-
 
   /**
    * Get data (contact id and subject) for creating activity.
-   * Only when contact already has Join.
+   * Each removing from Members group has Leave activity.
    *
    * @return array
    */
   public static function getDataForActivities() {
     $query = "SELECT l.id, l.subject, NOW() AS activity_date_time
-              FROM speakcivi_cleanup_leave l
-              WHERE l.id IN (
-                SELECT ac.contact_id
-                FROM civicrm_activity a
-                  JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
-                  JOIN speakcivi_cleanup_leave l2 ON l2.id = ac.contact_id
-                WHERE a.activity_type_id = %1 AND a.activity_date_time < (
-                  SELECT max(modified_date) FROM civicrm_log WHERE entity_table = 'civicrm_contact' AND entity_id = l2.id
-                )
-              )";
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $params = array(1 => array($activityTypeId, 'Integer'));
-    $dao = CRM_Core_DAO::executeQuery($query, $params);
+              FROM speakcivi_cleanup_leave l";
+    $dao = CRM_Core_DAO::executeQuery($query);
     return $dao->fetchAll();
   }
-
 
   /**
    * Create activities in batch
@@ -159,11 +142,10 @@ class CRM_Speakcivi_Cleanup_Leave {
    * @param array $data  Table of contact ids and subjects
    */
   public static function createActivitiesInBatch($data) {
-    foreach((array)$data as $contact) {
+    foreach ((array) $data as $contact) {
       CRM_Speakcivi_Logic_Activity::leave($contact['id'], $contact['subject'], 0, 0, $contact['activity_date_time'], 'Added by SpeakCivi API');
     }
   }
-
 
   /**
    * Check If contact has more Joins than Leaves
@@ -191,6 +173,7 @@ class CRM_Speakcivi_Cleanup_Leave {
       2 => array($activityJoinTypeId, 'Integer'),
       3 => array($activityLeaveTypeId, 'Integer'),
     );
-    return (bool)CRM_Core_DAO::singleValueQuery($query, $params);
+    return (bool) CRM_Core_DAO::singleValueQuery($query, $params);
   }
+
 }
