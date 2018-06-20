@@ -268,8 +268,6 @@ function drawTextSearch (dom) {
        function(d){
          if (d.parent_id) {
             if (!campaigns[d.parent_id]) {
-              console.log(d.parent_id);
-              console.log(d.camp);
               campaigns[d.parent_id]={name:d.camp};
             }
             return campaigns[d.parent_id].name;
