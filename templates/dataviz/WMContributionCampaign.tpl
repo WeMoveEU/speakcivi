@@ -382,10 +382,23 @@ function drawTable(dom) {
   var graph=dc.dataTable(dom)
     .dimension(dim)
     .group(function(d) {
+       var name="";
        if (d.parent_id) {
-         return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_id+"'>"+d.camp+"</a>";
+         name += "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_id+"'>"+d.camp+"</a>";
+       } else {
+        name += d.camp || "???";//d.name;
        }
-        return d.camp || "???";//d.name;
+       if (d.nb ==1)
+         return name + " <i class='float-right'>"+d.min_date;
+       name += " <i class='float-right'>from "+d.min_date;
+       if (d.min_date != d.max_date) {
+          if (d.min_date.substring(0,10) !== d.max_date.substring(0,10)) {
+            name += " to " + d.max_date;
+          } else {
+            name += " to " + d.max_date.substring(-10);
+          }
+       }
+       return name;
     })
     .sortBy(function (d) { return +d.campaign_id * 1e9 + +d.mailing_id * 1e4 + d.nb;})
     .order(d3.descending)
