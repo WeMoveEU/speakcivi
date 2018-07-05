@@ -51,6 +51,11 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
       $activityStatus = 'Completed'; // Completed existing member
     }
 
+    $email = CRM_Speakcivi_Logic_Contact::getEmail($this->contactId);
+    if ($email['on_hold'] != 0) {
+      CRM_Speakcivi_Logic_Contact::unholdEmail($email['email_id']);
+    }
+
     $redirect = '';
     if ($this->campaignId) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
@@ -91,9 +96,8 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);
 
-    $email = CRM_Speakcivi_Logic_Contact::getEmail($this->contactId);
     $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-    $speakcivi->sendConfirm($email, $this->contactId, $this->activityId, $this->campaignId, FALSE, FALSE, 'new_member');
+    $speakcivi->sendConfirm($email['email'], $this->contactId, $this->activityId, $this->campaignId, FALSE, FALSE, 'new_member');
 
     $context = array(
       'drupal_language' => $country,

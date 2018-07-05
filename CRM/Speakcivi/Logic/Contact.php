@@ -13,10 +13,10 @@ class CRM_Speakcivi_Logic_Contact {
   public static function getEmail($contactId) {
     $result = civicrm_api3('Contact', 'get', array(
       'sequential' => 1,
-      'return' => "email",
+      'return' => ['email', 'on_hold'],
       'id' => $contactId,
     ));
-    return $result['values'][0]['email'];
+    return $result['values'][0];
   }
 
 
@@ -43,6 +43,18 @@ class CRM_Speakcivi_Logic_Contact {
       }
     }
     return $ids;
+  }
+
+  /**
+   * Clear on_hold status of given email
+   */
+  public static function unholdEmail($emailId) {
+    $email = new CRM_Core_BAO_Email();
+    $email->id = $emailId;
+    $email->on_hold = FALSE;
+    $email->hold_date = 'null';
+    $email->reset_date = date('YmdHis');
+    $email->save();
   }
 
 

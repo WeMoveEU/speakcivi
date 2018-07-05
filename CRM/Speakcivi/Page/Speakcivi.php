@@ -320,6 +320,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             CRM_Speakcivi_Logic_Contact::set($contact['id'], $contactCustoms);
           }
           if ($this->addJoinActivity) {
+            $email = CRM_Speakcivi_Logic_Contact::getEmail($contact['id']);
+            if ($email['on_hold'] != 0) {
+              CRM_Speakcivi_Logic_Contact::unholdEmail($email['email_id']);
+            }
             CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
           }
         }
