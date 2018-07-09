@@ -229,13 +229,13 @@ class CRM_Speakcivi_Logic_Contact {
    */
   public static function emptyGDPRFields($contactId) {
     $contactParams = [
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => '',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => '',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => '',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => '',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => '',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => '',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => '',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => 'null',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'null',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => 'null',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => 'null',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => 'null',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => 'null',
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => 'null',
     ];
     self::set($contactId, $contactParams);
   }
