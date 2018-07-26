@@ -69,23 +69,20 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
 
     $consent = new CRM_Speakcivi_Logic_Consent();
     $consent->createDate = date('YmdHis');
+    $consent->utmSource = $this->utmSource;
+    $consent->utmMedium = $this->utmMedium;
+    $consent->utmCampaign = $this->utmCampaign;
     if ($consentIds) {
       foreach ($consentIds as $id) {
         list($consentVersion, $language) = explode('-', $id);
         $consent->version = $consentVersion;
         $consent->language = $language;
-        $consent->utmSource = $this->utmSource;
-        $consent->utmMedium = $this->utmMedium;
-        $consent->utmCampaign = $this->utmCampaign;
         CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
       }
     }
     else {
       $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
       $consent->language = $country;
-      $consent->utmSource = $this->utmSource;
-      $consent->utmMedium = $this->utmMedium;
-      $consent->utmCampaign = $this->utmCampaign;
       CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
     }
 

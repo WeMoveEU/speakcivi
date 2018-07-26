@@ -91,7 +91,7 @@ class CRM_Speakcivi_Logic_Activity {
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium') => $consent->utmMedium,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign') => $consent->utmCampaign,
     ];
-    return self::setActivity($params);
+    return self::setActivity($params, ['activity_date_time']);
   }
 
   /**
@@ -143,64 +143,38 @@ class CRM_Speakcivi_Logic_Activity {
    * Need more performance but provide database consistency.
    *
    * @param array $params
+   * @param array $ignore parameters to ignore for de-duplication (default value for backward compatibility)
    *
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  public static function setActivity($params) {
+  public static function setActivity($params, $ignore = ['status_id', 'campaign_id']) {
     $contactId = $params['source_contact_id'];
     $getParams = $params;
-    unset($getParams['status_id']);
-    unset($getParams['source_contact_id']);
-    unset($getParams['campaign_id']);
-    $getParams['api.ActivityContact.get'] = array(
-      'activity_id' => '$value.id',
-      'contact_id' => $contactId,
-      'record_type_id' => 2, // means source, added by
-    );
+    foreach ($ignore as $pname) {
+      unset($getParams[$pname]);
+    }
     $result = civicrm_api3('Activity', 'get', $getParams);
+
     if ($result['count'] == 0) {
       return civicrm_api3('Activity', 'create', $params);
-    } elseif ($result['count'] >= 1) {
-      $activity = self::findActivity($result, $contactId);
-      if ($activity) {
-        return $activity;
-      } else {
-        return civicrm_api3('Activity', 'create', $params);
-      }
-    }
-  }
+    } elseif ($result['count'] == 1) {
+      return $result;
+    } else {
+      $activities = $result['values'];
+      //Sort by descending date
+      usort($activities, function($a1, $a2) { 
+        return -strcmp($a1['activity_date_time'], $a2['activity_date_time']); 
+      });
 
-
-  /**
-   * Activity for contacts means source_contact_id (civicrm_activity_contact.record_type_id = 2)
-   *
-   * @param array $getResult
-   * @param int $contactId
-   *
-   * @return array
-   */
-  private static function findActivity($getResult, $contactId) {
-    $tab = array();
-    $recordTypeId = 2; // source, added by
-    foreach ($getResult['values'] as $a => $activity) {
-      if ($activity['api.ActivityContact.get']['count'] >= 1) {
-        foreach ($activity['api.ActivityContact.get']['values'] as $c => $contact) {
-          if ($contact['contact_id'] == $contactId && $contact['record_type_id'] == $recordTypeId) {
-            $tab[] = $activity;
-          }
-        }
-      }
-    }
-    if (is_array($tab) && count($tab) == 1) {
       return array(
         'count' => 1,
-        'id' => $tab[0]['id'],
-        'values' => array(0 => $tab[0]),
+        'id' => $activities[0]['id'],
+        'values' => array(0 => $activities[0]),
       );
     }
-    return array();
   }
+
 
   /**
    * Add Join activity to contact
