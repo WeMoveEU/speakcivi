@@ -224,10 +224,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     $contact = $this->createContact($param, $targetGroupId);
 
-    $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation($this->newContact, $contact['id'], $targetGroupId, $contact['is_opt_out']);
     switch ($this->consentStatus) {
       case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
-        if ($isContactNeedConfirmation) {
+        if ($this->addJoinActivity) {
           // completed new member + sharing
           $activityStatus = 'optin';
           $this->confirmationBlock = FALSE;
@@ -247,6 +246,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
       // the same as CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED
       default:
+        $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation(
+            $this->newContact, $contact['id'], $targetGroupId, $contact['is_opt_out']);
         if ($isContactNeedConfirmation) {
           // scheduled + confirmation
           $activityStatus = 'Scheduled';
