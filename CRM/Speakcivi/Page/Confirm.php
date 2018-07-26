@@ -24,6 +24,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     }
     $contactParams = array(
       'is_opt_out' => 0,
+      'do_not_email' => 0,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => date('Y-m-d'),
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consentVersion,
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($country),
