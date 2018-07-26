@@ -880,7 +880,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return mixed
    */
   private function determineDetails($param) {
-    $details = '';
+    $details = NULL;
     if (property_exists($param, 'comment') && $param->comment != '') {
       $details = trim($param->comment);
     }
