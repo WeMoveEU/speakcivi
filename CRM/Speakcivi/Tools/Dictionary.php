@@ -107,7 +107,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'en_GB':
-        return '"David - WeMove.EU" &lt;info@wemove.eu&gt;';
+        return '"Mika - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
 
       case 'es_ES':
