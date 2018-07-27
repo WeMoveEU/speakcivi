@@ -477,6 +477,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $h = $param->cons_hash;
     $contact = array(
       'contact_type' => 'Individual',
+      'is_deleted' => 0,
       'email' => $h->emails[0]->email,
       $this->apiAddressGet => array(
         'id' => '$value.address_id',
@@ -513,6 +514,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         if (!CRM_Speakcivi_Logic_Contact::needUpdate($contact)) {
           return $result['values'][$contactIdBest];
         }
+      } else { //count==0, the email probably belongs to a deleted contact
+        $this->newContact = true;
+        $contact = $this->prepareParamsContact($param, $contact, $groupId);
       }
     } else {
       $this->newContact = true;
