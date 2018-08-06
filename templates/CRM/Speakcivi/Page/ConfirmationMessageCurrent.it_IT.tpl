@@ -3,4 +3,4 @@
 <div>#SHARING_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Grazie,<br />
-Olga, Mika, Xavier e tutta la squadra di WeMove.EU</p>
+Virginia, Viviana e tutta la squadra di WeMove.EU</p>

@@ -115,15 +115,15 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'it_IT':
-        return '"Fernando - WeMove.EU" &lt;info@wemove.eu&gt;';
+        return '"Italian - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
 
       case 'pl_PL':
-        return '"Julia - WeMove.EU" &lt;info@wemove.eu&gt;';
+        return '"Joanna - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
 
       case 'pt_PT':
-        return '"Julia - WeMove.EU" &lt;info@wemove.eu&gt;';
+        return '"Virginia - WeMove.EU" &lt;info@wemove.eu&gt;';
         break;
 
       case 'ro_RO':

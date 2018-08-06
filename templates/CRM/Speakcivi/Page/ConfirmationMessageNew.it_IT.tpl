@@ -5,6 +5,6 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Grazie,<br />
-    Fernando, e la squadra di WeMove.EU</p>
+    Virginia, Viviana e tutta la squadra di WeMove.EU</p>
 
 <div>#PRIVACY_BLOCK</div>
