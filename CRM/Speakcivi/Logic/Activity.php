@@ -209,7 +209,6 @@ class CRM_Speakcivi_Logic_Activity {
     self::createActivity($contactId, $activityTypeId, $subject, $campaignId, 
                          $parentActivityId, $activity_date_time, $location);
     self::cancelLatestDPA($contactId);
-    CRM_Speakcivi_Logic_Contact::emptyGDPRFields($contactId);
   }
 
   /**

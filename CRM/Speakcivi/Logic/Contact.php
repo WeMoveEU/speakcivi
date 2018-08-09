@@ -223,20 +223,4 @@ class CRM_Speakcivi_Logic_Contact {
     $result = civicrm_api3('Contact', 'get', $params);
     return $result['values'][0];
   }
-
-  /**
-   * Set all GDPR temporary fields to NULL for the given contact
-   */
-  public static function emptyGDPRFields($contactId) {
-    $contactParams = [
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => 'null',
-    ];
-    self::set($contactId, $contactParams);
-  }
 }

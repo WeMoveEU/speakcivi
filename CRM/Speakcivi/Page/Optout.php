@@ -14,13 +14,6 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     $contactParams = array(
       'is_opt_out' => 1,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => 'null',
     );
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
@@ -46,23 +39,20 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $consentIds = $this->getConsentIds($this->campaignId);
     $consent = new CRM_Speakcivi_Logic_Consent();
     $consent->createDate = date('YmdHis');
+    $consent->utmSource = $this->utmSource;
+    $consent->utmMedium = $this->utmMedium;
+    $consent->utmCampaign = $this->utmCampaign;
     if ($consentIds) {
       foreach ($consentIds as $id) {
         list($consentVersion, $language) = explode('-', $id);
         $consent->version = $consentVersion;
         $consent->language = $language;
-        $consent->utmSource = $this->utmSource;
-        $consent->utmMedium = $this->utmMedium;
-        $consent->utmCampaign = $this->utmCampaign;
         CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
       }
     }
     else {
       $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
       $consent->language = $country;
-      $consent->utmSource = $this->utmSource;
-      $consent->utmMedium = $this->utmMedium;
-      $consent->utmCampaign = $this->utmCampaign;
       CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
     }
 

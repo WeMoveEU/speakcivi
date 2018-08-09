@@ -289,13 +289,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             $contactCustoms = [
               'is_opt_out' => 0,
               'do_not_email' => 0,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $consent->date,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $consent->utmSource,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $consent->utmMedium,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $consent->utmCampaign,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $this->campaignId,
             ];
             $joinSubject = $consent->method;
           }
@@ -303,13 +296,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
             $contactCustoms = [
               'is_opt_out' => 1,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => 'null',
             ];
           }
         }
