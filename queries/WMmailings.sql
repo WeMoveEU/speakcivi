@@ -57,4 +57,4 @@ LEFT JOIN (
   WHERE utm_medium_31 in ('email','speakout') AND utm_source_30 LIKE 'civimail-%'
   GROUP BY utm_source_30, currency limit 1
 ) d ON d.mailing_id=m.id
-WHERE scheduled_date is not null;
+WHERE scheduled_date is not null AND m.is_archived=0;
