@@ -137,8 +137,18 @@ function lookupTable(data,key,value) {
 
 function downloadButton (dom,dim) {
   CRM.$(dom).click(function() {
-    var blob = new Blob([d3.csv.format(dim.top(Infinity))],{type: "text/csv;charset=utf-8"});
-    saveAs(blob, 'data.csv');
+    var format=d3.time.format("%Y-%m-%d");
+    var data=dim.top(Infinity);
+    data.forEach(function(d){
+      d.received_median=Math.ceil((d.received_median - d.date) / 60000);
+      d.sent_median=Math.ceil((d.sent_median_median - d.date) / 60000);
+      delete d.last_updated;
+      delete d.owner_id;
+      delete d.owner;
+      d.date=format(d.date);
+    });
+    var blob = new Blob([d3.csv.format(data)],{type: "text/csv;charset=utf-8"});
+    saveAs(blob, 'mailing.csv');
   });
 }
 
