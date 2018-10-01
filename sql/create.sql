@@ -1,6 +1,4 @@
 
-# Select limit = 3 für die besten 3 Länder. 
-
 -------
 -- Petition metrics
 -------
@@ -19,6 +17,7 @@ npeople int,
 activity varchar(255), /* petition signature, share etc. */
 status varchar(255), /* completed, scheduled etc. */
 is_opt_out tinyint(4), 
+parent_id int,
 last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 primary key(id)
 );

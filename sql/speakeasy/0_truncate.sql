@@ -1,1 +1,1 @@
-truncate speakeasy_petition_metrics;
+truncate tmp_petition_metrics;

@@ -1,4 +1,4 @@
-INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
+INSERT INTO tmp_petition_metrics (activity, campaign_id, npeople)
   SELECT
     'new_member_mail', a.campaign_id, count(a.id)
   FROM civicrm_activity a

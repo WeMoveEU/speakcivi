@@ -1,4 +1,4 @@
-INSERT INTO speakeasy_petition_metrics
+INSERT INTO tmp_petition_metrics
 (campaign_id, activity, is_opt_out, npeople)
   SELECT
     camp.id AS campaign_id,

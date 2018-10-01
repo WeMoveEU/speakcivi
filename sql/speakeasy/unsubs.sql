@@ -1,4 +1,4 @@
-INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
+INSERT INTO tmp_petition_metrics (activity, campaign_id, npeople)
   SELECT
     'unsub', campaign_id, sum(r.value)
   FROM civicrm_mailing m

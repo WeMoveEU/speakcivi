@@ -1,6 +1,6 @@
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
+INSERT INTO tmp_petition_metrics (activity, campaign_id, npeople)
   SELECT
     'unique_opened', m.campaign_id, count(DISTINCT eq.contact_id)
   FROM civicrm_mailing m

@@ -1,4 +1,4 @@
-INSERT INTO speakeasy_petition_metrics (campaign_id, activity, status, npeople)
+INSERT INTO tmp_petition_metrics (campaign_id, activity, status, npeople)
   SELECT
     ca.civicrm_camp_id AS civicrm_camp_id,
     LOWER(ca.stand) AS activity,

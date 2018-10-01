@@ -1,6 +1,6 @@
 -- Number of new members who are active at the moment
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
-INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
+INSERT INTO tmp_petition_metrics (activity, campaign_id, npeople)
   SELECT 
     'new_active_now', a.campaign_id, COUNT(DISTINCT ac.contact_id) 
   FROM civicrm_activity a 
@@ -15,7 +15,7 @@ INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
 
 -- Number of new people who were active 3 months later
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
-INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople)
+INSERT INTO tmp_petition_metrics (activity, campaign_id, npeople)
   SELECT 
     'new_active_3mlater', a.campaign_id, COUNT(DISTINCT ac.contact_id) 
   FROM civicrm_activity a 

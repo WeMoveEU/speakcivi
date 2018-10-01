@@ -1,6 +1,6 @@
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-INSERT INTO speakeasy_petition_metrics (activity, campaign_id, npeople) 
+INSERT INTO tmp_petition_metrics (activity, campaign_id, npeople) 
 SELECT
   'gunique_recipient', cp.parent_id, count(DISTINCT contact_id)
 FROM civicrm_mailing m
