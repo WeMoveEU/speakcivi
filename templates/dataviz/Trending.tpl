@@ -56,7 +56,7 @@
 					<li class="list-group-item"><span class="badge activated_percent"></span><span class="activated"></span> </button></li>
 					<li class="list-group-item"><span class="badge existing_percent"></span><span class="existing"></span> existing</button></li>
 					<li class="list-group-item"><span class="badge pending_percent"></span><span class="pending"></span> pending</button></li>
-					<li class="list-group-item"><span class="badge optout_percent"></span><span class="optout"></span> optout</button></li>
+					<li class="list-group-item"><span class="badge optout_percent"></span><span class="optout"></span> optout (not joining)</button></li>
 					<li class="list-group-item"><span class="badge share_percent"></span><span class="share"></span> share</button></li>
 				</ul>
 	</div>
