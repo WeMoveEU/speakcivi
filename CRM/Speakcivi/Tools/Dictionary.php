@@ -89,53 +89,6 @@ class CRM_Speakcivi_Tools_Dictionary {
     return $default;
   }
 
-
-  /**
-   * Get sender email for confirmation mail
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getSenderMail($locale) {
-    switch ($locale) {
-      case 'de_DE':
-        return '"Jörg Rohwedder - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'fr_FR':
-        return '"Mika Leandro - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'en_GB':
-        return '"Mika - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'es_ES':
-        return '"Virginia - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'it_IT':
-        return '"Italian - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'pl_PL':
-        return '"Joanna - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'pt_PT':
-        return '"Virginia - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      case 'ro_RO':
-        return '"Doina - WeMove.EU" &lt;info@wemove.eu&gt;';
-        break;
-
-      default:
-        return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
-    }
-  }
-
-
   /**
    * Get subject of email for confirmation mail
    * @param string $locale
@@ -188,61 +141,6 @@ class CRM_Speakcivi_Tools_Dictionary {
         return 'You are almost done - please confirm your action';
     }
   }
-
-
-  /**
-   * Get subject of email for impact mail (when contact is already confirmed)
-   * @param string $locale
-   *
-   * @return string
-   */
-  public static function getSubjectImpact($locale) {
-    switch ($locale) {
-      case 'de_DE':
-        return 'Bitte helfen Sie mit, diese Aktion weiterzuverbreiten.';
-        break;
-
-      case 'fr_FR':
-        return 'Démultipliez votre impact';
-        break;
-
-      case 'da_DK':
-        return "You are almost done - now multiply your impact";
-        break;
-
-      case 'el_GR':
-        return "You are almost done - now multiply your impact";
-        break;
-
-      case 'es_ES':
-        return 'Ya casi has terminado. Ahora multiplica el impacto de tu acción.';
-        break;
-
-      case 'it_IT':
-        return "Moltiplica l'impatto della tua azione";
-        break;
-
-      case 'nl_NL':
-        return "You are almost done - now multiply your impact";
-        break;
-
-      case 'pl_PL':
-        return 'Prawie skończone - powiadom znajomych o petycji';
-        break;
-
-      case 'pt_PT':
-        return "Está quase no final - por favor, multiplique o seu impacto";
-        break;
-
-      case 'ro_RO':
-        return "Următorul pas: dă de veste!";
-        break;
-
-      default:
-        return 'You are almost done - now multiply your impact';
-    }
-  }
-
 
   /**
    * Get default value for Share on Facebook
@@ -351,7 +249,6 @@ class CRM_Speakcivi_Tools_Dictionary {
     }
   }
 
-
   /**
    * Get default content of message for new user
    * @param $locale
@@ -363,20 +260,6 @@ class CRM_Speakcivi_Tools_Dictionary {
     $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageNew.tpl';
     return self::getMessageContent($filename, $default);
   }
-
-
-  /**
-   * Get default content of message for current user
-   * @param $locale
-   *
-   * @return mixed|string
-   */
-  public static function getMessageCurrent($locale) {
-    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.'.$locale.'.tpl';
-    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/ConfirmationMessageCurrent.tpl';
-    return self::getMessageContent($filename, $default);
-  }
-
 
   /**
    * Get content of message (file) for localized version or default in case of localized isn't exist

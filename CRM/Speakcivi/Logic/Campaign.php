@@ -38,8 +38,6 @@ class CRM_Speakcivi_Logic_Campaign {
 
   public $from = '';
 
-  public $urlSpeakout = '';
-
   public $countryLangMapping = array();
 
   /**
@@ -267,6 +265,13 @@ class CRM_Speakcivi_Logic_Campaign {
     return array();
   }
 
+  public function getRemoteCampaign($speakoutDomain, $externalIdentifier) {
+    $url = "https://$speakoutDomain/api/v1/campaigns/$externalIdentifier";
+    $user = CIVICRM_SPEAKOUT_USERS[$speakoutDomain];
+    $auth = $user['email'] . ':' . $user['password'];
+    return (object)json_decode($this->getContent($url, $auth));
+  }
+
 
   /**
    * Setting up new campaign in CiviCRM if this is necessary.
@@ -281,8 +286,8 @@ class CRM_Speakcivi_Logic_Campaign {
   public function setCampaign($externalIdentifier, $campaign, $param = null) {
     if (!$this->isValidCampaign($campaign)) {
       if ($externalIdentifier > 0) {
-        $this->urlSpeakout = $this->determineUrlSpeakout($param);
-        $externalCampaign = (object)json_decode($this->getContent("https://".$this->urlSpeakout."/{$externalIdentifier}.json"));
+        $speakoutDomain = $this->determineSpeakoutDomain($param);
+        $externalCampaign = $this->getRemoteCampaign($speakoutDomain, $externalIdentifier);
         if (is_object($externalCampaign) &&
           property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
           property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
@@ -294,6 +299,12 @@ class CRM_Speakcivi_Logic_Campaign {
           foreach ($externalCampaign->consents as $consent => $v) {
             $consentIds[] = $consent;
           }
+          if ($externalCampaign->thankyou_from_email) {
+            $sender = "\"$externalCampaign->thankyou_from_name\" &lt;$externalCampaign->thankyou_from_email&gt;";
+          } else {
+            $sender = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
+          }
+
           $params = array(
             'sequential' => 1,
             'name' => $externalCampaign->internal_name,
@@ -303,18 +314,18 @@ class CRM_Speakcivi_Logic_Campaign {
             'campaign_type_id' => $this->defaultCampaignTypeId,
             'start_date' => date('Y-m-d H:i:s'),
             $this->fieldLanguage => $this->determineLanguage($externalCampaign->internal_name),
-            $this->fieldSenderMail => CRM_Speakcivi_Tools_Dictionary::getSenderMail($locale),
-            $this->fieldUrlCampaign => "https://".$this->urlSpeakout."/".$utmCampaign,
+            $this->fieldSenderMail => $sender,
+            $this->fieldUrlCampaign => "https://$speakoutDomain/campaigns/$utmCampaign",
             $this->fieldUtmCampaign => $utmCampaign,
             $this->fieldTwitterShareText => $externalCampaign->twitter_share_text,
             $this->fieldSubjectNew => CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale),
-            $this->fieldSubjectCurrent => CRM_Speakcivi_Tools_Dictionary::getSubjectImpact($locale),
+            $this->fieldSubjectCurrent => $externalCampaign->thankyou_subject,
             $this->fieldConsentIds => implode(',', $consentIds),
           );
           $result = civicrm_api3('Campaign', 'create', $params);
           if ($result['count'] == 1) {
             $this->setCustomFieldBySQL($result['id'], $this->fieldMessageNew, CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale));
-            $this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, CRM_Speakcivi_Tools_Dictionary::getMessageCurrent($locale));
+            $this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, $externalCampaign->thankyou_body);
             return $result['values'][0];
           }
         }
@@ -383,10 +394,10 @@ class CRM_Speakcivi_Logic_Campaign {
    *
    * @return mixed|string
    */
-  public function determineUrlSpeakout($param) {
+  public function determineSpeakoutDomain($param) {
     if (is_object($param) && property_exists($param, 'action_technical_type') && $param->action_technical_type != '') {
       $domain = explode(":", $param->action_technical_type);
-      return $domain[0]."/campaigns";
+      return $domain[0];
     }
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
   }
@@ -440,11 +451,14 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return mixed
    * @throws \CRM_Speakcivi_Exception
    */
-  public function getContent($url){
+  public function getContent($url, $authString = NULL) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    if ($authString != NULL) {
+      curl_setopt($ch, CURLOPT_USERPWD, $authString);
+    }
     $data = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
