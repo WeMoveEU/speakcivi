@@ -344,6 +344,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($sendResult['values'] == 1) {
         return 1;
       }
+      CRM_Core_Error::debug_var('sendResult', $sendResult);
       return 0;
     }
     else {

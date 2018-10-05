@@ -108,14 +108,14 @@ $callback = function($msg) {
       $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
       try {
         $result = $msg_handler->runParam($json_msg);
-        if ($result == 1) {
+        if ($result == 1 || $result == 2) {
           $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         } elseif ($result == -1) {
           handleError($msg, "runParams unsupported action type: " . $json_msg->action_type);
         } else {
           $session = CRM_Core_Session::singleton();
           $retry = isConnectionLostError($session->getStatus());
-          handleError($msg, "runParams returned error code", $retry);
+          handleError($msg, "runParams returned error code $result", $retry);
         }
       } catch (CiviCRM_API3_Exception $ex) {
         $extraInfo = $ex->getExtraParams();
