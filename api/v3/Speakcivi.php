@@ -50,7 +50,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     }
     else {
       // don't send any sharing email
-      return civicrm_api3_create_success(2, $params);
+      return civicrm_api3_create_success(1, $params);
     }
   }
 

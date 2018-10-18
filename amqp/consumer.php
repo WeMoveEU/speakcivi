@@ -108,7 +108,7 @@ $callback = function($msg) {
       $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
       try {
         $result = $msg_handler->runParam($json_msg);
-        if ($result == 1 || $result == 2) {
+        if ($result == 1) {
           $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         } elseif ($result == -1) {
           handleError($msg, "runParams unsupported action type: " . $json_msg->action_type);
