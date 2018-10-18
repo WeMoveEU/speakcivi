@@ -203,7 +203,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function choosePetitionMode($param, $campaignType) {
     $noMember = ($campaignType == $this->noMemberCampaignType);
-    return $this->petition($param, $noMember);
+    return $this->petition($param, $noMember, 'Petition');
   }
 
 
@@ -215,59 +215,19 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return int 1 ok, 0 failed
    * @throws \CiviCRM_API3_Exception
    */
-  public function petition($param, $noMember) {
-    if ($noMember) {
-      $targetGroupId = $this->noMemberGroupId;
-    } else {
-      $targetGroupId = $this->groupId;
-    }
-
+  public function petition($param, $noMember, $activityType) {
+    $targetGroupId = $this->determineGroupId();
     $contact = $this->createContact($param, $targetGroupId);
+    $activityStatus = $this->determineActivityStatus($contact, $targetGroupId);
+    $activity = $this->createActivity($param, $contact['id'], $activityType, $activityStatus);
 
-    switch ($this->consentStatus) {
-      case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
-        if ($this->addJoinActivity) {
-          // completed new member + sharing
-          $activityStatus = 'optin';
-          $this->confirmationBlock = FALSE;
-        }
-        else {
-          // completed + sharing
-          $activityStatus = 'Completed';
-          $this->confirmationBlock = FALSE;
-        }
-        break;
-
-      case CRM_Speakcivi_Logic_Consent::STATUS_REJECTED:
-        // optout + no any email
-        $activityStatus = 'optout';
-        $this->confirmationBlock = FALSE;
-        break;
-
-      // the same as CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED
-      default:
-        $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation(
-            $this->newContact, $contact['id'], $targetGroupId, $contact['is_opt_out']);
-        if ($isContactNeedConfirmation) {
-          // scheduled + confirmation
-          $activityStatus = 'Scheduled';
-          $this->confirmationBlock = TRUE;
-        }
-        else {
-          // completed + sharing
-          $activityStatus = 'Completed';
-          $this->confirmationBlock = FALSE;
-        }
-        break;
-    }
-
-    $activity = $this->createActivity($param, $contact['id'], 'Petition', $activityStatus);
     CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     if ($this->newContact) {
       CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
       CRM_Speakcivi_Logic_Contact::setSourceFields($contact['id'], @$param->source);
     }
 
+    $this->confirmationBlock = ($activityStatus == 'Scheduled');
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
       if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED) {
@@ -289,13 +249,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             $contactCustoms = [
               'is_opt_out' => 0,
               'do_not_email' => 0,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $consent->date,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $consent->utmSource,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $consent->utmMedium,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $consent->utmCampaign,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $this->campaignId,
+              $this->fieldName('consent_date') => $consent->date,
+              $this->fieldName('consent_version') => $consent->version,
+              $this->fieldName('consent_language') => strtoupper($consent->language),
+              $this->fieldName('consent_utm_source') => $consent->utmSource,
+              $this->fieldName('consent_utm_medium') => $consent->utmMedium,
+              $this->fieldName('consent_utm_campaign') => $consent->utmCampaign,
+              $this->fieldName('consent_campaign_id') => $this->campaignId,
             ];
             $joinSubject = $consent->method;
           }
@@ -303,13 +263,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
             $contactCustoms = [
               'is_opt_out' => 1,
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => 'null',
-              CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => 'null',
+              $this->fieldName('consent_date') => 'null',
+              $this->fieldName('consent_version') => 'null',
+              $this->fieldName('consent_language') => 'null',
+              $this->fieldName('consent_utm_source') => 'null',
+              $this->fieldName('consent_utm_medium') => 'null',
+              $this->fieldName('consent_utm_campaign') => 'null',
+              $this->fieldName('consent_campaign_id') => 'null',
             ];
           }
         }
@@ -525,6 +485,32 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
     $result = civicrm_api3('Contact', 'create', $contact);
     return $result['values'][$result['id']];
+  }
+
+  /**
+   * Determine which status to give to the activity
+   */
+  function determineActivityStatus($contact, $targetGroupId) {
+    switch ($this->consentStatus) {
+      case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
+        if ($this->addJoinActivity) {
+          // completed new member
+          return 'optin';
+        }
+        return 'Completed';
+
+      case CRM_Speakcivi_Logic_Consent::STATUS_REJECTED:
+        return 'optout';
+
+      // the same as CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED
+      default:
+        $isContactNeedConfirmation = CRM_Speakcivi_Logic_Contact::isContactNeedConfirmation(
+            $this->newContact, $contact['id'], $targetGroupId, $contact['is_opt_out']);
+        if ($isContactNeedConfirmation) {
+          return 'Scheduled';
+        }
+        return 'Completed';
+    }
   }
 
 
@@ -953,5 +939,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $params['share_utm_source'] = $share_utm_source;
     }
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
+  }
+
+  public function fieldName($name) {
+    return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_' . $name);
   }
 }
