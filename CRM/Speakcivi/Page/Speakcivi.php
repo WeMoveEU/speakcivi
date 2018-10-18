@@ -92,43 +92,23 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         return;
       }
 
-      switch ($param->action_type) {
-        case 'petition':
-          $result = $this->choosePetitionMode($param, $this->campaignObj->campaign['campaign_type_id']);
-          break;
-
-        case 'share':
-          $result = $this->addActivity($param, 'share');
-          break;
-
-        case 'tweet':
-          $result = $this->addActivity($param, 'Tweet');
-          break;
-
-        case 'facebook':
-          $result = $this->addActivity($param, 'Facebook');
-          break;
-
-        case 'call':
-          CRM_Core_Error::debug_var('SPEAKCIVI CALL $param', $param);
-          $result = $this->addActivity($param, 'Phone Call');
-          break;
-
-        case 'speakout':
-          $result = $this->addActivity($param, 'Email');
-          break;
-
-        case 'donate':
-          $result = $this->donate($param);
-          break;
-
-        case 'poll':
+      if ($param->action_type == 'donate') {
+        //Donate is a special case: it doesn't create an activity
+        $result = $this->donate($param);
+      } else if ($param->action_type == 'share') {
+        //Share is a special case: it can be anonymous and doesn't trigger a post-action email
+        $result = $this->addActivity($param, 'share');
+      } else {
+        $activityType = $this->determineActivityType($param->action_type);
+        if ($activityType === FALSE) {
           CRM_Core_Error::debug_log_message('SPEAKCIVI KNOWN UNSUPPORTED EVENT, DISCARDED: ' . $param->action_type);
           $result = 1;
-          break;
-
-        default:
+        } else if ($activityType == NULL) {
           $result = -1;
+        } else {
+          $noMember = ($this->campaignObj->campaign['campaign_type_id'] == $this->noMemberCampaignType);
+          $result = $this->processAction($param, $noMember, $activityType);
+        }
       }
     });
     return $result;
@@ -192,30 +172,17 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     }
   }
 
-
   /**
-   * Choose petition mode (standard or NoMember).
+   * Create an activity in Civi for the action received from Speakout
    *
-   * @param object $param
-   * @param int $campaignType
-   *
-   * @return int 1 ok, 0 failed
-   */
-  public function choosePetitionMode($param, $campaignType) {
-    $noMember = ($campaignType == $this->noMemberCampaignType);
-    return $this->petition($param, $noMember, 'Petition');
-  }
-
-
-  /**
-   * Create a petition in Civi: contact and activity
-   *
-   * @param $param
+   * @param $param Speakout event
+   * @param $noMember Whether the campaign is a noMember campaign
+   * @param $activityType The activity type to create
    *
    * @return int 1 ok, 0 failed
    * @throws \CiviCRM_API3_Exception
    */
-  public function petition($param, $noMember, $activityType) {
+  public function processAction($param, $noMember, $activityType) {
     $targetGroupId = $this->determineGroupId();
     $contact = $this->createContact($param, $targetGroupId);
     $activityStatus = $this->determineActivityStatus($contact, $targetGroupId);
@@ -488,9 +455,26 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   }
 
   /**
+   * Determine activity type based on action type
+   * @return FALSE if the action type should be ignored
+   */
+  public function determineActivityType($actionType) {
+    $typeMap = [
+      'petition' => 'Petition',
+      'share' => 'share',
+      'tweet' => 'Tweet',
+      'facebook' => 'Facebook',
+      'call' => 'Phone call',
+      'speakout' => 'Email',
+      'poll' => FALSE,
+    ];
+    return $typeMap[$actionType];
+  }
+
+  /**
    * Determine which status to give to the activity
    */
-  function determineActivityStatus($contact, $targetGroupId) {
+  public function determineActivityStatus($contact, $targetGroupId) {
     switch ($this->consentStatus) {
       case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
         if ($this->addJoinActivity) {
