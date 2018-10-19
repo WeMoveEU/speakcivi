@@ -92,8 +92,11 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('share_utm_source', urlencode($params['share_utm_source']));
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
+  $template->assign('share_whatsapp', CRM_Speakcivi_Tools_Dictionary::getShareWhatsapp($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
   $template->assign('contact', $contact);
+  $share_whatsapp_web = $template->fetch('string:' . CRM_Speakcivi_Tools_Dictionary::getShareWhatsappWeb($locale));
+  $template->assign('share_whatsapp_web', $share_whatsapp_web);
 
   /* FETCHING SMARTY TEMPLATES */
   $params['subject'] = $template->fetch('string:' . $params['subject']);
