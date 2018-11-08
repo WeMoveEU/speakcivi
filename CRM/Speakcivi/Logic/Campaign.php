@@ -4,8 +4,6 @@ class CRM_Speakcivi_Logic_Campaign {
 
   public $campaign = array();
 
-  public $defaultLanguage = '';
-
   public $defaultCampaignTypeId = 0;
 
   public $defaultTemplateId = 0;
@@ -37,8 +35,6 @@ class CRM_Speakcivi_Logic_Campaign {
   public $fieldConsentIds = '';
 
   public $from = '';
-
-  public $countryLangMapping = array();
 
   /**
    * CRM_Speakcivi_Logic_Campaign constructor.
@@ -293,7 +289,7 @@ class CRM_Speakcivi_Logic_Campaign {
           property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
         ) {
           $this->defaultCampaignTypeId = CRM_Core_PseudoConstant::getKey('CRM_Campaign_BAO_Campaign', 'campaign_type_id', 'Petitions');
-          $locale = $this->determineLanguage($externalCampaign->internal_name);
+          $locale = $externalCampaign->locale;
           $utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
           $consentIds = [];
           foreach ($externalCampaign->consents as $consent => $v) {
@@ -313,7 +309,7 @@ class CRM_Speakcivi_Logic_Campaign {
             'external_identifier' => $externalCampaign->id,
             'campaign_type_id' => $this->defaultCampaignTypeId,
             'start_date' => date('Y-m-d H:i:s'),
-            $this->fieldLanguage => $this->determineLanguage($externalCampaign->internal_name),
+            $this->fieldLanguage => $locale,
             $this->fieldSenderMail => $sender,
             $this->fieldUrlCampaign => "https://$speakoutDomain/campaigns/$utmCampaign",
             $this->fieldUtmCampaign => $utmCampaign,
@@ -400,27 +396,6 @@ class CRM_Speakcivi_Logic_Campaign {
       return $domain[0];
     }
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
-  }
-
-
-  /**
-   * Determine language based on campaign name which have to include country on the end, ex. *_EN.
-   *
-   * @param $campaignName
-   *
-   * @return string
-   */
-  public function determineLanguage($campaignName) {
-    $re = "/(.*)[_\\- ]([a-zA-Z]{2})$/";
-    if (preg_match($re, $campaignName, $matches)) {
-      $country = strtoupper($matches[2]);
-      $this->countryLangMapping = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping');
-      if (array_key_exists($country, $this->countryLangMapping)) {
-        return $this->countryLangMapping[$country];
-      }
-    }
-    $this->defaultLanguage = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language');
-    return $this->defaultLanguage;
   }
 
 

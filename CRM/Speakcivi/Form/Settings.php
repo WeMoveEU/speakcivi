@@ -20,9 +20,8 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
 
   function buildQuickForm() {
     $settings = $this->getFormSettings();
-    $exclude = array('country_lang_mapping');
     foreach ($settings as $name => $setting) {
-      if (isset($setting['quick_form_type']) && !in_array($name, $exclude)) {
+      if (isset($setting['quick_form_type'])) {
         $add = 'add' . $setting['quick_form_type'];
         if ($add == 'addElement') {
           $this->$add($setting['html_type'], $name, ts($setting['title']), CRM_Utils_Array::value('html_attributes', $setting, array ()));
@@ -40,8 +39,6 @@ class CRM_Speakcivi_Form_Settings extends CRM_Core_Form {
       )
     ));
     $this->assign('elementNames', $this->getRenderableElementNames());
-    $this->assign('country_lang_mapping_title', $settings['country_lang_mapping']['title']);
-    $this->assign('country_lang_mapping', CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'country_lang_mapping'));
     parent::buildQuickForm();
   }
 
