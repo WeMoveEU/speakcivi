@@ -23,7 +23,8 @@ class CRM_Speakcivi_Logic_Tag {
     if (
       property_exists($param, 'metadata') &&
       property_exists($param->metadata, 'sign_boolean') &&
-      $param->metadata->sign_boolean
+      $param->metadata->sign_boolean &&
+      strpos(strtolower($param->action_name), 'primark') !== FALSE
     ) {
       return TRUE;
     }
