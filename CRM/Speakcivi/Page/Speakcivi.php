@@ -439,7 +439,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $contactIdBest = $this->chooseBestContact($similarity);
         $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $contactIdBest);
         if (!CRM_Speakcivi_Logic_Contact::needUpdate($contact)) {
-          CRM_Speakcivi_Logic_Tag::primarkCustomer($result['id'], $param);
+          CRM_Speakcivi_Logic_Tag::primarkCustomer($contactIdBest, $param);
           return $result['values'][$contactIdBest];
         }
       } else { //count==0, the email probably belongs to a deleted contact
@@ -556,7 +556,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /**
    * Preparing params for API Contact.create based on retrieved result.
    *
-   * @param array $param
+   * @param object $param
    * @param array $contact
    * @param int $groupId
    * @param array $result
