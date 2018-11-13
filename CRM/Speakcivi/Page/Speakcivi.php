@@ -390,10 +390,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /**
    * Create or update contact
    *
-   * @param array $param
+   * @param object $param
    * @param int $groupId
    *
    * @return array
+   * @throws \CiviCRM_API3_Exception
    */
   public function createContact($param, $groupId) {
     if ($this->isAnonymous = CRM_Speakcivi_Logic_Contact::isAnonymous($param)) {
@@ -425,6 +426,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       if ($result['count'] == 1) {
         $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $result['id']);
         if (!CRM_Speakcivi_Logic_Contact::needUpdate($contact)) {
+          CRM_Speakcivi_Logic_Tag::primarkCustomer($result['id'], $param);
           return $result['values'][$result['id']];
         }
       } elseif ($result['count'] > 1) {
@@ -437,6 +439,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $contactIdBest = $this->chooseBestContact($similarity);
         $contact = $this->prepareParamsContact($param, $contact, $groupId, $result, $contactIdBest);
         if (!CRM_Speakcivi_Logic_Contact::needUpdate($contact)) {
+          CRM_Speakcivi_Logic_Tag::primarkCustomer($result['id'], $param);
           return $result['values'][$contactIdBest];
         }
       } else { //count==0, the email probably belongs to a deleted contact
@@ -448,6 +451,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->prepareParamsContact($param, $contact, $groupId);
     }
     $result = civicrm_api3('Contact', 'create', $contact);
+    CRM_Speakcivi_Logic_Tag::primarkCustomer($result['id'], $param);
     return $result['values'][$result['id']];
   }
 
