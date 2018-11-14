@@ -152,6 +152,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   function setCountry($param) {
     if (property_exists($param, 'cons_hash')) {
       $zip = @$param->cons_hash->addresses[0]->zip;
+      $country = @$param->cons_hash->addresses[0]->country;
       if ($zip != '') {
         $re = "/\\[([a-zA-Z]{2})\\](.*)/";
         if (preg_match($re, $zip, $matches)) {
@@ -159,8 +160,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $this->postalCode = mb_substr(trim($matches[2]), 0, 12);
         } else {
           $this->postalCode = mb_substr(trim($zip), 0, 12);
-          $this->countryIsoCode = strtoupper(@$param->cons_hash->addresses[0]->country);
+          $this->countryIsoCode = strtoupper($country);
         }
+      }
+      else {
+        $this->countryIsoCode = strtoupper($country);
       }
       if ($this->countryIsoCode) {
         $this->countryIsoCode = ($this->countryIsoCode == 'UK' ? 'GB' : $this->countryIsoCode);
@@ -634,6 +638,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Preparing params for creating/update a address.
+   * TODO: this is a total mess with strange behaviour and a lot of duplicated code
    *
    * @param $contact
    * @param $existingContact
