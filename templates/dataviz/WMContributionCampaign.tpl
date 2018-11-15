@@ -13,13 +13,9 @@ var day = d3.time.format("%Y-%m-%d");
 var avgformat = d3.format (".3s");
 var dpmformat = d3.format (".2f");
 
-data.values.forEach(function(d){
-});
-
-Object.keys(campaigns).forEach(function(d){
-   campaigns[d].name=campaigns[d].name.slice(0, -3);
-//  var dd= d.date;
-  //d.date = dateFormat.parse(dd);
+Object.keys(campaigns).forEach(function(d) {
+  var campName = campaigns[d].name;
+  campaigns[d].name = campName.slice(0, campName.lastIndexOf('-'));
 });
 
 function lookupTable(data,key) {

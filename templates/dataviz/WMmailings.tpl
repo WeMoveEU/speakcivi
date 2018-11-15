@@ -154,9 +154,10 @@ function downloadButton (dom,dim) {
 
 parentCampaign={};
 
-campaigns.values.forEach(function(d){
-  if (d.id==d.parent_id)
-    parentCampaign[d.id]=d.name.slice(0,-3);
+campaigns.values.forEach(function(d) {
+  if (d.id == d.parent_id) {
+    parentCampaign[d.id] = d.name.slice(0, d.name.lastIndexOf('-'));
+  }
 });
 
 

@@ -109,7 +109,7 @@ var europe=null;
                                   var id = d.parent_id || d.id;
                                   if (d.parent_id == d.id || !d.parent_id) {
                                     parent_campaign[id]=d;
-                                    parent_campaign[id]['name']=parent_campaign[id]['name'].replace("-EN","").replace("_EN","").replace("-en","");
+                                    parent_campaign[id]['name'] = parent_campaign[id]['name'].replace(/(-|_)(EN|PARENT)/i, '');
                                   }
                                   speakout[+d.external_identifier] = id;
                                 });
