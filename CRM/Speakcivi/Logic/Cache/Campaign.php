@@ -28,25 +28,28 @@ class CRM_Speakcivi_Logic_Cache_Campaign extends CRM_Speakcivi_Logic_Cache {
   /**
    * Get campaign by external id.
    *
-   * @param object $param
-   *
    * @return array
    */
-  public static function getCampaignByExternalId($param) {
-    if ($cache = self::get(self::TYPE_CAMPAIGN_EXTERNAL, $param->external_id)) {
+  public static function getCampaignByExternalId($external_id, $action_technical_type) {
+    if ($cache = self::get(self::TYPE_CAMPAIGN_EXTERNAL, $external_id)) {
       return $cache[self::TYPE_CAMPAIGN_EXTERNAL];
     }
     $campaignObj = new CRM_Speakcivi_Logic_Campaign();
-    $campaignObj->campaign = $campaignObj->getCampaign($param->external_id);
+    $campaignObj->campaign = $campaignObj->getCampaign($external_id);
+    $newCampaign = FALSE;
     if (!$campaignObj->isValidCampaign($campaignObj->campaign)) {
-      $campaignObj->campaign = $campaignObj->setCampaign($param->external_id, $campaignObj->campaign, $param);
+      $campaignObj->campaign = $campaignObj->setCampaign($external_id, $campaignObj->campaign, $action_technical_type);
+      $newCampaign = TRUE;
       CRM_Core_PseudoConstant::flush();
-      $campaignObj->campaign = $campaignObj->getCampaign($param->external_id, false, false);
+      $campaignObj->campaign = $campaignObj->getCampaign($external_id, false, false);
     }
     // fixme move limit to settings
     $limit = 20;
-    if (CRM_Utils_Array::value('api.Activity.getcount', $campaignObj->campaign, 0) >= $limit) {
-      self::set(self::TYPE_CAMPAIGN_EXTERNAL, $param->external_id, $campaignObj->campaign);
+    $nbActivities = CRM_Utils_Array::value('api.Activity.getcount', $campaignObj->campaign, 0);
+    // if the campaign is not new and has 0 activities, it's a parent that will never have any activity
+    // => cache
+    if ((!$newCampaign && $nbActivities === 0) || $nbActivities >= $limit) {
+      self::set(self::TYPE_CAMPAIGN_EXTERNAL, $external_id, $campaignObj->campaign);
     }
     return $campaignObj->campaign;
   }

@@ -270,19 +270,23 @@ class CRM_Speakcivi_Logic_Campaign {
 
 
   /**
-   * Setting up new campaign in CiviCRM if this is necessary.
+   * Set up new campaign in CiviCRM if this is necessary.
+   * Call Speakout API at the given domain to get campaign metadata, and create the corresponding
+   * campaign in CiviCRM. The function might indirectly recurse to create the parent campaign.
    *
-   * @param $externalIdentifier
-   * @param $campaign
-   * @param $param
+   * TODO: re-work the check on existing campaign: the function should either not care about this
+   *   or attempt a retrieve and check its validity.
+   *   Asking for retrieved campaign and checking its validity does not prove anything.
    *
+   * @param $externalIdentifier Speakout campaign id of the campaign to create
+   * @param $campaign Potential existing campaign, to check if the creation is needed
+   * @param $action_technical_type Speakout domain
    * @return array
-   * @throws CiviCRM_API3_Exception
    */
-  public function setCampaign($externalIdentifier, $campaign, $param = null) {
+  public function setCampaign($externalIdentifier, $campaign, $action_technical_type) {
     if (!$this->isValidCampaign($campaign)) {
       if ($externalIdentifier > 0) {
-        $speakoutDomain = $this->determineSpeakoutDomain($param);
+        $speakoutDomain = $this->determineSpeakoutDomain($action_technical_type);
         $externalCampaign = $this->getRemoteCampaign($speakoutDomain, $externalIdentifier);
         if (is_object($externalCampaign) &&
           property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
@@ -322,6 +326,23 @@ class CRM_Speakcivi_Logic_Campaign {
           if ($result['count'] == 1) {
             $this->setCustomFieldBySQL($result['id'], $this->fieldMessageNew, CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale));
             $this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, $externalCampaign->thankyou_body);
+
+            // This is done in a separate step even if the parent campaign is defined,
+            // to avoid circular-reference drama (getCampaignByExternalId may call this function)
+            if ($externalCampaign->parent_campaign_id) {
+              $parent = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($externalCampaign->parent_campaign_id, $action_technical_type);
+              $parent_params = [
+                'id' => $result['values'][0]['id'],
+                'parent_id'=> $parent['id'],
+              ];
+            } else {
+              $parent_params = [
+                'id' => $result['values'][0]['id'],
+                'parent_id'=> $result['values'][0]['id'],
+              ];
+            }
+            civicrm_api3('Campaign', 'create', $parent_params);
+
             return $result['values'][0];
           }
         }
@@ -390,9 +411,9 @@ class CRM_Speakcivi_Logic_Campaign {
    *
    * @return mixed|string
    */
-  public function determineSpeakoutDomain($param) {
-    if (is_object($param) && property_exists($param, 'action_technical_type') && $param->action_technical_type != '') {
-      $domain = explode(":", $param->action_technical_type);
+  public function determineSpeakoutDomain($action_technical_type) {
+    if ($action_technical_type) {
+      $domain = explode(":", $action_technical_type);
       return $domain[0];
     }
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');

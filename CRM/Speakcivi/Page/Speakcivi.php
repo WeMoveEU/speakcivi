@@ -80,7 +80,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
 
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param);
+      $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param->external_id, $param->action_technical_type);
       if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
         $this->campaignId = (int)$this->campaignObj->campaign['id'];
         $this->locale = $this->campaignObj->getLanguage();
