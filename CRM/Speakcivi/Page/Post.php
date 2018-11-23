@@ -68,11 +68,9 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
 
   /**
-   * Get country prefix based on campaign id.
-   *
    * @param int $campaignId
-   *
-   * @return string
+   * @return string the language code (not locale) of the campaign
+   * TODO: rename to getLanguage
    */
   public function getCountry($campaignId) {
     $country = '';
@@ -104,6 +102,63 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     }
 
     return [];
+  }
+
+  /**
+   * Based on given campaign and request parameters, 
+   * determine the consent-related values to apply to the contact.
+   */
+  public function getContactConsentParams($campaign) {
+    $locale = $campaign->getLanguage();
+    $language = substr($locale, 0, 2);
+    $consentIds = explode(',', $campaign->getConsentIds());
+    if ($consentIds) {
+      list($consentVersion, $language) = explode('-', $consentIds[0]);
+    }
+    else {
+      $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+    }
+
+    $contactParams = array(
+      'is_opt_out' => 0,
+      'do_not_email' => 0,
+      $this->fieldName('consent_date') => date('Y-m-d'),
+      $this->fieldName('consent_version') => $consentVersion,
+      $this->fieldName('consent_language') => strtoupper($language),
+      $this->fieldName('consent_utm_source') => $this->utmSource,
+      $this->fieldName('consent_utm_medium') => $this->utmMedium,
+      $this->fieldName('consent_utm_campaign') => $this->utmCampaign,
+      $this->fieldName('consent_campaign_id') => $this->campaignId,
+    );
+
+    return $contactParams;
+  }
+
+  /**
+   * Based on give campaign and request parameters,
+   * create an activity for all the consents implied by the request
+   */
+  public function createConsentActivities($campaign) {
+    $consent = new CRM_Speakcivi_Logic_Consent();
+    $consent->createDate = date('YmdHis');
+    $consent->utmSource = $this->utmSource;
+    $consent->utmMedium = $this->utmMedium;
+    $consent->utmCampaign = $this->utmCampaign;
+
+    $consentIds = explode(',', $campaign->getConsentIds());
+    if ($consentIds) {
+      foreach ($consentIds as $id) {
+        list($consentVersion, $language) = explode('-', $id);
+        $consent->version = $consentVersion;
+        $consent->language = $language;
+        CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+      }
+    }
+    else {
+      $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+      $consent->language = substr($campaign->getLanguage(), 0, 2);
+      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+    }
   }
 
   /**
@@ -520,5 +575,21 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       return "/{$lang}/{$page}";
     }
     return "/{$page}";
+  }
+
+  public function redirect($campaign, $defaultPage = 'thank-you-for-your-confirmation') {
+    $language = substr($campaign->getLanguage(), 0, 2);
+    $redirect = $campaign->getRedirectConfirm();
+    $context = array(
+      'drupal_language' => $language,
+      'contact_id' => $this->contactId,
+      'contact_checksum' => CRM_Contact_BAO_Contact_Utils::generateChecksum($this->contactId),
+    );
+    $url = $this->determineRedirectUrl($defaultPage, $language, $redirect, $context);
+    CRM_Utils_System::redirect($url);
+  }
+
+  public function fieldName($name) {
+    return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_' . $name);
   }
 }

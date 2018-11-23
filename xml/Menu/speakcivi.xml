@@ -35,6 +35,13 @@
     <is_public>true</is_public>
   </item>
   <item>
+    <path>civicrm/consent/confirm</path>
+    <page_callback>CRM_Speakcivi_Page_Consent</page_callback>
+    <title>Thank you</title>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
+  </item>
+  <item>
     <path>civicrm/speakout/confirm</path>
     <page_callback>CRM_Speakcivi_Page_Confirm</page_callback>
     <title>Your signature is confirmed</title>
