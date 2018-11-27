@@ -9,6 +9,11 @@ require_once 'CRM/Core/Page.php';
  */
 class CRM_Speakcivi_Page_Consent extends CRM_Speakcivi_Page_Post {
 
+  /**
+   * @return null|void
+   * @throws \CiviCRM_API3_Exception
+   * @throws \Exception
+   */
   public function run() {
     $this->setValues();
     $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);

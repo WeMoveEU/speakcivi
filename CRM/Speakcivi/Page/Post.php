@@ -105,10 +105,14 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   }
 
   /**
-   * Based on given campaign and request parameters, 
+   * Based on given campaign and request parameters,
    * determine the consent-related values to apply to the contact.
+   *
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   *
+   * @return array
    */
-  public function getContactConsentParams($campaign) {
+  public function getContactConsentParams(CRM_Speakcivi_Logic_Campaign $campaign) {
     $locale = $campaign->getLanguage();
     $language = substr($locale, 0, 2);
     $consentIds = explode(',', $campaign->getConsentIds());
@@ -137,8 +141,12 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   /**
    * Based on give campaign and request parameters,
    * create an activity for all the consents implied by the request
+   *
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   *
+   * @throws \CiviCRM_API3_Exception
    */
-  public function createConsentActivities($campaign) {
+  public function createConsentActivities(CRM_Speakcivi_Logic_Campaign $campaign) {
     $consent = new CRM_Speakcivi_Logic_Consent();
     $consent->createDate = date('YmdHis');
     $consent->utmSource = $this->utmSource;
@@ -550,6 +558,13 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   /**
    * Build the post-confirmation URL
    * TODO: use a proper token mecanism
+   *
+   * @param $page
+   * @param $country
+   * @param $redirect
+   * @param null $context
+   *
+   * @return mixed|string
    */
   public function determineRedirectUrl($page, $country, $redirect, $context = NULL) {
     if ($context != NULL) {
@@ -577,7 +592,11 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     return "/{$page}";
   }
 
-  public function redirect($campaign, $defaultPage = 'thank-you-for-your-confirmation') {
+  /**
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   * @param string $defaultPage
+   */
+  public function redirect(CRM_Speakcivi_Logic_Campaign $campaign, $defaultPage = 'thank-you-for-your-confirmation') {
     $language = substr($campaign->getLanguage(), 0, 2);
     $redirect = $campaign->getRedirectConfirm();
     $context = array(
