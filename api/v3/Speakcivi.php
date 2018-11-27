@@ -86,8 +86,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
 
   /* SHARING_BLOCK */
-  $template->assign('url_campaign', $campaignObj->getUrlCampaign());
-  $template->assign('url_campaign_fb', prepareCleanUrl($campaignObj->getUrlCampaign()));
+  $template->assign('url_campaign', urlencode(extendUrl($campaignObj->getUrlCampaign())));
+  $template->assign('url_campaign_fb', prepareCleanUrl(extendUrl($campaignObj->getUrlCampaign())));
   $template->assign('utm_campaign', $campaignObj->getUtmCampaign());
   $template->assign('share_utm_source', urlencode($params['share_utm_source']));
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
@@ -719,6 +719,20 @@ function prepareCleanUrl($url) {
   );
   $url = str_replace($search, '', $url);
   return urlencode($url);
+}
+
+/**
+ * Extend url with valid char for utm params
+ *
+ * @param string $url
+ *
+ * @return string
+ */
+function extendUrl($url) {
+  if (strpos($url, '?')) {
+    return $url . '&';
+  }
+  return $url . '?';
 }
 
 

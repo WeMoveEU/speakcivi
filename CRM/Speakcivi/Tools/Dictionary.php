@@ -306,47 +306,47 @@ class CRM_Speakcivi_Tools_Dictionary {
   public static function getShareWhatsappWeb($locale) {
     switch ($locale) {
       case 'de_DE':
-        return 'Dieser Button funktioniert nur auf dem Handy. Von einem Computer aus können Sie <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a> verwenden.';
+        return 'Dieser Button funktioniert nur auf dem Handy. Von einem Computer aus können Sie <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a> verwenden.';
         break;
 
       case 'fr_FR':
-        return 'Ce bouton fonctionne uniquement sur mobile. Depuis un ordinateur, vous pouvez utiliser <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'Ce bouton fonctionne uniquement sur mobile. Depuis un ordinateur, vous pouvez utiliser <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'da_DK':
-        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'el_GR':
-        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'es_ES':
-        return 'Este botón funciona solo en dispositivos móviles o tablets. Si te conectas desde un ordenador, podrás utilizar <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'Este botón funciona solo en dispositivos móviles o tablets. Si te conectas desde un ordenador, podrás utilizar <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'it_IT':
-        return 'Questo bottone funziona solo via smartphone o tablet. Se stai usando un computer puoi utilizzare <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'Questo bottone funziona solo via smartphone o tablet. Se stai usando un computer puoi utilizzare <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'nl_NL':
-        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'pl_PL':
-        return 'Ten przycisk działa tylko na urządzeniach mobilnych. Na komputerze możesz skorzystać z <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'Ten przycisk działa tylko na urządzeniach mobilnych. Na komputerze możesz skorzystać z <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'pt_PT':
-        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       case 'ro_RO':
-        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
         break;
 
       default:
-        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}%3Futm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
+        return 'This button works only on mobile. From a computer, you can use <a href="https://web.whatsapp.com/send?text={$twitter_share_text}%20-%20{$url_campaign}utm_medium=whatsapp-web%26utm_source={$share_utm_source}%26utm_campaign={$utm_campaign}">Whatsapp web</a>.';
     }
   }
 
