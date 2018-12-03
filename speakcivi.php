@@ -159,3 +159,34 @@ function speakcivi_civicrm_postProcess($formName, &$form) {
     CRM_Speakcivi_Logic_Contact::setMembers($form->_contactID, $campaignId);
   }
 }
+
+/**
+ * Update petition metrics analytics table to indicate that 
+ * aggregate recipient counts need to be re-computed for the campaign of this mailing
+ */
+function speakcivi_civicrm_postMailing($mailingId) {
+  $mailing = civicrm_api3('Mailing', 'get', ['sequential' => 1, 'id' => $mailingId, 'return' => ['campaign_id']]);
+  $campaignId = @(int)$mailing['values'][0]['campaign_id'];
+  if ($campaignId) {
+    $query = 
+      "UPDATE speakeasy_petition_metrics SET need_refresh = 1"
+      . " WHERE campaign_id = %1"
+      . "   AND activity = %2"
+    ;
+    $params = [
+      1 => [$campaignId, 'Integer'], 
+      2 => ['unique_recipient', 'String']
+    ];
+    CRM_Core_DAO::executeQuery($query, $params);
+
+    $campaign = civicrm_api3('Campaign', 'get', ['sequential' => 1, 'id' => $campaignId, 'return' => ['parent_id']]);
+    $parentId = @(int)$campaign['values'][0]['parent_id'];
+    if ($parentId) {
+      $params = [
+        1 => [$parentId, 'Integer'], 
+        2 => ['gunique_recipient', 'String']
+      ];
+      CRM_Core_DAO::executeQuery($query, $params);
+    }
+  }
+}

@@ -10,5 +10,7 @@ SET
 WHERE tmp_petition_metrics.campaign_id IS NOT NULL AND camp.external_identifier REGEXP '^-?[0-9]+$';
 
 /* Copy latest data to final table */
-TRUNCATE speakeasy_petition_metrics;
-INSERT INTO speakeasy_petition_metrics SELECT * FROM tmp_petition_metrics;
+DELETE FROM speakeasy_petition_metrics WHERE need_refresh;
+INSERT INTO speakeasy_petition_metrics 
+  (speakout_id, campaign_id, speakout_name, speakout_title, language, country, npeople, activity, status, is_opt_out, parent_id, last_updated, need_refresh)
+  SELECT speakout_id, campaign_id, speakout_name, speakout_title, language, country, npeople, activity, status, is_opt_out, parent_id, last_updated, need_refresh FROM tmp_petition_metrics;

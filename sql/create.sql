@@ -19,6 +19,7 @@ status varchar(255), /* completed, scheduled etc. */
 is_opt_out tinyint(4), 
 parent_id int,
 last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+need_refresh TINYINT NOT NULL DEFAULT 1,
 primary key(id)
 );
 
