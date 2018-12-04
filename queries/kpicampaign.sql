@@ -33,7 +33,7 @@ FROM
                 AND status = 'Opt-out', npeople, 0)) AS opted_out_signatures,
             SUM(IF(activity = 'share', npeople, 0)) AS people_who_share
     FROM
-        speakeasy_petition_metrics
+        analytics_petition_metrics
     GROUP BY campaign_id) AS aggregate
 JOIN
   civicrm_campaign c on c.id=campaign_id
