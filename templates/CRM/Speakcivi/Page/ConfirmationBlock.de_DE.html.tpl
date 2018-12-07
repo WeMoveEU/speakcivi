@@ -6,7 +6,7 @@
           <td align="center" style="-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;" bgcolor="#941b80"><a href="{$url_confirm_and_keep}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; text-decoration: none; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; padding: 12px 18px; border: 1px solid #7e176d; display: inline-block;">Ich bestätige meine E-Mail-Adresse und möchte weitere Informationen erhalten</a></td>
         </tr>
         <tr>
-          <td align="center" style="-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;" bgcolor="#999"><a href="{$url_confirm_and_not_receive}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; text-decoration: none; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; padding: 12px 18px; border: 1px solid #777; display: inline-block;">Ich bestätige meine E-Mail-Adresse und möchte keine weiteren Informationen erhalten</a></td>
+          <td align="center" style="-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;" bgcolor="#999999"><a href="{$url_confirm_and_not_receive}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; text-decoration: none; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; padding: 12px 18px; border: 1px solid #777777; display: inline-block;">Ich bestätige meine E-Mail-Adresse und möchte keine weiteren Informationen erhalten</a></td>
         </tr>
       </table>
     </td>
