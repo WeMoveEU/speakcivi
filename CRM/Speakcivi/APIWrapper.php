@@ -18,10 +18,6 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $eq->id = $apiRequest['params']['event_queue_id'];
     if ($eq->find(TRUE)) {
       $contactHasMembersGroup = $this->contactHasMembersGroup($eq->contact_id);
-      if (!$contactHasMembersGroup) {
-        $campaignId = $this->setCampaignId($eq->id);
-        $this->addLeave($eq->contact_id, $campaignId);
-      }
       if ($contactHasMembersGroup) {
         $email = new CRM_Core_BAO_Email();
         $email->id = $eq->email_id;
@@ -61,16 +57,6 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
       1 => array($eventQueueId, 'Integer'),
     );
     return (int) CRM_Core_DAO::singleValueQuery($query, $queryParams);
-  }
-
-  private function addLeave($contactId, $campaignId) {
-    $data = array(
-      'contact_id' => $contactId,
-      'campaign_id' => $campaignId,
-      'subject' => 'unsubscribe',
-      'activity_date_time' => date('YmdHis'),
-    );
-    CRM_Speakcivi_Logic_Activity::leave($data['contact_id'], $data['subject'], $data['campaign_id'], 0, $data['activity_date_time'], 'Added by SpeakCivi API');
   }
 
 }
