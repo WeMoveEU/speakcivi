@@ -190,6 +190,7 @@ class CRM_Speakcivi_Logic_Contact {
    */
   public static function needUpdate($params) {
     unset($params['sequential']);
+    unset($params['is_deleted']);
     unset($params['contact_type']);
     unset($params['email']);
     unset($params['id']);
