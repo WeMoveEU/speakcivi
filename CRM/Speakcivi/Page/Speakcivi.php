@@ -191,7 +191,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
     if ($this->newContact) {
       CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
-      CRM_Speakcivi_Logic_Contact::setSourceFields($contact['id'], @$param->source);
     }
 
     $this->confirmationBlock = ($activityStatus == 'Scheduled');
@@ -316,6 +315,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $param
    *
    * @return int 1 ok, 0 failed
+   * @throws \CiviCRM_API3_Exception
    */
   public function donate($param) {
     if ($param->metadata->status == "success") {
@@ -450,6 +450,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     } else {
       $this->newContact = true;
       $contact = $this->prepareParamsContact($param, $contact, $groupId);
+    }
+    if ($this->newContact) {
+      $paramSource = CRM_Speakcivi_Logic_Contact::getSourceFields(@$param->source);
+      $contact = array_merge($contact, $paramSource);
     }
     $result = civicrm_api3('Contact', 'create', $contact);
     CRM_Speakcivi_Logic_Tag::primarkCustomer($result['id'], $param);

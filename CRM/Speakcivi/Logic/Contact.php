@@ -107,6 +107,29 @@ class CRM_Speakcivi_Logic_Contact {
 
 
   /**
+   * Get source fields in custom fields to contact
+   *
+   * @param array $fields
+   *
+   * @return array
+   */
+  public static function getSourceFields($fields) {
+    $params = [];
+    $fields = (array) $fields;
+    if (array_key_exists('source', $fields) && $fields['source']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_source')] = $fields['source'];
+    }
+    if (array_key_exists('medium', $fields) && $fields['medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_medium')] = $fields['medium'];
+    }
+    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contact_campaign')] = $fields['campaign'];
+    }
+
+    return $params;
+  }
+
+  /**
    * Set source fields in custom fields to contact
    *
    * @param int $contactId
