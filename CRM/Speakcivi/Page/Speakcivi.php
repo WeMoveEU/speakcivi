@@ -189,7 +189,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $activityStatus = $this->determineActivityStatus($contact, $targetGroupId);
     $activity = $this->createActivity($param, $contact['id'], $activityType, $activityStatus);
 
-    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
     if ($this->newContact) {
       CRM_Speakcivi_Logic_Contact::setContactCreatedDate($contact['id'], $activity['values'][0]['activity_date_time']);
       CRM_Speakcivi_Logic_Contact::setSourceFields($contact['id'], @$param->source);
@@ -294,8 +293,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $groupId = $this->determineGroupId();
     $contact = $this->createContact($param, $groupId);
     $activity = $this->createActivity($param, $contact['id'], $type, $status);
-    CRM_Speakcivi_Logic_Activity::setSourceFields($activity['id'], @$param->source);
-    CRM_Speakcivi_Logic_Activity::setShareFields($activity['id'], @$param->metadata->tracking_codes);
     if ($activity['is_error'] == 0) {
       return 1;
     }
@@ -851,6 +848,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'status_id' => $activityStatusId,
       'details' => $this->determineDetails($param),
     );
+    $sourceParams = CRM_Speakcivi_Logic_Activity::getSourceFields(@$param->source);
+    $shareParams = CRM_Speakcivi_Logic_Activity::getShareFields(@$param->metadata->tracking_codes);
+    $params = array_merge($params, $sourceParams, $shareParams);
     return CRM_Speakcivi_Logic_Activity::setActivity($params);
   }
 

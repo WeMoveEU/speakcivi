@@ -213,6 +213,30 @@ class CRM_Speakcivi_Logic_Activity {
   }
 
   /**
+   * Get source fields in custom fields and return as a param array to Activity
+   * api action
+   *
+   * @param $fields
+   *
+   * @return array
+   */
+  public static function getSourceFields($fields) {
+    $params = [];
+    $fields = (array) $fields;
+    if (array_key_exists('source', $fields) && $fields['source']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_source')] = $fields['source'];
+    }
+    if (array_key_exists('medium', $fields) && $fields['medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium')] = $fields['medium'];
+    }
+    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign')] = $fields['campaign'];
+    }
+
+    return $params;
+  }
+
+  /**
    * Set source fields in custom fields
    *
    * @param $activityId
@@ -238,6 +262,32 @@ class CRM_Speakcivi_Logic_Activity {
     if (count($params) > 2) {
       civicrm_api3('Activity', 'create', $params);
     }
+  }
+
+  /**
+   * Get share fields in custom fields (medium and tracking code)
+   *
+   * @param $fields
+   *
+   * @return mixed
+   */
+  public static function getShareFields($fields) {
+    $params = [];
+    $fields = (array) $fields;
+    if (array_key_exists('source', $fields) && $fields['source']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_source')] = $fields['source'];
+    }
+    if (array_key_exists('medium', $fields) && $fields['medium']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_medium')] = $fields['medium'];
+    }
+    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_campaign')] = $fields['campaign'];
+    }
+    if (array_key_exists('content', $fields) && $fields['content']) {
+      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_tracking_codes_content')] = $fields['content'];
+    }
+
+    return $params;
   }
 
 
