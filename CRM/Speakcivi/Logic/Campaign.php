@@ -440,6 +440,18 @@ class CRM_Speakcivi_Logic_Campaign {
 
 
   /**
+   * Check if given campaign is YouMove campaign
+   *
+   *
+   * @return bool
+   */
+  public function isYoumove() {
+    $eid = CRM_Utils_Array::value('external_identifier', $this->campaign, NULL);
+    return $eid >= 10000;
+  }
+
+
+  /**
    * Get content of external file.
    *
    * @param string $url

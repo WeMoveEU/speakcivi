@@ -116,7 +116,12 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 
   $params['html'] = html_entity_decode($messageHtml);
   $params['text'] = html_entity_decode(convertHtmlToText($messageText));
-  $params['groupName'] = 'SpeakCivi Email Sender';
+  if ($campaignObj->isYoumove()) {
+    $params['groupName'] = 'SpeakCivi YouMove';
+  }
+  else {
+    $params['groupName'] = 'SpeakCivi WeMove';
+  }
   $params['custom-activity-id'] = $activityId;
   $params['custom-campaign-id'] = $campaignId;
   try {
