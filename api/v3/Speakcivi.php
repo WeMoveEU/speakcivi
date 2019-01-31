@@ -86,7 +86,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
 
   /* SHARING_BLOCK */
-  $template->assign('url_campaign', urlencode(extendUrl($campaignObj->getUrlCampaign())));
+  $template->assign('url_campaign', $campaignObj->getUrlCampaign());
+  $template->assign('url_campaign_encoded', urlencode(extendUrl($campaignObj->getUrlCampaign())));
   $template->assign('url_campaign_fb', prepareCleanUrl(extendUrl($campaignObj->getUrlCampaign())));
   $template->assign('utm_campaign', $campaignObj->getUtmCampaign());
   $template->assign('share_utm_source', urlencode($params['share_utm_source']));
