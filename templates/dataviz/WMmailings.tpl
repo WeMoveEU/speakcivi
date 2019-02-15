@@ -65,7 +65,7 @@
 <table class="table table-striped" id="table">
 
 <thead><tr>
-<th>Date</th>
+<th>Date dd/mm/yyyy</th> <!-- The date format is to force the fixed column header to have the same size as the column -->
 <th><input id="input-filter" placeholder="Name" title="search on mailing or campaign name"/>
 </th>
 <th>Campaign</th>
