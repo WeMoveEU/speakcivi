@@ -20,14 +20,14 @@ CRM_Core_ClassLoader::singleton()->register();
 require_once 'CRM/Core/Config.php';
 $civicrm_config = CRM_Core_Config::singleton();
 //Load CMS with user id 1
-CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, FALSE);
+CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, TRUE, $civicrm_root);
 
 require_once __DIR__ . '/vendor/autoload.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 
-function debug($msg) {
+function debugAmqp($msg) {
   echo time(), ': ', $msg, "\n";
 }
 
@@ -35,7 +35,7 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
   if (0 === error_reporting()) { return false; }
   switch ($err_severity) {
     case E_USER_ERROR:
-      debug("Uncaught E_USER_ERROR: forcing exception");
+      debugAmqp("Uncaught E_USER_ERROR: forcing exception");
       throw new Exception($err_msg);
   }
   return false;
@@ -145,13 +145,13 @@ $callback = function($msg) {
 $connection = connect();
 $channel = $connection->channel();
 $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
-debug('Waiting for messages. To exit press CTRL+C...');
+debugAmqp('Waiting for messages. To exit press CTRL+C...');
 while (true) {
   while (count($channel->callbacks)) {
     if ($msg_since_check >= SC_LOAD_CHECK_FREQ) {
       $load = sys_getloadavg()[SC_LOAD_INDEX];
       if ($load > SC_MAX_LOAD) {
-        debug('Cancelling subscription...');
+        debugAmqp('Cancelling subscription...');
         $channel->basic_cancel($cb_name);
         $channel->basic_recover(true);
         continue;
@@ -165,18 +165,18 @@ while (true) {
   $load = sys_getloadavg()[SC_LOAD_INDEX];
   if ($load > SC_MAX_LOAD) {
     //CRM_Core_Error::debug_var("SPEAKCIVI AMQP", "Current load greater than ".SC_MAX_LOAD.", suspending polling...\n", true, true);
-    debug('Suspending polling...');
+    debugAmqp('Suspending polling...');
     $channel->close();
     $connection->close();
     sleep(SC_COOLING_PERIOD);
   } else {
     if (!$connection->isConnected()) {
-      debug('Reconnecting...');
+      debugAmqp('Reconnecting...');
       $connection = connect();
       $channel = $connection->channel();
       $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
     }
-    debug('Starting subscription...');
+    debugAmqp('Starting subscription...');
     $cb_name = $channel->basic_consume($queue_name, '', false, false, false, false, $callback);
   }
 }
