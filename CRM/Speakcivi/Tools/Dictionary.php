@@ -369,7 +369,7 @@ class CRM_Speakcivi_Tools_Dictionary {
    *
    * @return string
    */
-  private static function getMessageContent($filename, $default) {
+  public static function getMessageContent($filename, $default) {
     $content = '';
     if (file_exists($filename)) {
       $content = implode('', file($filename));

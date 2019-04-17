@@ -354,6 +354,40 @@ class CRM_Speakcivi_Logic_Campaign {
   }
 
 
+  public function update_consent($partner) {
+    $updated_fields = [];
+    $locale = $this->getLanguage();
+    $language = substr($locale, 0, 2);
+    $consentId = "2.1.{$partner['slug']}-$language";
+    $updateParams = [
+      'id' => $this->campaign['id'],
+      $this->fieldConsentIds => $consentId,
+    ];
+    $result = civicrm_api3('Campaign', 'create', $updateParams); 
+    if (!$result['is_error']) {
+      $updated_fields[] = $this->fieldConsentIds;
+    }
+
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/ConfirmationBlock.'.$locale.'.html.tpl';
+    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/ConfirmationBlock.en_GB.html.tpl';
+    $confBlock = CRM_Speakcivi_Tools_Dictionary::getMessageContent($filename, $default);
+    $confBlock = str_replace('{$partner_name}', $partner['name'], $confBlock);
+    $confBlock = str_replace('{$partner_privacy_url}', $partner['privacy_url'], $confBlock);
+
+    $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/PrivacyBlock.'.$locale.'.tpl';
+    $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/PrivacyBlock.en_GB.tpl';
+    $privacyBlock = CRM_Speakcivi_Tools_Dictionary::getMessageContent($filename, $default);
+
+    $msg = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
+    $msg = str_replace("#CONFIRMATION_BLOCK", $confBlock, $msg);
+    $msg = str_replace("#PRIVACY_BLOCK", $privacyBlock, $msg);
+    $this->setCustomFieldBySQL($this->campaign['id'], $this->fieldMessageNew, $msg);
+    $updated_fields[] = $this->fieldMessageNew;
+
+    return $updated_fields;
+  }
+
+
   /**
    * Set new value of custom field
    *

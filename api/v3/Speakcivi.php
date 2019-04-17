@@ -598,6 +598,53 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
   return civicrm_api3_create_success($result, $params);
 }
 
+function _civicrm_api3_speakcivi_update_campaign_consent_spec(&$spec) {
+  $spec['campaign_name'] = [
+    'name' => 'campaign_name',
+    'title' => 'Campaign internal name',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1
+  ];
+  $spec['partner_slug'] = [
+    'name' => 'partner_slug',
+    'title' => 'Partner slug',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api_required' => 1
+  ];
+  $spec['partner_name'] = [
+    'name' => 'partner_name',
+    'title' => 'Partner name',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api_required' => 1
+  ];
+  $spec['partner_privacy_url'] = [
+    'name' => 'partner_privacy_url',
+    'title' => "URL of the partner's privacy policy",
+    'type' => CRM_Utils_Type::T_STRING,
+    'api_required' => 1
+  ];
+}
+
+function civicrm_api3_speakcivi_update_campaign_consent($params) {
+  $campaigns = civicrm_api3('Campaign', 'get', [ 'name' => $params['campaign_name'], 'return' => 'id' ]);
+  if ($campaigns['is_error']) {
+    return civicrm_api3_create_error("Error while retrieving {$params['campaign_name']}", $data);
+  }
+  else {
+    $updated_campaigns = [];
+    foreach ($campaigns['values'] as $c) {
+      $campaign = new CRM_Speakcivi_Logic_Campaign($c['id']);
+      $partner = [
+        'slug' => $params['partner_slug'],
+        'name' => $params['partner_name'],
+        'privacy_url' => $params['partner_privacy_url'],
+      ];
+      $updated_campaigns[$c['id']] = $campaign->update_consent($partner);
+    }
+    return civicrm_api3_create_success($updated_campaigns, $params);
+  }
+}
+
 function _civicrm_api3_speakcivi_migrate_gdpr_spec(&$spec) {
   $spec['limit'] = [
     'name' => 'limit',
