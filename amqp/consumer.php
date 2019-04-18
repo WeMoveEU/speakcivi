@@ -31,7 +31,7 @@ function debugAmqp($msg) {
   echo time(), ': ', $msg, "\n";
 }
 
-set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context) {
+set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, $err_context) {
   if (0 === error_reporting()) { return false; }
   switch ($err_severity) {
     case E_USER_ERROR:
