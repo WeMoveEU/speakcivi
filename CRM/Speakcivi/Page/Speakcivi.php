@@ -257,7 +257,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
 
         if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
-          $share_utm_source = 'new_' . str_replace('gb', 'uk', strtolower($this->countryIsoCode)) . '_member';
+          $share_utm_source = 'post-action';
           $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, $share_utm_source);
         }
         else {

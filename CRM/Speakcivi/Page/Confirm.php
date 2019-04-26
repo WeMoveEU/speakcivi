@@ -52,7 +52,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);
 
     $speakcivi = new CRM_Speakcivi_Page_Speakcivi();
-    $speakcivi->sendConfirm($email['email'], $this->contactId, $this->activityId, $this->campaignId, FALSE, FALSE, 'new_member');
+    $speakcivi->sendConfirm($email['email'], $this->contactId, $this->activityId, $this->campaignId, FALSE, FALSE, 'post-confirm');
 
     $this->redirect($campaign, 'post_confirm');
   }
