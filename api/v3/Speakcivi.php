@@ -58,10 +58,12 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $params_contact = array(
     'id' => $contactId,
     'sequential' => 1,
+    'return' => ["id", "display_name", "first_name", "last_name", "hash", "email", "email_greeting"],
   );
   $result = civicrm_api3('Contact', 'get', $params_contact);
   if ($result['count'] == 1) {
     $contact = $result['values'][0];
+    $contact['checksum'] = CRM_Contact_BAO_Contact_Utils::generateChecksum($contactId, NULL, NULL, $contact['hash']);
   }
 
   /* CONFIRMATION_BLOCK */
