@@ -470,7 +470,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'share' => 'share',
       'tweet' => 'Tweet',
       'facebook' => 'Facebook',
-      'call' => 'Phone call',
+      'call' => 'Phone Call',
       'speakout' => 'Email',
       'poll' => FALSE,
     ];
