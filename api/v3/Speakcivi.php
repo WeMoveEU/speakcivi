@@ -92,12 +92,15 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('url_campaign_encoded', urlencode(extendUrl($campaignObj->getUrlCampaign())));
   $template->assign('url_campaign_fb', prepareCleanUrl(extendUrl($campaignObj->getUrlCampaign())));
   $template->assign('share_url', extendUrl($campaignObj->getUrlCampaign()) . 'action=share&submit&');
-  $template->assign('utm_campaign', sha1(CIVICRM_SITE_KEY . $activityId));
+  $template->assign('language_form_url', $campaignObj->getLanguageFormUrl());
+  $template->assign('utm_campaign', $utm_campaign);
+  $template->assign('share_utm_campaign', sha1(CIVICRM_SITE_KEY . $activityId));
   $template->assign('share_utm_source', urlencode($params['share_utm_source']));
   $template->assign('share_email', CRM_Speakcivi_Tools_Dictionary::getShareEmail($locale));
   $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
   $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
   $template->assign('share_whatsapp', CRM_Speakcivi_Tools_Dictionary::getShareWhatsapp($locale));
+  $template->assign('language_button', CRM_Speakcivi_Tools_Dictionary::getLanguageButton($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
   $template->assign('contact', $contact);
   $share_whatsapp_web = $template->fetch('string:' . CRM_Speakcivi_Tools_Dictionary::getShareWhatsappWeb($locale));
@@ -110,6 +113,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $confirmationBlockText = $template->fetch('../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl');
   $privacyBlock = $template->fetch('../templates/CRM/Speakcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl');
   $sharingBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
+  $languageBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/LanguageBlock.html.tpl');
   $message = $template->fetch('string:' . $message);
 
   $messageHtml = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $message);
@@ -118,6 +122,8 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $messageText = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageText);
   $messageHtml = str_replace("#SHARING_BLOCK", $sharingBlockHtml, $messageHtml);
   $messageText = str_replace("#SHARING_BLOCK", $sharingBlockHtml, $messageText);
+  $messageHtml = str_replace("#LANGUAGE_BLOCK", $languageBlockHtml, $messageHtml);
+  $messageText = str_replace("#LANGUAGE_BLOCK", $languageBlockHtml, $messageText);
 
   $params['html'] = html_entity_decode($messageHtml);
   $params['text'] = html_entity_decode(convertHtmlToText($messageText));

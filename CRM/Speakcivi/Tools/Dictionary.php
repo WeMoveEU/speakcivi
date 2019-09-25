@@ -142,7 +142,18 @@ class CRM_Speakcivi_Tools_Dictionary {
     }
   }
 
-	  /**
+  /**
+   * Button label for language conversion block
+   */
+  public static function getLanguageButton($locale) {
+    switch ($locale) {
+
+      default:
+        return "Let me choose the language!";
+    }
+  }
+
+  /**
    * Get default value for Share by email (Forward as Email)
    * @param string $locale
    *
