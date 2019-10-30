@@ -72,22 +72,25 @@ function connect() {
 function handleError($msg, $error, $retry=false) {
   global $error_queue, $retry_exchange;
   CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $error, true, true);
-  $channel = $msg->delivery_info['channel'];
 
-  if ($retry && $retry_exchange != NULL) {
-    $channel->basic_nack($msg->delivery_info['delivery_tag']);
-    $new_msg = new AMQPMessage($msg->body);
-    $headers = new AMQPTable(array('x-delay' => SC_RETRY_DELAY));
-    $new_msg->set('application_headers', $headers);
-    $channel->basic_publish($new_msg, $retry_exchange, $msg->delivery_info['routing_key']);
-  } else if ($error_queue != NULL) {
-    $channel->basic_nack($msg->delivery_info['delivery_tag']);
-    $channel->basic_publish($msg, '', $error_queue);
-  } else {
-    $channel->basic_nack($msg->delivery_info['delivery_tag'], false, true);
+  if ($msg) {
+    $channel = $msg->delivery_info['channel'];
+    if ($retry && $retry_exchange != NULL) {
+      $channel->basic_nack($msg->delivery_info['delivery_tag']);
+      $new_msg = new AMQPMessage($msg->body);
+      $headers = new AMQPTable(array('x-delay' => SC_RETRY_DELAY));
+      $new_msg->set('application_headers', $headers);
+      $channel->basic_publish($new_msg, $retry_exchange, $msg->delivery_info['routing_key']);
+    } else if ($error_queue != NULL) {
+      $channel->basic_nack($msg->delivery_info['delivery_tag']);
+      $channel->basic_publish($msg, '', $error_queue);
+    } else {
+      $channel->basic_nack($msg->delivery_info['delivery_tag'], false, true);
+    }
   }
   
   //In some cases (e.g. a lost connection), dying and respawning can solve the problem
+  debugAmqp("Dying and hopefully respawning from ashes...");
   die(1);
 }
 
@@ -164,7 +167,13 @@ while (true) {
         $msg_since_check = 0;
       }
     }
-    $channel->wait();
+    try {
+      $channel->wait();
+    } catch (Exception $ex) {
+      // If an exception occurs while waiting for a message, the CMS custom error handler will catch it and the process will exit with status 0,
+      // which would prevent the systemd service from automatically restarting. Using handleError prevents this behaviour.
+      handleError(NULL, CRM_Core_Error::formatTextException($ex));
+    }
   }
 
   $load = sys_getloadavg()[SC_LOAD_INDEX];
