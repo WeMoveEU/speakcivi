@@ -150,9 +150,15 @@ $callback = function($msg) {
   }
 };
 
-$connection = connect();
-$channel = $connection->channel();
-$channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
+try {
+  $connection = connect();
+  $channel = $connection->channel();
+  $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
+} catch (Exception $ex) {
+  // If an exception occurs while waiting for a message, the CMS custom error handler will catch it and the process will exit with status 0,
+  // which would prevent the systemd service from automatically restarting. Using handleError prevents this behaviour.
+  handleError(NULL, CRM_Core_Error::formatTextException($ex));
+}
 debugAmqp('Waiting for messages. To exit press CTRL+C...');
 while (true) {
   while (count($channel->callbacks)) {
@@ -186,9 +192,15 @@ while (true) {
   } else {
     if (!$connection->isConnected()) {
       debugAmqp('Reconnecting...');
-      $connection = connect();
-      $channel = $connection->channel();
-      $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
+      try {
+        $connection = connect();
+        $channel = $connection->channel();
+        $channel->basic_qos(null, SC_LOAD_CHECK_FREQ, null);
+      } catch (Exception $ex) {
+        // If an exception occurs while waiting for a message, the CMS custom error handler will catch it and the process will exit with status 0,
+        // which would prevent the systemd service from automatically restarting. Using handleError prevents this behaviour.
+        handleError(NULL, CRM_Core_Error::formatTextException($ex));
+      }
     }
     debugAmqp('Starting subscription...');
     $cb_name = $channel->basic_consume($queue_name, '', false, false, false, false, $callback);
