@@ -714,7 +714,7 @@ function drawTable(dom) {
               return percent(d, 'sign', 0);
 	    },
 	    function (d) {
-              return percent(d, 'share', 0);
+              return percent(d, 'share', 1);
 	    },
 //	    function (d) {return percent(d, 'viral_sign', 2);},
 //	    function (d) {return percent(d, 'viral_share', 2);},
