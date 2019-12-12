@@ -675,17 +675,16 @@ function drawTable(dom) {
     .columns(
 	[
 	    function (d) {
-		//return "<span title='Last updated: " + prettyDate(d.last_updated) + "'>" + prettyDate(d.date) + "</span>";
-		//return "<span title='median delivered : " + prettyDate(d.received_median) + "'>" + prettyDate(d.date) + "</span>";
-                if (!d.received_median)
-  		  return "<span title='delivery median time not generated yet'><i>" + prettyDate(d.date) + "</i></span>";
-                var dt = Math.ceil((d.received_median - d.date) / 60000);
-                if (dt < 0) //bug and received_median = epoch 
-  		  return "<span title='delivery median error'><i>" + prettyDate(d.date) + "</i></span>";
+        if (!d.received_median)
+          return "<span title='delivery median time not generated yet'><i>" + prettyDate(d.date) + "</i></span>";
+
+        var dt = Math.ceil((d.received_median - d.date) / 60000);
+        if (dt < 0) //bug and received_median = epoch 
+          return "<span title='delivery median error'><i>" + prettyDate(d.date) + "</i></span>";
             
-		return "<span title='median delivered in "+dt+" min. Started at " + prettyDate(d.date) 
-                  +"' style='color:"+colordt(dt)+"' >"
-                  + prettyDate(d.received_median) + "</span>";
+        return "<span title='median delivered in "+dt+" min. Started at " + prettyDate(d.date) 
+            +"' style='color:"+colordt(dt)+"' >"
+            + prettyDate(d.received_median) + "</span>";
                 
 	    },
 	    function (d) {
