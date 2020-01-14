@@ -37,7 +37,9 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     if ($campaign) {
       $locale = $campaign->getLanguage();
       $language = substr($locale, 0, 2);
-      $rlg = $this->setLanguageGroup($this->contactId, $language);
+      // HACK to avoid a DB call to retrieve country: at this stage it is known that the country is either DE or AT (because we are processing a confirm link)
+      // It does not matter which, as long as it is not GB, so we just hardcode DE
+      $rlg = $this->setLanguageGroup($this->contactId, $language, 'DE');
       $this->setLanguageTag($this->contactId, $language);
       if ($rlg == 1) {
         $contactParams['preferred_language'] = $locale;

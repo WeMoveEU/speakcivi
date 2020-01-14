@@ -184,7 +184,7 @@ class CRM_Speakcivi_Logic_Contact {
     $params = array(
       'sequential' => 1,
       'id' => $contactId,
-      'return' => 'preferred_language',
+      'return' => ['preferred_language', 'country'],
       'api.GroupContact.get' => array(
         'sequential' => 1,
         'group_id' => $groupId,
@@ -195,9 +195,10 @@ class CRM_Speakcivi_Logic_Contact {
     $result = civicrm_api3('Contact', 'get', $params);
     if ($result['values'][0]['api.GroupContact.get']['count'] == 0) {
       $language = substr($result['values'][0]['preferred_language'], 0, 2);
+      $country = CRM_Speakcivi_Logic_Cache_Country::getCountryCode($result['values'][0]['country_id']);
       $page = new CRM_Speakcivi_Page_Post();
       $page->setGroupContactAdded($contactId, $groupId);
-      $page->setLanguageGroup($contactId, $language);
+      $page->setLanguageGroup($contactId, $language, $country);
       $page->setLanguageTag($contactId, $language);
       CRM_Speakcivi_Logic_Activity::join($contactId, 'donation_page', $campaignId, 0);
     }

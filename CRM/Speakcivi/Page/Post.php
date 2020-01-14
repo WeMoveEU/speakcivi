@@ -352,12 +352,12 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    *   0: no changes
    * @throws \CiviCRM_API3_Exception
    */
-  public function setLanguageGroup($contactId, $language) {
+  public function setLanguageGroup($contactId, $language, $country) {
     if ($language) {
       $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
       $defaultLanguageGroupId = (int)CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
       if (!$this->checkLanguageGroup($contactId, $defaultLanguageGroupId, $languageGroupNameSuffix)) {
-        $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
+        $languageGroupId = $this->findLanguageGroupId($language, $country, $languageGroupNameSuffix);
         if ($languageGroupId) {
           $this->setGroupStatus($contactId, $languageGroupId);
           $this->deleteLanguageGroup($contactId, $defaultLanguageGroupId);
@@ -381,10 +381,15 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
    * @return int
    * @throws \CiviCRM_API3_Exception
    */
-  public function findLanguageGroupId($language, $languageGroupNameSuffix) {
+  public function findLanguageGroupId($language, $country, $languageGroupNameSuffix) {
+    $prefix = $language;
+    if ($language == 'en') {
+      $country_suffix = $country == 'GB' ? '-uk' : '-int';
+      $prefix = $prefix.$country_suffix;
+    }
     $result = civicrm_api3('Group', 'get', array(
       'sequential' => 1,
-      'name' => $language.$languageGroupNameSuffix,
+      'name' => $prefix.$languageGroupNameSuffix,
       'return' => 'id',
     ));
     if ($result['count'] == 1) {
