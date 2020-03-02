@@ -11,7 +11,7 @@
     </td>
   </tr>
 </table>
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Se preferir não ser informado/a via e-mail das actualizações deverá mesmo assim confirmar a sua participação nesta acção para que ela possa ser válida <a href="{$url_confirm_and_not_receive}">aqui</a>.</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Se preferir não ser informado via e-mail das actualizações deverá mesmo assim confirmar a sua participação nesta acção para que ela possa ser válida <a href="{$url_confirm_and_not_receive}">aqui</a>.</p>
 <script type="application/ld+json">
 {ldelim}
   "@context": "http://schema.org",

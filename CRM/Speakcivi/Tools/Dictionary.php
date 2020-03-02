@@ -130,7 +130,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return 'Está quase no final - por favor, confirme a sua ação';
+        return 'Está quase no fim - por favor, confirme a sua acção';
         break;
 
       case 'ro_RO':
@@ -147,6 +147,9 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getLanguageButton($locale) {
     switch ($locale) {
+      case 'pt_PT':
+        return "Deixe-me escolher o idioma!";
+        break;
 
       default:
         return "Let me choose the language!";
@@ -235,7 +238,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return "Partilhar no Facebook";
+        return "Partilhe no Facebook";
         break;
 
       case 'ro_RO':
@@ -289,7 +292,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return 'Partilhar no Twitter';
+        return 'Partilhe no Twitter';
         break;
 
       case 'ro_RO':
@@ -343,7 +346,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'pt_PT':
-        return 'Partilhar no WhatsApp';
+        return 'Partilhe no WhatsApp';
         break;
 
       case 'ro_RO':
