@@ -102,7 +102,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'fr_FR':
-        return 'Confirmez votre action';
+        return "C'est bientôt fini - confirmez votre action";
         break;
 
       case 'da_DK':
@@ -147,8 +147,20 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getLanguageButton($locale) {
     switch ($locale) {
+      case 'es_ES':
+        return "¡Déjame que elija el idioma";
+        break;
+
+      case 'fr_FR':
+        return "Je choisis ma langue !";
+        break;
+
       case 'pt_PT':
         return "Deixe-me escolher o idioma!";
+        break;
+
+      case 'pl_PL':
+        return "Chcę wybrać język!";
         break;
 
       default:
