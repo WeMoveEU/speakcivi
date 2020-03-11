@@ -147,12 +147,20 @@ class CRM_Speakcivi_Tools_Dictionary {
    */
   public static function getLanguageButton($locale) {
     switch ($locale) {
+      case 'de_DE':
+        return "Lassen Sie mich die Sprache wählen!";
+        break;
+
       case 'es_ES':
-        return "¡Déjame que elija el idioma";
+        return "¡Déjame que elija el idioma!";
         break;
 
       case 'fr_FR':
         return "Je choisis ma langue !";
+        break;
+
+      case 'it_IT':
+        return "Fammi scegliere la Lingua!";
         break;
 
       case 'pt_PT':
