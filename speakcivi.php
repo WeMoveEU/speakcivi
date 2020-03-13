@@ -147,16 +147,3 @@ function speakcivi_civicrm_preProcess($formName, &$form) {
     CRM_Core_Resources::singleton()->addScriptFile('eu.wemove.speakcivi', 'js/speakcivi-prefill.js');
   }
 }
-
-function speakcivi_civicrm_postProcess($formName, &$form) {
-  /** Trello #264 Add the right language for new people coming in through donation pages */
-  if ($formName == 'CRM_Contribute_Form_Contribution_Confirm') {
-    $result = civicrm_api3('Contribution', 'get', array(
-      'sequential' => 1,
-      'id' => $form->_contributionID,
-    ));
-    $campaignId = @(int)$result['values'][0]['contribution_campaign_id'];
-    CRM_Speakcivi_Logic_Contact::setMembers($form->_contactID, $campaignId);
-  }
-}
-
