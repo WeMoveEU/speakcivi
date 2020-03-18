@@ -4,7 +4,8 @@
 
 <div>#CONFIRMATION_BLOCK</div>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Thank you,<br />
-  Mika, David, Saminder e a equipa da WeMove.EU</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Obrigado,<br />
+
+ Virginia e a equipe da Movemos a Europa</p>
 
 <div>#PRIVACY_BLOCK</div>
