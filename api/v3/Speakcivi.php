@@ -267,35 +267,51 @@ function _civicrm_api3_speakcivi_fixlanguagegroup_spec(&$params) {
 
 /**
  * Find contacts with a preferred language that does not match their language group
- * and move them to the proper group.
+ * (as a result of language change activity) and move them to the proper group.
  * This assumes that language groups have their 'source' column set with the 
- * matching locale.
+ * matching locale (with special case uk EN...).
  * @param languages: comma-separated list of target languages to limit the search
  * @param limit: Maximum number of contacts to update
  */
 function civicrm_api3_speakcivi_fixlanguagegroup($params) { 
+  $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Self-care');
+  $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
+  $p = new CRM_Speakcivi_Page_Post();
+  $enGroups = array(
+    'GB' => $p->findLanguageGroupId('en', 'GB', $languageGroupNameSuffix),
+    '*'  => $p->findLanguageGroupId('en', 'ZZ', $languageGroupNameSuffix),
+  );
+
   $lang_filter = '1=1';
   if ($params['languages']) {
     $languages = explode(',', $params['languages']);
-    $lang_filter = "gl.source IN ('" . implode("', '", $languages) . "')";
+    $lang_filter = "c.preferred_language IN ('" . implode("', '", $languages) . "')";
   }
+
   $limit = '';
   if ($params['limit']) {
     $limit = 'LIMIT ' . $params['limit'];
   }
-  $groupSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
 
   $query = "SELECT
       c.id AS contact_id, 
       c.preferred_language AS preferred_language, 
+      ctry.iso_code AS country,
       gl.id AS current_group_id, 
-      expected.id AS expected_group_id
-    FROM civicrm_group gl 
-    STRAIGHT_JOIN civicrm_group_contact gcl ON gcl.group_id=gl.id
-    STRAIGHT_JOIN civicrm_contact c 
-               ON gcl.contact_id=c.id AND gcl.status='Added' AND gl.source != c.preferred_language
-    STRAIGHT_JOIN civicrm_group expected ON expected.source=c.preferred_language
-    WHERE $lang_filter
+      MIN(expected.id) AS expected_group_id
+    FROM civicrm_activity a
+    JOIN civicrm_activity_contact ac ON ac.activity_id = a.id AND ac.record_type_id = 2
+    JOIN civicrm_contact c ON c.id = ac.contact_id
+    JOIN civicrm_address addr ON addr.contact_id = c.id AND addr.is_primary
+    JOIN civicrm_country ctry ON ctry.id = addr.country_id
+    JOIN civicrm_group gl ON gl.source LIKE '__\___'
+                          AND (gl.source != c.preferred_language
+                               OR (gl.id = {$enGroups['GB']} AND ctry.iso_code != 'GB')
+                               OR (gl.id = {$enGroups['*']}  AND ctry.iso_code  = 'GB'))
+    JOIN civicrm_group_contact gcl ON gcl.contact_id = c.id AND gcl.status='Added' AND gcl.group_id = gl.id
+    JOIN civicrm_group expected ON expected.source = c.preferred_language
+    WHERE a.activity_type_id = $activityTypeId AND a.subject = 'Language change' AND $lang_filter
+    GROUP BY contact_id, preferred_language, country, current_group_id
     $limit
   ";
 
@@ -305,7 +321,13 @@ function civicrm_api3_speakcivi_fixlanguagegroup($params) {
     $contactIds = array($dao->contact_id);
     CRM_Contact_BAO_GroupContact::removeContactsFromGroup($contactIds, $dao->current_group_id,
       'Spkcivi', 'Removed', 'fixlanguagegroup');
-    CRM_Contact_BAO_GroupContact::addContactsToGroup($contactIds, $dao->expected_group_id,
+
+    if ($dao->preferred_language == 'en_GB') {
+      $expected = CRM_Utils_Array::value($dao->country, $enGroups, $enGroups['*']);
+    } else {
+      $expected = $dao->expected_group_id;
+    }
+    CRM_Contact_BAO_GroupContact::addContactsToGroup($contactIds, $expected,
       'Spkcivi', 'Added', 'fixlanguagegroup');
     $count++;
   }
