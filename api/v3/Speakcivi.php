@@ -440,12 +440,9 @@ function civicrm_api3_speakcivi_remind($params) {
     $confirmationBlockHtml = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl'));
     $confirmationBlockText = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl'));
     $privacyBlock  = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl'));
-    $confirmationBlockHtml = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockHtml);
-    $confirmationBlockHtml = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockHtml);
-    $confirmationBlockText = str_replace('{$url_confirm_and_keep}', $url_confirm_and_keep, $confirmationBlockText);
-    $confirmationBlockText = str_replace('{$url_confirm_and_not_receive}', $url_confirm_and_not_receive, $confirmationBlockText);
-    $messageHtml[$cid] = removeSmartyIfClause(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $msg))));
-    $messageText[$cid] = convertHtmlToText(removeSmartyIfClause(convertTokens(removeDelim(str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $msg)))));
+    $urls = [ 'url_confirm_and_keep' => $url_confirm_and_keep, 'url_confirm_and_not_receive' => $url_confirm_and_not_receive ];
+    $messageHtml[$cid] = prepareConfirmMessage($msg, $confirmationBlockHtml, $urls);
+    $messageText[$cid] = convertHtmlToText(prepareConfirmMessage($msg, $confirmationBlockText, $urls));
     $messageHtml[$cid] = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageHtml[$cid]);
     $messageText[$cid] = str_replace("#PRIVACY_BLOCK", convertHtmlToText($privacyBlock), $messageText[$cid]);
   }
@@ -512,6 +509,15 @@ function civicrm_api3_speakcivi_remind($params) {
     'time' => microtime(TRUE) - $start,
   );
   return civicrm_api3_create_success($results, $params);
+}
+
+function prepareConfirmMessage($msg, $block, $vars) {
+  $msg = str_replace("#CONFIRMATION_BLOCK", $block, $msg);
+  //FIXME This could be done more efficiently
+  foreach ($vars as $var => $value) {
+    $msg = str_replace('{$' . $var . '}', $value, $msg);
+  }
+  return removeSmartyIfClause(convertTokens(removeDelim($msg)));
 }
 
 function _civicrm_api3_speakcivi_englishgroups_spec(&$params) {
