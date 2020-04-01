@@ -279,7 +279,7 @@ class CRM_Speakcivi_Logic_Campaign {
             'title' => $externalCampaign->internal_name,
             'description' => $externalCampaign->name,
             'external_identifier' => $externalCampaign->id,
-            'campaign_type_id' => $this->defaultCampaignTypeId,
+            'campaign_type_id' => $this->determineCampaignType($externalCampaign),
             'start_date' => date('Y-m-d H:i:s'),
             $this->fieldLanguage => $locale,
             $this->fieldSenderMail => $sender,
@@ -331,7 +331,7 @@ class CRM_Speakcivi_Logic_Campaign {
       'id' => $this->campaign['id'],
       $this->fieldConsentIds => $consentId,
     ];
-    $result = civicrm_api3('Campaign', 'create', $updateParams); 
+    $result = civicrm_api3('Campaign', 'create', $updateParams);
     if (!$result['is_error']) {
       $updated_fields[] = $this->fieldConsentIds;
     }
@@ -421,6 +421,16 @@ class CRM_Speakcivi_Logic_Campaign {
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'url_speakout');
   }
 
+  /**
+   * Determine campaign type based on category from speakout.
+   *
+   * @param $externalCampaign
+   *
+   * @return int
+   */
+  public function determineCampaignType($externalCampaign) {
+    return $this->defaultCampaignTypeId;
+  }
 
   /**
    * Determine whether $campaign table has a valid structure.
