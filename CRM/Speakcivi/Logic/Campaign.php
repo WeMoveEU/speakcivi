@@ -423,13 +423,18 @@ class CRM_Speakcivi_Logic_Campaign {
 
   /**
    * Determine campaign type based on category from speakout.
+   * Assumption: campaign names are the same in both systems, Speakout and CiviCRM
    *
    * @param $externalCampaign
    *
    * @return int
    */
   public function determineCampaignType($externalCampaign) {
-    return $this->defaultCampaignTypeId;
+    $types = CRM_Core_PseudoConstant::get('CRM_Campaign_BAO_Campaign', 'campaign_type_id');
+    $campaignName = $externalCampaign->categories[0]->name;
+    $type = array_search($campaignName, $types);
+
+    return $type ? $type : $this->defaultCampaignTypeId;
   }
 
   /**
