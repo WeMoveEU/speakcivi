@@ -3,4 +3,4 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Thank you,<br />
-  Olga and the WeMove.EU team</p>
+  David, Anna and the WeMove Europe team</p>
