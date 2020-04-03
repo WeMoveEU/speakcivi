@@ -1,0 +1,5 @@
+{"query":"select  m.id, TIMESTAMPDIFF(MINUTE,m.scheduled_date,a.activity_date_time) delay, a.status_id  , count(*) as total from civicrm_activity a  join civicrm_mailing_abtest ab join civicrm_mailing m on ab.mailing_id_a =m.id or ab.mailing_id_b =m.id join civicrm_value_action_source_4 utm on entity_id=a.id and activity_type_id=32 and media_28='email' and source_27=concat('civimail-',m.id)  where activity_date_time>=m.scheduled_date and ab.id in (select id from civicrm_mailing_abtest where civicrm_mailing_abtest.name like '%launch-INT-EN' and created_date >= now()-interval %2 month ) group by m.id,TIMESTAMPDIFF(MINUTE,m.scheduled_date,a.activity_date_time), a.status_id"
+,"params":{"1":{"name":"lang","type":"String"},
+"2":{"name":"months","type":"Integer"}
+}
+}

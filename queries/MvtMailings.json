@@ -1,0 +1,6 @@
+{"query":
+"select m.campaign_id,m.id,ab.name,subject,r.value as recipient,language,utm_campaign_11 as campaign,m.scheduled_date as date from civicrm_mailing_abtest ab join civicrm_mailing m on ab.mailing_id_a=m.id or ab.mailing_id_b=m.id LEFT JOIN data_mailing_counter r ON r.mailing_id=m.id AND r.counter='recipients' AND r.timebox=0 join civicrm_value_speakout_integration_2 on entity_id=m.campaign_id where ab.name like '%INT-EN' order by ab.id desc limit 300"
+,"params":{"1":{"name":"lang","type":"String"},
+"2":{"name":"limit","type":"Integer"}
+}
+}
