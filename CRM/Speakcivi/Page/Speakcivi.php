@@ -211,33 +211,31 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $joinSubject = 'optIn:0';
         foreach ($this->consents as $consent) {
           if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
-            CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Completed');
+            $status = 'Confirmed';
             $contactCustoms = [
               'is_opt_out' => 0,
               'do_not_email' => 0,
-              $this->fieldName('consent_date') => $consent->date,
-              $this->fieldName('consent_version') => $consent->version,
-              $this->fieldName('consent_language') => strtoupper($consent->language),
-              $this->fieldName('consent_utm_source') => $consent->utmSource,
-              $this->fieldName('consent_utm_medium') => $consent->utmMedium,
-              $this->fieldName('consent_utm_campaign') => $consent->utmCampaign,
-              $this->fieldName('consent_campaign_id') => $this->campaignId,
             ];
             $joinSubject = $consent->method;
           }
-          if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
-            CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
+          else if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
+            $status = 'Rejected';
             $contactCustoms = [
               'is_opt_out' => 1,
-              $this->fieldName('consent_date') => 'null',
-              $this->fieldName('consent_version') => 'null',
-              $this->fieldName('consent_language') => 'null',
-              $this->fieldName('consent_utm_source') => 'null',
-              $this->fieldName('consent_utm_medium') => 'null',
-              $this->fieldName('consent_utm_campaign') => 'null',
-              $this->fieldName('consent_campaign_id') => 'null',
             ];
           }
+
+          $params = [
+            'contact_id' => $contact['id'],
+            'consent_id' => $consent->publicId,
+            'status' => $status,
+            'date' => $consent->date,
+            'campaign_id' => $this->campaignId,
+            'utm_source' => $consent->utmSource,
+            'utm_medium' => $consent->utmMedium,
+            'utm_campaign' => $consent->utmCampaign,
+          ];
+          civicrm_api3('Gidipirus', 'set_consent_status', $params);
         }
         if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
           $contactCustoms['preferred_language'] = $this->locale;

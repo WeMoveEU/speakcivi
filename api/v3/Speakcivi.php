@@ -580,6 +580,10 @@ function _civicrm_api3_speakcivi_get_consents_required_spec(&$spec) {
   ];
 }
 
+/**
+ * FIXME delete this function once Speakout does not use it anymore
+ * @deprecated
+ */
 function civicrm_api3_speakcivi_get_consents_required($params) {
   if (in_array($params['country'], ['de', 'at'])) {
     $result = ['consents_required' => []];
@@ -681,65 +685,6 @@ function civicrm_api3_speakcivi_update_campaign_consent($params) {
     }
     return civicrm_api3_create_success($updated_campaigns, $params);
   }
-}
-
-function _civicrm_api3_speakcivi_migrate_gdpr_spec(&$spec) {
-  $spec['limit'] = [
-    'name' => 'limit',
-    'title' => 'Maximum number of contacts to migrate',
-    'type' => CRM_Utils_Type::T_INT,
-    'api.required' => 1,
-    'api.default' => 1000,
-  ];
-}
-
-function civicrm_api3_speakcivi_migrate_gdpr($params) {
-  $dpaType = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
-  $limit = $params['limit'];
-
-  $query = "
-		SELECT
-			g.*
-		FROM civicrm_value_gdpr_temporary_9 g
-		LEFT JOIN (
-			SELECT distinct contact_id
-			FROM civicrm_activity_contact ac
-			JOIN civicrm_activity a ON a.id=ac.activity_id
-			WHERE activity_type_id=$dpaType
-		) dpac ON dpac.contact_id=g.entity_id
-		WHERE dpac.contact_id IS NULL AND g.consent_version_57 IS NOT NULL
-    ORDER BY g.entity_id
-		LIMIT $limit
-  ";
-
-  $count = 0;
-  $first_contact = NULL;
-  $last_contact = NULL;
-  $dao = CRM_Core_DAO::executeQuery($query);
-  while ($dao->fetch()) {
-    if (!$first_contact) {
-      $first_contact = $dao->entity_id;
-    }
-    $last_contact = $dao->entity_id;
-
-    $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->createDate = $dao->consent_date_56;
-    $consent->version = $dao->consent_version_57;
-    $consent->language = $dao->consent_language_62;
-    $consent->utmSource = $dao->utm_source_59;
-    $consent->utmMedium = $dao->utm_medium_60;
-    $consent->utmCampaign = $dao->utm_campaign_61;
-
-    CRM_Speakcivi_Logic_Activity::dpa($consent, $dao->entity_id, $dao->campaign_id_58, 'Completed');
-    $count++;
-  }
-
-  $result = [
-    'count' => $count,
-    'first_contact' => $first_contact,
-    'last_contact' => $last_contact,
-  ];
-  return civicrm_api3_create_success($result, $params);
 }
 
 /**

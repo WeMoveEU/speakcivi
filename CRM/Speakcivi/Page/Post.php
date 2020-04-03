@@ -105,68 +105,14 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
   }
 
   /**
-   * Based on given campaign and request parameters,
-   * determine the consent-related values to apply to the contact.
-   *
-   * @param \CRM_Speakcivi_Logic_Campaign $campaign
-   *
-   * @return array
+   * Return the API parameters to apply to contact that is becoming a member
    */
-  public function getContactConsentParams(CRM_Speakcivi_Logic_Campaign $campaign) {
-    $locale = $campaign->getLanguage();
-    $language = substr($locale, 0, 2);
-    $consentIds = explode(',', $campaign->getConsentIds());
-    if ($consentIds) {
-      list($consentVersion, $language) = explode('-', $consentIds[0]);
-    }
-    else {
-      $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-    }
-
+  public function getContactMemberParams() {
     $contactParams = array(
       'is_opt_out' => 0,
       'do_not_email' => 0,
-      $this->fieldName('consent_date') => date('Y-m-d'),
-      $this->fieldName('consent_version') => $consentVersion,
-      $this->fieldName('consent_language') => strtoupper($language),
-      $this->fieldName('consent_utm_source') => $this->utmSource,
-      $this->fieldName('consent_utm_medium') => $this->utmMedium,
-      $this->fieldName('consent_utm_campaign') => $this->utmCampaign,
-      $this->fieldName('consent_campaign_id') => $this->campaignId,
     );
-
     return $contactParams;
-  }
-
-  /**
-   * Based on give campaign and request parameters,
-   * create an activity for all the consents implied by the request
-   *
-   * @param \CRM_Speakcivi_Logic_Campaign $campaign
-   *
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function createConsentActivities(CRM_Speakcivi_Logic_Campaign $campaign) {
-    $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->createDate = date('YmdHis');
-    $consent->utmSource = $this->utmSource;
-    $consent->utmMedium = $this->utmMedium;
-    $consent->utmCampaign = $this->utmCampaign;
-
-    $consentIds = explode(',', $campaign->getConsentIds());
-    if ($consentIds) {
-      foreach ($consentIds as $id) {
-        list($consentVersion, $language) = explode('-', $id);
-        $consent->version = $consentVersion;
-        $consent->language = $language;
-        CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
-      }
-    }
-    else {
-      $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-      $consent->language = substr($campaign->getLanguage(), 0, 2);
-      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
-    }
   }
 
   /**
@@ -595,6 +541,28 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
       return "/{$lang}/{$page}";
     }
     return "/{$page}";
+  }
+
+  protected function setConsentStatus($status) {
+    $consentIds = $this->getConsentIds($this->campaignId);
+    if (!$consentIds) {
+      $version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+      $defaultLanguage = $this->getCountry($this->campaignId);
+      $consentIds = ["$version-$defaultLanguage"];
+    }
+    foreach ($consentIds as $id) {
+      $params = [
+        'contact_id' => $this->contactId,
+        'consent_id' => $id,
+        'status' => $status,
+        'date' => date('YmdHis'),
+        'campaign_id' => $this->campaignId,
+        'utm_source' => $this->utmSource,
+        'utm_medium' => $this->utmMedium,
+        'utm_campaign' => $this->utmCampaign,
+      ];
+      civicrm_api3('Gidipirus', 'set_consent_status', $params);
+    }
   }
 
   /**

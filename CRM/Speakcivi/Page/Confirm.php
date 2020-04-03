@@ -13,7 +13,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setValues();
 
     $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
-    $contactParams = $this->getContactConsentParams($campaign);
+    $contactParams = $this->getContactMemberParams();
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     if (!$this->isGroupContactAdded($this->contactId, $groupId)) {
@@ -47,7 +47,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     }
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
-    $this->createConsentActivities($campaign);
+    $this->setConsentStatus('Confirmed');
 
     $activityStatus = 'optin'; // default status: Completed new member
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
