@@ -35,8 +35,9 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
     $country = $this->getCountry($this->campaignId);
-
-    $this->setConsentStatus('Rejected');
+    
+    // Either the contact was member and cancel_consents was called, or the contact was not: in both cases it is not a member at this stage
+    $this->setConsentStatus('Rejected', FALSE);
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
 

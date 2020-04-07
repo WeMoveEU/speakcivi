@@ -36,6 +36,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $addJoinActivity = false;
 
+  public $isMember = false;
+
   public $genderMaleValue = 0;
 
   public $genderFemaleValue = 0;
@@ -208,7 +210,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $rlg = $pagePost->setLanguageGroup($contact['id'], $language, $this->countryIsoCode);
         }
         $contactCustoms = [];
-        $joinSubject = 'optIn:0';
         foreach ($this->consents as $consent) {
           if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
             $status = 'Confirmed';
@@ -216,7 +217,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
               'is_opt_out' => 0,
               'do_not_email' => 0,
             ];
-            $joinSubject = $consent->method;
           }
           else if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
             $status = 'Rejected';
@@ -230,6 +230,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             'consent_id' => $consent->publicId,
             'status' => $status,
             'date' => $consent->date,
+            'method' => $consent->method,
+            'is_member' => $this->isMember,
             'campaign_id' => $this->campaignId,
             'utm_source' => $consent->utmSource,
             'utm_medium' => $consent->utmMedium,
@@ -250,7 +252,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             if ($email['on_hold'] != 0) {
               CRM_Speakcivi_Logic_Contact::unholdEmail($email['email_id']);
             }
-            CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
           }
         }
 
@@ -596,6 +597,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
+      $this->isMember = ($existingContact[$this->apiGroupContactGet]['count'] == 1);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents) && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
         $contact[$this->apiGroupContactCreate] = array(
           'group_id' => $groupId,

@@ -10,7 +10,8 @@ class CRM_Speakcivi_Page_Consentc extends CRM_Speakcivi_Page_Post {
    */
   public function run() {
     $this->setValues();
-    $this->setConsentStatus('Confirmed');
+    //This is to be used in mailings: recipients are members
+    $this->setConsentStatus('Confirmed', TRUE);
     $contactParams = array(
       'is_opt_out' => 0,
     );

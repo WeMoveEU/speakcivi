@@ -22,7 +22,8 @@ class CRM_Speakcivi_Page_NoMember_Confirm extends CRM_Speakcivi_Page_Post {
     );
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
-    $this->setConsentStatus('Confirmed');
+    //Hack: we don't want a join activity: let's pretend this is a member
+    $this->setConsentStatus('Confirmed', TRUE);
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);
 

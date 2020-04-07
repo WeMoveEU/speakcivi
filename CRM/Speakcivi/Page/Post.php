@@ -543,7 +543,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
     return "/{$page}";
   }
 
-  protected function setConsentStatus($status) {
+  protected function setConsentStatus($status, $isMember) {
     $consentIds = $this->getConsentIds($this->campaignId);
     if (!$consentIds) {
       $version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
@@ -556,6 +556,8 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
         'consent_id' => $id,
         'status' => $status,
         'date' => date('YmdHis'),
+        'is_member' => $isMember,
+        'method' => 'confirmation_link',
         'campaign_id' => $this->campaignId,
         'utm_source' => $this->utmSource,
         'utm_medium' => $this->utmMedium,

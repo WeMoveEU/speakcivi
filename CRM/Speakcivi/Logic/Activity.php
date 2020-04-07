@@ -101,23 +101,6 @@ class CRM_Speakcivi_Logic_Activity {
     }
   }
 
-
-  /**
-   * Add Join activity to contact
-   *
-   * @param $contactId
-   * @param $subject
-   * @param $campaignId
-   * @param $parentActivityId
-   *
-   * @return int
-   */
-  public static function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $result = self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
-    return (int) $result['id'];
-  }
-
   /**
    * Get source fields in custom fields and return as a param array to Activity
    * api action
@@ -228,22 +211,4 @@ class CRM_Speakcivi_Logic_Activity {
     }
   }
 
-
-  /**
-   * Check If activity has own Join activity
-   *
-   * @param $activityId
-   *
-   * @return bool
-   * @throws \CiviCRM_API3_Exception
-   */
-  public static function hasJoin($activityId) {
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $params = array(
-      'sequential' => 1,
-      'activity_type_id' => $activityTypeId,
-      'parent_id' => $activityId,
-    );
-    return (bool)civicrm_api3('Activity', 'getcount', $params);
-  }
 }

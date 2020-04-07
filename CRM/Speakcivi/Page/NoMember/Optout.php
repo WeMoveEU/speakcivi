@@ -23,7 +23,8 @@ class CRM_Speakcivi_Page_NoMember_Optout extends CRM_Speakcivi_Page_Post {
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
 
     $country = $this->getCountry($this->campaignId);
-    $this->setConsentStatus('Rejected');
+    //Hack: we don't want a leave activity: let's pretend this is not a member
+    $this->setConsentStatus('Rejected', FALSE);
 
     $redirect = '';
     if ($this->campaignId) {

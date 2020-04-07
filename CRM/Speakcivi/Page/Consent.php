@@ -20,7 +20,8 @@ class CRM_Speakcivi_Page_Consent extends CRM_Speakcivi_Page_Post {
 
     $contactParams = $this->getContactMemberParams();
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
-    $this->setConsentStatus('Confirmed');
+    //This is to be used in mailings: recipients are members
+    $this->setConsentStatus('Confirmed', TRUE);
 
     $this->redirect($campaign);
   }
