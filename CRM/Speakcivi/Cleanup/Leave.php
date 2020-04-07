@@ -135,7 +135,7 @@ class CRM_Speakcivi_Cleanup_Leave {
    */
   public static function createActivitiesInBatch($data) {
     foreach ((array) $data as $contact) {
-      CRM_Speakcivi_Logic_Activity::leave($contact['id'], $contact['subject'], 0, 0, $contact['activity_date_time'], 'Added by SpeakCivi API');
+      civicrm_api3('Gidipirus', 'cancel_consents', ['contact_id' => $contact['id'], 'date' => $contact['activity_date_time'], 'method' => $contact['subject']]);
     }
   }
 

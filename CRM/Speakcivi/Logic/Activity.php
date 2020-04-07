@@ -119,25 +119,6 @@ class CRM_Speakcivi_Logic_Activity {
   }
 
   /**
-   * Add Leave activity to contact
-   *
-   * @param $contactId
-   * @param $subject
-   * @param $campaignId
-   * @param $parentActivityId
-   * @param $activity_date_time
-   * @param $location
-   */
-  public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0, 
-                               $activity_date_time = '', $location = '') {
-
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
-    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, 
-                         $parentActivityId, $activity_date_time, $location);
-    civicrm_api3('Gidipirus', 'cancel_consents', ['contact_id' => $contactId, 'date' => $activity_date_time]);
-  }
-
-  /**
    * Get source fields in custom fields and return as a param array to Activity
    * api action
    *
