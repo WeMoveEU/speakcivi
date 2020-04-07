@@ -1,0 +1,5 @@
+{"query":"select  m.id, TIMESTAMPDIFF(MINUTE,m.scheduled_date,a.activity_date_time) delay, count(*) as total from civicrm_activity a  join civicrm_mailing_abtest ab join civicrm_mailing m on ab.mailing_id_a =m.id or ab.mailing_id_b =m.id join civicrm_value_action_source_4 utm on entity_id=a.id and activity_type_id=32 and media_28='email' and source_27=concat('civimail-',m.id)  where activity_date_time>=m.scheduled_date and ab.id in (select id from civicrm_mailing_abtest where civicrm_mailing_abtest.specific_url =%1) and TIMESTAMPDIFF(DAY,m.scheduled_date,a.activity_date_time) <= 2 group by m.id,TIMESTAMPDIFF(MINUTE,m.scheduled_date,a.activity_date_time)"
+,"params":{"1":{"name":"specific","type":"String"}
+}
+,"extra_where":" and time(scheduled_date) >= '09:00:00' and time(scheduled_date) <= '18:00:00'"
+}

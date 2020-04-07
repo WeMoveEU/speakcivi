@@ -1,4 +1,4 @@
-{crmTitle string="Tested"}
+{crmTitle string="AB mailing"}
 	{literal}
 	<style>
     .widget-content .container {width:auto;}
@@ -31,6 +31,8 @@
          #date path.area {fill-opacity:.2;}
 
          #date .brush rect.extent {fill:lightgrey;}
+aa.dc-tooltip-list {display:none}
+
 	</style>
 	<div class="container" role="main">
 	<div class="page-header"></div>
@@ -53,6 +55,8 @@
 	"use strict";
 	   var $=jQuery;
            var ndx=null;
+           var benchmark =JSON.parse("[[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693]]");
+var benchmark_recipient = 1413667;
 var pastel2= ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"];
 var colorType = d3.scale.ordinal().range(pastel2);
 
@@ -87,11 +91,13 @@ var colorType = d3.scale.ordinal().range(pastel2);
             "agregate":{recipient:0,name:"average",subject:"average of campaigns","date":""}
           };
 	{/literal}
-          var data= {crmSQL json="Mvt" months=4 lang="INT-EN" debug=1};
-          var t={crmSQL json="MvtMailings" limit=300 lang="INT-EN"};
+          var ids= "3414, 2677, 2763, 2818, 2851, 2856, 2896, 2832, 3043, 1309, 2661, 2579, 3679, 3613, 3250, 2533, 3447, 2480, 2322, 2510, 3875, 3907, 3054, 1590, 1368, 2448, 3558, 3971, 3768, 3885";
+
+          var data= {crmSQL json="AB24" specific="benchmark-INT_EN"};
+          var t={crmSQL json="AB24mailing" specific="benchmark-INT_EN" debug=1};
 	{literal}
            t.values.forEach(d=>{campaigns[d.id]=d});
-           t=null;
+//           t=null;
 	    (function($){
 	    draw();
 	    })(CRM.$);
@@ -233,6 +239,11 @@ function drawDate (dom) {
   var _groups = [];
   var groups = [];
   mailings.forEach (m => {
+    if (!campaigns[m.key]) {
+      console.log ("missing Mailing "+ m.key);
+            campaigns[m.key] = {recipient:0,name:"missing mailing "+m.key,subject:"average of campaigns","date":""};
+
+    }
     campaigns["agregate"].recipient += campaigns[m.key].recipient;
     var factor = 100/campaigns[m.key].recipient;
     _groups[m.key] = dim.group().reduceSum (d => (d.id==m.key ? d.total : 0));
@@ -240,9 +251,11 @@ function drawDate (dom) {
     all:function () {
      var cumulate = 0;
      var g = [];
-     _groups[m.key].all().forEach(function(d) {
+     _groups[m.key].all().forEach(function(d,i) {
+
        cumulate += d.value;
        //g.push({key:d.key,value:{absolute:cumulate,percent:100*cumulate/campaigns[m.key].recipient}})
+       if ((i % 100)) return;
        g.push({key:d.key,value:{absolute:cumulate,percent:cumulate*factor}})
      });
      return g;
@@ -250,7 +263,7 @@ function drawDate (dom) {
   }; 
 //    groups[m] = dim.group().reduceSum (d => {console.log(d.id); return 1});
   });
-
+  
   // average, TODO: store it
   var _group = dim.group().reduceSum (d => d.total);
   var factor = 100/campaigns["agregate"].recipient;
@@ -258,9 +271,11 @@ function drawDate (dom) {
     all:function () {
      var cumulate = 0;
      var g = [];
-     _group.all().forEach(function(d) {
+     _group.all().forEach(function(d,i) {
        cumulate += d.value;
-       g.push({key:d.key,value:{absolute:cumulate,percent:cumulate*factor}})
+       if (!(i % 100)) {
+         g.push({key:d.key,value:{absolute:cumulate,percent:cumulate*factor}})
+       }
      });
      return g;
     }
@@ -275,7 +290,8 @@ function drawDate (dom) {
     .renderHorizontalGridLines(true)
     .title (function(d) {return d.key+": "+d.value.absolute+" signatures\n"+d.value.percent +"%"})
 //    .title (function(d) {return d.key[0]+": "+d.value+" signatures"})
-    .x(d3.scale.linear().domain([0,1440]))
+    //.x(d3.scale.linear().domain([0,1440]))
+    .x(d3.scale.linear().domain([0,1440*3]))
     .xAxisLabel("Hours after sending")
     .yAxisLabel("Signatures (as % of recipients)")
 //    .x(d3.time.scale.utc().domain([dim.bottom(1)[0].date,dim.top(1)[0].date]))
@@ -287,7 +303,7 @@ function drawDate (dom) {
       return new dc.lineChart(graph)
        .group(group)
        .colors(colorType)
-       .dotRadius(0)
+       .dotRadius(1)
        .renderDataPoints(false)
        .dashStyle([])
        .title (function(d) {
@@ -329,7 +345,7 @@ function drawDate (dom) {
 
 
    graph.yAxis().ticks(5).tickFormat(d3.format(".2s"));
-   graph.xAxis().tickValues([60, 120, 360, 720, 1440]).tickFormat(x=> (x/60));
+   graph.xAxis().tickValues([60, 120, 360, 720, 1440, 2880]).tickFormat(x=> (x/60));
 
   return graph;
 }
