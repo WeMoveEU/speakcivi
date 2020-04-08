@@ -1,5 +1,12 @@
+
 {crmTitle string="AB mailing"}
+{if !$id}
+    <script type="text/javascript">
+        location.replace('ABs');
+    </script>
+{/if}
 	{literal}
+
 	<style>
     .widget-content .container {width:auto;}
     .widget-content .col-md-3 {width:50%;}
@@ -93,8 +100,8 @@ var colorType = d3.scale.ordinal().range(pastel2);
 	{/literal}
           var ids= "3414, 2677, 2763, 2818, 2851, 2856, 2896, 2832, 3043, 1309, 2661, 2579, 3679, 3613, 3250, 2533, 3447, 2480, 2322, 2510, 3875, 3907, 3054, 1590, 1368, 2448, 3558, 3971, 3768, 3885";
 
-          var data= {crmSQL json="AB24" specific="benchmark-INT_EN"};
-          var t={crmSQL json="AB24mailing" specific="benchmark-INT_EN" debug=1};
+          var data= {crmSQL json="ABC24" ab=$id};
+          var t={crmSQL json="ABC24mailing" ab=$id debug=1};
 	{literal}
            t.values.forEach(d=>{campaigns[d.id]=d});
 //           t=null;
