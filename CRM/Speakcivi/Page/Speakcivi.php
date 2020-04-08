@@ -231,7 +231,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             'status' => $status,
             'date' => $consent->date,
             'method' => $consent->method,
-            'is_member' => $this->isMember,
+            'is_member' => $this->isMember ? 1 : 0,
             'campaign_id' => $this->campaignId,
             'utm_source' => $consent->utmSource,
             'utm_medium' => $consent->utmMedium,
