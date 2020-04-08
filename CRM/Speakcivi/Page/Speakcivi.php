@@ -199,6 +199,21 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
       if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED) {
+        foreach (explode(',', $this->campaignObj->getConsentIds()) as $consentId) {
+          $params = [
+            'contact_id' => $contact['id'],
+            'consent_id' => $consentId,
+            'status' => 'Pending',
+            'date' => $param->create_dt,
+            'method' => 'email',
+            'is_member' => $this->isMember ? 1 : 0,
+            'campaign_id' => $this->campaignId,
+            'utm_source' => @$param->source->source,
+            'utm_medium' => @$param->source->medium,
+            'utm_campaign' => @$param->source->campaign,
+          ];
+          civicrm_api3('Gidipirus', 'set_consent_status', $params);
+        }
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember);
       }
       else {
