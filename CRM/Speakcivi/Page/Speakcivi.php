@@ -599,11 +599,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact = $this->prepareParamsAddress($contact, $existingContact);
       $this->isMember = ($existingContact[$this->apiGroupContactGet]['count'] == 1);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents) && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
-        $contact[$this->apiGroupContactCreate] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
         $this->addJoinActivity = true;
       }
     } else {
@@ -624,11 +619,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents)) {
-        $contact[$this->apiGroupContactCreate] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
         $this->addJoinActivity = true;
       }
     }

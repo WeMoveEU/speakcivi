@@ -22,29 +22,6 @@ class CRM_Speakcivi_Cleanup_Leave {
   }
 
   /**
-   * Clean up membership in group
-   *
-   * @param int $groupId Group Id
-   */
-  public static function cleanUp($groupId) {
-    $query = "UPDATE civicrm_group_contact gc
-              JOIN speakcivi_cleanup_leave i ON gc.contact_id = i.id AND gc.group_id = %1
-              SET gc.status = 'Removed'";
-    $params = array(
-      1 => array($groupId, 'Integer'),
-    );
-    CRM_Core_DAO::executeQuery($query, $params);
-
-    $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
-              SELECT DISTINCTROW id, %1, NOW(), 'Admin', 'Removed'
-              FROM speakcivi_cleanup_leave";
-    $params = array(
-      1 => array($groupId, 'Integer'),
-    );
-    CRM_Core_DAO::executeQuery($query, $params);
-  }
-
-  /**
    * Truncate temporary table
    */
   public static function truncateTemporary() {

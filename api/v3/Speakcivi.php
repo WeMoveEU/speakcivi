@@ -176,7 +176,6 @@ function civicrm_api3_speakcivi_leave($params) {
     $limit = $params['limit'];
     CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
     CRM_Speakcivi_Cleanup_Leave::loadTemporary($groupId, $limit);
-    CRM_Speakcivi_Cleanup_Leave::cleanUp($groupId);
     $data = CRM_Speakcivi_Cleanup_Leave::getDataForActivities();
     CRM_Speakcivi_Cleanup_Leave::createActivitiesInBatch($data);
     $count = CRM_Speakcivi_Cleanup_Leave::countTemporaryContacts();
