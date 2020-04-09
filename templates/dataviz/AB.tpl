@@ -13,7 +13,7 @@
 
       nopeh1.page-header,.breadcrumb,header p.lead {display:none;}
  
-	 #name g.row text {fill: grey;};
+	 #name g.row text {fill: black;};
 	.countries {stroke:grey;stroke-width:1;}
 
 	.panel .panel-heading .nav-tabs {
@@ -53,7 +53,7 @@ aa.dc-tooltip-list {display:none}
 <div class="row">
 	<div id="name" class="col-sm-6 col-xs-12"><div class="panel panel-default">
 	  <div class="panel-heading" title="click to select mailing">
-	<input id="input-filter" placeholder="Mailing" title="search on name"/>
+	Mailing
 	</div>
 	<div class="panel-body"> <div class="graph"></div></div></div></div>
 </div>
@@ -62,10 +62,21 @@ aa.dc-tooltip-list {display:none}
 	"use strict";
 	   var $=jQuery;
            var ndx=null;
-           var benchmark =JSON.parse("[[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693]]");
+           var benchmark =JSON.parse("[[0,0],[1,2],[101,19171],[201,30435],[301,37816],[401,42688],[501,45915],[601,48094],[701,50082],[801,52127],[901,54178],[1001,56154],[1101,57982],[1201,59481],[1301,60877],[1401,62326],[1501,63664],[1601,64820],[1701,65793],[1801,66642],[1901,67300],[2001,67802],[2104,68217],[2207,68593],[2308,68956],[2409,69289],[2511,69661],[2617,70037],[2720,70425],[2821,70853],[2924,71328],[3024,71782],[3132,72182],[3235,72512],[3337,72823],[3446,73073],[3565,73298],[3693,73480],[3818,73681],[3947,73909],[4061,74129],[4170,74411],[4274,74693]]");
 var benchmark_recipient = 1413667;
-var pastel2= ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"];
-var colorType = d3.scale.ordinal().range(pastel2);
+
+var _benchmark = []; 
+    benchmark.forEach((d)=> {
+      _benchmark.push ({key:d[0],value:{absolute:+d[1],percent:100*(+d[1])/benchmark_recipient}});
+    });
+  var groupBenchmark= {all:function() { 
+    
+    return _benchmark;
+  }};
+
+//var pastel2= ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"];
+//d3.scale.ordinal().range(pastel2);
+var colorType = d3.scale.category10();
 
 	  function setUrl(){
 	   //var lang=graphs.lang.filters();
@@ -104,9 +115,10 @@ var colorType = d3.scale.ordinal().range(pastel2);
           var t={crmSQL json="ABC24mailing" ab=$id debug=1};
 	{literal}
            t.values.forEach(d=>{campaigns[d.id]=d});
-//           t=null;
+           document.title ="AB mailing " +t.values[0].name; 
+           t=null;
 	    (function($){
-	    draw();
+  	     draw();
 	    })(CRM.$);
 	    
 
@@ -262,12 +274,12 @@ function drawDate (dom) {
 
        cumulate += d.value;
        //g.push({key:d.key,value:{absolute:cumulate,percent:100*cumulate/campaigns[m.key].recipient}})
-       if ((i % 100)) return;
+       if ((i % 10)) return;
        g.push({key:d.key,value:{absolute:cumulate,percent:cumulate*factor}})
      });
      return g;
     }
-  }; 
+  };
 //    groups[m] = dim.group().reduceSum (d => {console.log(d.id); return 1});
   });
   
@@ -318,13 +330,15 @@ function drawDate (dom) {
        return campaigns[name].name+"\n "+d.value+" signatures\n"+(100*d.value/campaigns[name].recipient)+"%"}
     )
        .valueAccessor(d=>d.value.percent)
-       .colorAccessor(function (d) { return campaigns[name].campaign_id})
+       .colorAccessor(()=>name)
+//       .colorAccessor(function (d) { return campaigns[name].campaign_id})
        .interpolate('monotone');
     };
 
     var lines = [];
     lines.push (
-      line(group,"agregate").colors("red").dashStyle([3,1,1,1])//.renderArea(true) //.colors("red")
+      line(groupBenchmark,"benchmark")
+.colors("lightgrey").dashStyle([3,1,1,1]).renderArea(true) //.colors("red")
     );
     mailings.forEach (m => {
        lines.push (line (groups[m.key],m.key));
@@ -424,13 +438,13 @@ function drawTextSearch (dom,$,val) {
 
 	  var graph  = dc.rowChart(dom)
 	    .width(0)
-	    .height(500)
-	    .gap(0)
+	    .height(200)
+	    .gap(1)
 //	    .rowsCap(30)
 	    .ordering(function(d) { return -d.value/campaigns[d.key].recipient })
 	//    .ordering(function(d) { return -d.value.count })
 	//    .valueAccessor( function(d) { return d.value.count })
-	    .label (function (d) {return campaigns[d.key].name;})
+	    .label (function (d) {return campaigns[d.key].subject;})
 	    .title (function (d) {
                return campaigns[d.key].name 
                     + "\n" + campaigns[d.key].subject 
@@ -439,11 +453,12 @@ function drawTextSearch (dom,$,val) {
                     + "\nrecipients:"+campaigns[d.key].recipient
                     + "\n%:"+(100*d.value/campaigns[d.key].recipient);})
        .colors(colorType)
-       .colorAccessor(function (d) { return campaigns[d.key].campaign_id})
+       .colorAccessor((d)=>d.key)
+//       .colorAccessor(function (d) { return campaigns[d.key].campaign_id})
 	    .dimension(dim)
 	    .elasticX(true)
 	.labelOffsetY(10)
-	.fixedBarHeight(14)
+	.fixedBarHeight(18)
 	.labelOffsetX(2)
 	.group(group);
 
