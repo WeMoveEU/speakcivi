@@ -1,4 +1,7 @@
 {crmTitle string="Generating benchmark"}
+{if $id == ""}
+{capture assign=id}benchmark-INT_EN{/capture} 
+{/if}
 	{literal}
 	<style>
     .widget-content .container {width:auto;}
@@ -46,7 +49,6 @@ aa.dc-tooltip-list {display:none}
 <div class="row">
 	<div id="name" class="col-sm-6 col-xs-12"><div class="panel panel-default">
 	  <div class="panel-heading" title="click to select mailing">
-	<input id="input-filter" placeholder="Mailing" title="search on name"/>
 	</div>
 	<div class="panel-body"> <div class="graph"></div></div></div></div>
 </div>
@@ -54,11 +56,16 @@ aa.dc-tooltip-list {display:none}
 	    <script>
 	"use strict";
 	   var $=jQuery;
+           var topdown = -1;
            var ndx=null;
            var benchmark =[];
 var pastel2= ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"];
 var colorType = d3.scale.ordinal().range(pastel2);
 
+   function switchOrder () {
+     topdown = topdown== 1 ? -1: 1;
+     graphs['name'].redraw();
+   }
 	  function setUrl(){
 	   //var lang=graphs.lang.filters();
 	   var lang=null; // need to take it from the map
@@ -84,7 +91,7 @@ var colorType = d3.scale.ordinal().range(pastel2);
 	    }
 	};
 
-	    var graphs = [];
+	    var graphs = {};
 	    var summary= {};
           var campaigns={
             "agregate":{recipient:0,name:"average",subject:"average of campaigns","date":""}
@@ -92,8 +99,9 @@ var colorType = d3.scale.ordinal().range(pastel2);
 	{/literal}
           var ids= "3414, 2677, 2763, 2818, 2851, 2856, 2896, 2832, 3043, 1309, 2661, 2579, 3679, 3613, 3250, 2533, 3447, 2480, 2322, 2510, 3875, 3907, 3054, 1590, 1368, 2448, 3558, 3971, 3768, 3885";
 
-          var data= {crmSQL json="AB24" specific="benchmark-INT_EN"};
-          var t={crmSQL json="AB24mailing" specific="benchmark-INT_EN" debug=1};
+//id = {$id}  specific={$specific}
+          var data= {crmSQL json="AB24" specific=$id};
+          var t={crmSQL json="AB24mailing" specific=$id debug=1};
 	{literal}
            t.values.forEach(d=>{campaigns[d.id]=d});
 //           t=null;
@@ -137,6 +145,7 @@ var colorType = d3.scale.ordinal().range(pastel2);
 
       jQuery (function($) {
         dc.renderAll();
+        $("#name .panel-heading").click(()=>switchOrder());
       });
 
 
@@ -306,7 +315,7 @@ function drawDate (dom) {
        .dotRadius(1)
        .renderDataPoints(false)
        .dashStyle([])
-       .title (function(d) {
+       .title (function(d) { // never used
          if (!campaigns[name]) return "???";
        return campaigns[name].name+"\n "+d.value+" signatures\n"+(100*d.value/campaigns[name].recipient)+"%"}
     )
@@ -317,7 +326,7 @@ function drawDate (dom) {
 
     var lines = [];
     lines.push (
-      line(group,"agregate").colors("red").dashStyle([3,1,1,1])//.renderArea(true) //.colors("red")
+      line(group,"agregate").colors("lightgray").dashStyle([3,1,1,1]).renderArea(true) //.colors("red")
     );
     mailings.forEach (m => {
        lines.push (line (groups[m.key],m.key));
@@ -417,10 +426,10 @@ function drawTextSearch (dom,$,val) {
 
 	  var graph  = dc.rowChart(dom)
 	    .width(0)
-	    .height(500)
+	    .height(800)
 	    .gap(0)
 //	    .rowsCap(30)
-	    .ordering(function(d) { return -d.value/campaigns[d.key].recipient })
+	    .ordering(function(d) { return topdown * d.value/campaigns[d.key].recipient })
 	//    .ordering(function(d) { return -d.value.count })
 	//    .valueAccessor( function(d) { return d.value.count })
 	    .label (function (d) {return campaigns[d.key].name;})
