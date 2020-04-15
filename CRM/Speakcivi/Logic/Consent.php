@@ -26,12 +26,11 @@ class CRM_Speakcivi_Logic_Consent {
     if (property_exists($param, 'consents')) {
       foreach ($param->consents as $consent) {
         list($consentVersion, $consentLanguage) = explode('-', $consent->public_id);
-        $cd = new DateTime(substr($param->create_dt, 0, 10));
         $c = new self();
         $c->publicId = $consent->public_id;
         $c->version = $consentVersion;
         $c->language = $consentLanguage;
-        $c->date = $cd->format('Y-m-d');
+        $c->date = $param->create_dt;
         $c->createDate = $param->create_dt;
         $c->level = $consent->consent_level;
         $c->method = $consent->consent_method;

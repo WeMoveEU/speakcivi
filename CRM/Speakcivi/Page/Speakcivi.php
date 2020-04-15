@@ -36,6 +36,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   public $addJoinActivity = false;
 
+  public $isMember = false;
+
   public $genderMaleValue = 0;
 
   public $genderFemaleValue = 0;
@@ -197,6 +199,21 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     $h = $param->cons_hash;
     if ($this->useAsCurrentActivity) {
       if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_NOTPROVIDED) {
+        foreach (explode(',', $this->campaignObj->getConsentIds()) as $consentId) {
+          $params = [
+            'contact_id' => $contact['id'],
+            'consent_id' => $consentId,
+            'status' => 'Pending',
+            'date' => $param->create_dt,
+            'method' => 'email',
+            'is_member' => $this->isMember ? 1 : 0,
+            'campaign_id' => $this->campaignId,
+            'utm_source' => @$param->source->source,
+            'utm_medium' => @$param->source->medium,
+            'utm_campaign' => @$param->source->campaign,
+          ];
+          civicrm_api3('Gidipirus', 'set_consent_status', $params);
+        }
         $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember);
       }
       else {
@@ -208,36 +225,34 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           $rlg = $pagePost->setLanguageGroup($contact['id'], $language, $this->countryIsoCode);
         }
         $contactCustoms = [];
-        $joinSubject = 'optIn:0';
         foreach ($this->consents as $consent) {
           if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
-            CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Completed');
+            $status = 'Confirmed';
             $contactCustoms = [
               'is_opt_out' => 0,
               'do_not_email' => 0,
-              $this->fieldName('consent_date') => $consent->date,
-              $this->fieldName('consent_version') => $consent->version,
-              $this->fieldName('consent_language') => strtoupper($consent->language),
-              $this->fieldName('consent_utm_source') => $consent->utmSource,
-              $this->fieldName('consent_utm_medium') => $consent->utmMedium,
-              $this->fieldName('consent_utm_campaign') => $consent->utmCampaign,
-              $this->fieldName('consent_campaign_id') => $this->campaignId,
             ];
-            $joinSubject = $consent->method;
           }
-          if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
-            CRM_Speakcivi_Logic_Activity::dpa($consent, $contact['id'], $this->campaignId, 'Cancelled');
+          else if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
+            $status = 'Rejected';
             $contactCustoms = [
               'is_opt_out' => 1,
-              $this->fieldName('consent_date') => 'null',
-              $this->fieldName('consent_version') => 'null',
-              $this->fieldName('consent_language') => 'null',
-              $this->fieldName('consent_utm_source') => 'null',
-              $this->fieldName('consent_utm_medium') => 'null',
-              $this->fieldName('consent_utm_campaign') => 'null',
-              $this->fieldName('consent_campaign_id') => 'null',
             ];
           }
+
+          $params = [
+            'contact_id' => $contact['id'],
+            'consent_id' => $consent->publicId,
+            'status' => $status,
+            'date' => $consent->date,
+            'method' => $consent->method,
+            'is_member' => $this->isMember ? 1 : 0,
+            'campaign_id' => $this->campaignId,
+            'utm_source' => $consent->utmSource,
+            'utm_medium' => $consent->utmMedium,
+            'utm_campaign' => $consent->utmCampaign,
+          ];
+          civicrm_api3('Gidipirus', 'set_consent_status', $params);
         }
         if ($contact['preferred_language'] != $this->locale && $rlg == 1) {
           $contactCustoms['preferred_language'] = $this->locale;
@@ -252,7 +267,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             if ($email['on_hold'] != 0) {
               CRM_Speakcivi_Logic_Contact::unholdEmail($email['email_id']);
             }
-            CRM_Speakcivi_Logic_Activity::join($contact['id'], $joinSubject, $this->campaignId);
           }
         }
 
@@ -598,12 +612,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
+      $this->isMember = ($existingContact[$this->apiGroupContactGet]['count'] == 1);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents) && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
-        $contact[$this->apiGroupContactCreate] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
         $this->addJoinActivity = true;
       }
     } else {
@@ -624,11 +634,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents)) {
-        $contact[$this->apiGroupContactCreate] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
         $this->addJoinActivity = true;
       }
     }

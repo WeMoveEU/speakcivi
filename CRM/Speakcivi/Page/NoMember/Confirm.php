@@ -17,42 +17,13 @@ class CRM_Speakcivi_Page_NoMember_Confirm extends CRM_Speakcivi_Page_Post {
     }
 
     $country = $this->getCountry($this->campaignId);
-    $consentIds = $this->getConsentIds($this->campaignId);
-    // fixme which consent should be set at contact level?
-    // fixme assumption: first
-    if ($consentIds) {
-      $consentVersion = explode('-', $consentIds[0])[0];
-    }
-    else {
-      $consentVersion = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-    }
     $contactParams = array(
       'is_opt_out' => 0,
     );
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
 
-    $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->createDate = date('YmdHis');
-    if ($consentIds) {
-      foreach ($consentIds as $id) {
-        list($consentVersion, $language) = explode('-', $id);
-        $consent->version = $consentVersion;
-        $consent->language = $language;
-        $consent->utmSource = $this->utmSource;
-        $consent->utmMedium = $this->utmMedium;
-        $consent->utmCampaign = $this->utmCampaign;
-        CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
-      }
-    }
-    else {
-      $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-      $consent->language = $country;
-      $consent->utmSource = $this->utmSource;
-      $consent->utmMedium = $this->utmMedium;
-      $consent->utmCampaign = $this->utmCampaign;
-      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
-    }
-
+    //Hack: we don't want a join activity: let's pretend this is a member
+    $this->setConsentStatus('Confirmed', TRUE);
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, $activityStatus);
 

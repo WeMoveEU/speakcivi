@@ -13,21 +13,7 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     $this->setValues();
 
     $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
-    $contactParams = $this->getContactConsentParams($campaign);
-
-    $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-    if (!$this->isGroupContactAdded($this->contactId, $groupId)) {
-      if (!CRM_Speakcivi_Logic_Activity::hasJoin($this->activityId)) {
-        $joinId = CRM_Speakcivi_Logic_Activity::join($this->contactId, 'confirmation_link', $this->campaignId, $this->activityId);
-        $fields = [
-          'source' => $this->utmSource,
-          'medium' => $this->utmMedium ,
-          'campaign' => $this->utmCampaign,
-        ];
-        CRM_Speakcivi_Logic_Activity::setSourceFields($joinId, $fields);
-      }
-      $this->setGroupContactAdded($this->contactId, $groupId);
-    }
+    $contactParams = $this->getContactMemberParams();
 
     $email = CRM_Speakcivi_Logic_Contact::getEmail($this->contactId);
     if ($email['on_hold'] != 0) {
@@ -47,7 +33,10 @@ class CRM_Speakcivi_Page_Confirm extends CRM_Speakcivi_Page_Post {
     }
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
-    $this->createConsentActivities($campaign);
+
+    $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+    $isMember = $this->isGroupContactAdded($this->contactId, $groupId);
+    $this->setConsentStatus('Confirmed', $isMember);
 
     $activityStatus = 'optin'; // default status: Completed new member
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);

@@ -22,29 +22,6 @@ class CRM_Speakcivi_Cleanup_Leave {
   }
 
   /**
-   * Clean up membership in group
-   *
-   * @param int $groupId Group Id
-   */
-  public static function cleanUp($groupId) {
-    $query = "UPDATE civicrm_group_contact gc
-              JOIN speakcivi_cleanup_leave i ON gc.contact_id = i.id AND gc.group_id = %1
-              SET gc.status = 'Removed'";
-    $params = array(
-      1 => array($groupId, 'Integer'),
-    );
-    CRM_Core_DAO::executeQuery($query, $params);
-
-    $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
-              SELECT DISTINCTROW id, %1, NOW(), 'Admin', 'Removed'
-              FROM speakcivi_cleanup_leave";
-    $params = array(
-      1 => array($groupId, 'Integer'),
-    );
-    CRM_Core_DAO::executeQuery($query, $params);
-  }
-
-  /**
    * Truncate temporary table
    */
   public static function truncateTemporary() {
@@ -95,14 +72,6 @@ class CRM_Speakcivi_Cleanup_Leave {
                   JOIN civicrm_group_contact gc ON c.id = gc.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
                   LEFT JOIN civicrm_email e ON c.id = e.contact_id
                 WHERE e.id IS NULL
-                UNION
-                SELECT gc.contact_id id, 'no_consent' reason
-                FROM (SELECT contact_id
-                      FROM civicrm_group_contact gc1
-                      WHERE gc1.group_id = %1 AND gc1.status = 'Added') gc
-                  LEFT JOIN civicrm_value_gdpr_temporary_9 gdpr
-                    ON gdpr.entity_id = gc.contact_id
-                WHERE gdpr.consent_version_57 IS NULL
               ) t
               GROUP BY t.id
               LIMIT %2";
@@ -143,7 +112,7 @@ class CRM_Speakcivi_Cleanup_Leave {
    */
   public static function createActivitiesInBatch($data) {
     foreach ((array) $data as $contact) {
-      CRM_Speakcivi_Logic_Activity::leave($contact['id'], $contact['subject'], 0, 0, $contact['activity_date_time'], 'Added by SpeakCivi API');
+      civicrm_api3('Gidipirus', 'cancel_consents', ['contact_id' => $contact['id'], 'date' => $contact['activity_date_time'], 'method' => $contact['subject']]);
     }
   }
 

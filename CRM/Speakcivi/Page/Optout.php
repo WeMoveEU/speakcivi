@@ -14,21 +14,13 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     $contactParams = array(
       'is_opt_out' => 1,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => 'null',
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => 'null',
     );
 
     $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
     $location = '';
     if ($this->isGroupContactAdded($this->contactId, $groupId)) {
-      $this->setGroupContactRemoved($this->contactId, $groupId);
       $location = 'removed from Members after optout link';
-      CRM_Speakcivi_Logic_Activity::leave($this->contactId, 'confirmation_link', $this->campaignId, $this->activityId, '', 'Added by SpeakCivi Optout');
+      civicrm_api3('Gidipirus', 'cancel_consents', ['contact_id' => $contact['id'], 'date' => $contact['activity_date_time'], 'method' => 'confirmation_link']);
     }
 
     $redirect = '';
@@ -42,30 +34,9 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
 
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
     $country = $this->getCountry($this->campaignId);
-
-    $consentIds = $this->getConsentIds($this->campaignId);
-    $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->createDate = date('YmdHis');
-    if ($consentIds) {
-      foreach ($consentIds as $id) {
-        list($consentVersion, $language) = explode('-', $id);
-        $consent->version = $consentVersion;
-        $consent->language = $language;
-        $consent->utmSource = $this->utmSource;
-        $consent->utmMedium = $this->utmMedium;
-        $consent->utmCampaign = $this->utmCampaign;
-        CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
-      }
-    }
-    else {
-      $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-      $consent->language = $country;
-      $consent->utmSource = $this->utmSource;
-      $consent->utmMedium = $this->utmMedium;
-      $consent->utmCampaign = $this->utmCampaign;
-      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Cancelled');
-    }
-
+    
+    // Either the contact was member and cancel_consents was called, or the contact was not: in both cases it is not a member at this stage
+    $this->setConsentStatus('Rejected', FALSE);
     $aids = $this->findActivitiesIds($this->activityId, $this->campaignId, $this->contactId);
     $this->setActivitiesStatuses($this->activityId, $aids, 'optout', $location);
 

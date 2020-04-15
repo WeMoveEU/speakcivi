@@ -65,80 +65,6 @@ class CRM_Speakcivi_Logic_Activity {
   }
 
   /**
-   * Create new Data Policy Acceptance activity for contact
-   *
-   * @param \CRM_Speakcivi_Logic_Consent $consent
-   * @param int $contactId
-   * @param int $campaignId
-   * @param string $activityStatus
-   *
-   * @return array
-   * @throws CiviCRM_API3_Exception
-   */
-  public static function dpa(CRM_Speakcivi_Logic_Consent $consent, $contactId, $campaignId, $activityStatus = 'Completed') {
-    $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
-    $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $activityStatus);
-    $params = [
-      'sequential' => 1,
-      'source_contact_id' => $contactId,
-      'campaign_id' => $campaignId,
-      'activity_type_id' => $activityTypeId,
-      'activity_date_time' => $consent->createDate,
-      'subject' => $consent->version,
-      'location' => $consent->language,
-      'status_id' => $activityStatusId,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_source') => $consent->utmSource,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium') => $consent->utmMedium,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign') => $consent->utmCampaign,
-    ];
-    return self::setActivity($params, ['activity_date_time']);
-  }
-
-  /**
-   * Returns the latest Data Policy Acceptance activity of the given contact if any, NULL otherwise
-   */
-  public static function getLatestDPA($contactId) {
-    $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
-    $apiParams = [
-      'sequential' => 1,
-      'source_contact_id' => $contactId,
-      'activity_type_id' => $activityTypeId,
-      'options' => ['limit' => 1, 'sort' => "activity_date_time DESC"],
-    ];
-    $result = civicrm_api3('Activity', 'get', $apiParams);
-    $activity = NULL;
-    if ($result['count']) {
-      $activity = $result['values'][0];
-    }
-    return $activity;
-  }
-
-  /**
-   * Find the latest DPA activity associated to the given contact, and set its status to 'Cancelled'.
-   * If there is no such activity, create one with subject 'unknkown'.
-   */
-  public static function cancelLatestDPA($contactId) {
-    $cancelledStatus = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', 'Cancelled');
-    $dpa = self::getLatestDPA($contactId);
-    if ($dpa == NULL) {
-      //We create a recognizable activity directly with Cancelled status, to make sure we record this event
-      $consent = new CRM_Speakcivi_Logic_Consent();
-      $consent->version = 'unknown';
-      $consent->language = 'unknown';
-      $consent->createDate = date('Y-m-d H:i:s');
-      self::dpa($consent, $contactId, NULL, 'Cancelled');
-      CRM_Core_Error::debug_log_message("I will create a Cancelled DPA activity for $contactId");
-    }
-    else if ($dpa['status_id'] != $cancelledStatus) {
-      //Let's not spend DB resources if the activity is already cancelled, but let's log it
-      civicrm_api3('Activity', 'create', ['id' => $dpa['id'], 'status_id' => $cancelledStatus]);
-    }
-    else {
-      CRM_Core_Error::debug_log_message("$contactId is leaving, but the latest DPA activity {$dpa['id']} is already cancelled.");
-    }
-  }
-
-  /**
    * Set unique activity. Method gets activity by given params and creates only if needed.
    * Need more performance but provide database consistency.
    *
@@ -173,43 +99,6 @@ class CRM_Speakcivi_Logic_Activity {
         'values' => array(0 => $activities[0]),
       );
     }
-  }
-
-
-  /**
-   * Add Join activity to contact
-   *
-   * @param $contactId
-   * @param $subject
-   * @param $campaignId
-   * @param $parentActivityId
-   *
-   * @return int
-   */
-  public static function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $result = self::createActivity($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
-    return (int) $result['id'];
-  }
-
-  /**
-   * Add Leave activity to contact
-   *
-   * @param $contactId
-   * @param $subject
-   * @param $campaignId
-   * @param $parentActivityId
-   * @param $activity_date_time
-   * @param $location
-   */
-  public static function leave($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0, 
-                               $activity_date_time = '', $location = '') {
-
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_leave');
-    self::createActivity($contactId, $activityTypeId, $subject, $campaignId, 
-                         $parentActivityId, $activity_date_time, $location);
-    self::cancelLatestDPA($contactId);
-    CRM_Speakcivi_Logic_Contact::emptyGDPRFields($contactId);
   }
 
   /**
@@ -322,22 +211,4 @@ class CRM_Speakcivi_Logic_Activity {
     }
   }
 
-
-  /**
-   * Check If activity has own Join activity
-   *
-   * @param $activityId
-   *
-   * @return bool
-   * @throws \CiviCRM_API3_Exception
-   */
-  public static function hasJoin($activityId) {
-    $activityTypeId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'activity_type_join');
-    $params = array(
-      'sequential' => 1,
-      'activity_type_id' => $activityTypeId,
-      'parent_id' => $activityId,
-    );
-    return (bool)civicrm_api3('Activity', 'getcount', $params);
-  }
 }
