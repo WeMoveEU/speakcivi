@@ -556,7 +556,7 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
         'consent_id' => $id,
         'status' => $status,
         'date' => date('YmdHis'),
-        'is_member' => $isMember,
+        'is_member' => $isMember ? 1 : 0,
         'method' => 'confirmation_link',
         'campaign_id' => $this->campaignId,
         'utm_source' => $this->utmSource,

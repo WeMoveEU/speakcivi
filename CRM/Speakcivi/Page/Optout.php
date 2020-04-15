@@ -20,7 +20,7 @@ class CRM_Speakcivi_Page_Optout extends CRM_Speakcivi_Page_Post {
     $location = '';
     if ($this->isGroupContactAdded($this->contactId, $groupId)) {
       $location = 'removed from Members after optout link';
-      civicrm_api3('Gidipirus', 'cancel_consents', ['contact_id' => $contact['id'], 'date' => $contact['activity_date_time'], 'method' => 'confirmation_link']);
+      civicrm_api3('Gidipirus', 'cancel_consents', ['contact_id' => $this->contactId, 'date' => date('Y-m-d H:i:s'), 'method' => 'confirmation_link']);
     }
 
     $redirect = '';
