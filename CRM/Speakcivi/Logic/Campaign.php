@@ -190,10 +190,16 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function getConsentIds() {
+    $consentIds = NULL;
     if (is_array($this->campaign) && array_key_exists($this->fieldConsentIds, $this->campaign)) {
-      return $this->campaign[$this->fieldConsentIds];
+      $consentIds = $this->campaign[$this->fieldConsentIds];
     }
-    return '';
+    if (!$consentIds || empty($consentIds)) {
+      $version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+      $language = substr($this->getLanguage(), 0, 2);
+      $consentIds = "$version-$language";
+    }
+    return $consentIds;
   }
 
   /**

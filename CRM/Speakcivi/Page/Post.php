@@ -545,11 +545,6 @@ class CRM_Speakcivi_Page_Post extends CRM_Core_Page {
 
   protected function setConsentStatus($status, $isMember) {
     $consentIds = $this->getConsentIds($this->campaignId);
-    if (!$consentIds) {
-      $version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-      $defaultLanguage = $this->getCountry($this->campaignId);
-      $consentIds = ["$version-$defaultLanguage"];
-    }
     foreach ($consentIds as $id) {
       $params = [
         'contact_id' => $this->contactId,
