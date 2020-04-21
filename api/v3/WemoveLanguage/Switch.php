@@ -41,8 +41,9 @@ function civicrm_api3_wemove_language_switch(&$params) {
   $fromLanguage = $contact['preferred_language'];
   if (CRM_Speakcivi_Logic_Language::isValid($language)) {
     CRM_Speakcivi_Logic_Contact::set($contactId, ['preferred_language' => $language]);
-    // todo remove from current language groups
-    // todo add to new language group
+    $languageGroups = CRM_Speakcivi_Logic_Group::languageGroups();
+    CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups);
+    CRM_Speakcivi_Logic_Group::add($contactId, $languageGroups[$language]);
     // todo create "self-care" activity
   }
 
