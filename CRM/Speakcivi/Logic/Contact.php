@@ -56,6 +56,7 @@ class CRM_Speakcivi_Logic_Contact {
   public static function getContactByHash($hash) {
     $params = array(
       'sequential' => 1,
+      'contact_type' => 'Individual',
       'hash' => $hash,
       'return' => "id",
     );
