@@ -36,13 +36,13 @@ function civicrm_api3_wemove_language_switch(&$params) {
   $hash = $params['hash'];
   $language = $params['language'];
 
-  // todo validate language
-  // todo Set preferred_language
-  // todo remove from current language groups
-  // todo add to new language group
-  // todo create "self-care" activity
-
   $contactId = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
+  if (CRM_Speakcivi_Logic_Language::isValid($language)) {
+    // todo Set preferred_language
+    // todo remove from current language groups
+    // todo add to new language group
+    // todo create "self-care" activity
+  }
 
   $values = [
     $hash,
