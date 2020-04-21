@@ -46,6 +46,28 @@ class CRM_Speakcivi_Logic_Contact {
   }
 
   /**
+   * Get contact id by hash
+   *
+   * @param $hash
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function getContactByHash($hash) {
+    $params = array(
+      'sequential' => 1,
+      'hash' => $hash,
+      'return' => "id",
+    );
+    $result = civicrm_api3('Contact', 'get', $params);
+    if ($result['count'] = 1) {
+      return $result['id'];
+    }
+
+    throw new CiviCRM_API3_Exception('Contact not found by hash', 'contact_not_found_by_hash', $params);
+  }
+
+  /**
    * Clear on_hold status of given email
    */
   public static function unholdEmail($emailId) {

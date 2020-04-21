@@ -21,7 +21,6 @@ function _civicrm_api3_wemove_language_switch_spec(&$spec) {
 
 /**
  * Switch the contact to new preferred language:
- *
  * 1. Set preferred_language
  * 2. remove from current language groups
  * 3. add to new language group
@@ -30,18 +29,20 @@ function _civicrm_api3_wemove_language_switch_spec(&$spec) {
  * @param $params
  *
  * @return array
+ * @throws \CiviCRM_API3_Exception
  */
 function civicrm_api3_wemove_language_switch(&$params) {
   $start = microtime(TRUE);
   $hash = $params['hash'];
   $language = $params['language'];
 
-  // todo identify contact by hash (civicrm_contact.hash)
   // todo validate language
   // todo Set preferred_language
   // todo remove from current language groups
   // todo add to new language group
   // todo create "self-care" activity
+
+  $contactId = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
 
   $values = [
     $hash,
