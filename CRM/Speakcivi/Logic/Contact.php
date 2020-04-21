@@ -50,7 +50,7 @@ class CRM_Speakcivi_Logic_Contact {
    *
    * @param $hash
    *
-   * @return array
+   * @return int
    * @throws \CiviCRM_API3_Exception
    */
   public static function getContactByHash($hash) {
