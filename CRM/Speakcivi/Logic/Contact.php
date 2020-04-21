@@ -46,11 +46,11 @@ class CRM_Speakcivi_Logic_Contact {
   }
 
   /**
-   * Get contact id by hash
+   * Get contact by hash
    *
    * @param $hash
    *
-   * @return int
+   * @return array
    * @throws \CiviCRM_API3_Exception
    */
   public static function getContactByHash($hash) {
@@ -58,11 +58,11 @@ class CRM_Speakcivi_Logic_Contact {
       'sequential' => 1,
       'contact_type' => 'Individual',
       'hash' => $hash,
-      'return' => "id",
+      'return' => "id,preferred_language",
     );
     $result = civicrm_api3('Contact', 'get', $params);
     if ($result['count'] = 1) {
-      return $result['id'];
+      return $result['values'][0];
     }
 
     throw new CiviCRM_API3_Exception('Contact not found by hash', 'contact_not_found_by_hash', $params);

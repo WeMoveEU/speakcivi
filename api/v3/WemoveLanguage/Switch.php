@@ -36,7 +36,9 @@ function civicrm_api3_wemove_language_switch(&$params) {
   $hash = $params['hash'];
   $language = $params['language'];
 
-  $contactId = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
+  $contact = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
+  $contactId = $contact['id'];
+  $fromLanguage = $contact['preferred_language'];
   if (CRM_Speakcivi_Logic_Language::isValid($language)) {
     CRM_Speakcivi_Logic_Contact::set($contactId, ['preferred_language' => $language]);
     // todo remove from current language groups
