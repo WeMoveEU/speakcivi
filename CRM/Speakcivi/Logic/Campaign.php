@@ -430,9 +430,12 @@ class CRM_Speakcivi_Logic_Campaign {
    * @return int
    */
   public function determineCampaignType($externalCampaign) {
-    $types = CRM_Core_PseudoConstant::get('CRM_Campaign_BAO_Campaign', 'campaign_type_id');
-    $campaignName = $externalCampaign->categories[0]->name;
-    $type = array_search($campaignName, $types);
+    $type = NULL;
+    if (property_exists($externalCampaign, 'categories')) {
+      $campaignName = $externalCampaign->categories[0]->name;
+      $types = CRM_Core_PseudoConstant::get('CRM_Campaign_BAO_Campaign', 'campaign_type_id');
+      $type = array_search($campaignName, $types);
+    }
 
     return $type ? $type : $this->defaultCampaignTypeId;
   }
