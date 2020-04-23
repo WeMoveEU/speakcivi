@@ -46,18 +46,20 @@ class CRM_Speakcivi_Logic_Group {
       $existing[] = $dao->group_id;
     }
 
-    $query = "UPDATE civicrm_group_contact 
+    if ($existing) {
+      $query = "UPDATE civicrm_group_contact 
               SET status = 'Removed' 
               WHERE contact_id = %1 AND group_id IN (" . implode(', ', $existing) .")";
-    CRM_Core_DAO::executeQuery($query, $params);
+      CRM_Core_DAO::executeQuery($query, $params);
 
-    $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status) VALUES ";
-    $values = [];
-    foreach ($existing as $group_id) {
-      $values[] = "(" . $contactId . ", " . $group_id . ", NOW(), 'API', 'Removed')";
+      $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status) VALUES ";
+      $values = [];
+      foreach ($existing as $group_id) {
+        $values[] = "(" . $contactId . ", " . $group_id . ", NOW(), 'API', 'Removed')";
+      }
+      $query .= implode(', ', $values);
+      CRM_Core_DAO::executeQuery($query, $params);
     }
-    $query .= implode(', ', $values);
-    CRM_Core_DAO::executeQuery($query, $params);
   }
 
   /**
