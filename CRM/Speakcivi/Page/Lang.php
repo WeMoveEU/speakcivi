@@ -6,6 +6,8 @@ class CRM_Speakcivi_Page_Lang extends CRM_Speakcivi_Page_Post {
 
   private $urlLanguageForm = '/form/preferred-language';
 
+  private $thankYouPage = 'thank-you-for-language';
+
   /**
    * @return null|void
    * @throws \CRM_Core_Exception
@@ -28,7 +30,7 @@ class CRM_Speakcivi_Page_Lang extends CRM_Speakcivi_Page_Post {
     }
 
     $lang = substr($language, 0, 2);
-    $url = $this->determineRedirectUrl('thank-you-for-language', $lang, '');
+    $url = $this->determineRedirectUrl($this->thankYouPage, $lang, '');
     CRM_Utils_System::redirect($url);
   }
 
