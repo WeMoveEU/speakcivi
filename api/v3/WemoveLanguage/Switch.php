@@ -38,6 +38,10 @@ function civicrm_api3_wemove_language_switch(&$params) {
 
   $contact = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
   $contactId = $contact['id'];
+  if (!$contactId) {
+    return civicrm_api3_create_error('Hash is invalid');
+  }
+
   $fromLanguage = $contact['preferred_language'];
   if (CRM_Speakcivi_Logic_Language::isValid($toLanguage)) {
     CRM_Speakcivi_Logic_Contact::set($contactId, ['preferred_language' => $toLanguage]);
