@@ -44,7 +44,7 @@ function civicrm_api3_wemove_language_switch(&$params) {
     $languageGroups = CRM_Speakcivi_Logic_Group::languageGroups();
     CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups);
     CRM_Speakcivi_Logic_Group::add($contactId, $languageGroups[$language]);
-    // todo create "self-care" activity
+    CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $language);
   }
 
   $values = [

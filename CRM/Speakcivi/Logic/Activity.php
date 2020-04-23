@@ -102,6 +102,38 @@ class CRM_Speakcivi_Logic_Activity {
   }
 
   /**
+   * Add Self-care activity about switching preferred language.
+   *
+   * @param int $contactId
+   * @param string $fromLanguage
+   * @param string $toLanguage
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function addLanguageSelfCare($contactId, $fromLanguage, $toLanguage) {
+    $typeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Self-care');
+    $params = [
+      'sequential' => 1,
+      'activity_type_id' => $typeId,
+      'activity_date_time' => date('YmdHis'),
+      'status_id' => 'Completed',
+      'subject' => sprintf("Language preference switched from %s to %s", $fromLanguage, $toLanguage),
+      'source_contact_id' => $contactId,
+      'api.ActivityContact.create' => [
+        0 => [
+          'activity_id' => '$value.id',
+          'contact_id' => $contactId,
+          'record_type_id' => 3,
+        ],
+      ],
+    ];
+    $result = civicrm_api3('Activity', 'create', $params);
+
+    return $result;
+  }
+
+  /**
    * Get source fields in custom fields and return as a param array to Activity
    * api action
    *
