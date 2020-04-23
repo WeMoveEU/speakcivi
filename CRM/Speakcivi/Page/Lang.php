@@ -6,7 +6,7 @@ class CRM_Speakcivi_Page_Lang extends CRM_Speakcivi_Page_Post {
 
   private $urlLanguageForm = '/form/preferred-language';
 
-  private $thankYouPage = 'thank-you-for-language';
+  private $thankYouPage = 'language-change-confirmation';
 
   /**
    * @return null|void
