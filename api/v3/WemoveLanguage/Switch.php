@@ -44,14 +44,22 @@ function civicrm_api3_wemove_language_switch(&$params) {
     $languageGroups = CRM_Speakcivi_Logic_Group::languageGroups();
     CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups);
     CRM_Speakcivi_Logic_Group::add($contactId, $languageGroups[$language]);
-    CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $language);
+    $result = CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $language);
+
+    $values = [
+      'contactId' => $contactId,
+      'fromLanguage' => $fromLanguage,
+      'toLanguage' => $language,
+      'activity_id' => $result['id'],
+    ];
+
+    $extraReturnValues = ['time' => microtime(TRUE) - $start];
+    return civicrm_api3_create_success($values, $params, 'wemove_language', 'switch', $blank, $extraReturnValues);
   }
 
-  $values = [
-    $hash,
-    $language,
-  ];
-
-  $extraReturnValues = ['time' => microtime(TRUE) - $start];
-  return civicrm_api3_create_success($values, $params, 'wemove_language', 'switch', $blank, $extraReturnValues);
+  return civicrm_api3_create_error('New language is invalid', [
+    'contactId' => $contactId,
+    'fromLanguage' => $fromLanguage,
+    'toLanguage' => $language,
+  ]);
 }
