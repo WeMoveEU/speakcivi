@@ -54,7 +54,7 @@ class CRM_Speakcivi_Logic_Group {
     $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status) VALUES ";
     $values = [];
     foreach ($existing as $group_id) {
-      $values[] = "(" . $contactId . ", " . $group_id . ", NOW(), 'Admin', 'Removed')";
+      $values[] = "(" . $contactId . ", " . $group_id . ", NOW(), 'API', 'Removed')";
     }
     $query .= implode(', ', $values);
     CRM_Core_DAO::executeQuery($query, $params);
