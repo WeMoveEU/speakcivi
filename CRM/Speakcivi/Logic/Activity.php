@@ -118,7 +118,7 @@ class CRM_Speakcivi_Logic_Activity {
       'activity_type_id' => $typeId,
       'activity_date_time' => date('YmdHis'),
       'status_id' => 'Completed',
-      'subject' => sprintf("Language preference switched from %s to %s", $fromLanguage, $toLanguage),
+      'subject' => sprintf("Language change from %s to %s", $fromLanguage, $toLanguage),
       'source_contact_id' => $contactId,
       'api.ActivityContact.create' => [
         0 => [
