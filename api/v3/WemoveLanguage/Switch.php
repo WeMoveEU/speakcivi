@@ -17,6 +17,30 @@ function _civicrm_api3_wemove_language_switch_spec(&$spec) {
     'api.required' => 1,
     'api.default' => '',
   ];
+  $spec['utm_source'] = [
+    'name' => 'utm_source',
+    'title' => ts('UTM Source'),
+    'description' => ts('UTM Source'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['utm_medium'] = [
+    'name' => 'utm_medium',
+    'title' => ts('UTM Medium'),
+    'description' => ts('UTM Medium'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['utm_campaign'] = [
+    'name' => 'utm_campaign',
+    'title' => ts('UTM Campaign'),
+    'description' => ts('UTM Campaign'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
 }
 
 /**
@@ -35,6 +59,11 @@ function civicrm_api3_wemove_language_switch(&$params) {
   $start = microtime(TRUE);
   $hash = $params['hash'];
   $toLanguage = $params['language'];
+  $utms = [
+    'source' => $params['utm_source'],
+    'medium' => $params['utm_medium'],
+    'campaign' => $params['utm_campaign'],
+  ];
 
   $contact = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
   $contactId = $contact['id'];
@@ -49,12 +78,16 @@ function civicrm_api3_wemove_language_switch(&$params) {
     CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups);
     CRM_Speakcivi_Logic_Group::add($contactId, $languageGroups[$toLanguage]);
     $result = CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $toLanguage);
+    CRM_Speakcivi_Logic_Activity::setSourceFields($result['id'], $utms);
 
     $values = [
       'contactId' => $contactId,
       'fromLanguage' => $fromLanguage,
       'toLanguage' => $toLanguage,
       'activity_id' => $result['id'],
+      'utm_source' => $params['utm_source'],
+      'utm_medium' => $params['utm_medium'],
+      'utm_campaign' => $params['utm_campaign'],
     ];
 
     $extraReturnValues = ['time' => microtime(TRUE) - $start];
@@ -65,5 +98,8 @@ function civicrm_api3_wemove_language_switch(&$params) {
     'contactId' => $contactId,
     'fromLanguage' => $fromLanguage,
     'toLanguage' => $toLanguage,
+    'utm_source' => $params['utm_source'],
+    'utm_medium' => $params['utm_medium'],
+    'utm_campaign' => $params['utm_campaign'],
   ]);
 }

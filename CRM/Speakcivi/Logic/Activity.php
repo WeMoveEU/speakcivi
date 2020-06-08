@@ -160,6 +160,8 @@ class CRM_Speakcivi_Logic_Activity {
   /**
    * Set source fields in custom fields
    *
+   * @todo unify $fields - change to similar to CRM_Commitcivi_Model_Utm
+   *
    * @param $activityId
    * @param $fields
    *
@@ -171,14 +173,15 @@ class CRM_Speakcivi_Logic_Activity {
       'id' => $activityId,
     );
     $fields = (array)$fields;
-    if (array_key_exists('source', $fields) && $fields['source']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_source')] = $fields['source'];
-    }
-    if (array_key_exists('medium', $fields) && $fields['medium']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_medium')] = $fields['medium'];
-    }
-    if (array_key_exists('campaign', $fields) && $fields['campaign']) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_activity_campaign')] = $fields['campaign'];
+    $mapping = [
+      'source' => 'field_activity_source',
+      'medium' => 'field_activity_medium',
+      'campaign' => 'field_activity_campaign',
+    ];
+    foreach ($mapping as $field => $setting) {
+      if (array_key_exists($field, $fields) && $fields[$field]) {
+        $params[Civi::settings()->get($setting)] = $fields[$field];
+      }
     }
     if (count($params) > 2) {
       civicrm_api3('Activity', 'create', $params);
