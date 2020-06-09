@@ -238,4 +238,25 @@ class CRM_Speakcivi_Logic_Contact {
     $result = civicrm_api3('Contact', 'get', $params);
     return $result['values'][0];
   }
+
+  /**
+   * Get primary country iso code.
+   *
+   * @param int $contactId
+   *
+   * @return string|null
+   */
+  public static function getPrimaryCountry($contactId) {
+    $query = "SELECT c.iso_code
+              FROM civicrm_address a
+                JOIN civicrm_country c ON c.id = a.country_id
+              WHERE a.contact_id = %1 AND a.is_primary = 1
+              LIMIT 1";
+    $params = [
+      1 => [$contactId, 'Integer'],
+    ];
+
+    return CRM_Core_DAO::singleValueQuery($query, $params);
+  }
+
 }
