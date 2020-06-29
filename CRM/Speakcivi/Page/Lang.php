@@ -4,7 +4,7 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Speakcivi_Page_Lang extends CRM_Speakcivi_Page_Post {
 
-  private $urlLanguageForm = '/form/preferred-language';
+  private $urlLanguageForm = '/language-change';
 
   private $thankYouPage = 'language-change-confirmation';
 
