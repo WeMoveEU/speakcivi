@@ -39,7 +39,6 @@ LEFT JOIN civicrm_mailing mailing_c ON mailing_c.id=mailing_id_c
 LEFT JOIN analytics_mailing_counter_datetime sent_median_a ON sent_median_a.mailing_id=mailing_id_a AND sent_median_a.counter='median_original'
 LEFT JOIN analytics_mailing_counter_datetime sent_median_b ON sent_median_b.mailing_id=mailing_id_b AND sent_median_b.counter='median_original'
 
-WHERE status != "Draft" 
 ORDER BY m.id DESC
 ) as t
 where (100*ab_sign/ab_recipient) > 2 and recipient > 800

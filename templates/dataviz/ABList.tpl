@@ -51,7 +51,7 @@ function drawTable(dom) {
     .sortBy(function(d) { return d.date; })
     .order(d3.descending)
     .columns ([
-       'date',
+       {label:'date',format:(d)=> d.status =="Draft"? "<i class='disabled'>"+d.date+"</i>" : d.date},
        {label:'name',format:(d)=>'<a href="/civicrm/dataviz/AB/'+d.id+'">'+d.name+'</a>'},
        'ab_recipient',
 //       'ab_sign',
