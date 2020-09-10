@@ -481,6 +481,10 @@ function civicrm_api3_speakcivi_remind($params) {
           'from_name' => $email[$cid]['from_name'],
           'from_email' => $email[$cid]['from_email'],
           'footer_id' => chooseFooter($language[$cid]),
+          'custom_71' => "kicker",
+          'custom_72' => "consent",
+          'custom_76' => 0,
+          'custom_77' => 0,
         );
         $mailing = new CRM_Mailing_BAO_Mailing();
         $mm = $mailing->add($params);
