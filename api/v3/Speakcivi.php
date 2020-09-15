@@ -1,5 +1,7 @@
 <?php
 
+require_once 'CRM/Core/BAO/CustomField.php';
+
 function civicrm_api3_speakcivi_update_stats($params) {
   $config = CRM_Core_Config::singleton();
   $sql = file_get_contents(dirname(__FILE__) . '/../../sql/update.sql', TRUE);
@@ -361,7 +363,12 @@ function _civicrm_api3_speakcivi_remind_spec(&$spec) {
   ];
 }
 
-
+/**
+ * @param $params
+ *
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
 function civicrm_api3_speakcivi_remind($params) {
   // how old not confirmed petitions
   $start = microtime(TRUE);
@@ -481,11 +488,8 @@ function civicrm_api3_speakcivi_remind($params) {
           'from_name' => $email[$cid]['from_name'],
           'from_email' => $email[$cid]['from_email'],
           'footer_id' => chooseFooter($language[$cid]),
-          'custom_71' => "kicker",
-          'custom_72' => "consent",
-          'custom_76' => 0,
-          'custom_77' => 0,
         );
+        $params = setMetadata($params);
         $mailing = new CRM_Mailing_BAO_Mailing();
         $mm = $mailing->add($params);
 
@@ -1061,6 +1065,35 @@ function determineMailingName($campaignId, $language) {
     $name .= '_' . $count;
   }
   return $name;
+}
+
+/**
+ * Set default values for metadata fields.
+ *
+ * @param $params
+ *
+ * @return mixed
+ * @throws \CiviCRM_API3_Exception
+ */
+function setMetadata($params) {
+  $mailingType = CRM_Core_BAO_CustomField::getCustomFieldID('mailing_type', 'mailingdata', TRUE);
+  $askType = CRM_Core_BAO_CustomField::getCustomFieldID('mailing_ask_type', 'mailingdata', TRUE);
+  $personalisedSubject = CRM_Core_BAO_CustomField::getCustomFieldID('personalised_subject', 'mailingdata', TRUE);
+  $hasPicture = CRM_Core_BAO_CustomField::getCustomFieldID('has_pictures', 'mailingdata', TRUE);
+  if ($mailingType) {
+    $params[$mailingType] = 'kicker';
+  }
+  if ($askType) {
+    $params[$askType] = 'consent';
+  }
+  if ($personalisedSubject) {
+    $params[$personalisedSubject] = 0;
+  }
+  if ($hasPicture) {
+    $params[$hasPicture] = 0;
+  }
+
+  return $params;
 }
 
 /**
