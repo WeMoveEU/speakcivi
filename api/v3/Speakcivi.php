@@ -489,9 +489,9 @@ function civicrm_api3_speakcivi_remind($params) {
           'from_email' => $email[$cid]['from_email'],
           'footer_id' => chooseFooter($language[$cid]),
         );
-        $params = setMetadata($params);
         $mailing = new CRM_Mailing_BAO_Mailing();
         $mm = $mailing->add($params);
+        setMetadata($mm->id);
 
         excludeGroup($mm->id, $groupId);
 
@@ -1070,16 +1070,19 @@ function determineMailingName($campaignId, $language) {
 /**
  * Set default values for metadata fields.
  *
- * @param $params
+ * @param int $mailingId
  *
- * @return mixed
  * @throws \CiviCRM_API3_Exception
  */
-function setMetadata($params) {
+function setMetadata($mailingId) {
   $mailingType = CRM_Core_BAO_CustomField::getCustomFieldID('mailing_type', 'mailingdata', TRUE);
   $askType = CRM_Core_BAO_CustomField::getCustomFieldID('mailing_ask_type', 'mailingdata', TRUE);
   $personalisedSubject = CRM_Core_BAO_CustomField::getCustomFieldID('personalised_subject', 'mailingdata', TRUE);
   $hasPicture = CRM_Core_BAO_CustomField::getCustomFieldID('has_pictures', 'mailingdata', TRUE);
+  $params = [
+    'sequential' => 1,
+    'id' => $mailingId,
+  ];
   if ($mailingType) {
     $params[$mailingType] = 'kicker';
   }
@@ -1092,8 +1095,9 @@ function setMetadata($params) {
   if ($hasPicture) {
     $params[$hasPicture] = 0;
   }
-
-  return $params;
+  if (count($params) > 2) {
+    civicrm_api3('Mailing', 'create', $params);
+  }
 }
 
 /**
