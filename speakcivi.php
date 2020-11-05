@@ -139,14 +139,21 @@ function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = a
 }
 
 function findMailingLanguage($job) {
+    $cache_key = "speakcivi:mailinglanguage:$job";
+    $language = Civi::cache()->get($cache_key);
+    if ($language) { 
+        return $language;
+    }
     $dao = CRM_Core_DAO::executeQuery("
 SELECT m.language 
 FROM civicrm_mailing_job j 
 JOIN civicrm_mailing m ON m.id=j.mailing_id 
 WHERE j.id=$job
-",
+"
     );
-    return $dao->fetchValue();
+    $language = $dao->fetchValue();
+    Civi::cache()->set($cache_key, $language);
+    return $language;
 }
 
 
