@@ -2,6 +2,8 @@
 
 require_once 'speakcivi.civix.php';
 
+use CRM\Tools\Dictionary\CRM_Speakcivi_Tools_Dictionary as Dictionary;
+
 /**
  * Implementation of hook_civicrm_config
  *
@@ -114,7 +116,6 @@ function speakcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  */
 function speakcivi_civicrm_tokens(&$tokens) {
   $tokens['speakcivi']['speakcivi.confirmation_hash'] = 'Confirmation Hash';
-  $tokens['speakcivi']['member_city'] = 'Member City';
 }
 
 /**
@@ -132,59 +133,36 @@ function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = a
   }
 
   //  cargo cult wants me to use this too: || in_array('member_city', $tokens['speakcivi']
-  if (array_key_exists('member_city', $tokens['speakcivi'])) {
-    speakcivi_member_city($values, $cids, $context);
+  if (array_key_exists('city', $tokens['contact'])) {
+      speakcivi_member_city($values, $cids, findMailingLanguage($job));
   }
 }
 
-
-function speakcivi_member_city(&$values, $cids, $context) {
-    /* 
-    if ($context ) {
-        foreach($context as $k => $v) {
-            CRM_Core_Error::debug_log_message("Context has $k $v");
-        }
-    }
-    else {
-            CRM_Core_Error::debug_log_message("Context is NULL");
-    }
-    */
-	$dao = CRM_Utils_SQL_Select::from('civicrm_contact cc')
-		->join('ca', 'LEFT JOIN civicrm_address ca on cc.id=ca.contact_id and ca.is_primary=1')
-		->join('country', 'LEFT JOIN civicrm_country country on country.id=country_id')
-		->select('contact_id, preferred_language, city, country.iso_code')
-        ->where('cc.id IN (#cids)', array('cids' => $cids))
-        ->execute();
-
-    $FALLBACK_CITY_VALUES = array(
-        "fr_FR" => "votre ville",
-        "de_DE" => "deine Stadt",
-        "en_GB" => "your city",
-        "en_US" => "your city",
-        "pl_PL" => "Twoje miasto",
+function findMailingLanguage($job) {
+    $dao = CRM_Core_DAO::executeQuery("
+SELECT m.language 
+FROM civicrm_mailing_job j 
+JOIN civicrm_mailing m ON m.id=j.mailing_id 
+WHERE j.id=$job
+",
     );
+    return $dao->fetchValue();
+}
 
-    while ($dao->fetch()) {
-        // not sure i get how this logic works
-        $city = $dao->city;
-        if ($city) {
-            $values[$dao->contact_id]['speakcivi.member_city'] = $city;
-            CRM_Core_Error::debug_log_message("CITY =  $city");
-        }
-        else {
-            $city = $FALLBACK_CITY_VALUES[$dao->preferred_language];
-            CRM_Core_Error::debug_log_message($dao->preferred_language . " & " . $city);
-            CRM_Core_Error::debug_log_message($dao->preferred_language . " & $city");
-            $values[$dao->contact_id]['speakcivi.member_city'] = $city;
-        }
+
+function speakcivi_member_city(&$tokens, $cids, $language) {
+    $fallbacks = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
+
+    foreach ( $cids as $contact_id ) {
+        $tokens[$contact_id]['city'] = $fallbacks[$language];
     }
+
 }
 
 /*
  * Implementation of hook_civicrm_container
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_container
- */
 function speakcivi_civicrm_container($container) {
     $container->addResource(new \Symfony\Component\Config\Resource\FileResource(__FILE__));
     $container->findDefinition('dispatcher')->addMethodCall('addListener',
@@ -193,7 +171,7 @@ function speakcivi_civicrm_container($container) {
     $container->findDefinition('dispatcher')->addMethodCall('addListener',
       ['civi.token.eval', 'speakcivi_evaluate_tokens']
     );
-    CRM_Core_Error::debug_log_message("All configured up.");
+    // CRM_Core_Error::debug_log_message("All configured up.");
 }
   
 function speakcivi_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
@@ -205,11 +183,11 @@ function speakcivi_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
 function speakcivi_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
   CRM_Core_Error::debug_log_message("OHAI, I'm the SpeakCivi token evaluator.");
   foreach ($e->getRows() as $row) {
-      /** @var TokenRow $row */
       $row->format('text/html');
       $row->tokens('speakcivi', 'member_city', $row->context['city'] || 'your City'); // ts('your City'));
   }
 }
+ */
 
 function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
   if ($apiRequest['entity'] == 'MailingEventUnsubscribe' && $apiRequest['action'] == 'create') {
