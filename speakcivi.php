@@ -109,6 +109,7 @@ function speakcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _speakcivi_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+
 /**
  * Implementation of hook_civicrm_tokens
  *
@@ -121,80 +122,26 @@ function speakcivi_civicrm_tokens(&$tokens) {
 /**
  * Implementation of hook_civicrm_tokenValues
  *
- * @param $values
- * @param $cids
- * @param null $job
- * @param array $tokens
- * @param null $context
+ * @param $values        // values for the current template tokens, by contact
+ * @param $cids          // batch of contact ids
+ * @param null $job      // processing job, linked to mailing
+ * @param array $tokens  // array of tokens used in the mailing
+ * @param null $context  // no idea
  */
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
+  $language = CRM_Speakcivi_Tools_Dictionary::findMailingLanguage($job);
+  $cityDefaultValues = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
+  $wantsCity = array_key_exists('city', $tokens['contact']);
+
   foreach ($cids as $cid) {
     $values[$cid]['speakcivi.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
-  }
 
-  //  cargo cult wants me to use this too: || in_array('member_city', $tokens['speakcivi']
-  if (array_key_exists('city', $tokens['contact'])) {
-      speakcivi_member_city($values, $cids, findMailingLanguage($job));
-  }
-}
-
-function findMailingLanguage($job) {
-    $cache_key = "speakcivi:mailinglanguage:$job";
-    $language = Civi::cache()->get($cache_key);
-    if ($language) { 
-        return $language;
+    if ($wantsCity && empty($values[$cid]['city'])) {
+        $values[$cid]['city'] = $cityDefaultValues[$language];
     }
-    $dao = CRM_Core_DAO::executeQuery("
-SELECT m.language 
-FROM civicrm_mailing_job j 
-JOIN civicrm_mailing m ON m.id=j.mailing_id 
-WHERE j.id=$job
-"
-    );
-    $language = $dao->fetchValue();
-    Civi::cache()->set($cache_key, $language);
-    return $language;
-}
-
-
-function speakcivi_member_city(&$tokens, $cids, $language) {
-    $fallbacks = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
-
-    foreach ( $cids as $contact_id ) {
-        $tokens[$contact_id]['city'] = $fallbacks[$language];
-    }
-
-}
-
-/*
- * Implementation of hook_civicrm_container
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_container
-function speakcivi_civicrm_container($container) {
-    $container->addResource(new \Symfony\Component\Config\Resource\FileResource(__FILE__));
-    $container->findDefinition('dispatcher')->addMethodCall('addListener',
-      ['civi.token.list', 'speakcivi_register_tokens']
-    );
-    $container->findDefinition('dispatcher')->addMethodCall('addListener',
-      ['civi.token.eval', 'speakcivi_evaluate_tokens']
-    );
-    // CRM_Core_Error::debug_log_message("All configured up.");
-}
-  
-function speakcivi_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
-    CRM_Core_Error::debug_log_message("OHAI, I'm the SpeakCivi token registry.");
-    $e->entity('profile')
-      ->register('speakcivi', 'member_city', 'Member City'); // ts('Member City'));
-}
-  
-function speakcivi_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
-  CRM_Core_Error::debug_log_message("OHAI, I'm the SpeakCivi token evaluator.");
-  foreach ($e->getRows() as $row) {
-      $row->format('text/html');
-      $row->tokens('speakcivi', 'member_city', $row->context['city'] || 'your City'); // ts('your City'));
   }
+
 }
- */
 
 function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
   if ($apiRequest['entity'] == 'MailingEventUnsubscribe' && $apiRequest['action'] == 'create') {
