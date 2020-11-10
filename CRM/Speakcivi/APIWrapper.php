@@ -36,6 +36,12 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
         'hold_date' => date('YmdHis'),
       );
       civicrm_api3('Email', 'create', $params);
+      $params = array(
+        'sequential' => 1,
+        'id' => $eq->contact_id,
+        'is_opt_out' => 1,
+      );
+      civicrm_api3('Contact', 'create', $params);
     }
   }
 
