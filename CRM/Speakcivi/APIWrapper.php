@@ -29,27 +29,14 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     $eq = new CRM_Mailing_Event_BAO_Queue();
     $eq->id = $apiRequest['params']['event_queue_id'];
     if ($eq->find(TRUE)) {
-      $contactHasMembersGroup = $this->contactHasMembersGroup($eq->contact_id);
-      if ($contactHasMembersGroup) {
-        $params = array(
-          'sequential' => 1,
-          'id' => $eq->email_id,
-          'on_hold' => 2,
-          'hold_date' => date('YmdHis'),
-        );
-        civicrm_api3('Email', 'create', $params);
-      }
+      $params = array(
+        'sequential' => 1,
+        'id' => $eq->email_id,
+        'on_hold' => 2,
+        'hold_date' => date('YmdHis'),
+      );
+      civicrm_api3('Email', 'create', $params);
     }
-  }
-
-  private function contactHasMembersGroup($contactId) {
-    $query = "SELECT count(id)
-              FROM civicrm_group_contact
-              WHERE group_id = 42 AND contact_id = %1 AND status = 'Added'";
-    $params = array(
-      1 => array($contactId, 'Integer'),
-    );
-    return (boolean) CRM_Core_DAO::singleValueQuery($query, $params);
   }
 
   private function setCampaignId($eventQueueId) {
