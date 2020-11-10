@@ -137,7 +137,7 @@ function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = a
     $values[$cid]['speakcivi.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
 
     if ($wantsCity && empty($values[$cid]['city'])) {
-        $values[$cid]['city'] = $cityDefaultValues[$language];
+        $values[$cid]['city'] = CRM_Utils_Array::value($language, $cityDefaultValues, 'your city');
     }
   }
 
