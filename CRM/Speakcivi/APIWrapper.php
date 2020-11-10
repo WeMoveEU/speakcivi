@@ -6,6 +6,13 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     return $apiRequest;
   }
 
+  /**
+   * @param array $apiRequest
+   * @param array $result
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
   public function toApiOutput($apiRequest, $result) {
     if ($apiRequest['entity'] == 'MailingEventUnsubscribe' && $apiRequest['action'] == 'create') {
       $this->processUnsubscribe($apiRequest);
@@ -13,17 +20,24 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     return $result;
   }
 
+  /**
+   * @param $apiRequest
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
   private function processUnsubscribe($apiRequest) {
     $eq = new CRM_Mailing_Event_BAO_Queue();
     $eq->id = $apiRequest['params']['event_queue_id'];
     if ($eq->find(TRUE)) {
       $contactHasMembersGroup = $this->contactHasMembersGroup($eq->contact_id);
       if ($contactHasMembersGroup) {
-        $email = new CRM_Core_BAO_Email();
-        $email->id = $eq->email_id;
-        $email->on_hold = 2;
-        $email->hold_date = date('YmdHis');
-        $email->save();
+        $params = array(
+          'sequential' => 1,
+          'id' => $eq->email_id,
+          'on_hold' => 2,
+          'hold_date' => date('YmdHis'),
+        );
+        civicrm_api3('Email', 'create', $params);
       }
     }
   }
