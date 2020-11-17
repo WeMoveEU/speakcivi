@@ -453,4 +453,40 @@ class CRM_Speakcivi_Tools_Dictionary {
     }
     return $content;
   }
+
+  public static function fallbackCityValues() {
+    return array(
+        "fr_FR" => "votre ville",
+        "de_DE" => "deine Stadt",
+        "en_GB" => "your city",
+        "en_US" => "your city",
+        "pl_PL" => "Twoje miasto",
+    );
+  }
+
+    /**
+    * Cached look up for the language for a mailing using a job id.
+    *
+    * Each job is linked to one mailing, so we can cache the language of the
+    * mailing using the job as a key.
+    *
+    * @param int $job - id of a MailingJob
+    */
+    function findMailingLanguage($job) {
+        $cache_key = "speakcivi:mailinglanguage:$job";
+        $language = Civi::cache()->get($cache_key);
+        if ($language) { 
+            return $language;
+        }
+        $dao = CRM_Core_DAO::executeQuery("
+    SELECT m.language 
+    FROM civicrm_mailing_job j 
+    JOIN civicrm_mailing m ON m.id=j.mailing_id 
+    WHERE j.id=$job
+    "
+        );
+        $language = $dao->fetchValue();
+        Civi::cache()->set($cache_key, $language);
+        return $language;
+    }
 }

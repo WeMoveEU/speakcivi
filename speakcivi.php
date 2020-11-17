@@ -2,6 +2,8 @@
 
 require_once 'speakcivi.civix.php';
 
+use CRM\Tools\Dictionary\CRM_Speakcivi_Tools_Dictionary as Dictionary;
+
 /**
  * Implementation of hook_civicrm_config
  *
@@ -107,30 +109,38 @@ function speakcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _speakcivi_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+
 /**
  * Implementation of hook_civicrm_tokens
  *
  * @param $tokens
  */
 function speakcivi_civicrm_tokens(&$tokens) {
-  $tokens['speakcivi'] = array(
-    'speakcivi.confirmation_hash' => 'Confirmation hash',
-  );
+  $tokens['speakcivi']['speakcivi.confirmation_hash'] = 'Confirmation Hash';
 }
 
 /**
  * Implementation of hook_civicrm_tokenValues
  *
- * @param $values
- * @param $cids
- * @param null $job
- * @param array $tokens
- * @param null $context
+ * @param $values        // values for the current template tokens, by contact
+ * @param $cids          // batch of contact ids
+ * @param null $job      // processing job, linked to mailing
+ * @param array $tokens  // array of tokens used in the mailing
+ * @param null $context  // no idea
  */
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
+  $language = CRM_Speakcivi_Tools_Dictionary::findMailingLanguage($job);
+  $cityDefaultValues = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
+  $wantsCity = array_key_exists('city', $tokens['contact']);
+
   foreach ($cids as $cid) {
     $values[$cid]['speakcivi.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
+
+    if ($wantsCity && empty($values[$cid]['city'])) {
+        $values[$cid]['city'] = CRM_Utils_Array::value($language, $cityDefaultValues, 'your city');
+    }
   }
+
 }
 
 function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
