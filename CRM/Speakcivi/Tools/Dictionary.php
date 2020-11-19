@@ -234,7 +234,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'da_DK':
-        return "Share on Facebook";
+        return "Del på Facebook";
         break;
 
       case 'el_GR':
@@ -288,7 +288,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'da_DK':
-        return 'Share on Twitter';
+        return 'Del på Twitter';
         break;
 
       case 'el_GR':
@@ -342,7 +342,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'da_DK':
-        return 'Share on WhatsApp';
+        return 'Del på WhatsApp';
         break;
 
       case 'el_GR':
