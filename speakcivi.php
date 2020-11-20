@@ -129,9 +129,11 @@ function speakcivi_civicrm_tokens(&$tokens) {
  * @param null $context  // no idea
  */
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
-  $language = CRM_Speakcivi_Tools_Dictionary::findMailingLanguage($job);
-  $cityDefaultValues = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
-  $wantsCity = array_key_exists('city', $tokens['contact']);
+  $wantsCity = array_key_exists('city', $tokens['contact']) && $job;
+  if ($wantsCity) {
+    $language = CRM_Speakcivi_Tools_Dictionary::findMailingLanguage($job);
+    $cityDefaultValues = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
+  }
 
   foreach ($cids as $cid) {
     $values[$cid]['speakcivi.confirmation_hash'] = sha1(CIVICRM_SITE_KEY . $cid);
