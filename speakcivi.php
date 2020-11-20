@@ -129,7 +129,7 @@ function speakcivi_civicrm_tokens(&$tokens) {
  * @param null $context  // no idea
  */
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
-  $wantsCity = array_key_exists('city', $tokens['contact']) and $job;
+  $wantsCity = array_key_exists('city', $tokens['contact']) && $job;
   if ($wantsCity) {
     $language = CRM_Speakcivi_Tools_Dictionary::findMailingLanguage($job);
     $cityDefaultValues = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
