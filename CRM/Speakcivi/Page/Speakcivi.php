@@ -63,7 +63,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   function run() {
     $param = json_decode(file_get_contents('php://input'));
-    CRM_Speakcivi_Tools_Hooks::setParams($param);
     if (!$param) {
       die ("missing POST PARAM");
     }
@@ -73,7 +72,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function runParam($param) {
     $result = 0;
     CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use ($param, &$result) {
-      CRM_Speakcivi_Tools_Hooks::setParams($param);
       CRM_Speakcivi_Tools_Helper::trimVariables($param);
       $this->setDefaults();
       $this->setCountry($param);
