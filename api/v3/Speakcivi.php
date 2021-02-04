@@ -34,16 +34,21 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 
   $campaignObj = new CRM_Speakcivi_Logic_Campaign($campaignId);
   $locale = $campaignObj->getLanguage();
+
+  $speakout_campaign = CRM_Speakcivi_Logic_Cache_SpeakoutCampaign::getCampaign(
+    $campaignObj->determineSpeakoutDomain($action_technical_type),
+    $campaignObj->campaign['external_identifier']
+  );
+
   $params['from'] = $campaignObj->getSenderMail();
   $params['format'] = NULL;
 
   if ($confirmationBlock) {
     $params['subject'] = $campaignObj->getSubjectNew();
-    $message = $campaignObj->getMessageNew();
-  }
-  else {
-    $params['subject'] = $campaignObj->getSubjectCurrent();
-    $message = $campaignObj->getMessageCurrent();
+    $message = $speakout_campaign->getMessageNew();
+  } else {
+    $params['subject'] = $speakout_campaign['thankyou_subject'];
+    $message = $speakout_campaign['thankyou_body'];
   }
 
   if (!$message) {
