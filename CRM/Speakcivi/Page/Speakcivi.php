@@ -218,7 +218,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             civicrm_api3('Gidipirus', 'set_consent_status', $params);
           }
         }
-        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember);
+        $action_technical_type = $param->action_technical_type;
+        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, '', $action_technical_type);
       }
       else {
         $rlg = 0;
@@ -276,7 +277,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
         if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
           $share_utm_source = 'post-action';
-          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, $share_utm_source);
+          $action_technical_type = $param->action_technical_type;
+          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, $share_utm_source, $action_technical_type);
         }
         else {
           // workaround for rejected status
@@ -903,14 +905,15 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $confirmationBlock
    * @param $noMember
    * @param string $share_utm_source
+   * @param string $action_technical_type
    *
    * @return array
    */
-  public function sendEmail($isAnonymous, $email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = '') {
+  public function sendEmail($isAnonymous, $email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = '', $action_technical_type = '') {
     if ($isAnonymous) {
       return array('values' => 1);
     } else {
-      return $this->sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source);
+      return $this->sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source, $action_technical_type);
     }
   }
 
@@ -924,11 +927,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @param $confirmationBlock
    * @param $noMember
    * @param $share_utm_source
+   * @param $action_technical_type
    *
    * @return array
    * @throws CiviCRM_API3_Exception
    */
-  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = '') {
+  public function sendConfirm($email, $contactId, $activityId, $campaignId, $confirmationBlock, $noMember, $share_utm_source = '', $action_technical_type = '') {
     $params = array(
       'sequential' => 1,
       'toEmail' => $email,
@@ -937,6 +941,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'campaign_id' => $campaignId,
       'confirmation_block' => $confirmationBlock,
       'no_member' => $noMember,
+      'action_technical_type' => $action_technical_type,
     );
     if ($share_utm_source) {
       $params['share_utm_source'] = $share_utm_source;

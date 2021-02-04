@@ -90,7 +90,7 @@ function handleError($msg, $error, $retry=false) {
   }
   
   //In some cases (e.g. a lost connection), dying and respawning can solve the problem
-  debugAmqp("Dying and hopefully respawning from ashes...");
+  debugAmqp("Dying and hopefully respawning from ashes..." . $error);
   die(1);
 }
 
@@ -111,6 +111,7 @@ function isConnectionLostError($sessionStatus) {
 $callback = function($msg) {
   global $msg_since_check;
   try {
+
     $json_msg = json_decode($msg->body);
     if ($json_msg) {
       $msg_handler = new CRM_Speakcivi_Page_Speakcivi();

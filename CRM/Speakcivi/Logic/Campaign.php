@@ -498,10 +498,10 @@ class CRM_Speakcivi_Logic_Campaign {
     curl_close($ch);
     if ($code == 200) {
       return $data;
-    } elseif ($code = 404) {
+    } 
+    if ($code == 404) {
       throw new CRM_Speakcivi_Exception('Speakout campaign doesnt exist: ' . $url, 1);
-    } else {
-      throw new CRM_Speakcivi_Exception('Speakout campaign is unavailable' . $url, 2);
-    }
+    } 
+    throw new CRM_Speakcivi_Exception('Speakout campaign is unavailable: ' . $url, 2);
   }
 }

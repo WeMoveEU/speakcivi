@@ -24,6 +24,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $contactId = $params['contact_id'];
   $campaignId = $params['campaign_id'];
   $activityId = $params['activity_id'];
+  $action_technical_type = $params['action_technical_type'];
   if (array_key_exists('no_member', $params)) {
     $noMember = (bool) $params['no_member'];
   }
@@ -59,7 +60,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $contact = array();
   $params_contact = array(
     'id' => $contactId,
-    'sequential' => 1,
+    'sequential' =>  1,
     'return' => ["id", "display_name", "first_name", "last_name", "hash", "email", "email_greeting"],
   );
   $result = civicrm_api3('Contact', 'get', $params_contact);
@@ -67,6 +68,12 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     $contact = $result['values'][0];
     $contact['checksum'] = CRM_Contact_BAO_Contact_Utils::generateChecksum($contactId, NULL, NULL, $contact['hash']);
   }
+
+  # TODO: Cache the speakout campaign details...
+  $speakout_campaign = (array) $campaignObj->getRemoteCampaign(
+      $campaignObj->determineSpeakoutDomain($action_technical_type),
+      $campaignObj->campaign['external_identifier']
+  );
 
   /* CONFIRMATION_BLOCK */
   $hash = sha1(CIVICRM_SITE_KEY . $contactId);
@@ -105,7 +112,10 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('language_button', CRM_Speakcivi_Tools_Dictionary::getLanguageButton($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
   $template->assign('contact', $contact);
-  $share_whatsapp_web = $template->fetch('string:' . CRM_Speakcivi_Tools_Dictionary::getShareWhatsappWeb($locale));
+  $template->assign('campaign', $speakout_campaign);
+  $share_whatsapp_web = $template->fetch(
+    'string:' . CRM_Speakcivi_Tools_Dictionary::getShareWhatsappWeb($locale)
+  );
   $template->assign('share_whatsapp_web', $share_whatsapp_web);
 
   /* FETCHING SMARTY TEMPLATES */
@@ -116,6 +126,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $privacyBlock = $template->fetch('../templates/CRM/Speakcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl');
   $sharingBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/SharingBlock.html.tpl');
   $languageBlockHtml = $template->fetch('../templates/CRM/Speakcivi/Page/LanguageBlock.html.tpl');
+  
   $message = $template->fetch('string:' . $message);
 
   $messageHtml = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $message);
