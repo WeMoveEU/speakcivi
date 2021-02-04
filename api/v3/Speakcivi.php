@@ -70,9 +70,9 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   }
 
   # TODO: Cache the speakout campaign details...
-  $speakout_campaign = (array) $campaignObj->getRemoteCampaign(
-      $campaignObj->determineSpeakoutDomain($action_technical_type),
-      $campaignObj->campaign['external_identifier']
+  $speakout_campaign = CRM_Speakcivi_Logic_Cache_SpeakoutCampaign::getCampaign(
+    $campaignObj->determineSpeakoutDomain($action_technical_type),
+    $campaignObj->campaign['external_identifier']
   );
 
   /* CONFIRMATION_BLOCK */

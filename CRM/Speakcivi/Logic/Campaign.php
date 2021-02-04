@@ -486,22 +486,27 @@ class CRM_Speakcivi_Logic_Campaign {
    * @throws \CRM_Speakcivi_Exception
    */
   public function getContent($url, $authString = NULL) {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    if ($authString != NULL) {
-      curl_setopt($ch, CURLOPT_USERPWD, $authString);
-    }
-    $data = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    if ($code == 200) {
-      return $data;
-    } 
-    if ($code == 404) {
-      throw new CRM_Speakcivi_Exception('Speakout campaign doesnt exist: ' . $url, 1);
-    } 
-    throw new CRM_Speakcivi_Exception('Speakout campaign is unavailable: ' . $url, 2);
+    return fetchSpeakoutContent($url, $authstring = NULL);
+
   }
+}
+
+function fetchSpeakoutContent($url, $authString = NULL) {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  if ($authString != NULL) {
+    curl_setopt($ch, CURLOPT_USERPWD, $authString);
+  }
+  $data = curl_exec($ch);
+  $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
+  if ($code == 200) {
+    return $data;
+  } 
+  if ($code == 404) {
+    throw new CRM_Speakcivi_Exception('Speakout campaign doesnt exist: ' . $url, 1);
+  } 
+  throw new CRM_Speakcivi_Exception('Speakout campaign is unavailable: ' . $url, 2);
 }
