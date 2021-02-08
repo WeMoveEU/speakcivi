@@ -11,7 +11,7 @@ class CRM_Speakcivi_Logic_Cache_SpeakoutCampaign extends CRM_Speakcivi_Logic_Cac
             self::CACHE_PREFIX,
             "$speakoutDomain:$speakoutCampaignId"
         )) {
-            return $speakout_campaign;
+            return $speakout_campaign[self::CACHE_PREFIX];
         }
 
         $url = "https://$speakoutDomain/api/v1/campaigns/$speakoutCampaignId";

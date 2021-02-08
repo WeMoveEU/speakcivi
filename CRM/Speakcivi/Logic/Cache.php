@@ -21,7 +21,7 @@ class CRM_Speakcivi_Logic_Cache {
     if (!isset($cache)) {
       return NULL;
     }
-    if (self::isOld($cache['timestamp'])) {
+    if (self::isOld($cache['expires'])) {
       Civi::cache()->delete($key);
       return NULL;
     }
@@ -36,11 +36,15 @@ class CRM_Speakcivi_Logic_Cache {
    * @param int $id
    * @param mixed $object
    */
-  protected  static function set($type, $id, $object) {
+  protected  static function set($type, $id, $object, $ttl = 3600) {
     $key = self::KEY_PREFIX . $type . $id;
+
+    $now = new DateTime('now');
+    $now->add(new DateInterval("PT" . $ttl . "S"));
+
     $value = array(
       $type => $object,
-      'timestamp' => date(self::$dateFormat),
+      'expires' => $now->format(self::$dateFormat)
     );
     Civi::cache()->set($key, $value);
   }
@@ -53,10 +57,8 @@ class CRM_Speakcivi_Logic_Cache {
    *
    * @return bool
    */
-  private static function isOld($timestamp) {
-    $old = DateTime::createFromFormat(self::$dateFormat, $timestamp)
-      ->modify('+1 hour')
-      ->format(self::$dateFormat);
-    return ($old < date(self::$dateFormat));
+  private static function isOld($expires) {
+    # old if expires in the past, less than now
+    return DateTime::createFromFormat(self::$dateFormat, $expires) < new Datetime("now");
   }
 }
