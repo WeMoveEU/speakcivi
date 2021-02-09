@@ -58,6 +58,21 @@ class CRM_Speakcivi_Tools_Dictionary {
     return 0;
   }
 
+  /**
+   * Determine shortcut of gender based on gender id from contact.
+   *
+   * @param $genderId
+   *
+   * @return string
+   */
+  public function mapGenderShortcut($genderId): string {
+    $mapping = [
+      1 => 'F',
+      2 => 'M',
+    ];
+
+    return CRM_Utils_Array::value($genderId, $mapping, '');
+  }
 
   /**
    * Get prefix based on gender (F or M)
