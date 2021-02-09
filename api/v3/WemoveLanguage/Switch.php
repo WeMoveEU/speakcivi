@@ -91,8 +91,11 @@ function civicrm_api3_wemove_language_switch(&$params) {
     $result = CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $toLanguage);
     CRM_Speakcivi_Logic_Activity::setSourceFields($result['id'], $utms);
 
-    // todo determine greeting based on gender of contact and new language
-    $greetingId = CRM_Contact_BAO_Contact_Utils::defaultGreeting('Individual', 'email_greeting');
+    $dict = new CRM_Speakcivi_Tools_Dictionary();
+    $dict->parseGroupEmailGreeting();
+    // todo get gender from contact
+    $genderShortcut = 'M';
+    $greetingId = $dict->getEmailGreetingId($toLanguage, $genderShortcut);
     $paramsGreeting = [
       'sequential' => 1,
       'contact_id' => $contactId,
