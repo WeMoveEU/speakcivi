@@ -65,6 +65,7 @@ function civicrm_api3_wemove_language_switch(&$params) {
     'campaign' => $params['utm_campaign'],
   ];
 
+  // todo return gender_id
   $contact = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
   $contactId = $contact['id'];
   if (!$contactId) {
@@ -93,8 +94,8 @@ function civicrm_api3_wemove_language_switch(&$params) {
 
     $dict = new CRM_Speakcivi_Tools_Dictionary();
     $dict->parseGroupEmailGreeting();
-    // todo get gender from contact
-    $genderShortcut = 'M';
+    $genderId = $contact['gender_id'];
+    $genderShortcut = $dict->mapGenderShortcut($genderId);
     $greetingId = $dict->getEmailGreetingId($toLanguage, $genderShortcut);
     $paramsGreeting = [
       'sequential' => 1,
