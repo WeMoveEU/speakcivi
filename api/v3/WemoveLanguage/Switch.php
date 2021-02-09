@@ -65,7 +65,6 @@ function civicrm_api3_wemove_language_switch(&$params) {
     'campaign' => $params['utm_campaign'],
   ];
 
-  // todo return gender_id
   $contact = CRM_Speakcivi_Logic_Contact::getContactByHash($hash);
   $contactId = $contact['id'];
   if (!$contactId) {
