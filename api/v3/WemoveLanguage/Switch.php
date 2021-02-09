@@ -93,8 +93,7 @@ function civicrm_api3_wemove_language_switch(&$params) {
 
     $dict = new CRM_Speakcivi_Tools_Dictionary();
     $dict->parseGroupEmailGreeting();
-    $genderId = $contact['gender_id'];
-    $genderShortcut = $dict->mapGenderShortcut($genderId);
+    $genderShortcut = $dict->mapGenderShortcut($contact['gender_id']);
     $greetingId = $dict->getEmailGreetingId($toLanguage, $genderShortcut);
     $paramsGreeting = [
       'sequential' => 1,
