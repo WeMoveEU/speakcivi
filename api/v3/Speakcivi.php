@@ -105,6 +105,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('language_button', CRM_Speakcivi_Tools_Dictionary::getLanguageButton($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
   $template->assign('contact', $contact);
+  $template->assign('campaign_name', $campaignObj->campaign['description']);
   $share_whatsapp_web = $template->fetch('string:' . CRM_Speakcivi_Tools_Dictionary::getShareWhatsappWeb($locale));
   $template->assign('share_whatsapp_web', $share_whatsapp_web);
 
