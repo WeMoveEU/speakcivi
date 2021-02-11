@@ -159,3 +159,9 @@ function speakcivi_civicrm_preProcess($formName, &$form) {
     CRM_Core_Resources::singleton()->addScriptFile('eu.wemove.speakcivi', 'js/speakcivi-prefill.js');
   }
 }
+
+function hook_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  if ($objectName == 'Campaign' && $op == 'edit') {
+    CRM_Speakcivi_Logic_Cache_Campaign::setExternalCampaign($campaign->campaign);
+  }
+}

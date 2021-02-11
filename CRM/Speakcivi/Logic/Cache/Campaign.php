@@ -53,4 +53,13 @@ class CRM_Speakcivi_Logic_Cache_Campaign extends CRM_Speakcivi_Logic_Cache {
     }
     return $campaignObj->campaign;
   }
+
+  public static function setExternalCampaign($campaign) {
+    self::set(
+      self::TYPE_CAMPAIGN_EXTERNAL,
+      $campaign['external_identifier'],
+      $campaign
+    );
+  }
+
 }
