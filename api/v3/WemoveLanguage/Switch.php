@@ -109,6 +109,7 @@ function civicrm_api3_wemove_language_switch(&$params) {
       'contactId' => $contactId,
       'fromLanguage' => $fromLanguage,
       'toLanguage' => $toLanguage,
+      'email_greeting_id' => $greetingId,
       'activity_id' => $result['id'],
       'utm_source' => $params['utm_source'],
       'utm_medium' => $params['utm_medium'],
