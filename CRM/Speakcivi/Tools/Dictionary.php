@@ -10,8 +10,12 @@ class CRM_Speakcivi_Tools_Dictionary {
    * Parse all email greeting types in array of locale and gender shortcut
    */
   public function parseGroupEmailGreeting() {
-    CRM_Core_OptionGroup::getAssoc('email_greeting', $group, false, 'name');
-    foreach ($group['description'] as $id => $description) {
+    $filter = [
+      'greeting_type' => 'email_greeting',
+      'contact_type' => 'Individual',
+    ];
+    $descriptions = CRM_Core_PseudoConstant::greeting($filter,'description');
+    foreach ($descriptions as $id => $description) {
       $tab = $this->parseLocaleGenderShortcut($description);
       if (is_array($tab) && count($tab) == 2) {
         $this->emailGreetingIds[$tab['locale']][$tab['genderShortcut']] = $id;
@@ -58,6 +62,21 @@ class CRM_Speakcivi_Tools_Dictionary {
     return 0;
   }
 
+  /**
+   * Determine shortcut of gender based on gender id from contact.
+   *
+   * @param $genderId
+   *
+   * @return string
+   */
+  public function mapGenderShortcut($genderId): string {
+    $mapping = [
+      1 => 'F',
+      2 => 'M',
+    ];
+
+    return CRM_Utils_Array::value($genderId, $mapping, '');
+  }
 
   /**
    * Get prefix based on gender (F or M)

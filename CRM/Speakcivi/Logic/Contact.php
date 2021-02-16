@@ -58,7 +58,7 @@ class CRM_Speakcivi_Logic_Contact {
       'sequential' => 1,
       'contact_type' => 'Individual',
       'hash' => $hash,
-      'return' => "id,preferred_language",
+      'return' => "id,preferred_language,gender_id",
     );
     $result = civicrm_api3('Contact', 'get', $params);
     if ($result['count'] = 1) {

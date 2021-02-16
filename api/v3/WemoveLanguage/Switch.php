@@ -91,10 +91,25 @@ function civicrm_api3_wemove_language_switch(&$params) {
     $result = CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $toLanguage);
     CRM_Speakcivi_Logic_Activity::setSourceFields($result['id'], $utms);
 
+    $dict = new CRM_Speakcivi_Tools_Dictionary();
+    $dict->parseGroupEmailGreeting();
+    $genderShortcut = $dict->mapGenderShortcut($contact['gender_id']);
+    $greetingId = $dict->getEmailGreetingId($toLanguage, $genderShortcut);
+    $paramsGreeting = [
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'id' => $greetingId,
+      'ct' => 'Individual',
+      'gt' => 'email_greeting',
+      'force' => 1,
+    ];
+    civicrm_api3('Job', 'update_greeting', $paramsGreeting);
+
     $values = [
       'contactId' => $contactId,
       'fromLanguage' => $fromLanguage,
       'toLanguage' => $toLanguage,
+      'email_greeting_id' => $greetingId,
       'activity_id' => $result['id'],
       'utm_source' => $params['utm_source'],
       'utm_medium' => $params['utm_medium'],
