@@ -160,8 +160,8 @@ function speakcivi_civicrm_preProcess($formName, &$form) {
   }
 }
 
-function hook_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+function speakcivi_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectName == 'Campaign' && $op == 'edit') {
-    CRM_Speakcivi_Logic_Cache_Campaign::setExternalCampaign($campaign->campaign);
+    CRM_Speakcivi_Logic_Cache_Campaign::resetLocalCampaignCache($objectId, $objectRef);
   }
 }

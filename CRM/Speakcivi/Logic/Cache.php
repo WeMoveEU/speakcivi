@@ -6,7 +6,6 @@ class CRM_Speakcivi_Logic_Cache {
 
   private static $dateFormat = 'YmdHis';
 
-
   /**
    * Get array cache for given object.
    *
@@ -22,6 +21,7 @@ class CRM_Speakcivi_Logic_Cache {
       return NULL;
     }
     if (self::isOld($cache['timestamp'])) {
+      // I'm dubious this works
       Civi::cache()->delete($key);
       return NULL;
     }

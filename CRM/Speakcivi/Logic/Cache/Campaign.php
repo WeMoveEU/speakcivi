@@ -18,6 +18,7 @@ class CRM_Speakcivi_Logic_Cache_Campaign extends CRM_Speakcivi_Logic_Cache {
     if ($cache = self::get(self::TYPE_CAMPAIGN_LOCAL, $id)) {
       return $cache[self::TYPE_CAMPAIGN_LOCAL];
     }
+
     $campaignObj = new CRM_Speakcivi_Logic_Campaign();
     $campaignObj->campaign = $campaignObj->getCampaign($id, TRUE);
     self::set(self::TYPE_CAMPAIGN_LOCAL, $id, $campaignObj->campaign);
@@ -54,12 +55,23 @@ class CRM_Speakcivi_Logic_Cache_Campaign extends CRM_Speakcivi_Logic_Cache {
     return $campaignObj->campaign;
   }
 
-  public static function setExternalCampaign($campaign) {
+  public static function resetLocalCampaignCache($civicrm_campaign_id, $civicrm_campaign) {
+    Civi::cache()->flush();
+    /*
+     * self::set doesn't work to reset a value. I don't know why. The value 
+     * $civicrm_campaign may not be the right value to save here - calling getCampaign 
+     * might be needed. 
+     *
+     * If you figure it out, please tell me at aaron@wemove.eu
+     *
     self::set(
-      self::TYPE_CAMPAIGN_EXTERNAL,
-      $campaign['external_identifier'],
-      $campaign
-    );
+        self::TYPE_CAMPAIGN_LOCAL,
+        $civicrm_campaign_id, 
+        $civicrm_campaign
+      );
+     *
+     *
+     */
   }
 
 }
