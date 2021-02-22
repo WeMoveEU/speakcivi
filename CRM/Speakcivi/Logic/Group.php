@@ -68,34 +68,18 @@ class CRM_Speakcivi_Logic_Group {
 
   /**
    * Add contact to group (with subscription history) only if needed.
-   * group_id and contact_id is compound unique key in table.
    *
    * @param int $contactId
    * @param int $groupId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
    */
-  public static function add(int $contactId, int $groupId) {
-    $query = "SELECT status FROM civicrm_group_contact WHERE contact_id = %1 AND group_id = %2";
-    $params = [
-      1 => [$contactId, 'Integer'],
-      2 => [$groupId, 'Integer'],
-    ];
-    $status = CRM_Core_DAO::singleValueQuery($query, $params);
-    if ($status) {
-      if ($status <> 'Added') {
-        $query = "UPDATE civicrm_group_contact SET status = 'Added' WHERE contact_id = %1 AND group_id = %2";
-        CRM_Core_DAO::executeQuery($query, $params);
-        $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
-                  VALUES (%1, %2, NOW(), 'API', 'Added')";
-        CRM_Core_DAO::executeQuery($query, $params);
-      }
-    }
-    else {
-      $query = "INSERT INTO civicrm_group_contact (group_id, contact_id, status) VALUES (%2, %1, 'Added')";
-      CRM_Core_DAO::executeQuery($query, $params);
-      $query = "INSERT INTO civicrm_subscription_history (contact_id, group_id, date, method, status)
-                VALUES (%1, %2, NOW(), 'API', 'Added')";
-      CRM_Core_DAO::executeQuery($query, $params);
-    }
+  public static function add(int $contactId, int $groupId): array {
+    return civicrm_api3('GroupContact', 'create', [
+      'contact_id' => $contactId,
+      'group_id' => $groupId,
+    ]);
   }
 
 }
