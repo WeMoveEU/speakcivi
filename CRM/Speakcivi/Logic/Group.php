@@ -31,12 +31,16 @@ class CRM_Speakcivi_Logic_Group {
    *
    * @param int $contactId
    * @param array $groupIds
+   * @param array $excludeGroupsId
    */
-  public static function remove($contactId, $groupIds) {
+  public static function remove($contactId, $groupIds, array $excludeGroupsId) {
     $query = "SELECT group_id 
               FROM civicrm_group_contact 
               WHERE status = 'Added' AND group_id IN (" . implode(', ', $groupIds) .")
                 AND contact_id = %1";
+    if ($excludeGroupsId) {
+      $query .= " AND group_id NOT IN (" . implode(', ', $excludeGroupsId) .")";
+    }
     $params = [
       1 => [$contactId, 'Integer'],
     ];

@@ -75,17 +75,19 @@ function civicrm_api3_wemove_language_switch(&$params) {
   if (CRM_Speakcivi_Logic_Language::isValid($toLanguage)) {
     CRM_Speakcivi_Logic_Contact::set($contactId, ['preferred_language' => $toLanguage]);
     $languageGroups = CRM_Speakcivi_Logic_Group::languageGroups();
-    CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups);
     if (CRM_Speakcivi_Logic_Language::isEnglish($toLanguage)) {
       $countryIsoCode = CRM_Speakcivi_Logic_Contact::getPrimaryCountry($contactId);
       if ($countryIsoCode == 'GB') {
+        CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups, [CRM_Speakcivi_Logic_Language::ENGLISH_UK_GROUP_ID]);
         CRM_Speakcivi_Logic_Group::add($contactId, CRM_Speakcivi_Logic_Language::ENGLISH_UK_GROUP_ID);
       }
       else {
+        CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups, [CRM_Speakcivi_Logic_Language::ENGLISH_INT_GROUP_ID]);
         CRM_Speakcivi_Logic_Group::add($contactId, CRM_Speakcivi_Logic_Language::ENGLISH_INT_GROUP_ID);
       }
     }
     else {
+      CRM_Speakcivi_Logic_Group::remove($contactId, $languageGroups, [$languageGroups[$toLanguage]]);
       CRM_Speakcivi_Logic_Group::add($contactId, $languageGroups[$toLanguage]);
     }
     $result = CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $toLanguage);
