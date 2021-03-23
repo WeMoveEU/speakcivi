@@ -5,6 +5,6 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Merci,<br />
-  Alexandre, Mika, Cécile et toute l’équipe de WeMove.EU </p>
+Alexandre, Mika, Cécile et toute l’équipe de WeMove Europe</p>
 
 <div>#PRIVACY_BLOCK</div>
