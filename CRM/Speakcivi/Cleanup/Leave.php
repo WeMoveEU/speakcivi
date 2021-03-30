@@ -25,7 +25,7 @@ class CRM_Speakcivi_Cleanup_Leave {
    * Truncate temporary table
    */
   public static function truncateTemporary() {
-    $query = "TRUNCATE speakcivi_cleanup_leave";
+    $query = "DELETE FROM speakcivi_cleanup_leave";
     CRM_Core_DAO::executeQuery($query);
   }
 
