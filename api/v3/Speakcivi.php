@@ -173,27 +173,19 @@ function _civicrm_api3_speakcivi_leave_spec(&$params) {
 
 function civicrm_api3_speakcivi_leave($params) {
   $start = microtime(TRUE);
-  $tx = new CRM_Core_Transaction();
-  try {
-    $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
-    $limit = $params['limit'];
-    CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
-    CRM_Speakcivi_Cleanup_Leave::loadTemporary($groupId, $limit);
-    $data = CRM_Speakcivi_Cleanup_Leave::getDataForActivities();
-    CRM_Speakcivi_Cleanup_Leave::createActivitiesInBatch($data);
-    $count = CRM_Speakcivi_Cleanup_Leave::countTemporaryContacts();
-    CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
-    $tx->commit();
-    $results = array(
-      'count' => $count,
-      'time' => microtime(TRUE) - $start,
-    );
-    return civicrm_api3_create_success($results, $params);
-  }
-  catch (Exception $ex) {
-    $tx->rollback()->commit();
-    throw $ex;
-  }
+  $groupId = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'group_id');
+  $limit = $params['limit'];
+  CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
+  CRM_Speakcivi_Cleanup_Leave::loadTemporary($groupId, $limit);
+  $data = CRM_Speakcivi_Cleanup_Leave::getDataForActivities();
+  CRM_Speakcivi_Cleanup_Leave::createActivitiesInBatch($data);
+  $count = CRM_Speakcivi_Cleanup_Leave::countTemporaryContacts();
+  CRM_Speakcivi_Cleanup_Leave::truncateTemporary();
+  $results = array(
+    'count' => $count,
+    'time' => microtime(TRUE) - $start,
+  );
+  return civicrm_api3_create_success($results, $params);
 }
 
 
