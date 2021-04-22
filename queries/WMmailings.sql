@@ -8,9 +8,7 @@ SELECT m.id, m.name, subject, scheduled_date as date, m.created_id as owner_id, 
   u.value AS unsub,
   (coalesce(new_signs.value, 0) + coalesce(known_signs.value, 0) + coalesce(optout_signs.value, 0) + coalesce(pending_signs.value, 0)) AS sign,
   shares.value AS share,
-  (coalesce(new_vsigns.value, 0) + coalesce(known_vsigns.value, 0) + coalesce(optout_vsigns.value, 0) + coalesce(pending_vsigns.value, 0)) AS viral_sign,
-  vshares.value AS viral_share,
-  (coalesce(new_signs.value, 0) + coalesce(new_vsigns.value, 0)) AS new_member,
+  coalesce(new_signs.value, 0) AS new_member,
   received_median.value as received_median,
   sent_median.value as sent_median,
   dr_count.value AS nb_recur,
@@ -36,11 +34,6 @@ LEFT JOIN data_mailing_counter known_signs ON known_signs.mailing_id=m.id AND kn
 LEFT JOIN data_mailing_counter optout_signs ON optout_signs.mailing_id=m.id AND optout_signs.counter='optout_direct_signs' AND optout_signs.timebox=o.timebox
 LEFT JOIN data_mailing_counter pending_signs ON pending_signs.mailing_id=m.id AND pending_signs.counter='pending_direct_signs' AND pending_signs.timebox=o.timebox
 LEFT JOIN data_mailing_counter shares ON shares.mailing_id=m.id AND shares.counter='direct_shares' AND shares.timebox=o.timebox
-LEFT JOIN data_mailing_counter new_vsigns ON new_vsigns.mailing_id=m.id AND new_vsigns.counter='new_viral_signs' AND new_vsigns.timebox=o.timebox
-LEFT JOIN data_mailing_counter known_vsigns ON known_vsigns.mailing_id=m.id AND known_vsigns.counter='known_viral_signs' AND known_vsigns.timebox=o.timebox
-LEFT JOIN data_mailing_counter optout_vsigns ON optout_vsigns.mailing_id=m.id AND optout_vsigns.counter='optout_viral_signs' AND optout_vsigns.timebox=o.timebox
-LEFT JOIN data_mailing_counter pending_vsigns ON pending_vsigns.mailing_id=m.id AND pending_vsigns.counter='pending_viral_signs' AND pending_vsigns.timebox=o.timebox
-LEFT JOIN data_mailing_counter vshares ON vshares.mailing_id=m.id AND vshares.counter='viral_shares' AND vshares.timebox=o.timebox
 LEFT JOIN data_mailing_counter do_amount ON do_amount.mailing_id=m.id AND do_amount.counter='oneoff_amount' AND do_amount.timebox=o.timebox
 LEFT JOIN data_mailing_counter dr_amount ON dr_amount.mailing_id=m.id AND dr_amount.counter='recur_amount' AND dr_amount.timebox=o.timebox
 LEFT JOIN data_mailing_counter do_count ON do_count.mailing_id=m.id AND do_count.counter='oneoff_donations' AND do_count.timebox=o.timebox

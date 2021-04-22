@@ -251,9 +251,7 @@ var group = ndx.groupAll().reduce(
 			p.optout += +v.optout;
 			p.pending += +v.pending;
 			p.share+= +v.share;
-			p.viral_share+= +v.viral_share;
 			p.signature += +v.sign;
-			p.viral_signature += +v.viral_sign;
 			p.recipient += +v.recipients;
 			p.open += +v.open;
 			p.unsub += +v.unsub;
@@ -271,8 +269,6 @@ var group = ndx.groupAll().reduce(
 			p.pending -= +v.pending;
 			p.share -= +v.share;
 			p.signature -= +v.sign;
-			p.viral_share -= +v.viral_share;
-			p.viral_signature -= +v.viral_sign;
 			p.recipient -= +v.recipients;
 			p.open -= +v.open;
 			p.unsub -= +v.unsub;
@@ -283,7 +279,7 @@ var group = ndx.groupAll().reduce(
 			p.nb_oneoff -= +v.nb_oneoff;
 			return p;
 	},
-	function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0,viral_share:0,viral_signature:0}}
+	function () { return {unsub:0, mailing:0,nb_recur:0,nb_oneoff:0,amount_recur:0,amount_oneoff:0,share:0,new_member:0,optout:0,pending:0,signature:0,recipient:0,click:0,open:0}}
 );
 
 function renderLetDisplay(chart,factor, ref) {
@@ -303,8 +299,8 @@ graphs.nb_mailing=dc.numberDisplay(".nb_mailing")
 .group(group);
 
 graphs.nb_signature=dc.numberDisplay(".nb_signature") 
-.valueAccessor(function(d){ return +d.signature + d.viral_signature})
-.html({some:"<span title='viral and direct'>%number signatures</span>",none:"No signatures"})
+.valueAccessor(function(d){ return +d.signature; })
+.html({some:"<span title='direct'>%number signatures</span>",none:"No signatures"})
 .group(group);
 
 dc.numberDisplay(".badge_signature") 
@@ -691,16 +687,15 @@ function drawTable(dom) {
              return "<a title='"+d.subject+"' href='/civicrm/mailing/report?mid="+d.id+"' target='_blank'>"+d.name+"</a>";
 	    },
 	    function (d) {
-		return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' title='"+d.type+"' target='_blank'>"+d.campaign+"</a>";
+        return "<a href='/civicrm/dataviz/WMCampaign/"+d.parent_campaign_id+"' title='"+d.type+"' target='_blank'>"+d.campaign+"</a>";
 	    },
 	    function (d) {
         if (!d.is_completed)
           return "<span class='glyphicon glyphicon-refresh spin' title='not all sent, mailing in progress'></span>";
-              return d.recipients;
+        return d.recipients;
 	    },
 	    function (d) {
              return "<a title='"+d.subject+"' href='/civicrm/dataviz/mailing/"+d.id+"' >"+percent(d,'open',0)+"</a>";
-              return percent(d, 'open', 0);
 	    },
 	    function (d) {
               return percent(d, 'click', 1);
@@ -709,14 +704,12 @@ function drawTable(dom) {
               return percent(d, 'unsub', 2);
 	    },
 	    function (d) {
-              return "<span title='" + +d.sign +" directs + " + +d.viral_sign+" virals'>" + formatPercent ((+d.sign + +d.viral_sign)/ d.recipients)+"</span>";
+              return "<span title='" + +d.sign + "'>" + formatPercent ((+d.sign) / d.recipients) + "</span>";
               return percent(d, 'sign', 0);
 	    },
 	    function (d) {
               return percent(d, 'share', 1);
 	    },
-//	    function (d) {return percent(d, 'viral_sign', 2);},
-//	    function (d) {return percent(d, 'viral_share', 2);},
 	    function (d) {
               return percent(d, 'new_member', 2);
 	    },
