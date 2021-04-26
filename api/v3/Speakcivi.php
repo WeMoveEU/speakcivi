@@ -2,6 +2,42 @@
 
 require_once 'CRM/Core/BAO/CustomField.php';
 
+function _civicrm_api3_speakcivi_process_action_spec(&$params) {
+  $params['message']['api.required'] = 1;
+}
+
+/**
+ * API function for Rabbitizen to process action messages coming from Speakout
+ */
+function civicrm_api3_speakcivi_process_action($params) {
+  $json_msg = json_decode($params['message']);
+  if ($json_msg) {
+    $msg_handler = new CRM_Speakcivi_Page_Speakcivi();
+    try {
+      $result = $msg_handler->runParam($json_msg);
+      if ($result == 1) {
+        return civicrm_api3_create_success();
+      } elseif ($result == -1) {
+        return civicrm_api3_create_error("runParams unsupported action type: " . $json_msg->action_type, ['retry_later' => FALSE]);
+      } else {
+        $session = CRM_Core_Session::singleton();
+        $retry = isConnectionLostError($session->getStatus());
+        return civicrm_api3_create_error("runParam returned error code $result", ['retry_later' => $retry]);
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      $extraInfo = $ex->getExtraParams();
+      $retry = strpos(CRM_Utils_Array::value('debug_information', $extraInfo), "try restarting transaction");
+      return civicrm_api3_create_error(CRM_Core_Error::formatTextException($ex), ['retry_later' => $retry]);
+    } catch (CRM_Speakcivi_Exception $ex) {
+      return civicrm_api3_create_error(CRM_Core_Error::formatTextException($ex), ['retry_later' => FALSE]);
+    } catch (Exception $ex) {
+      return civicrm_api3_create_error(CRM_Core_Error::formatTextException($ex), ['retry_later' => FALSE]);
+    }
+  } else {
+    return civicrm_api3_create_error("Could not decode {$params['message']}", ['retry_later' => FALSE]);
+  }
+}
+
 function civicrm_api3_speakcivi_update_stats($params) {
   $config = CRM_Core_Config::singleton();
   $sql = file_get_contents(dirname(__FILE__) . '/../../sql/update.sql', TRUE);
