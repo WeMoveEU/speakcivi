@@ -222,7 +222,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         return "Condividi tramite email";
         break;
       case 'nl_NL':
-        return 'Forward als e-mail';
+        return 'Stuur door als email';
         break;
       case 'pl_PL':
         return 'Udostępnij przez e-mail';
