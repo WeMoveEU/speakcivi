@@ -269,7 +269,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'nl_NL':
-        return "Share on Facebook";
+        return "Deel op Facebook";
         break;
 
       case 'pl_PL':
@@ -323,7 +323,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'nl_NL':
-        return 'Share on Twitter';
+        return 'Deel op Twitter';
         break;
 
       case 'pl_PL':
@@ -377,7 +377,7 @@ class CRM_Speakcivi_Tools_Dictionary {
         break;
 
       case 'nl_NL':
-        return 'Share on WhatsApp';
+        return 'Deel op WhatsApp';
         break;
 
       case 'pl_PL':
