@@ -21,7 +21,7 @@ function civicrm_api3_speakcivi_process_action($params) {
         return civicrm_api3_create_error("runParams unsupported action type: " . $json_msg->action_type, ['retry_later' => FALSE]);
       } else {
         $session = CRM_Core_Session::singleton();
-        $retry = isConnectionLostError($session->getStatus());
+        $retry = _speakcivi_isConnectionLostError($session->getStatus());
         return civicrm_api3_create_error("runParam returned error code $result", ['retry_later' => $retry]);
       }
     } catch (CiviCRM_API3_Exception $ex) {
@@ -36,6 +36,13 @@ function civicrm_api3_speakcivi_process_action($params) {
   } else {
     return civicrm_api3_create_error("Could not decode {$params['message']}", ['retry_later' => FALSE]);
   }
+}
+
+function _speakcivi_isConnectionLostError($sessionStatus) {
+  if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus[0]['title'] == 'Mailing Error') {
+    return !!strpos($sessionStatus[0]['text'], 'Connection lost to authentication server');
+  }
+  return FALSE;
 }
 
 function civicrm_api3_speakcivi_update_stats($params) {
