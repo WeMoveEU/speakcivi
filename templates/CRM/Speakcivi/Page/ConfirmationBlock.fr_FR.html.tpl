@@ -10,7 +10,7 @@
   </tr>
 </table>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">En confirmant votre inscription, vous acceptez de recevoir occasionnellement des emails de campagne de WeMove.EU. Pas d’inquiétude ! Nous nous efforçons de vous envoyer des informations qui vous intéressent, et vous pouvez vous désinscrire à tout moment. Nous prenons le respect de votre vie privée très au sérieux et ne transmettrons jamais vos données personnelles à des tiers sans votre accord explicite. Pour en savoir plus : <a href="https://www.wemove.eu/fr/privacy-policy">politique de confidentialité</a></p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">En confirmant votre inscription, vous acceptez de recevoir occasionnellement des emails de campagne de WeMove Europe. Pas d’inquiétude ! Nous nous efforçons de vous envoyer des informations qui vous intéressent, et vous pouvez vous désinscrire à tout moment. Nous prenons le respect de votre vie privée très au sérieux et ne transmettrons jamais vos données personnelles à des tiers sans votre accord explicite. Pour en savoir plus : <a href="https://www.wemove.eu/fr/privacy-policy">politique de confidentialité</a></p>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Si vous ne souhaitez pas recevoir d’emails de campagne, merci de cliquer sur le lien ci-dessous : <a href="{$url_confirm_and_not_receive}">Je ne veux pas recevoir d’informations</a></p>
 

@@ -5,6 +5,6 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Grazie,<br />
-    Virginia, Viviana e tutta la squadra di WeMove.EU</p>
+    Virginia, Viviana e tutta la squadra di WeMove Europe</p>
 
 <div>#PRIVACY_BLOCK</div>

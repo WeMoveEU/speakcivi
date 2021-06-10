@@ -5,6 +5,6 @@
 <div>#CONFIRMATION_BLOCK</div>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Dziękujemy,<br />
-Marta i cały zespół WeMove.EU</p>
+Marta i cały zespół WeMove Europe</p>
 
 <div>#PRIVACY_BLOCK</div>

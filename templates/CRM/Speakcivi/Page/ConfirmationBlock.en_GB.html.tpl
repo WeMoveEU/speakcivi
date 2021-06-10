@@ -10,7 +10,7 @@
   </tr>
 </table>
 
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">By confirming you are agreeing to receive WeMove.EU campaign emails from time to time. Don’t worry: we do our best to make the updates interesting to you, and you can unsubscribe at any point. We take your privacy very seriously and will never share your data with a third party without your explicit consent. You can learn more about that in <a href="https://www.wemove.eu/privacy-policy">our privacy policy</a>.</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">By confirming you are agreeing to receive WeMove Europe campaign emails from time to time. Don’t worry: we do our best to make the updates interesting to you, and you can unsubscribe at any point. We take your privacy very seriously and will never share your data with a third party without your explicit consent. You can learn more about that in <a href="https://www.wemove.eu/privacy-policy">our privacy policy</a>.</p>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">If you would rather not receive any campaign emails, please confirm your decision here: <a href="{$url_confirm_and_not_receive}">I don’t want to be informed</a>.</p>
 

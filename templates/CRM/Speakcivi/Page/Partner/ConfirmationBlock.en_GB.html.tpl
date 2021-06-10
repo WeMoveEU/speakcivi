@@ -11,6 +11,6 @@
 </table>
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">
-By confirming you are agreeing to receive from WeMove.EU and the initiator of the campaign, {$partner_name}, updates about this campaign and other advocacy campaigns. Don’t worry: we do our best to make the updates interesting to you, and you can unsubscribe at any point. We take your privacy very seriously and will never share your data with any other third party without your explicit consent. You can learn more about that in our privacy policy <a href="https://www.wemove.eu/privacy-policy">here</a> and in the privacy policy of the initiator of the petition, {$partner_name}, <a href="{$partner_privacy_url}">here</a>.
+By confirming you are agreeing to receive from WeMove Europe and the initiator of the campaign, {$partner_name}, updates about this campaign and other advocacy campaigns. Don’t worry: we do our best to make the updates interesting to you, and you can unsubscribe at any point. We take your privacy very seriously and will never share your data with any other third party without your explicit consent. You can learn more about that in our privacy policy <a href="https://www.wemove.eu/privacy-policy">here</a> and in the privacy policy of the initiator of the petition, {$partner_name}, <a href="{$partner_privacy_url}">here</a>.
 
 <p style="font-size:14px;font-family: arial,helvetica,sans-serif;">If you would rather not receive any campaign emails, please confirm your decision here: <a href="{$url_confirm_and_not_receive}">I don’t want to be informed</a>.</p>

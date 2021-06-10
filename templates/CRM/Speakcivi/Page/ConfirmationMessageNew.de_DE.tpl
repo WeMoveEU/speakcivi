@@ -6,6 +6,6 @@
 
 <p style="font-size:16px;font-family: arial,helvetica,sans-serif;">Ich danke Ihnen,<br />
   Annemarie Botzki<br />
-  für das WeMove.EU-Team</p>
+  für das WeMove Europe-Team</p>
 
 <div>#PRIVACY_BLOCK</div>
