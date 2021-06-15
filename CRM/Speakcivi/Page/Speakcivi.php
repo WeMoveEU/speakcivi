@@ -218,7 +218,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
             civicrm_api3('Gidipirus', 'set_consent_status', $params);
           }
         }
-        $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember);
+        if ($this->alreadySendEmailToday((int) $contact['id'], (int) $this->campaignId, (int) $activity['id'], $activity['values'][0]['activity_date_time'])) {
+          $sendResult = ['values' => 1];
+        }
+        else {
+          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember);
+        }
       }
       else {
         $rlg = 0;
@@ -276,7 +281,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
         if ($this->consentStatus == CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED) {
           $share_utm_source = 'post-action';
-          $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, $share_utm_source);
+          if ($this->alreadySendEmailToday((int) $contact['id'], (int) $this->campaignId, (int) $activity['id'], $activity['values'][0]['activity_date_time'])) {
+            $sendResult = ['values' => 1];
+          }
+          else {
+            $sendResult = $this->sendEmail($this->isAnonymous, $h->emails[0]->email, $contact['id'], $activity['id'], $this->campaignId, $this->confirmationBlock, $noMember, $share_utm_source);
+          }
         }
         else {
           // workaround for rejected status
@@ -944,7 +954,48 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     return civicrm_api3("Speakcivi", "sendconfirm", $params);
   }
 
+  /**
+   * There is no activity linked directly to send email :(
+   * Therefore it's necessary to guess whether situation took place or not.
+   * Assumption: contact already has other activity given type on the same campaign
+   *  and the same day.
+   * Assumption: only some types:
+   * Phone Call: 2
+   * Email: 3
+   * Petition Signature: 32
+   * Tweet: 59
+   * Facebook: 67
+   *
+   * Except share (id 54) because this is a special activity which doesn't trigger a post-action email
+   *
+   * @param int $contactId
+   * @param int $campaignId
+   * @param int $activityId Count except current activity
+   * @param string $createDateTime
+   *
+   * @return bool
+   */
+  private function alreadySendEmailToday(int $contactId, int $campaignId, int $activityId, string $createDateTime): bool {
+    $query = "SELECT count(a.id)
+              FROM civicrm_activity a
+                JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+                    AND ac.record_type_id = 2 AND ac.contact_id = %1
+              WHERE a.campaign_id = %2 AND a.id <> %3
+                    AND a.activity_type_id IN (2, 3, 32, 59, 67)
+                    AND DATE_FORMAT(a.activity_date_time, '%Y%m%d') = DATE_FORMAT(%4, '%Y%m%d')";
+    $params = [
+      1 => [$contactId, 'Integer'],
+      2 => [$campaignId, 'Integer'],
+      3 => [$activityId, 'Integer'],
+      4 => [$createDateTime, 'String'],
+    ];
+    $count = CRM_Core_DAO::singleValueQuery($query, $params);
+
+    return !!$count;
+  }
+
   public function fieldName($name) {
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_' . $name);
   }
+
 }
