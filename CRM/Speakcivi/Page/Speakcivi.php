@@ -963,9 +963,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * Phone Call: 2
    * Email: 3
    * Petition Signature: 32
-   * share: 54
    * Tweet: 59
    * Facebook: 67
+   *
+   * Except share (id 54) because this is a special activity which doesn't trigger a post-action email
    *
    * @param int $contactId
    * @param int $campaignId
@@ -980,7 +981,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
                 JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
                     AND ac.record_type_id = 2 AND ac.contact_id = %1
               WHERE a.campaign_id = %2 AND a.id <> %3
-                    AND a.activity_type_id IN (2, 3, 32, 54, 59, 67)
+                    AND a.activity_type_id IN (2, 3, 32, 59, 67)
                     AND DATE_FORMAT(a.activity_date_time, '%Y%m%d') = DATE_FORMAT(%4, '%Y%m%d')";
     $params = [
       1 => [$contactId, 'Integer'],
