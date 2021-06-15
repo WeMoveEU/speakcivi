@@ -49,7 +49,7 @@ class CRM_Speakcivi_Logic_Language {
 
   /**
    * Grab footers used for reminders and iterate it by language.
-   * Name of footer should ending by /REMINDER:[A-Z]{2}$/
+   * Name of footer should be /Footer [A-Z]{2}$/
    * @return array
    */
   private static function footers(): array {
@@ -58,7 +58,7 @@ class CRM_Speakcivi_Logic_Language {
     if (!isset($cache)) {
       $query = "SELECT id, substr(name, -2) language
                 FROM civicrm_mailing_component
-                WHERE component_type = 'Footer' AND name LIKE '%REMINDER:__'
+                WHERE component_type = 'Footer' AND name LIKE 'Footer __'
                 ORDER BY id";
       $dao = CRM_Core_DAO::executeQuery($query);
       $ids = [];
