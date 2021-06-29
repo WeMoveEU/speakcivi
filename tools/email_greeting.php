@@ -22,7 +22,7 @@ CRM_Core_OptionGroup::getAssoc('email_greeting', $group, false, 'name');
 print_r($group);
 
 
-$dict = new CRM_Speakcivi_Tools_Dictionary();
+$dict = new CRM_WeAct_Dictionary();
 $dict->parseGroupEmailGreeting();
 print_r($dict->emailGreetingIds);
 

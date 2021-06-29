@@ -59,7 +59,8 @@ class CRM_Speakcivi_Logic_Campaign {
     $this->fieldRedirectOptout = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_redirect_optout');
     $this->fieldConsentIds = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_campaign_consent_ids');
     if ($campaignId > 0) {
-      $this->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByLocalId($campaignId);
+      $cache = new CRM_WeAct_CampaignCache(Civi::cache(), NULL);
+      $this->campaign = $cache->getCiviCampaign($campaignId);
     }
   }
 
@@ -202,131 +203,6 @@ class CRM_Speakcivi_Logic_Campaign {
     return $consentIds;
   }
 
-  /**
-   * Get campaign by external identifier.
-   *
-   * @param int $id External identifier (default) or local civicrm_campaign.id
-   * @param boolean $useLocalId Use local id or external id (default)
-   * @param bool $countActivities
-   *
-   * @return array
-   */
-  public function getCampaign($id, $useLocalId = false, $countActivities = true) {
-    if ($id > 0) {
-      if ($useLocalId) {
-        $field = 'id';
-      } else {
-        $field = 'external_identifier';
-      }
-      $params = array(
-        'sequential' => 1,
-        $field => (int)$id,
-      );
-      if ($countActivities) {
-        $params['api.Activity.getcount'] = array(
-          'campaign_id' => '$value.id',
-        );
-      }
-      $result = civicrm_api3('Campaign', 'get', $params);
-      if ($result['count'] == 1) {
-        return $result['values'][0];
-      }
-    }
-    return array();
-  }
-
-  public function getRemoteCampaign($speakoutDomain, $externalIdentifier) {
-    $url = "https://$speakoutDomain/api/v1/campaigns/$externalIdentifier";
-    $user = CIVICRM_SPEAKOUT_USERS[$speakoutDomain];
-    $auth = $user['email'] . ':' . $user['password'];
-    return (object)json_decode($this->getContent($url, $auth));
-  }
-
-
-  /**
-   * Set up new campaign in CiviCRM if this is necessary.
-   * Call Speakout API at the given domain to get campaign metadata, and create the corresponding
-   * campaign in CiviCRM. The function might indirectly recurse to create the parent campaign.
-   *
-   * TODO: re-work the check on existing campaign: the function should either not care about this
-   *   or attempt a retrieve and check its validity.
-   *   Asking for retrieved campaign and checking its validity does not prove anything.
-   *
-   * @param $externalIdentifier Speakout campaign id of the campaign to create
-   * @param $campaign Potential existing campaign, to check if the creation is needed
-   * @param $action_technical_type Speakout domain
-   * @return array
-   */
-  public function setCampaign($externalIdentifier, $campaign, $action_technical_type) {
-    if (!$this->isValidCampaign($campaign)) {
-      if ($externalIdentifier > 0) {
-        $speakoutDomain = $this->determineSpeakoutDomain($action_technical_type);
-        $externalCampaign = $this->getRemoteCampaign($speakoutDomain, $externalIdentifier);
-        if (is_object($externalCampaign) &&
-          property_exists($externalCampaign, 'name') && $externalCampaign->name != '' &&
-          property_exists($externalCampaign, 'id') && $externalCampaign->id > 0
-        ) {
-          $this->defaultCampaignTypeId = CRM_Core_PseudoConstant::getKey('CRM_Campaign_BAO_Campaign', 'campaign_type_id', 'Petitions');
-          $locale = $externalCampaign->locale;
-          $utmCampaign = ($externalCampaign->slug != '' ? $externalCampaign->slug : 'speakout_'.$externalCampaign->id);
-          $consentIds = [];
-          foreach ($externalCampaign->consents as $consent => $v) {
-            $consentIds[] = $consent;
-          }
-          if ($externalCampaign->thankyou_from_email) {
-            $sender = "\"$externalCampaign->thankyou_from_name\" &lt;$externalCampaign->thankyou_from_email&gt;";
-          } else {
-            $sender = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'from');
-          }
-
-          $params = array(
-            'sequential' => 1,
-            'name' => $externalCampaign->internal_name,
-            'title' => $externalCampaign->internal_name,
-            'description' => $externalCampaign->name,
-            'external_identifier' => $externalCampaign->id,
-            'campaign_type_id' => $this->determineCampaignType($externalCampaign),
-            'start_date' => date('Y-m-d H:i:s'),
-            $this->fieldLanguage => $locale,
-            $this->fieldSenderMail => $sender,
-            $this->fieldUrlCampaign => "https://$speakoutDomain/campaigns/$utmCampaign",
-            $this->fieldUtmCampaign => $utmCampaign,
-            $this->fieldTwitterShareText => $externalCampaign->twitter_share_text,
-            $this->fieldSubjectNew => CRM_Speakcivi_Tools_Dictionary::getSubjectConfirm($locale),
-            $this->fieldSubjectCurrent => $externalCampaign->thankyou_subject,
-            $this->fieldConsentIds => implode(',', $consentIds),
-          );
-          $result = civicrm_api3('Campaign', 'create', $params);
-          if ($result['count'] == 1) {
-            $this->setCustomFieldBySQL($result['id'], $this->fieldMessageNew, CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale));
-            $this->setCustomFieldBySQL($result['id'], $this->fieldMessageCurrent, $externalCampaign->thankyou_body);
-
-            // This is done in a separate step even if the parent campaign is defined,
-            // to avoid circular-reference drama (getCampaignByExternalId may call this function)
-            if ($externalCampaign->parent_campaign_id) {
-              $parent = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($externalCampaign->parent_campaign_id, $action_technical_type);
-              $parent_params = [
-                'id' => $result['values'][0]['id'],
-                'parent_id'=> $parent['id'],
-              ];
-            } else {
-              $parent_params = [
-                'id' => $result['values'][0]['id'],
-                'parent_id'=> $result['values'][0]['id'],
-              ];
-            }
-            civicrm_api3('Campaign', 'create', $parent_params);
-
-            return $result['values'][0];
-          }
-        }
-      }
-      return array();
-    } else {
-      return $campaign;
-    }
-  }
-
 
   public function update_consent($partner) {
     $updated_fields = [];
@@ -344,40 +220,21 @@ class CRM_Speakcivi_Logic_Campaign {
 
     $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/ConfirmationBlock.'.$locale.'.html.tpl';
     $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/ConfirmationBlock.en_GB.html.tpl';
-    $confBlock = CRM_Speakcivi_Tools_Dictionary::getMessageContent($filename, $default);
+    $confBlock = CRM_WeAct_Dictionary::getMessageContent($filename, $default);
     $confBlock = str_replace('{$partner_name}', $partner['name'], $confBlock);
     $confBlock = str_replace('{$partner_privacy_url}', $partner['privacy_url'], $confBlock);
 
     $filename = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/PrivacyBlock.'.$locale.'.tpl';
     $default = dirname(__FILE__).'/../../../templates/CRM/Speakcivi/Page/Partner/PrivacyBlock.en_GB.tpl';
-    $privacyBlock = CRM_Speakcivi_Tools_Dictionary::getMessageContent($filename, $default);
+    $privacyBlock = CRM_WeAct_Dictionary::getMessageContent($filename, $default);
 
-    $msg = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
+    $msg = CRM_WeAct_Dictionary::getMessageNew($locale);
     $msg = str_replace("#CONFIRMATION_BLOCK", $confBlock, $msg);
     $msg = str_replace("#PRIVACY_BLOCK", $privacyBlock, $msg);
     $this->setCustomFieldBySQL($this->campaign['id'], $this->fieldMessageNew, $msg);
     $updated_fields[] = $this->fieldMessageNew;
 
     return $updated_fields;
-  }
-
-
-  /**
-   * Set new value of custom field
-   *
-   * @param int $campaignId
-   * @param string $customField For example $this->fieldMessageNew
-   * @param mixed $value
-   *
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function setCustomField($campaignId, $customField, $value) {
-    $params = array(
-      'id' => $campaignId,
-      'sequential' => 1,
-      $customField => $value,
-    );
-    civicrm_api3('Campaign', 'create', $params);
   }
 
 
@@ -428,25 +285,6 @@ class CRM_Speakcivi_Logic_Campaign {
   }
 
   /**
-   * Determine campaign type based on category from speakout.
-   * Assumption: campaign names are the same in both systems, Speakout and CiviCRM
-   *
-   * @param $externalCampaign
-   *
-   * @return int
-   */
-  public function determineCampaignType($externalCampaign) {
-    $type = NULL;
-    if (property_exists($externalCampaign, 'categories')) {
-      $campaignName = $externalCampaign->categories[0]->name;
-      $types = CRM_Core_PseudoConstant::get('CRM_Campaign_BAO_Campaign', 'campaign_type_id');
-      $type = array_search($campaignName, $types);
-    }
-
-    return $type ? $type : $this->defaultCampaignTypeId;
-  }
-
-  /**
    * Determine whether $campaign table has a valid structure.
    *
    * @param $campaign
@@ -474,34 +312,5 @@ class CRM_Speakcivi_Logic_Campaign {
   public function isYoumove() {
     $eid = CRM_Utils_Array::value('external_identifier', $this->campaign, NULL);
     return $eid >= 10000;
-  }
-
-
-  /**
-   * Get content of external file.
-   *
-   * @param string $url
-   *
-   * @return mixed
-   * @throws \CRM_Speakcivi_Exception
-   */
-  public function getContent($url, $authString = NULL) {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    if ($authString != NULL) {
-      curl_setopt($ch, CURLOPT_USERPWD, $authString);
-    }
-    $data = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    if ($code == 200) {
-      return $data;
-    } elseif ($code = 404) {
-      throw new CRM_Speakcivi_Exception('Speakout campaign doesnt exist: ' . $url, 1);
-    } else {
-      throw new CRM_Speakcivi_Exception('Speakout campaign is unavailable' . $url, 2);
-    }
   }
 }

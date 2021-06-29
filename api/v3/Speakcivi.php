@@ -90,7 +90,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
 
   if (!$message) {
     if ($confirmationBlock) {
-      $message = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
+      $message = CRM_WeAct_Dictionary::getMessageNew($locale);
       $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageNew, $message);
     }
     else {
@@ -141,15 +141,15 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $template->assign('utm_campaign', $utm_campaign);
   $template->assign('share_utm_campaign', sha1(CIVICRM_SITE_KEY . $activityId));
   $template->assign('share_utm_source', urlencode($params['share_utm_source']));
-  $template->assign('share_email', CRM_Speakcivi_Tools_Dictionary::getShareEmail($locale));
-  $template->assign('share_facebook', CRM_Speakcivi_Tools_Dictionary::getShareFacebook($locale));
-  $template->assign('share_twitter', CRM_Speakcivi_Tools_Dictionary::getShareTwitter($locale));
-  $template->assign('share_whatsapp', CRM_Speakcivi_Tools_Dictionary::getShareWhatsapp($locale));
-  $template->assign('language_button', CRM_Speakcivi_Tools_Dictionary::getLanguageButton($locale));
+  $template->assign('share_email', CRM_WeAct_Dictionary::getShareEmail($locale));
+  $template->assign('share_facebook', CRM_WeAct_Dictionary::getShareFacebook($locale));
+  $template->assign('share_twitter', CRM_WeAct_Dictionary::getShareTwitter($locale));
+  $template->assign('share_whatsapp', CRM_WeAct_Dictionary::getShareWhatsapp($locale));
+  $template->assign('language_button', CRM_WeAct_Dictionary::getLanguageButton($locale));
   $template->assign('twitter_share_text', urlencode($campaignObj->getTwitterShareText()));
   $template->assign('contact', $contact);
   $template->assign('campaign_name', $campaignObj->campaign['description']);
-  $share_whatsapp_web = $template->fetch('string:' . CRM_Speakcivi_Tools_Dictionary::getShareWhatsappWeb($locale));
+  $share_whatsapp_web = $template->fetch('string:' . CRM_WeAct_Dictionary::getShareWhatsappWeb($locale));
   $template->assign('share_whatsapp_web', $share_whatsapp_web);
 
   /* FETCHING SMARTY TEMPLATES */

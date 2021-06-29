@@ -93,7 +93,7 @@ function civicrm_api3_wemove_language_switch(&$params) {
     $result = CRM_Speakcivi_Logic_Activity::addLanguageSelfCare($contactId, $fromLanguage, $toLanguage);
     CRM_Speakcivi_Logic_Activity::setSourceFields($result['id'], $utms);
 
-    $dict = new CRM_Speakcivi_Tools_Dictionary();
+    $dict = new CRM_WeAct_Dictionary();
     $dict->parseGroupEmailGreeting();
     $genderShortcut = $dict->mapGenderShortcut($contact['gender_id']);
     $greetingId = $dict->getEmailGreetingId($toLanguage, $genderShortcut);

@@ -79,8 +79,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
       $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
 
+      $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
       $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $this->campaignObj->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($param->external_id, $param->action_technical_type);
+      $speakoutDomain = $this->campaignObj->determineSpeakoutDomain($param->action_technical_type);
+      $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id);
       if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
         $this->campaignId = (int)$this->campaignObj->campaign['id'];
         $this->locale = $this->campaignObj->getLanguage();
@@ -637,8 +639,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['first_name'] = $h->firstname;
       $contact['last_name'] = $lastname;
       $contact['gender_id'] = $genderId;
-      $contact['prefix_id'] = CRM_Speakcivi_Tools_Dictionary::getPrefix($genderShortcut);
-      $dict = new CRM_Speakcivi_Tools_Dictionary();
+      $contact['prefix_id'] = CRM_WeAct_Dictionary::getPrefix($genderShortcut);
+      $dict = new CRM_WeAct_Dictionary();
       $dict->parseGroupEmailGreeting();
       $emailGreetingId = $dict->getEmailGreetingId($this->locale, $genderShortcut);
       if ($emailGreetingId) {
