@@ -40,8 +40,8 @@ class CRM_Speakcivi_Cleanup_Leave {
     if (!$limit) {
       $limit = 100;
     }
-    $query = "INSERT IGNORE INTO speakcivi_cleanup_leave
-              SELECT id, group_concat(reason ORDER BY reason SEPARATOR ', ') as subject
+
+    $query = "SELECT id, group_concat(reason ORDER BY reason SEPARATOR ', ') as subject
               FROM (SELECT c.id, 'is_opt_out' AS reason
                 FROM civicrm_contact c
                   JOIN civicrm_group_contact gc ON c.id = gc.contact_id AND gc.group_id = %1 AND gc.status = 'Added'
@@ -75,11 +75,17 @@ class CRM_Speakcivi_Cleanup_Leave {
               ) t
               GROUP BY t.id
               LIMIT %2";
+
     $params = array(
       1 => array($groupId, 'Integer'),
-      2 => array($limit, 'Integer'),
+      2 => array($limit, 'Integer')
     );
-    CRM_Core_DAO::executeQuery($query, $params);
+
+    $selectSQL = CRM_Core_DAO::composeQuery($query, $params);
+
+    CRM_Mailing_BAO_Mailing::select_into_load_data(
+      "speakcivi_cleanup_leave", $selectSQL, "speakcivi_cleanup_leave", ["id", "subject"] 
+    );
   }
 
   /**
