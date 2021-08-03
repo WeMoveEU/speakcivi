@@ -44,7 +44,7 @@ class CRM_Speakcivi_Logic_Language {
   public static function chooseFooter(string $shortLanguage = 'EN'): int {
     $footers = self::footers();
 
-    return CRM_Utils_Array::value($shortLanguage, $footers);
+    return CRM_Utils_Array::value($shortLanguage, $footers, $footers['EN']);
   }
 
   /**
