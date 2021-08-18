@@ -28,17 +28,13 @@ class CRM_Speakcivi_Logic_CampaignTest extends \PHPUnit\Framework\TestCase imple
       ->apply();
   }
 
-  public function setUp() {
+  public function setUp() : void {
     parent::setUp();
     $this->externalId = 42;
     $campaign_result = civicrm_api3('Campaign', 'create', [
       'campaign_type_id' => 1, 'title' => 'Transient campaign', 'external_identifier' => $this->externalId
     ]);
     $this->campaignId = $campaign_result['id'];
-  }
-
-  public function tearDown() {
-    parent::tearDown();
   }
 
   public function testContructRetrievesExistingCampaign() {
