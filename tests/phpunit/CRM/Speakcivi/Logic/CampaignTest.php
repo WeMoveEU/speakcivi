@@ -30,24 +30,28 @@ class CRM_Speakcivi_Logic_CampaignTest extends \PHPUnit\Framework\TestCase imple
 
   public function setUp() {
     parent::setUp();
+    $this->externalId = 42;
+    $campaign_result = civicrm_api3('Campaign', 'create', [
+      'campaign_type_id' => 1, 'title' => 'Transient campaign', 'external_identifier' => $this->externalId
+    ]);
+    $this->campaignId = $campaign_result['id'];
   }
 
   public function tearDown() {
     parent::tearDown();
   }
 
-  /**
-   * Example: Test that a version is returned.
-   */
-  public function testWellFormedVersion() {
-    $this->assertRegExp('/^([0-9\.]|alpha|beta)*$/', \CRM_Utils_System::version());
+  public function testContructRetrievesExistingCampaign() {
+    $campLogic = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
+    $this->assertNotNull($campLogic->campaign);
+    $this->assertEquals($this->campaignId, $campLogic->campaign['id']);
   }
 
-  /**
-   * Example: Test that we're using a fake CMS.
-   */
-  public function testWellFormedUF() {
-    $this->assertEquals('UnitTests', CIVICRM_UF);
+  public function testCanReceiveCampaignByExternalId() {
+    $campLogic = new CRM_Speakcivi_Logic_Campaign();
+    $campLogic->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($this->externalId, 'whatever');
+    $this->assertNotNull($campLogic->campaign);
+    $this->assertEquals($this->campaignId, $campLogic->campaign['id']);
   }
 
 }
