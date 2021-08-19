@@ -45,25 +45,4 @@ class CRM_Speakcivi_APIWrapper implements API_Wrapper {
     }
   }
 
-  private function setCampaignId($eventQueueId) {
-    $campaignId = Civi::cache()->get('speakcivi-campaign-eventqueue-' . $eventQueueId);
-    if (!isset($campaignId)) {
-      $campaignId = $this->findCampaignId($eventQueueId);
-      Civi::cache()->set('speakcivi-campaign-eventqueue-' . $eventQueueId, $campaignId);
-    }
-    return $campaignId;
-  }
-
-  private function findCampaignId($eventQueueId) {
-    $query = "SELECT m.campaign_id
-              FROM civicrm_mailing_event_queue eq
-                JOIN civicrm_mailing_job mj ON mj.id = eq.job_id
-                JOIN civicrm_mailing m ON m.id = mj.mailing_id
-              WHERE eq.id = %1";
-    $queryParams = array(
-      1 => array($eventQueueId, 'Integer'),
-    );
-    return (int) CRM_Core_DAO::singleValueQuery($query, $queryParams);
-  }
-
 }
