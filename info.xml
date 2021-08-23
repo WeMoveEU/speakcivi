@@ -24,6 +24,9 @@
   <compatibility>
     <ver>4.6</ver>
   </compatibility>
+  <requires>
+    <ext>eu.wemove.we-act</ext>
+  </requires>
   <civix>
     <namespace>CRM/Speakcivi</namespace>
   </civix>

@@ -24,6 +24,10 @@ class CRM_Speakcivi_Logic_CampaignTest extends \PHPUnit\Framework\TestCase imple
     // Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
     // See: https://docs.civicrm.org/dev/en/latest/testing/phpunit/#civitest
     return \Civi\Test::headless()
+      ->install(['eu.wemove.gidipirus', 'eu.wemove.contributm', 'org.project60.sepa', 'mjwshared', 'com.drastikbydesign.stripe', 'eu.wemove.we-act'])
+      ->callback(function ($ctx) {
+        CRM_WeAct_Upgrader::setRequiredSettingsForTests($ctx);
+      }, 8)
       ->installMe(__DIR__)
       ->apply();
   }
@@ -44,8 +48,9 @@ class CRM_Speakcivi_Logic_CampaignTest extends \PHPUnit\Framework\TestCase imple
   }
 
   public function testCanReceiveCampaignByExternalId() {
+    $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
     $campLogic = new CRM_Speakcivi_Logic_Campaign();
-    $campLogic->campaign = CRM_Speakcivi_Logic_Cache_Campaign::getCampaignByExternalId($this->externalId, 'whatever');
+    $campLogic->campaign = $campaignCache->getOrCreateSpeakout("https://what.ever", $this->externalId);
     $this->assertNotNull($campLogic->campaign);
     $this->assertEquals($this->campaignId, $campLogic->campaign['id']);
   }

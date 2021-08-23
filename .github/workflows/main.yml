@@ -28,6 +28,31 @@ jobs:
         with:
           repository: WeMoveEU/eu.wemove.gidipirus
           path: drupal/sites/all/modules/civicrm/ext/gidipirus
+      - uses: actions/checkout@v2
+        with:
+          repository: WeMoveEU/contributm
+          path: drupal/sites/all/modules/civicrm/ext/contributm
+      - uses: actions/checkout@v2
+        with:
+          repository: WeMoveEU/org.project60.sepa
+          ref: 1.5.0.patched
+          path: drupal/sites/all/modules/civicrm/ext/sepa
+      - uses: sudosubin/git-clone-action@v1.0.1
+        with:
+          platform: lab.civicrm.org
+          repository: extensions/mjwshared
+          ref: master
+          path: drupal/sites/all/modules/civicrm/ext/mjwshared
+      - uses: actions/checkout@v2
+        with:
+          repository: WeMoveEU/com.drastikbydesign.stripe
+          ref: wemove-6.5.7
+          path: drupal/sites/all/modules/civicrm/ext/stripe
+      - uses: actions/checkout@v2
+        with:
+          repository: WeMoveEU/we-act
+          ref: master
+          path: drupal/sites/all/modules/civicrm/ext/we-act
 
       - name: Checkout this extension
         uses: actions/checkout@v2

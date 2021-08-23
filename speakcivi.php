@@ -2,8 +2,6 @@
 
 require_once 'speakcivi.civix.php';
 
-use CRM\Tools\Dictionary\CRM_Speakcivi_Tools_Dictionary as Dictionary;
-
 /**
  * Implementation of hook_civicrm_config
  *
@@ -131,8 +129,8 @@ function speakcivi_civicrm_tokens(&$tokens) {
 function speakcivi_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
   $wantsCity = array_key_exists('city', $tokens['contact']) && $job;
   if ($wantsCity) {
-    $language = CRM_Speakcivi_Tools_Dictionary::findMailingLanguage($job);
-    $cityDefaultValues = CRM_Speakcivi_Tools_Dictionary::fallbackCityValues();
+    $language = CRM_WeAct_Dictionary::findMailingLanguage($job);
+    $cityDefaultValues = CRM_WeAct_Dictionary::fallbackCityValues();
   }
 
   foreach ($cids as $cid) {
@@ -157,11 +155,5 @@ function speakcivi_civicrm_apiWrappers(&$wrappers, $apiRequest) {
 function speakcivi_civicrm_preProcess($formName, &$form) {
   if (in_array($formName, array('CRM_Contribute_Form_Contribution_Main'))) {
     CRM_Core_Resources::singleton()->addScriptFile('eu.wemove.speakcivi', 'js/speakcivi-prefill.js');
-  }
-}
-
-function speakcivi_civicrm_post($op, $objectName, $objectId, &$objectRef) {
-  if ($objectName == 'Campaign' && $op == 'edit') {
-    CRM_Speakcivi_Logic_Cache_Campaign::resetLocalCampaignCache($objectId, $objectRef);
   }
 }
