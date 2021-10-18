@@ -1,4 +1,4 @@
-<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Om te eindigen het ondertekenen van de petitie, bevestig uw e-mailadres door te klikken op de link hieronder:</p>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Bevestig je e-mailadres door te klikken op de link hieronder, en rond zo het ondertekenen af.</p>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
