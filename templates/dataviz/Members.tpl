@@ -73,7 +73,7 @@
 var group_id={$id};
 
 var topo = "{crmResURL ext="eu.wemove.speakcivi" file="assets/europe50b.json" addCacheCode=0}";
-topo = new URL(topo).pathname; //absolute -> relative url
+//topo = new URL(topo).pathname; //absolute -> relative url (but now crmResURL returns a relative URL??)
 
 var data = {crmSQL json="members" group_id=$id};
 
