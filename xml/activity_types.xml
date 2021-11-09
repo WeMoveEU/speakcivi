@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<CustomData>
+  <OptionGroups>
+    <OptionGroup>
+      <name>activity_type</name>
+    </OptionGroup>
+  </OptionGroups>
+  <OptionValues>
+    <OptionValue>
+      <label>Self-care</label>
+      <value>65</value>
+      <name>Self-care</name>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>activity_type</option_group_name>
+      <weight>65</weight>
+    </OptionValue>
+  </OptionValues>
+</CustomData>

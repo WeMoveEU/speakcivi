@@ -5,6 +5,10 @@
  */
 class CRM_Speakcivi_Upgrader extends CRM_Speakcivi_Upgrader_Base {
 
+  public function install() {
+    $this->executeCustomDataFileByAbsPath($this->extensionDir . '/xml/activity_types.xml');
+  }
+
   public function createCustomFields() {
     $result = civicrm_api3('CustomGroup', 'get', [ 'name' => "speakout_integration" ]);
     if ($result['count'] == 0) {
