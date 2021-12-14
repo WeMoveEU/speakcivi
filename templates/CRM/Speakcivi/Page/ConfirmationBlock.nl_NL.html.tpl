@@ -11,6 +11,7 @@
     </td>
   </tr>
 </table>
+<p style="font-size:14px;font-family: arial,helvetica,sans-serif;">Ook wanneer u liever geen verdere campagneberichten ontvangt, dient u uw ondertekening te <a href="{$url_confirm_and_not_receive}">bevestigen</a>.</p>
 <script type="application/ld+json">
 {ldelim}
   "@context": "http://schema.org",
