@@ -72,39 +72,39 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function runParam($param) {
     $result = 0;
     CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use ($param, &$result) {
-      CRM_Speakcivi_Tools_Helper::trimVariables($param);
-      $this->setDefaults();
-      $this->setCountry($param);
-      $this->setVeryOldActivity($param);
-      $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
-      $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
-
-      $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
-      $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
-      $speakoutDomain = $this->campaignObj->determineSpeakoutDomain($param->action_technical_type);
-      $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id);
-      if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
-        $this->campaignId = (int)$this->campaignObj->campaign['id'];
-        $this->locale = $this->campaignObj->getLanguage();
+      $activityType = $this->determineActivityType($param->action_type);
+      if ($activityType === FALSE) {
+        CRM_Core_Error::debug_log_message('SPEAKCIVI KNOWN UNSUPPORTED EVENT, DISCARDED: ' . $param->action_type);
+        $result = 1;
+      } else if ($activityType == NULL) {
+        $result = -1;
       } else {
-        $tx->rollback();
-        header('HTTP/1.1 503 Men at work');
-        return;
-      }
+        CRM_Speakcivi_Tools_Helper::trimVariables($param);
+        $this->setDefaults();
+        $this->setCountry($param);
+        $this->setVeryOldActivity($param);
+        $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
+        $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
 
-      if ($param->action_type == 'donate') {
-        //Donate is a special case: it doesn't create an activity
-        $result = $this->donate($param);
-      } else if ($param->action_type == 'share') {
-        //Share is a special case: it can be anonymous and doesn't trigger a post-action email
-        $result = $this->addActivity($param, 'share');
-      } else {
-        $activityType = $this->determineActivityType($param->action_type);
-        if ($activityType === FALSE) {
-          CRM_Core_Error::debug_log_message('SPEAKCIVI KNOWN UNSUPPORTED EVENT, DISCARDED: ' . $param->action_type);
-          $result = 1;
-        } else if ($activityType == NULL) {
-          $result = -1;
+        $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
+        $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
+        $speakoutDomain = $this->campaignObj->determineSpeakoutDomain($param->action_technical_type);
+        $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id);
+        if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
+          $this->campaignId = (int)$this->campaignObj->campaign['id'];
+          $this->locale = $this->campaignObj->getLanguage();
+        } else {
+          $tx->rollback();
+          header('HTTP/1.1 503 Men at work');
+          return;
+        }
+
+        if ($param->action_type == 'donate') {
+          //Donate is a special case: it doesn't create an activity
+          $result = $this->donate($param);
+        } else if ($param->action_type == 'share') {
+          //Share is a special case: it can be anonymous and doesn't trigger a post-action email
+          $result = $this->addActivity($param, 'share');
         } else {
           $noMember = ($this->campaignObj->campaign['campaign_type_id'] == $this->noMemberCampaignType);
           $result = $this->processAction($param, $noMember, $activityType);
@@ -373,11 +373,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   public function createContribution($param, $contactId) {
     //TODO make these ids configurable
-    $financialTypeId = 1; 
+    $financialTypeId = 1;
     if ($this->campaignObj->campaign['campaign_type_id'] == $this->distributedCampaignTypeId) {
       $financialTypeId = 9;  //crowdfunding
     }
-    $paymentInstrumentId = "Credit Card"; 
+    $paymentInstrumentId = "Credit Card";
     $this->bark("Donation for campaign: " . $this->campaignId);
     $params = array(
       'sequential' => 1,
