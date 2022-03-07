@@ -1158,12 +1158,14 @@ function submitReminder($mailingId) {
  */
 function civicrm_api3_speakcivi_weeklywelcome_groups($params) {
 
-  # run group by to find groups to create
   $min_members = 100;
   if (array_key_exists('threshold', $params)) {
-    $min_members = $params[$min_members];
+    $min_members = (int) $params['threshold'];
   }
-
+  $from_address = 'info@not-a2.eu';
+  if (array_key_exists('from', $params)) {
+    $from_address = (int) $params['from'];
+  }
   $sqlParams = array(
     1 => array($min_members, 'Integer')
   );
@@ -1269,8 +1271,8 @@ HTML;
 HTML;
 
     $email = array(
-      'from' => 'tech@wemove.eu',
-      # 'cc' => 'tech@wemove.eu',
+      'from' => $from_address,
+      'cc' => 'tech@wemove.eu',
       'toName' => 'Welcome Series Organiser',
       'toEmail' => 'tech@wemove.eu',
       'subject' => 'Your Weekly Welcome Series Groups!',
