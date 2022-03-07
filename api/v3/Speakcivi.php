@@ -305,12 +305,12 @@ function _civicrm_api3_speakcivi_fixlanguagegroup_spec(&$params) {
 /**
  * Find contacts with a preferred language that does not match their language group
  * (as a result of language change activity) and move them to the proper group.
- * This assumes that language groups have their 'source' column set with the 
+ * This assumes that language groups have their 'source' column set with the
  * matching locale (with special case uk EN...).
  * @param languages: comma-separated list of target languages to limit the search
  * @param limit: Maximum number of contacts to update
  */
-function civicrm_api3_speakcivi_fixlanguagegroup($params) { 
+function civicrm_api3_speakcivi_fixlanguagegroup($params) {
   $activityTypeId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Self-care');
   $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
   $p = new CRM_Speakcivi_Page_Post();
@@ -331,10 +331,10 @@ function civicrm_api3_speakcivi_fixlanguagegroup($params) {
   }
 
   $query = "SELECT
-      c.id AS contact_id, 
-      c.preferred_language AS preferred_language, 
+      c.id AS contact_id,
+      c.preferred_language AS preferred_language,
       ctry.iso_code AS country,
-      gl.id AS current_group_id, 
+      gl.id AS current_group_id,
       MIN(expected.id) AS expected_group_id
     FROM civicrm_activity a
     JOIN civicrm_activity_contact ac ON ac.activity_id = a.id AND ac.record_type_id = 2
@@ -654,7 +654,7 @@ function civicrm_api3_speakcivi_get_consents_required($params) {
       WHERE max_completed_date > max_cancelled_date
 		UNION
       SELECT consent_version_57
-      FROM civicrm_email e 
+      FROM civicrm_email e
       JOIN civicrm_value_gdpr_temporary_9 g ON g.entity_id=e.contact_id
       WHERE e.email = %1 AND e.is_primary = 1
 	";
@@ -1149,4 +1149,137 @@ function submitReminder($mailingId) {
     'scheduled_id' => 1,
   ];
   civicrm_api3('Mailing', 'submit', $submitParams);
+}
+
+
+/**
+ * Create welcome groups and email Olga Iskra with the links.
+ *
+ */
+function civicrm_api3_speakcivi_weeklywelcome_groups($params) {
+
+  $min_members = 100;
+  if (array_key_exists('threshold', $params)) {
+    $min_members = (int) $params['threshold'];
+  }
+  $from_address = 'info@not-a2.eu';
+  if (array_key_exists('from', $params)) {
+    $from_address = (int) $params['from'];
+  }
+  $sqlParams = array(
+    1 => array($min_members, 'Integer')
+  );
+
+  $dao = CRM_Core_DAO::executeQuery(<<<SQL
+    SELECT group_id,
+        concat(
+            'Welcome Emails - ',
+            title,
+            ' (',
+            DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%Y-%m-%d'),
+            ' - ',
+            DATE_FORMAT(NOW(), '%Y-%m-%d'),
+            ')'
+        ) group_name,
+        COUNT(*) members
+    from civicrm_contact cc
+        join civicrm_group_contact cgc ON (cc.id = cgc.contact_id)
+        join civicrm_group cg ON (
+            cg.id = cgc.group_id
+            AND cg.name LIKE '%activists%'
+        )
+    WHERE cc.source LIKE 'speakout petition 1____'
+        AND cc.created_date BETWEEN NOW() - INTERVAL 7 DAY
+        AND NOW()
+    GROUP BY group_id
+    HAVING COUNT(*) > %1
+SQL,
+          $sqlParams
+      );
+
+    $groups = [];
+    while ($dao->fetch()) {
+        $group_name = $dao->group_name;
+
+        $params = array(
+          'sequential' => 1,
+          'title' => $group_name,
+          'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR, // mailing type
+          'visibility' => 'User and User Admin Only',
+          'source' => 'speakcivi',
+        );
+        $result = civicrm_api3('Group', 'create', $params);
+        $group_id = (int) $result['id'];
+
+        $groups[$group_id] = $group_name;
+
+        $sqlParams = array(
+          1 => array(
+            $group_id => 'Integer'
+          )
+        );
+
+        $dao = CRM_Core_DAO::executeQuery(<<<SQL
+            SELECT DISTINCT cc.id contact_id, %1 group_id, 'Added'
+            from civicrm_contact cc
+            join civicrm_group_contact cgc ON (cc.id = cgc.contact_id)
+            join civicrm_group cg ON (
+                cg.id = cgc.group_id
+                AND cg.name LIKE '%activists%'
+            )
+            WHERE cc.source LIKE 'speakout petition 1____'
+              AND cc.created_date BETWEEN NOW() - INTERVAL 7 DAY
+              AND NOW()
+  SQL,
+          $sqlParams
+        );
+
+        $contacts = $dao->fetchAll();
+        foreach ($contacts as &$contact) {
+          $contact = "(" . implode(",", $contact) . ")";
+        }
+        unset($contact);
+
+        $contacts = implode(",",$contacts);
+        CRM_Core_DAO::executeQuery(<<<SQL
+            INSERT INTO civicrm_group
+            (contact_id, group_id, status)
+            VALUES
+            $contacts
+  SQL
+        );
+    }
+
+    $message = <<<HTML
+<p>Hello!</p>
+<p></p>
+<p>Here are the Welcome Series groups for you :</p>
+<p></p>
+<ul>
+HTML;
+    foreach ($groups as $id => $name) {
+      $message .= "<li><a href='https://www.wemove.eu/civicrm/group/search?force=1&context=smog&gid={$id}'>{$name}</a>\n";
+    }
+    if (count($groups) == 0) {
+      $message .= "<li>No welcome series groups for this week!</li>";
+    }
+    $message .= <<<HTML
+</ul>
+<p></p>
+<p>-- Your friendly neighborhood Tech team!</p>
+<p></p>
+HTML;
+
+    $email = array(
+      'from' => $from_address,
+      'cc' => 'tech@wemove.eu',
+      'toName' => 'Welcome Series Organiser',
+      'toEmail' => 'tech@wemove.eu',
+      'subject' => 'Your Weekly Welcome Series Groups!',
+      'html' => $message
+    );
+
+    CRM_Core_Error::debug_log_message("Going to send: $message");
+
+    return CRM_Utils_Mail::send($email);
 }
