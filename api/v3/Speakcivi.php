@@ -1156,7 +1156,7 @@ function submitReminder($mailingId) {
  * Create welcome groups and email Olga Iskra with the links.
  *
  */
-function civicrm_api3_speakcivi_weeklywelcome_groups($params) {
+function civicrm_api3_speakcivi_welcome_series_groups($params) {
 
   $min_members = 100;
   if (array_key_exists('threshold', $params)) {
@@ -1164,8 +1164,14 @@ function civicrm_api3_speakcivi_weeklywelcome_groups($params) {
   }
   $from_address = 'info@not-a2.eu';
   if (array_key_exists('from', $params)) {
-    $from_address = (int) $params['from'];
+    $from_address = $params['from'];
   }
+  $to = array('tech@wemove.eu');
+  if (array_key_exists('to', $params)) {
+    $to = preg_split('/[,; ]+/', $params['to']);
+  }
+  CRM_Core_Error::debug_log_message("[speakcivi.welcome_series_groups] Creating groups for Welcome Series with a threshold of {$min_members}.");
+
   $sqlParams = array(
     1 => array($min_members, 'Integer')
   );
@@ -1200,27 +1206,32 @@ SQL,
     $groups = [];
     while ($dao->fetch()) {
         $group_name = $dao->group_name;
+	$group_id = -1;
 
-        $params = array(
-          'sequential' => 1,
-          'title' => $group_name,
-          'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR, // mailing type
-          'visibility' => 'User and User Admin Only',
-          'source' => 'speakcivi',
-        );
-        $result = civicrm_api3('Group', 'create', $params);
-        $group_id = (int) $result['id'];
+	$existing = civicrm_api3('Group', 'getsingle', array("title" => $group_name ));
+	if ($existing) {
+          $group_id = (int) $existing['id'];
+	}
+	else {
+		$params = array(
+		  'sequential' => 1,
+		  'title' => $group_name,
+		  'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR,
+		  'visibility' => 'User and User Admin Only',
+		  'source' => 'speakcivi',
+		);
+		$result = civicrm_api3('Group', 'create', $params);
+		$group_id = (int) $result['id'];
+	}
+
+	if ($group_id == -1) {
+            throw new Exception("Couldn't find or create a group, I just can't go on.");
+	}
 
         $groups[$group_id] = $group_name;
 
-        $sqlParams = array(
-          1 => array(
-            $group_id => 'Integer'
-          )
-        );
-
         $dao = CRM_Core_DAO::executeQuery(<<<SQL
-            SELECT DISTINCT cc.id contact_id, %1 group_id, 'Added'
+            SELECT DISTINCT cc.id
             from civicrm_contact cc
             join civicrm_group_contact cgc ON (cc.id = cgc.contact_id)
             join civicrm_group cg ON (
@@ -1230,25 +1241,26 @@ SQL,
             WHERE cc.source LIKE 'speakout petition 1____'
               AND cc.created_date BETWEEN NOW() - INTERVAL 7 DAY
               AND NOW()
-  SQL,
-          $sqlParams
-        );
-
-        $contacts = $dao->fetchAll();
-        foreach ($contacts as &$contact) {
-          $contact = "(" . implode(",", $contact) . ")";
-        }
-        unset($contact);
-
-        $contacts = implode(",",$contacts);
-        CRM_Core_DAO::executeQuery(<<<SQL
-            INSERT INTO civicrm_group
-            (contact_id, group_id, status)
-            VALUES
-            $contacts
   SQL
         );
+
+	$values = array();
+	while ($dao->fetch()) {
+          $values[] = "(" . $dao->id  . ",$group_id,'Added')";
+        }
+
+        $values = implode(",",$values);
+	$insert = <<<SQL
+            INSERT IGNORE INTO civicrm_group_contact
+            (contact_id, group_id, status)
+            VALUES
+            $values
+SQL;
+	# CRM_Core_Error::debug_log_message("inserting {$insert}");
+        CRM_Core_DAO::executeQuery($insert);
     }
+
+    # CRM_Core_Error::debug_log_message("Letting someone know about the new groups;");
 
     $message = <<<HTML
 <p>Hello!</p>
@@ -1270,16 +1282,17 @@ HTML;
 <p></p>
 HTML;
 
-    $email = array(
-      'from' => $from_address,
-      'cc' => 'tech@wemove.eu',
-      'toName' => 'Welcome Series Organiser',
-      'toEmail' => 'tech@wemove.eu',
-      'subject' => 'Your Weekly Welcome Series Groups!',
-      'html' => $message
-    );
+    foreach ($to as $to_addr) {
+	    $email = array(
+	      'from' => $from_address,
+	      'cc' => 'tech@wemove.eu',
+	      'toName' => 'Welcome Series Organiser',
+	      'toEmail' => $to_addr,
+	      'subject' => 'Your Weekly Welcome Series Groups!',
+	      'html' => $message
+	    );
+	    CRM_Utils_Mail::send($email);
+    }
 
-    CRM_Core_Error::debug_log_message("Going to send: $message");
-
-    return CRM_Utils_Mail::send($email);
+    return civicrm_api3_create_success($groups);
 }
