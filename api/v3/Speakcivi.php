@@ -1208,9 +1208,9 @@ SQL,
         $group_name = $dao->group_name;
 	$group_id = -1;
 
-	$existing = civicrm_api3('Group', 'getsingle', array("title" => $group_name ));
-	if ($existing) {
-          $group_id = (int) $existing['id'];
+	$existing = civicrm_api3('Group', 'get', array("title" => $group_name ));
+	if ($existing['count'] > 0) {
+          $group_id = (int) $existing['values'][0]['id'];
 	}
 	else {
 		$params = array(
