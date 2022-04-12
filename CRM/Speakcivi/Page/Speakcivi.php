@@ -96,7 +96,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
         $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
 
-        $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
+        $campaignCache = $this->determineSpeakoutObjectType($param->action_technical_type);
         $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
         $speakoutDomain = $this->campaignObj->determineSpeakoutDomain($param->action_technical_type);
         $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id);
@@ -414,6 +414,20 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     return civicrm_api3('Contribution', 'create', $params);
   }
 
+  /**
+   * Campaigns and Surveys from Speakout are different entities.
+   * They have own list of ids and link to API
+   * @param string $actionTechnicalType
+   * @return \CRM_WeAct_CampaignCache|\CRM_WeAct_SurveyCache
+   */
+  private function determineSpeakoutObjectType(string $actionTechnicalType): CRM_WeAct_CampaignCache {
+    $action = explode(":", $actionTechnicalType);
+    if ($action[1] == "poll") {
+      return new CRM_WeAct_SurveyCache(Civi::cache(), new \GuzzleHttp\Client());
+    }
+
+    return new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
+  }
 
   /**
    * Determine members group id based on campaign type.
