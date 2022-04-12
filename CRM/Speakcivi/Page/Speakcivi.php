@@ -421,12 +421,23 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    * @return \CRM_WeAct_CampaignCache|\CRM_WeAct_SurveyCache
    */
   private function determineSpeakoutObjectType(string $actionTechnicalType): CRM_WeAct_CampaignCache {
-    $action = explode(":", $actionTechnicalType);
-    if ($action[1] == "poll") {
+    if ($this->isPoll($actionTechnicalType)) {
       return new CRM_WeAct_SurveyCache(Civi::cache(), new \GuzzleHttp\Client());
     }
 
     return new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
+  }
+
+  /**
+   * Check whether this message is poll/survey
+   * @param string $actionTechnicalType
+   *
+   * @return bool
+   */
+  private function isPoll(string $actionTechnicalType): bool {
+    $action = explode(":", $actionTechnicalType);
+
+    return $action[1] == "poll";
   }
 
   /**
