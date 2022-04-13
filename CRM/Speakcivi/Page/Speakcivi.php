@@ -915,6 +915,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   private function determineDetails($param) {
     $details = NULL;
+    if ($this->isPoll($param->action_technical_type)) {
+      return CRM_Speakcivi_Logic_Survey::prepareDetails($param);
+    }
     if (property_exists($param, 'comment') && $param->comment != '') {
       $details = trim($param->comment);
     }
