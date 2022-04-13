@@ -79,15 +79,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $result = 1;
       } else if ($activityType == NULL) {
         $result = -1;
-      } else if ($activityType == 'Survey') {
-        //Temporary storage in queue, until desired logic is implemented
-        //Very inefficient connection management, but c.f. above line
-        $client = new CRM_Rabbitizen_Client();
-        $connection = $client->connect();
-        $channel = $connection->channel();
-        $msg = new AMQPMessage(json_encode($param));
-        $channel->basic_publish($msg, '', 'speakout_survey_responses');
-        $result = 1;
       } else {
         CRM_Speakcivi_Tools_Helper::trimVariables($param);
         $this->setDefaults();
