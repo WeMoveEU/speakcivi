@@ -189,7 +189,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   public function processAction($param, $noMember, $activityType) {
     $targetGroupId = $this->determineGroupId();
     $contact = $this->createContact($param, $targetGroupId);
-    $activityStatus = $this->determineActivityStatus($contact, $targetGroupId);
+    $activityStatus = $this->determineActivityStatus($contact, $targetGroupId, $param);
     $activity = $this->createActivity($param, $contact['id'], $activityType, $activityStatus);
 
     if ($this->newContact) {
@@ -536,7 +536,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   /**
    * Determine which status to give to the activity
    */
-  public function determineActivityStatus($contact, $targetGroupId) {
+  public function determineActivityStatus($contact, $targetGroupId, $param): string {
+    if ($this->isPoll($param->action_technical_type)) {
+      return 'Completed';
+    }
     switch ($this->consentStatus) {
       case CRM_Speakcivi_Logic_Consent::STATUS_ACCEPTED:
         if ($this->addJoinActivity) {
