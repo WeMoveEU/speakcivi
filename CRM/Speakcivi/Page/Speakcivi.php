@@ -407,14 +407,13 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Check whether this message is poll/survey
-   * @param string $actionTechnicalType
+   *
+   * @param string $actionType
    *
    * @return bool
    */
-  private function isPoll(string $actionTechnicalType): bool {
-    $action = explode(":", $actionTechnicalType);
-
-    return $action[1] == "poll";
+  private function isSurvey(string $actionType): bool {
+    return $actionType == 'poll';
   }
 
   /**
@@ -901,7 +900,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   private function determineDetails($param) {
     $details = NULL;
-    if ($this->isPoll($param->action_technical_type)) {
+    if ($this->isSurvey($param->action_type)) {
       return CRM_Speakcivi_Logic_Survey::prepareDetails($param);
     }
     if (property_exists($param, 'comment') && $param->comment != '') {
