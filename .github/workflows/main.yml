@@ -54,6 +54,10 @@ jobs:
           ref: master
           path: drupal/sites/all/modules/civicrm/ext/we-act
 
+      - name: Run composer
+        run: composer install
+        working-directory: drupal/sites/all/modules/civicrm/ext/we-act
+
       - name: Install dependencies' dependencies...
         run: composer install
         working-directory: drupal/sites/all/modules/civicrm/ext/sepa/packages
