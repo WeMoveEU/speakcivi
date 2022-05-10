@@ -1310,8 +1310,7 @@ function civicrm_api3_speakcivi_trialing_pool_group($params) {
 
    */
 
-  $date = date('Ymd');
-  $group_details =  [ 'title' => "Trial Pool INT-EN $date", 'name' => "trialing-pool-int-en-$date" ];
+  $group_details =  [ 'title' => "Trial Pool INT-EN (excludes recent mailings)", 'name' => "trialing-pool-int-en" ];
 
   CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use (&$group_details) {
       $result = civicrm_api3('Group', 'get', $group_details);
