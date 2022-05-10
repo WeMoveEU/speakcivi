@@ -1309,72 +1309,81 @@ function civicrm_api3_speakcivi_trialing_pool_group($params) {
     - who didn't receive any trial within last 7 days
 
    */
+
   $date = date('Ymd');
+  $group_details =  [ 'title' => "Trial Pool INT-EN $date", 'name' => "trialing-pool-int-en-$date" ];
 
-  $group_details =  [ 'title' => "Trial Pool INT-EN $date", name => "trialing-pool-int-en-$date" ];
+  CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use (&$group_details) {
+      $result = civicrm_api3('Group', 'get', $group_details);
+      if ($result['count'] == 1) {
+        $group_id = $result['id'];
+        CRM_Core_DAO::executeQuery("DELETE FROM civicrm_group_contact WHERE group_id = $group_id");
+      }
+      else {
+        $result = civicrm_api3('Group', 'create', $group_details);
+        $group_id = $result['id'];
+      }
 
-  $result = civicrm_api3('Group', 'create', [ 'title' => "Trial Pool INT-EN $date", name => "trialing-pool-int-en-$date" ]);
-  $group_id = $result['id'];
+      CRM_Core_DAO::executeQuery(
+        "CREATE TEMPORARY TABLE trial_language (contact_id integer PRIMARY KEY)"
+      );
+      CRM_Core_DAO::executeQuery(
+        "CREATE TEMPORARY TABLE trial_recent_mailing (contact_id integer PRIMARY KEY)"
+      );
 
-  CRM_Core_DAO::executeQuery(
-    "CREATE TEMPORARY TABLE trial_language (contact_id integer PRIMARY KEY);"
-  );
-  CRM_Core_DAO::executeQuery(
-    "CREATE TEMPORARY TABLE trial_recent_mailing (contact_id integer PRIMARY KEY);"
-  );
+      CRM_Mailing_BAO_Mailing::select_into_load_data(
+        "_trial_group",
+        "SELECT DISTINCT g.contact_id
+        FROM civicrm_group_contact g
+        WHERE group_id = (
+            SELECT id
+            FROM civicrm_group
+            WHERE title = 'English language Members INT'
+        )
+        ",
+        "trial_language",
+        ["contact_id"]
+      );
 
-  CRM_Mailing_BAO_Mailing::select_into_load_data(
-    "_trial_group",
-    "SELECT DISTINCT g.contact_id
-     FROM civicrm_group_contact g
-     WHERE group_id = (
-        SELECT id
-        FROM civicrm_group
-        WHERE title = 'English language Members INT'
-     )
-    ",
-    "trial_language",
-    ["contact_id"]
-  );
-
-  CRM_Mailing_BAO_Mailing::select_into_load_data(
-    "_trial_group",
-    "SELECT e.contact_id
-     FROM civicrm_mailing_event_queue e
-     JOIN civicrm_mailing_job j ON (e.job_id = j.id)
-     WHERE j.mailing_id in (
-        SELECT id
-        FROM civicrm_mailing
-        WHERE (
-                (
-                    scheduled_date > NOW() - interval 7 day
-                    AND name LIKE '%-trial-%'
+      CRM_Mailing_BAO_Mailing::select_into_load_data(
+        "_trial_group",
+        "SELECT e.contact_id
+        FROM civicrm_mailing_event_queue e
+        JOIN civicrm_mailing_job j ON (e.job_id = j.id)
+        WHERE j.mailing_id in (
+            SELECT id
+            FROM civicrm_mailing
+            WHERE (
+                    (
+                        scheduled_date > NOW() - interval 7 day
+                        AND name LIKE '%-trial-%'
+                    )
+                    OR (scheduled_date > NOW() - interval 4 day)
                 )
-                OR (scheduled_date > NOW() - interval 4 day)
-            )
-            AND is_completed = 1
-     )",
-    "trial_recent_mailing",
-    ["contact_id"]
-  );
+                AND is_completed = 1
+        )",
+        "trial_recent_mailing",
+        ["contact_id"]
+      );
 
-  CRM_Mailing_BAO_Mailing::select_into_load_data(
-    "_trial_group",
-    "SELECT status 'Added', a.contact_id contact_id, $group_id group_id
-     FROM trial_language l
-     LEFT JOIN trial_recent_mailing m (l.contact_id=m.contact_id)
-     WHERE m.contact_id IS NULL
-    ",
-    'civicrm_group_contact',
-    ["status", "contact_id", "group_id"]
-  );
+      CRM_Mailing_BAO_Mailing::select_into_load_data(
+        "_trial_group",
+        "SELECT DISTINCT 'Added' status, l.contact_id contact_id, $group_id group_id
+        FROM trial_language l
+        LEFT JOIN trial_recent_mailing m ON (l.contact_id=m.contact_id)
+        WHERE m.contact_id IS NULL
+        ",
+        'civicrm_group_contact',
+        ["status", "contact_id", "group_id"]
+      );
 
-  $group_detailts["count"] = CRM_Core_DAO::selectValue(
-    "SELECT COUNT(*)
-     FROM civicrm_group_contact
-     WHERE group_id = $group_id
-    "
-  );
+      $group_details["count"] = CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(*)
+        FROM civicrm_group_contact
+        WHERE group_id = $group_id
+        "
+      );
+  });
 
   return civicrm_api3_create_success($group_details);
 }
