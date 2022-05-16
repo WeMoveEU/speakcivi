@@ -69,8 +69,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $activityId = $params['activity_id'];
   if (array_key_exists('no_member', $params)) {
     $noMember = (bool) $params['no_member'];
-  }
-  else {
+  } else {
     $noMember = FALSE;
   }
 
@@ -82,8 +81,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   if ($confirmationBlock) {
     $params['subject'] = $campaignObj->getSubjectNew();
     $message = $campaignObj->getMessageNew();
-  }
-  else {
+  } else {
     $params['subject'] = $campaignObj->getSubjectCurrent();
     $message = $campaignObj->getMessageCurrent();
   }
@@ -92,8 +90,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
     if ($confirmationBlock) {
       $message = CRM_WeAct_Dictionary::getMessageNew($locale);
       $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageNew, $message);
-    }
-    else {
+    } else {
       // don't send any sharing email
       return civicrm_api3_create_success(1, $params);
     }
@@ -118,15 +115,20 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   if ($noMember) {
     $baseConfirmUrl = 'civicrm/speakcivi/nmconfirm';
     $baseOptoutUrl = 'civicrm/speakcivi/nmoptout';
-  }
-  else {
+  } else {
     $baseConfirmUrl = 'civicrm/speakcivi/confirm';
     $baseOptoutUrl = 'civicrm/speakcivi/optout';
   }
-  $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl,
-    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", TRUE);
-  $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl,
-    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content", TRUE);
+  $url_confirm_and_keep = CRM_Utils_System::url(
+    $baseConfirmUrl,
+    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content",
+    TRUE
+  );
+  $url_confirm_and_not_receive = CRM_Utils_System::url(
+    $baseOptoutUrl,
+    "id=$contactId&aid=$activityId&cid=$campaignId&hash=$hash&utm_source=civicrm&utm_medium=email&utm_campaign=$utm_campaign&utm_content=$utm_content",
+    TRUE
+  );
 
   $template = CRM_Core_Smarty::singleton();
   $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
@@ -175,8 +177,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   $params['text'] = html_entity_decode(convertHtmlToText($messageText));
   if ($campaignObj->isYoumove()) {
     $params['groupName'] = 'SpeakCivi YouMove';
-  }
-  else {
+  } else {
     $params['groupName'] = 'SpeakCivi WeMove';
   }
   $params['custom-activity-id'] = $activityId;
@@ -184,8 +185,7 @@ function civicrm_api3_speakcivi_sendconfirm($params) {
   try {
     $sent = CRM_Utils_Mail::send($params);
     return civicrm_api3_create_success($sent, $params);
-  }
-  catch (CiviCRM_API3_Exception $exception) {
+  } catch (CiviCRM_API3_Exception $exception) {
     $data = array(
       'params' => $params,
       'exception' => $exception,
@@ -283,8 +283,7 @@ function civicrm_api3_speakcivi_removelanguagegroup($params) {
       'time' => microtime(TRUE) - $start,
     );
     return civicrm_api3_create_success($results, $params);
-  }
-  else {
+  } else {
     $data = array(
       'groupId' => $groupId,
       'languageGroupNameSuffix' => $languageGroupNameSuffix,
@@ -356,16 +355,26 @@ function civicrm_api3_speakcivi_fixlanguagegroup($params) {
   $dao = CRM_Core_DAO::executeQuery($query);
   while ($dao->fetch()) {
     $contactIds = array($dao->contact_id);
-    CRM_Contact_BAO_GroupContact::removeContactsFromGroup($contactIds, $dao->current_group_id,
-      'Spkcivi', 'Removed', 'fixlanguagegroup');
+    CRM_Contact_BAO_GroupContact::removeContactsFromGroup(
+      $contactIds,
+      $dao->current_group_id,
+      'Spkcivi',
+      'Removed',
+      'fixlanguagegroup'
+    );
 
     if ($dao->preferred_language == 'en_GB') {
       $expected = CRM_Utils_Array::value($dao->country, $enGroups, $enGroups['*']);
     } else {
       $expected = $dao->expected_group_id;
     }
-    CRM_Contact_BAO_GroupContact::addContactsToGroup($contactIds, $expected,
-      'Spkcivi', 'Added', 'fixlanguagegroup');
+    CRM_Contact_BAO_GroupContact::addContactsToGroup(
+      $contactIds,
+      $expected,
+      'Spkcivi',
+      'Added',
+      'fixlanguagegroup'
+    );
     $count++;
   }
   return civicrm_api3_create_success(array('count' => $count), $params);
@@ -469,8 +478,7 @@ function civicrm_api3_speakcivi_remind($params) {
     if ($campaignType[$cid] == $noMemberCampaignType) {
       $baseConfirmUrl = 'civicrm/speakcivi/nmconfirm';
       $baseOptoutUrl = 'civicrm/speakcivi/nmoptout';
-    }
-    else {
+    } else {
       $baseConfirmUrl = 'civicrm/speakcivi/confirm';
       $baseOptoutUrl = 'civicrm/speakcivi/optout';
     }
@@ -482,7 +490,7 @@ function civicrm_api3_speakcivi_remind($params) {
     $confirmationBlockHtml = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl'));
     $confirmationBlockText = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl'));
     $privacyBlock  = implode('', file(dirname(__FILE__) . '/../../templates/CRM/Speakcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl'));
-    $urls = [ 'url_confirm_and_keep' => $url_confirm_and_keep, 'url_confirm_and_not_receive' => $url_confirm_and_not_receive ];
+    $urls = ['url_confirm_and_keep' => $url_confirm_and_keep, 'url_confirm_and_not_receive' => $url_confirm_and_not_receive];
     $messageHtml[$cid] = prepareConfirmMessage($msg, $confirmationBlockHtml, $urls);
     $messageText[$cid] = convertHtmlToText(prepareConfirmMessage($msg, $confirmationBlockText, $urls));
     $messageHtml[$cid] = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageHtml[$cid]);
@@ -496,14 +504,12 @@ function civicrm_api3_speakcivi_remind($params) {
       if ($mailingId = findNotCompletedMailing($cid)) {
         if ($linkedGroupId = findLinkedGroup($mailingId)) {
           addContactsToGroup($contacts[$cid], $linkedGroupId);
-        }
-        else {
+        } else {
           $includeGroupId = createGroup($cid, $language[$cid]);
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mailingId, $includeGroupId);
         }
-      }
-      else {
+      } else {
         $name = determineMailingName($cid, $language[$cid]);
         $params = array(
           'name' => $name,
@@ -535,8 +541,7 @@ function civicrm_api3_speakcivi_remind($params) {
           cleanGroup($existingGroupId);
           addContactsToGroup($contacts[$cid], $existingGroupId);
           includeGroup($mm->id, $existingGroupId);
-        }
-        else {
+        } else {
           $includeGroupId = createGroup($cid, $language[$cid]);
           addContactsToGroup($contacts[$cid], $includeGroupId);
           includeGroup($mm->id, $includeGroupId);
@@ -586,8 +591,7 @@ function civicrm_api3_speakcivi_englishgroups($params) {
       'time' => microtime(TRUE) - $start,
     );
     return civicrm_api3_create_success($results, $params);
-  }
-  else {
+  } else {
     $data = array(
       'languageGroupNameSuffix' => $languageGroupNameSuffix,
     );
@@ -712,11 +716,10 @@ function _civicrm_api3_speakcivi_update_campaign_consent_spec(&$spec) {
 
 function civicrm_api3_speakcivi_update_campaign_consent($params) {
   $data = null;
-  $campaigns = civicrm_api3('Campaign', 'get', [ 'name' => $params['campaign_name'], 'return' => 'id' ]);
+  $campaigns = civicrm_api3('Campaign', 'get', ['name' => $params['campaign_name'], 'return' => 'id']);
   if ($campaigns['is_error']) {
     return civicrm_api3_create_error("Error while retrieving {$params['campaign_name']}", $data);
-  }
-  else {
+  } else {
     $updated_campaigns = [];
     foreach ($campaigns['values'] as $c) {
       $campaign = new CRM_Speakcivi_Logic_Campaign($c['id']);
@@ -1177,7 +1180,9 @@ function civicrm_api3_speakcivi_welcome_series_groups($params) {
     1 => array($min_members, 'Integer')
   );
 
-  $dao = CRM_Core_DAO::executeQuery(<<<SQL
+  # 1. find which groups need to be created
+  $dao = CRM_Core_DAO::executeQuery(
+    <<<SQL
     SELECT group_id,
         concat(
             'Welcome Emails - ',
@@ -1201,37 +1206,43 @@ function civicrm_api3_speakcivi_welcome_series_groups($params) {
     GROUP BY group_id
     HAVING COUNT(*) > %1
 SQL,
-          $sqlParams
+    $sqlParams
+  );
+
+  $groups = [];
+  # 2. for each group we need to create, create the group and insert the new members
+  while ($dao->fetch()) {
+    $group_name = $dao->group_name;
+    $group_id = -1;
+
+    $existing = civicrm_api3('Group', 'get', array("title" => $group_name));
+    if ($existing['count'] > 0) {
+      $group_id = (int) $existing['values'][0]['id'];
+    } else {
+      $params = array(
+        'sequential' => 1,
+        'title' => $group_name,
+        'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR,
+        'visibility' => 'User and User Admin Only',
+        'source' => 'speakcivi',
       );
+      $result = civicrm_api3('Group', 'create', $params);
+      $group_id = (int) $result['id'];
+    }
 
-    $groups = [];
-    while ($dao->fetch()) {
-        $group_name = $dao->group_name;
-	$group_id = -1;
+    if ($group_id == -1) {
+      throw new Exception("Couldn't find or create a group, I just can't go on.");
+    }
 
-	$existing = civicrm_api3('Group', 'get', array("title" => $group_name ));
-	if ($existing['count'] > 0) {
-          $group_id = (int) $existing['values'][0]['id'];
-	}
-	else {
-		$params = array(
-		  'sequential' => 1,
-		  'title' => $group_name,
-		  'group_type' => CRM_Core_DAO::VALUE_SEPARATOR . '2' . CRM_Core_DAO::VALUE_SEPARATOR,
-		  'visibility' => 'User and User Admin Only',
-		  'source' => 'speakcivi',
-		);
-		$result = civicrm_api3('Group', 'create', $params);
-		$group_id = (int) $result['id'];
-	}
+    $groups[$group_id] = $group_name;
 
-	if ($group_id == -1) {
-            throw new Exception("Couldn't find or create a group, I just can't go on.");
-	}
+    # 3.find the members in $group_id
+    $sqlParams = array(
+      1 => array($group_id, 'Integer')
+    );
 
-        $groups[$group_id] = $group_name;
-
-        $dao = CRM_Core_DAO::executeQuery(<<<SQL
+    $dao = CRM_Core_DAO::executeQuery(
+      <<<SQL
             SELECT DISTINCT cc.id
             from civicrm_contact cc
             join civicrm_group_contact cgc ON (cc.id = cgc.contact_id)
@@ -1242,60 +1253,64 @@ SQL,
             WHERE cc.source LIKE 'speakout petition 1____'
               AND cc.created_date BETWEEN NOW() - INTERVAL 7 DAY
               AND NOW()
-  SQL
-        );
+              AND cg.id = %1
+  SQL,
 
-	$values = array();
-	while ($dao->fetch()) {
-          $values[] = "(" . $dao->id  . ",$group_id,'Added')";
-        }
+    );
 
-        $values = implode(",",$values);
-	$insert = <<<SQL
+    # stuff all the member ids into an array, hope there aren't too many!!
+    $values = array();
+    while ($dao->fetch()) {
+      $values[] = "(" . $dao->id  . ",$group_id,'Added')";
+    }
+
+    # insert the new members into the new group
+    $values = implode(",", $values);
+    $insert = <<<SQL
             INSERT IGNORE INTO civicrm_group_contact
             (contact_id, group_id, status)
             VALUES
             $values
 SQL;
-	# CRM_Core_Error::debug_log_message("inserting {$insert}");
-        CRM_Core_DAO::executeQuery($insert);
-    }
+    # CRM_Core_Error::debug_log_message("inserting {$insert}");
+    CRM_Core_DAO::executeQuery($insert);
+  }
 
-    # CRM_Core_Error::debug_log_message("Letting someone know about the new groups;");
+  # CRM_Core_Error::debug_log_message("Letting someone know about the new groups;");
 
-    $message = <<<HTML
+  $message = <<<HTML
 <p>Hello!</p>
 <p></p>
 <p>Here are the Welcome Series groups for you :</p>
 <p></p>
 <ul>
 HTML;
-    foreach ($groups as $id => $name) {
-      $message .= "<li><a href='https://www.wemove.eu/civicrm/group/search?force=1&context=smog&gid={$id}'>{$name}</a>\n";
-    }
-    if (count($groups) == 0) {
-      $message .= "<li>No welcome series groups for this week!</li>";
-    }
-    $message .= <<<HTML
+  foreach ($groups as $id => $name) {
+    $message .= "<li><a href='https://www.wemove.eu/civicrm/group/search?force=1&context=smog&gid={$id}'>{$name}</a>\n";
+  }
+  if (count($groups) == 0) {
+    $message .= "<li>No welcome series groups for this week!</li>";
+  }
+  $message .= <<<HTML
 </ul>
 <p></p>
 <p>-- Your friendly neighborhood Tech team!</p>
 <p></p>
 HTML;
 
-    foreach ($to as $to_addr) {
-	    $email = array(
-	      'from' => $from_address,
-	      'cc' => 'tech@wemove.eu',
-	      'toName' => 'Welcome Series Organiser',
-	      'toEmail' => $to_addr,
-	      'subject' => 'Your Weekly Welcome Series Groups!',
-	      'html' => $message
-	    );
-	    CRM_Utils_Mail::send($email);
-    }
+  foreach ($to as $to_addr) {
+    $email = array(
+      'from' => $from_address,
+      'cc' => 'tech@wemove.eu',
+      'toName' => 'Welcome Series Organiser',
+      'toEmail' => $to_addr,
+      'subject' => 'Your Weekly Welcome Series Groups!',
+      'html' => $message
+    );
+    CRM_Utils_Mail::send($email);
+  }
 
-    return civicrm_api3_create_success($groups);
+  return civicrm_api3_create_success($groups);
 }
 
 
@@ -1310,29 +1325,28 @@ function civicrm_api3_speakcivi_trialing_pool_group($params) {
 
    */
 
-  $group_details =  [ 'title' => "Trial Pool INT-EN (excludes recent mailings)", 'name' => "trialing-pool-int-en" ];
+  $group_details =  ['title' => "Trial Pool INT-EN (excludes recent mailings)", 'name' => "trialing-pool-int-en"];
 
-  CRM_Core_Transaction::create(TRUE)->run(function(CRM_Core_Transaction $tx) use (&$group_details) {
-      $result = civicrm_api3('Group', 'get', $group_details);
-      if ($result['count'] == 1) {
-        $group_id = $result['id'];
-        CRM_Core_DAO::executeQuery("DELETE FROM civicrm_group_contact WHERE group_id = $group_id");
-      }
-      else {
-        $result = civicrm_api3('Group', 'create', $group_details);
-        $group_id = $result['id'];
-      }
+  CRM_Core_Transaction::create(TRUE)->run(function (CRM_Core_Transaction $tx) use (&$group_details) {
+    $result = civicrm_api3('Group', 'get', $group_details);
+    if ($result['count'] == 1) {
+      $group_id = $result['id'];
+      CRM_Core_DAO::executeQuery("DELETE FROM civicrm_group_contact WHERE group_id = $group_id");
+    } else {
+      $result = civicrm_api3('Group', 'create', $group_details);
+      $group_id = $result['id'];
+    }
 
-      CRM_Core_DAO::executeQuery(
-        "CREATE TEMPORARY TABLE trial_language (contact_id integer PRIMARY KEY)"
-      );
-      CRM_Core_DAO::executeQuery(
-        "CREATE TEMPORARY TABLE trial_recent_mailing (contact_id integer PRIMARY KEY)"
-      );
+    CRM_Core_DAO::executeQuery(
+      "CREATE TEMPORARY TABLE trial_language (contact_id integer PRIMARY KEY)"
+    );
+    CRM_Core_DAO::executeQuery(
+      "CREATE TEMPORARY TABLE trial_recent_mailing (contact_id integer PRIMARY KEY)"
+    );
 
-      CRM_Mailing_BAO_Mailing::select_into_load_data(
-        "_trial_group",
-        "SELECT DISTINCT g.contact_id
+    CRM_Mailing_BAO_Mailing::select_into_load_data(
+      "_trial_group",
+      "SELECT DISTINCT g.contact_id
         FROM civicrm_group_contact g
         WHERE group_id = (
             SELECT id
@@ -1340,13 +1354,13 @@ function civicrm_api3_speakcivi_trialing_pool_group($params) {
             WHERE title = 'English language Members INT'
         )
         ",
-        "trial_language",
-        ["contact_id"]
-      );
+      "trial_language",
+      ["contact_id"]
+    );
 
-      CRM_Mailing_BAO_Mailing::select_into_load_data(
-        "_trial_group",
-        "SELECT e.contact_id
+    CRM_Mailing_BAO_Mailing::select_into_load_data(
+      "_trial_group",
+      "SELECT e.contact_id
         FROM civicrm_mailing_event_queue e
         JOIN civicrm_mailing_job j ON (e.job_id = j.id)
         WHERE j.mailing_id in (
@@ -1361,27 +1375,27 @@ function civicrm_api3_speakcivi_trialing_pool_group($params) {
                 )
                 AND is_completed = 1
         )",
-        "trial_recent_mailing",
-        ["contact_id"]
-      );
+      "trial_recent_mailing",
+      ["contact_id"]
+    );
 
-      CRM_Mailing_BAO_Mailing::select_into_load_data(
-        "_trial_group",
-        "SELECT DISTINCT 'Added' status, l.contact_id contact_id, $group_id group_id
+    CRM_Mailing_BAO_Mailing::select_into_load_data(
+      "_trial_group",
+      "SELECT DISTINCT 'Added' status, l.contact_id contact_id, $group_id group_id
         FROM trial_language l
         LEFT JOIN trial_recent_mailing m ON (l.contact_id=m.contact_id)
         WHERE m.contact_id IS NULL
         ",
-        'civicrm_group_contact',
-        ["status", "contact_id", "group_id"]
-      );
+      'civicrm_group_contact',
+      ["status", "contact_id", "group_id"]
+    );
 
-      $group_details["count"] = CRM_Core_DAO::singleValueQuery(
-        "SELECT COUNT(*)
+    $group_details["count"] = CRM_Core_DAO::singleValueQuery(
+      "SELECT COUNT(*)
         FROM civicrm_group_contact
         WHERE group_id = $group_id
         "
-      );
+    );
   });
 
   return civicrm_api3_create_success($group_details);
