@@ -1255,7 +1255,7 @@ SQL,
               AND NOW()
               AND cg.id = %1
   SQL,
-
+      $sqlParams
     );
 
     # stuff all the member ids into an array, hope there aren't too many!!
