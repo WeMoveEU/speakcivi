@@ -87,10 +87,11 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $this->consents = CRM_Speakcivi_Logic_Consent::prepareFields($param);
         $this->consentStatus = CRM_Speakcivi_Logic_Consent::setStatus($this->consents);
 
-        $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client(), $param->action_type);
+        $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
         $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
         $speakoutDomain = $this->campaignObj->determineSpeakoutDomain($param->action_technical_type);
-        $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id);
+        $external_system = $this->isSurvey($param->action_type) ? 'speakout_survey' : 'speakout';
+        $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id, $external_system);
         if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
           $this->campaignId = (int)$this->campaignObj->campaign['id'];
           $this->locale = $this->campaignObj->getLanguage();
