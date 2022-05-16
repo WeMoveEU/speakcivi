@@ -1209,16 +1209,24 @@ SQL,
     $sqlParams
   );
 
-  $groups = [];
-  # 2. for each group we need to create, create the group and insert the new members
-  while ($dao->fetch()) {
+  $groups_to_create = [];
+  while($dao->fetch()) {
     $group_name = $dao->group_name;
     $language_group_id = $dao->group_id;
+    $groups_to_create[] = [$group_name, $language_group_id];
+  }
+  # 2. for each group we need to create, create the group and insert the new members
+  foreach ($groups_to_create as $group) {
+    $group_name = $group[0];
+    $language_group_id = $group[1];
     $welcome_series_group_id = -1;
 
+    CRM_Core_Error::debug_log_message("[speakcivi.welcome_series_groups] Building group $group_name from $language_group_id");
+
     $existing = civicrm_api3('Group', 'get', array("title" => $group_name));
-    if ($existing['count'] > 0) {
-      $welcome_series_group_id = (int) $existing['values'][0]['id'];
+    if ($existing['count'] == 1) {
+      CRM_Core_Error::debug_log_message(json_encode($existing));
+      $welcome_series_group_id = (int) $existing['id'];
     } else {
       $params = array(
         'sequential' => 1,
@@ -1232,7 +1240,7 @@ SQL,
     }
 
     if ($welcome_series_group_id == -1) {
-      throw new Exception("Couldn't find or create a group, I just can't go on.");
+      throw new Exception("[speakcivi.welcome_series_groups] Couldn't find or create a group, I just can't go on.");
     }
 
     $groups[$welcome_series_group_id] = $group_name;
@@ -1241,6 +1249,8 @@ SQL,
     $sqlParams = array(
       1 => array($language_group_id, 'Integer')
     );
+
+    CRM_Core_Error::debug_log_message("[speakcivi.welcome_series_groups] Finding members for group $language_group_id $group_name");
 
     $dao = CRM_Core_DAO::executeQuery(
       <<<SQL
@@ -1273,8 +1283,8 @@ SQL,
             VALUES
             $values
 SQL;
-    # CRM_Core_Error::debug_log_message("inserting {$insert}");
     CRM_Core_DAO::executeQuery($insert);
+    CRM_Core_Error::debug_log_message("and i'm gone... ");
   }
 
   # CRM_Core_Error::debug_log_message("Letting someone know about the new groups;");
@@ -1296,6 +1306,9 @@ HTML;
 </ul>
 <p></p>
 <p>-- Your friendly neighborhood Tech team!</p>
+<pre>
+  {json_encode($groups)}
+</pre>
 <p></p>
 HTML;
 
