@@ -1213,11 +1213,12 @@ SQL,
   # 2. for each group we need to create, create the group and insert the new members
   while ($dao->fetch()) {
     $group_name = $dao->group_name;
-    $group_id = -1;
+    $language_group_id = $dao->group_id;
+    $welcome_series_group_id = -1;
 
     $existing = civicrm_api3('Group', 'get', array("title" => $group_name));
     if ($existing['count'] > 0) {
-      $group_id = (int) $existing['values'][0]['id'];
+      $welcome_series_group_id = (int) $existing['values'][0]['id'];
     } else {
       $params = array(
         'sequential' => 1,
@@ -1227,18 +1228,18 @@ SQL,
         'source' => 'speakcivi',
       );
       $result = civicrm_api3('Group', 'create', $params);
-      $group_id = (int) $result['id'];
+      $welcome_series_group_id = (int) $result['id'];
     }
 
-    if ($group_id == -1) {
+    if ($welcome_series_group_id == -1) {
       throw new Exception("Couldn't find or create a group, I just can't go on.");
     }
 
-    $groups[$group_id] = $group_name;
+    $groups[$welcome_series_group_id] = $group_name;
 
     # 3.find the members in $group_id
     $sqlParams = array(
-      1 => array($group_id, 'Integer')
+      1 => array($language_group_id, 'Integer')
     );
 
     $dao = CRM_Core_DAO::executeQuery(
@@ -1261,7 +1262,7 @@ SQL,
     # stuff all the member ids into an array, hope there aren't too many!!
     $values = array();
     while ($dao->fetch()) {
-      $values[] = "(" . $dao->id  . ",$group_id,'Added')";
+      $values[] = "(" . $dao->id  . ",$welcome_series_group_id,'Added')";
     }
 
     # insert the new members into the new group
