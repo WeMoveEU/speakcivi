@@ -55,11 +55,12 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
   private $isAnonymous = false;
 
   private $apiAddressGet = 'api.Address.get';
-
   private $apiAddressCreate = 'api.Address.create';
 
-  private $apiGroupContactGet = 'api.GroupContact.get';
+  private $apiPhoneGet = 'api.Phone.get';
+  private $apiPhoneCreate = 'api.Phone.create';
 
+  private $apiGroupContactGet = 'api.GroupContact.get';
   private $apiGroupContactCreate = 'api.GroupContact.create';
 
   function run() {
@@ -430,12 +431,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
 
   /**
    * Create or update contact
+   * @param object $param JSON message from Speakout
+   * @param int $groupId id of the members group
    *
-   * @param object $param
-   * @param int $groupId
-   *
-   * @return array
-   * @throws \CiviCRM_API3_Exception
+   * @return array the API values of the contact
    */
   public function createContact($param, $groupId) {
     if ($this->isAnonymous = CRM_Speakcivi_Logic_Contact::isAnonymous($param)) {
@@ -455,7 +454,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         'contact_id' => '$value.id',
         'status' => 'Added',
       ),
-      'return' => 'id,email,first_name,last_name,preferred_language,is_opt_out',
+      'return' => 'id,email,first_name,last_name,preferred_language,is_opt_out,phone',
     );
 
     $contacIds = CRM_Speakcivi_Logic_Contact::getContactByEmail($h->emails[0]->email);
@@ -638,6 +637,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         }
       }
       $contact = $this->prepareParamsAddress($contact, $existingContact);
+      $contact = $this->prepareParamsPhone($param, $contact, $existingContact);
       $this->isMember = ($existingContact[$this->apiGroupContactGet]['count'] == 1);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents) && $existingContact[$this->apiGroupContactGet]['count'] == 0) {
         $this->addJoinActivity = true;
@@ -659,6 +659,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       $contact['preferred_language'] = $this->locale;
       $contact['source'] = 'speakout ' . $param->action_type . ' ' . $param->external_id;
       $contact = $this->prepareParamsAddressDefault($contact);
+      $contact = $this->prepareParamsPhone($param, $contact);
       if (CRM_Speakcivi_Logic_Consent::isExplicitOptIn($this->consents)) {
         $this->addJoinActivity = true;
       }
@@ -732,6 +733,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     } else {
       // we have no address, creating new one
       $contact = $this->prepareParamsAddressDefault($contact);
+    }
+    return $contact;
+  }
+
+  function prepareParamsPhone($msg, $contact, $existingContact = NULL) {
+    $phoneNumber = @$msg->cons_hash->phones[0]->phone;
+    if ($phoneNumber && (!$existingContact || $existingContact['phone'] != $phoneNumber)) {
+      $contact[$this->apiPhoneCreate]['phone'] = $phoneNumber;
     }
     return $contact;
   }
