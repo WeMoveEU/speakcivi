@@ -24,7 +24,7 @@ class CRM_Speakcivi_Logic_Tag {
       property_exists($param, 'metadata') &&
       property_exists($param->metadata, 'sign_boolean') &&
       $param->metadata->sign_boolean &&
-      strpos(strtolower($param->action_name), 'primark') !== FALSE
+      strpos(strtolower($param->action_name), '-uber-') !== FALSE
     ) {
       return TRUE;
     }
@@ -67,7 +67,7 @@ class CRM_Speakcivi_Logic_Tag {
     $key = __CLASS__ . __FUNCTION__;
     $cache = Civi::cache()->get($key);
     if (!isset($cache)) {
-      $id = self::addTag('Primark Customer');
+      $id = self::addTag('Platform Worker');
       Civi::cache()->set($key, $id);
       return $id;
     }
