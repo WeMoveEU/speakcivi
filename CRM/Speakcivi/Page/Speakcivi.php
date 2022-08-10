@@ -512,6 +512,10 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'call' => 'Phone Call',
       'speakout' => 'Email',
       'poll' => 'Survey',
+      // Used by Proca
+      'mail2target' => 'Email',
+      'twitter_close' => FALSE,
+      'twitter_click' => 'Tweet',
     ];
     return $typeMap[$actionType];
   }
