@@ -315,6 +315,30 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       return 0;
     }
     else {
+      // For T4F campaign, we record only rejected consents
+      foreach ($this->consents as $consent) {
+        if ($consent->level == CRM_Speakcivi_Logic_Consent::STATUS_REJECTED) {
+          $status = 'Rejected';
+          $contactCustoms = [
+            'is_opt_out' => 1,
+          ];
+          $params = [
+            'contact_id' => $contact['id'],
+            'consent_id' => $consent->publicId,
+            'status' => $status,
+            'date' => $consent->date,
+            'method' => $consent->method,
+            'is_member' => $this->isMember ? 1 : 0,
+            'campaign_id' => $this->campaignId,
+            'utm_source' => $consent->utmSource,
+            'utm_medium' => $consent->utmMedium,
+            'utm_campaign' => $consent->utmCampaign,
+          ];
+          civicrm_api3('Gidipirus', 'set_consent_status', $params);
+          CRM_Speakcivi_Logic_Contact::set($contact['id'], $contactCustoms);
+        }
+
+      }
       return 1;
     }
   }
