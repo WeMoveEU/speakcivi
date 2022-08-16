@@ -540,6 +540,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'mail2target' => 'Email',
       'twitter_close' => FALSE,
       'twitter_click' => 'Tweet',
+      'share_click' => 'share',
+      'share_close' => FALSE,
+      'share_confirmed' => FALSE,
     ];
     return $typeMap[$actionType];
   }
