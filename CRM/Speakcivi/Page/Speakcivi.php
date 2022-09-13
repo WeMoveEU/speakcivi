@@ -80,15 +80,6 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $result = 1;
       } else if ($activityType == NULL) {
         $result = -1;
-      } else if ($activityType == 'Survey') {
-        //Temporary storage in queue, until desired logic is implemented
-        //Very inefficient connection management, but c.f. above line
-        $client = new CRM_Rabbitizen_Client();
-        $connection = $client->connect();
-        $channel = $connection->channel();
-        $msg = new AMQPMessage(json_encode($param));
-        $channel->basic_publish($msg, '', 'speakout_survey_responses');
-        $result = 1;
       } else {
         CRM_Speakcivi_Tools_Helper::trimVariables($param);
         $this->setDefaults();
@@ -100,7 +91,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
         $campaignCache = new CRM_WeAct_CampaignCache(Civi::cache(), new \GuzzleHttp\Client());
         $this->campaignObj = new CRM_Speakcivi_Logic_Campaign();
         $speakoutDomain = $this->campaignObj->determineSpeakoutDomain($param->action_technical_type);
-        $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id);
+        $external_system = $this->isSurvey($param->action_type) ? 'speakout_survey' : 'speakout';
+        $this->campaignObj->campaign = $campaignCache->getOrCreateSpeakout("https://$speakoutDomain", $param->external_id, $external_system);
         if ($this->campaignObj->isValidCampaign($this->campaignObj->campaign)) {
           $this->campaignId = (int)$this->campaignObj->campaign['id'];
           $this->locale = $this->campaignObj->getLanguage();
@@ -415,6 +407,16 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     return civicrm_api3('Contribution', 'create', $params);
   }
 
+  /**
+   * Check whether this message is poll/survey
+   *
+   * @param string $actionType
+   *
+   * @return bool
+   */
+  private function isSurvey(string $actionType): bool {
+    return $actionType == 'poll';
+  }
 
   /**
    * Determine members group id based on campaign type.
@@ -908,6 +910,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   private function determineDetails($param) {
     $details = NULL;
+    if ($this->isSurvey($param->action_type)) {
+      return CRM_Speakcivi_Logic_Survey::prepareDetails($param);
+    }
     if (property_exists($param, 'comment') && $param->comment != '') {
       $details = trim($param->comment);
     }

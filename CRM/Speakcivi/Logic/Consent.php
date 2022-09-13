@@ -78,6 +78,12 @@ class CRM_Speakcivi_Logic_Consent {
         return self::STATUS_ACCEPTED;
       }
     }
+    // level/status not_provided can be set not only by empty $consents, but also by explicit value equals not_provided
+    foreach ($consents as $consent) {
+      if ($consent->level == self::STATUS_NOTPROVIDED) {
+        return self::STATUS_NOTPROVIDED;
+      }
+    }
 
     return self::STATUS_REJECTED;
   }
