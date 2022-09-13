@@ -33,12 +33,14 @@ class CRM_Speakcivi_Tools_Helper {
     foreach ($param as $key => $value) {
       if (is_object($value)) {
         self::trimVariables($value);
-      } elseif (is_array($value)) {
-        foreach($value as $k => $v) {
-          self::trimVariables($v);
-        }
       } elseif (is_string($value)) {
-        $param->$key = self::clean($value, $key);
+        if (is_array($param)) {
+          $param[$key] = self::clean($value, $key);
+        } else {
+          $param->$key = self::clean($value, $key);
+        }
+      } elseif (is_array($value)) {
+        self::trimVariables($value);
       }
     }
   }

@@ -895,7 +895,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
       'details' => $this->determineDetails($param),
     );
     $sourceParams = CRM_Speakcivi_Logic_Activity::getSourceFields(@$param->source);
-    $shareParams = CRM_Speakcivi_Logic_Activity::getShareFields(@$param->metadata->tracking_codes);
+    $shareParams = CRM_Speakcivi_Logic_Activity::getShareFields(isset($param->metadata) ? @$param->metadata->tracking_codes : NULL);
     $params = array_merge($params, $sourceParams, $shareParams);
     return CRM_Speakcivi_Logic_Activity::setActivity($params);
   }
