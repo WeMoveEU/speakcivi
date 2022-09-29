@@ -472,10 +472,9 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
           return $result['values'][$result['id']];
         }
       } elseif ($result['count'] > 1) {
-        $lastname = $this->cleanLastname($h->lastname);
         $newContact = $contact;
-        $newContact['first_name'] = $h->firstname;
-        $newContact['last_name'] = $lastname;
+        $newContact['first_name'] = $this->cleanName($h->firstname);
+        $newContact['last_name'] = $this->cleanLastname($h->lastname);
         $similarity = $this->glueSimilarity($newContact, $result['values']);
         unset($newContact);
         $contactIdBest = $this->chooseBestContact($similarity);
@@ -595,7 +594,14 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
    */
   function cleanLastname($lastname) {
     $re = "/(.*)(\\[.*\\])$/";
-    return trim(preg_replace($re, '${1}', $lastname));
+    return $this->cleanName(preg_replace($re, '${1}', $lastname));
+  }
+
+  /**
+   * Trim and capitalise the initial
+   */
+  function cleanName($name) {
+    return ucfirst(trim($name));
   }
 
 
@@ -630,7 +636,7 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     if (is_array($existingContact) && count($existingContact) > 0) {
       $contact['id'] = $existingContact['id'];
       if ($existingContact['first_name'] == '' && $h->firstname) {
-        $contact['first_name'] = $h->firstname;
+        $contact['first_name'] = $this->cleanName($h->firstname);
       }
       if ($existingContact['last_name'] == '' && $h->lastname) {
         $lastname = $this->cleanLastname($h->lastname);
@@ -647,9 +653,8 @@ class CRM_Speakcivi_Page_Speakcivi extends CRM_Core_Page {
     } else {
       $genderId = $this->getGenderId($h->lastname);
       $genderShortcut = $this->getGenderShortcut($h->lastname);
-      $lastname = $this->cleanLastname($h->lastname);
-      $contact['first_name'] = $h->firstname;
-      $contact['last_name'] = $lastname;
+      $contact['first_name'] = $this->cleanName($h->firstname);
+      $contact['last_name'] = $this->cleanLastname($h->lastname);
       $contact['gender_id'] = $genderId;
       $contact['prefix_id'] = CRM_WeAct_Dictionary::getPrefix($genderShortcut);
       $dict = new CRM_WeAct_Dictionary();
