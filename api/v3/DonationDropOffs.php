@@ -16,6 +16,12 @@ function civicrm_api3_donation_drop_offs_abandons($params) {
   CRM_Core_Error::debug_log_message(
     "[speakcivi.shopping_cart_abandons] Creating group for Donate drop offs");
 
+  // Haven't donated in X - below is didn't donate after a click
+  //
+  // LEFT JOIN civicrm_contribution gave ON (contact.id = gave.contact_id AND gave.receive_date > NOW() - {$interval})
+  // LEFT JOIN civicrm_contribution gave_recur ON (contact.id = gave_recur.contact_id AND gave_recur.receive_date > NOW() - {$interval})
+
+
    $dao = CRM_Core_DAO::executeQuery( <<<SQL
 SELECT DISTINCT email.contact_id,
     civicrm_mailing.id mailing_id
@@ -24,18 +30,21 @@ FROM civicrm_mailing
         civicrm_mailing.campaign_id = civicrm_campaign.id
     )
     JOIN civicrm_mailing_trackable_url url ON (url.mailing_id = civicrm_mailing.id)
-    JOIN civicrm_mailing_event_trackable_url_open click ON (click.trackable_url_id = url.id)
+    JOIN civicrm_mailing_event_trackable_url_open click ON (
+      click.trackable_url_id = url.id
+      AND url.url NOT LIKE '%optout%'
+      AND url.url NOT LIKE '%unsubscribe%'
+    )
     JOIN civicrm_mailing_event_queue send ON (send.id = event_queue_id)
     JOIN civicrm_contact contact ON (send.contact_id = contact.id)
     JOIN civicrm_email email ON (email.contact_id = contact.id)
-    LEFT JOIN civicrm_contribution gave ON (contact.id = gave.contact_id AND gave.receive_date > NOW() - {$interval})
-    LEFT JOIN civicrm_contribution gave_recur ON (contact.id = gave_recur.contact_id AND gave_recur.receive_date > NOW() - {$interval})
-
+    LEFT JOIN civicrm_contribution gave ON (contact.id = gave.contact_id AND gave.receive_date > click.time_stamp)
+    LEFT JOIN civicrm_contribution_recur gave_recur ON (contact.id = gave_recur.contact_id AND gave_recur.create_date > click.time_stamp)
 WHERE civicrm_campaign.title like 'Fundraising%'
-
-    AND civicrm_mailing.scheduled_date > NOW() - {$interval}
+    AND click.time_stamp > NOW() - {$interval}
     AND gave.id IS NULL
     AND gave_recur.id IS NULL
+
 SQL
     );
 
