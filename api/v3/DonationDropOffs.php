@@ -4,7 +4,7 @@
  * Create a gorup of people who clicked on a fundraiser, but didn't donate.
  *
  */
-function civicrm_api3_speakcivi_abandons($params) {
+function civicrm_api3_donation_drop_offs_abandons($params) {
 
 
   $interval = 'INTERVAL 24 HOUR';
