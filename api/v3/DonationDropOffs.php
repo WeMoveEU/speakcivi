@@ -39,7 +39,16 @@ WHERE civicrm_campaign.title like 'Fundraising%'
 SQL
     );
 
-    $group_name = $date = date('Y-m-d'); + " Donate Drop-offs";
+    $contacts = array();
+    while ($dao->fetch()) {
+      array_push( $contacts, $dao->contact_id);
+    }
+
+    if (count($contacts) == 0) {
+      return civicrm_api3_create_success("Nobody found.");
+    }
+
+    $group_name = date('Y-m-d') + " Donate Drop-offs";
     $existing = civicrm_api3('Group', 'get', array("title" => $group_name));
     if ($existing['count'] == 1) {
       // CRM_Core_Error::debug_log_message(json_encode($existing));
@@ -56,15 +65,15 @@ SQL
       $group_id = (int) $result['id'];
     }
 
-
     # stuff all the member ids into an array, hope there aren't too many!!
-    $contacts = array();
-    while ($dao->fetch()) {
-      $contacts[] = "(" . $dao->contact_id  . ",$group_id,'Added')";
+    $insert_contacts = array();
+    foreach ($contacts as $contact_id) {
+      $insert_contacts[] = "(" . $contact_id  . ",$group_id,'Added')";
     }
 
+
     # insert the new members into the new group
-    $values = implode(",", $contacts);
+    $values = implode(",", $insert_contacts);
     $insert = <<<SQL
             INSERT IGNORE INTO civicrm_group_contact
             (contact_id, group_id, status)
