@@ -10,7 +10,7 @@ function civicrm_api3_donation_drop_offs_abandons($params) {
   $interval = 'INTERVAL 24 HOUR';
 
   if (array_key_exists('interval', $params)) {
-    $interval = $params['interval'];
+    $interval = str_replace('_', ' ', $params['interval']);
   }
 
   CRM_Core_Error::debug_log_message(
