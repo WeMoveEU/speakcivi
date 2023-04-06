@@ -57,7 +57,7 @@ SQL
       return civicrm_api3_create_success("Nobody found.");
     }
 
-    $group_name = date('Y-m-d') . " Donate Drop-offs";
+    $group_name = "zzz-temp-" . date('Y-m-d') . " Donate Drop-offs";
     $existing = civicrm_api3('Group', 'get', array("title" => $group_name));
     if ($existing['count'] == 1) {
       // CRM_Core_Error::debug_log_message(json_encode($existing));
